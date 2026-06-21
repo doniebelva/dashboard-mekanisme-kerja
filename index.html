@@ -303,17 +303,17 @@ function taskTable(tasks){if(!tasks||!tasks.length)return '<div class="empty">Ti
 function skorCell(s){if(s==null)return '<span class="mini">-</span>';return `<span class="skor"><span class="sb"><span class="sf" style="width:${Math.max(3,s)}%;background:${skorColor(s)}"></span></span>${s}</span>`;}
 
 const NAV=[
- {grp:'Eksekutif',items:[{v:'ringkasan',ic:'📊',lab:'Dashboard Pimpinan'},{v:'analisis',ic:'📈',lab:'Analisis Kinerja'}]},
+ {grp:'Eksekutif',items:[{v:'ringkasan',ic:'📊',lab:'Dashboard Pimpinan'},{v:'analisis',ic:'📈',lab:'Analisis Kinerja'},{v:'insight',ic:'🚨',lab:'Insight & Rekomendasi'}]},
  {grp:'Analitik',items:[{v:'timanalitik',ic:'🏆',lab:'Tim Analitik'},{v:'people',ic:'🧑‍💼',lab:'People Analytics'},{v:'heatmap',ic:'🔥',lab:'Heatmap Adopsi'},{v:'beban',ic:'⚖️',lab:'Beban Kerja'}]},
  {grp:'Jelajah',items:[{v:'struktur',ic:'🌳',lab:'Struktur Unit'},{v:'tim',ic:'👥',lab:'Penjelajah Tim'},{v:'pegawai',ic:'🧑',lab:'Penjelajah Pegawai'},{v:'keahlian',ic:'🧠',lab:'Keahlian (Expert Locator)'},{v:'avail',ic:'🟢',lab:'Ketersediaan Pegawai'}]},
 ];
 let state={view:'ringkasan',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
-  timSort:{k:'skor',d:-1},pegSort:{k:'jml_tim',d:-1},timQ:'',timUE1:'',timStat:'',timAktif:'',pegQ:'',pegUE1:'',avQ:'',avUE1:'',avStat:'',skill:null,skillStat:''};
+  timSort:{k:'skor',d:-1},pegSort:{k:'jml_tim',d:-1},timQ:'',timUE1:'',timStat:'',timAktif:'',pegQ:'',pegUE1:'',avQ:'',avUE1:'',avStat:'',skill:null,skillStat:'',insCat:''};
 
 function renderNav(){let h='';NAV.forEach(g=>{h+=`<div class="grp-lab">${g.grp}</div>`;
   g.items.forEach(i=>{h+=`<div class="nav-i ${state.view===i.v?'active':''}" data-act="nav" data-view="${i.v}"><span class="ic">${i.ic}</span><span class="lab">${i.lab}</span></div>`;});});
   document.getElementById('nav').innerHTML=h;}
-const VT={ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Kerja',
+const VT={ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Kerja',
   struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai'};
 
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
@@ -350,6 +350,66 @@ function vRingkasan(){
   if(zero.length)zero.forEach(u=>h+=`<div class="gap-row"><span class="clk" data-act="ue1" data-ue1="${esc(u.k)}" style="cursor:pointer;color:var(--brand);font-weight:600">${esc(u.k)}</span><span><b>${u.jml_tim}</b> tim &middot; <span class="pill off">0% aktif</span></span></div>`);
   else h+=`<div class="empty">Tidak ada.</div>`;
   return h+`</div>`;
+}
+
+/* ===== Insight & Rekomendasi ===== */
+function vInsight(){
+  const today=Date.parse((DATA.summary&&DATA.summary.tanggal_olah)||'2026-06-21');
+  const F=[];
+  const add=(sev,cat,judul,bukti,rekom,act)=>F.push({sev,cat,judul,bukti,rekom,act});
+  const topBucket=(t,key)=>{let b=null;(t.buckets||[]).forEach(x=>{if(x[key]>0&&(!b||x[key]>b[key]))b=x;});return b;};
+  const busiest=(t)=>{let m=null;(t.anggota||[]).forEach(x=>{if(!m||(x.jml_task||0)>(m.jml_task||0))m=x;});return m;};
+  const unitOntime=(t)=>{const u2=DATA.ue2[t.ue1+'||'+t.ue2],u1=DATA.ue1[t.ue1];const tp=(u2&&u2.telat_pct!=null)?u2.telat_pct:(u1?u1.telat_pct:null);return tp==null?null:{pct:100-tp,nama:(u2&&u2.telat_pct!=null)?t.ue2:t.ue1};};
+  DATA.teams.forEach((t,i)=>{const tk=t.task;if(!tk)return;
+    const A=`data-act="team" data-team="${i}"`;
+    const done=tk.selesai_tepat+tk.telat;const comp=Math.round(100*done/Math.max(1,tk.total));
+    if(tk.overdue>=5 && tk.overdue/tk.total>=0.2){
+      const b=topBucket(t,'overdue');
+      const rk=b?`Overdue terpusat di bucket "${esc(b.nama)}" (${b.overdue} dari ${b.total} task). Prioritaskan bucket itu, tetapkan PIC, dan jadwalkan ulang tenggat yang realistis.`:'Jadwalkan ulang task yang lewat tenggat dan tetapkan PIC penanggung jawab.';
+      add(tk.overdue>=20?'tinggi':'sedang','Overdue',t.nama,`${tk.overdue} task lewat tenggat (${Math.round(100*tk.overdue/tk.total)}% dari ${tk.total} task)`,rk,A);}
+    if(t.tepat_pct!=null && t.tepat_pct<50 && done>=10){
+      const u=unitOntime(t);const m=busiest(t);
+      const rk=`${u?`Ketepatan ${t.tepat_pct}% vs rata-rata ${esc(u.nama)} ${u.pct}%. `:''}Evaluasi estimasi waktu & beban${m?`; beban terberat di ${esc(m.nama)} (${m.jml_task} task)`:''}; perkuat monitoring mingguan.`;
+      add(t.tepat_pct<30?'tinggi':'sedang','Ketepatan',t.nama,`hanya ${t.tepat_pct}% selesai tepat waktu (dari ${done} task selesai)`,rk,A);}
+    else if(t.skor!=null && t.skor<40 && tk.total>=8){
+      const m=busiest(t);
+      add('sedang','Skor rendah',t.nama,`skor indikatif ${t.skor} (penyelesaian ${comp}%, ketepatan ${t.tepat_pct==null?'-':t.tepat_pct+'%'})`,`Dampingi penyelesaian & cek pembagian beban ${t.jml_anggota} anggota${m?` (terberat: ${esc(m.nama)}, ${m.jml_task} task)`:''}.`,A);}
+    if(tk.belum_mulai>=10 && tk.belum_mulai/tk.total>=0.4){
+      const b=topBucket(t,'belum');
+      add('sedang','Stagnan',t.nama,`${tk.belum_mulai} task belum dimulai (${Math.round(100*tk.belum_mulai/tk.total)}%)`,`${(b&&b.belum>=3)?`Terbanyak tertahan di bucket "${esc(b.nama)}" (${b.belum} belum mulai). `:''}Tetapkan PIC tiap task dan bagi ke ${t.jml_anggota} anggota agar mulai berjalan.`,A);}
+    if(t.selesai){const days=Math.round((Date.parse(t.selesai)-today)/86400000);
+      if(days>=0 && days<=30 && comp<60){
+        const sisa=tk.belum_selesai;const perHari=days>0?Math.ceil(sisa/days):sisa;
+        add('tinggi','Tenggat dekat',t.nama,`periode berakhir ${days} hari lagi, progres baru ${comp}% (sisa ${sisa} task)`,`Perlu rata-rata ~${perHari} task/hari untuk tuntas. Fokuskan ke prioritas tinggi, pertimbangkan tambah anggota atau revisi target/SK.`,A);}}
+  });
+  Object.keys(DATA.ue1).forEach(k=>{const u=DATA.ue1[k];
+    if(u.tim_aktif===0 && u.jml_tim>=5){
+      const pel=(u.status&&u.status['Pelaksanaan'])||0;
+      add('sedang','Adopsi',k,`${u.jml_tim} tim & ${u.pegawai_unik} pegawai, namun 0% aktif di submodul penugasan`,`Mulai aktivasi dari ${pel||u.jml_tim} tim berstatus Pelaksanaan; tetapkan target pencatatan penugasan per tim.`,`data-act="ue1" data-ue1="${esc(k)}"`);}});
+  DATA.pegawai.forEach(p=>{if(p.jml_tim>=3 && p.perf && p.perf.overdue>=3)
+    add('sedang','Beban',p.nama,`tergabung di ${p.jml_tim} tim, ${p.perf.overdue} task overdue, ketepatan ${p.perf.tepat_pct==null?'-':p.perf.tepat_pct+'%'}`,`Beban di atas wajar (${p.jml_tim} tim). Pertimbangkan kurangi keanggotaan atau redistribusi task ke rekan dengan beban lebih ringan.`,`data-act="emp" data-emp="${p.id}"`);});
+  const rank={tinggi:0,sedang:1,info:2};F.sort((a,b)=>rank[a.sev]-rank[b.sev]);
+  let rows=F;if(state.insCat)rows=rows.filter(x=>x.cat===state.insCat);
+  const nT=F.filter(x=>x.sev==='tinggi').length,nS=F.filter(x=>x.sev==='sedang').length;
+  const cats=[...new Set(F.map(x=>x.cat))];
+  const sevPill={tinggi:'off',sedang:'warn',info:'blue'},sevTxt={tinggi:'Prioritas Tinggi',sedang:'Perlu Perhatian',info:'Info'};
+  let h=`<div class="kpis">
+    <div class="kpi"><div class="lab">Total Temuan</div><div class="val">${F.length}</div><div class="note">dari data tim &amp; penugasan</div></div>
+    <div class="kpi alert"><div class="lab">Prioritas Tinggi</div><div class="val">${nT}</div></div>
+    <div class="kpi gold"><div class="lab">Perlu Perhatian</div><div class="val">${nS}</div></div>
+    <div class="kpi good"><div class="lab">Tim Aktif Dipindai</div><div class="val">${DATA.teams.filter(t=>t.punya_task).length}</div></div></div>
+  <div class="note-box">Temuan dihasilkan otomatis dari aturan ambang (overdue, ketepatan, skor, stagnasi, tenggat, adopsi, beban). Sifatnya indikatif untuk membantu prioritas tindak lanjut, bukan penilaian final.</div>
+  <div class="toolbar"><select class="flt" id="insCat"><option value="">Semua kategori</option>${cats.map(c=>`<option ${state.insCat===c?'selected':''}>${esc(c)}</option>`).join('')}</select><span class="mini">${rows.length} temuan ditampilkan</span></div>`;
+  if(!rows.length){h+=`<div class="card"><div class="empty">Tidak ada potensi masalah terdeteksi untuk lingkup ini. 👍</div></div>`;return h;}
+  rows.slice(0,60).forEach(x=>{const col=x.sev==='tinggi'?'var(--red)':x.sev==='sedang'?'var(--gold2)':'var(--brand)';
+    h+=`<div class="card" style="display:flex;gap:13px;align-items:flex-start;border-left:4px solid ${col};margin-bottom:11px;padding:13px 16px">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px"><span class="pill ${sevPill[x.sev]}">${sevTxt[x.sev]}</span><span class="pill neu">${esc(x.cat)}</span><span class="link" ${x.act} style="font-weight:700">${esc(x.judul)}</span></div>
+        <div class="mini" style="margin-bottom:5px">${esc(x.bukti)}</div>
+        <div style="font-size:12.5px;color:#33415a"><b style="color:var(--brand-d)">Rekomendasi:</b> ${esc(x.rekom)}</div>
+      </div></div>`;});
+  if(rows.length>60)h+=`<div class="mini" style="padding:6px">Menampilkan 60 dari ${rows.length} temuan.</div>`;
+  return h;
 }
 
 /* ===== helper grafik garis ===== */
@@ -742,7 +802,7 @@ function vEmp(){
 
 function renderCrumb(){
   const c=[];const v=state.view;
-  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap',beban:'Beban Kerja',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai'}[v];
+  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Kerja',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
     if(['unit1','unit2','team'].includes(v))c.push(`<a data-act="nav" data-view="struktur">Struktur</a>`);
@@ -759,7 +819,7 @@ function renderCrumb(){
 }
 function render(){
   renderNav();document.getElementById('vtitle').textContent=VT[state.view]||'';renderCrumb();
-  const map={ringkasan:vRingkasan,analisis:vAnalisis,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp};
+  const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp};
   document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))();
   window.scrollTo({top:0});bindInputs();
 }
@@ -773,7 +833,7 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('avQ'))q('avQ').oninput=e=>{state.avQ=e.target.value;rerenderKeep(vAvail,'avQ');};
   if(q('avStat'))q('avStat').onchange=e=>{state.avStat=e.target.value;render();};
   if(q('avUE1'))q('avUE1').onchange=e=>{state.avUE1=e.target.value;render();};
-  if(q('skStat'))q('skStat').onchange=e=>{state.skillStat=e.target.value;render();};}
+  if(q('skStat'))q('skStat').onchange=e=>{state.skillStat=e.target.value;render();};if(q('insCat'))q('insCat').onchange=e=>{state.insCat=e.target.value;render();};}
 function rerenderKeep(fn,fid){const el=document.getElementById(fid);const pos=el?el.selectionStart:null;
   document.getElementById('view').innerHTML=fn();bindInputs();const n=document.getElementById(fid);if(n){n.focus();if(pos!=null)n.setSelectionRange(pos,pos);}}
 
