@@ -249,6 +249,11 @@ tbody tr:hover{background:#f3f8ff}
 const FULL = {"summary":{"tanggal_olah":"","task":{"anomali":0,"tak_terukur":0}},"teams":[],"pegawai":[],"ue1":{},"ue2":{},"trend":[],"trend_ue1":{},"trend_ue2":{},"skills_catalog":[]};
 let DATA = FULL;
 const ACCOUNTS = [];
+/* Uraian Jabatan: LOKAL terisi inline; REMOTE null lalu di-fetch lewat gerbang saat menu dibuka */
+let URJAB=null;const URJAB_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?urjab=1';
+async function loadUrjab(){if(URJAB)return URJAB;const r=await fetch(URJAB_URL);URJAB=await r.json();return URJAB;}
+function ensureUrjab(){if(URJAB||state.urjabLoading)return;state.urjabLoading=true;state.urjabErr=false;
+  loadUrjab().then(()=>{state.urjabLoading=false;render();}).catch(()=>{state.urjabLoading=false;state.urjabErr=true;render();});}
 function scopeData(sc){
   if(sc.type==='all') return FULL;
   const inT = t => sc.type==='ue1' ? t.ue1===sc.ue1 : (t.ue1===sc.ue1 && t.ue2===sc.ue2);
@@ -306,15 +311,18 @@ const NAV=[
  {grp:'Eksekutif',items:[{v:'ringkasan',ic:'📊',lab:'Dashboard Pimpinan'},{v:'analisis',ic:'📈',lab:'Analisis Kinerja'},{v:'insight',ic:'🚨',lab:'Insight & Rekomendasi'}]},
  {grp:'Analitik',items:[{v:'timanalitik',ic:'🏆',lab:'Tim Analitik'},{v:'people',ic:'🧑‍💼',lab:'People Analytics'},{v:'heatmap',ic:'🔥',lab:'Heatmap Adopsi'},{v:'beban',ic:'⚖️',lab:'Beban Kerja'}]},
  {grp:'Jelajah',items:[{v:'struktur',ic:'🌳',lab:'Struktur Unit'},{v:'tim',ic:'👥',lab:'Penjelajah Tim'},{v:'pegawai',ic:'🧑',lab:'Penjelajah Pegawai'},{v:'keahlian',ic:'🧠',lab:'Keahlian (Expert Locator)'},{v:'avail',ic:'🟢',lab:'Ketersediaan Pegawai'}]},
+ {grp:'URJAB',items:[{v:'urjab',ic:'📚',lab:'Repositori'},{v:'urjabanalisis',ic:'📊',lab:'Analisis URJAB'},{v:'urjabinsight',ic:'🚨',lab:'Insight & Rekomendasi'},{v:'urjabcompare',ic:'🆚',lab:'Komparasi Jabatan'}]},
 ];
 let state={view:'ringkasan',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
-  timSort:{k:'skor',d:-1},pegSort:{k:'jml_tim',d:-1},timQ:'',timUE1:'',timStat:'',timAktif:'',pegQ:'',pegUE1:'',avQ:'',avUE1:'',avStat:'',skill:null,skillStat:'',insCat:''};
+  timSort:{k:'skor',d:-1},pegSort:{k:'jml_tim',d:-1},timQ:'',timUE1:'',timStat:'',timAktif:'',pegQ:'',pegUE1:'',avQ:'',avUE1:'',avStat:'',skill:null,skillStat:'',insCat:'',
+  urjabQ:'',urjabEs1:'',urjabEs2:'',urjabEs3:'',urjabEs4:'',urjabJab:null,urjabLoading:false,urjabErr:false,
+  urjabAnUE1:'',urjabInsSev:'',urjabInsCat:'',urjabCmpA:'',urjabCmpB:''};
 
 function renderNav(){let h='';NAV.forEach(g=>{h+=`<div class="grp-lab">${g.grp}</div>`;
   g.items.forEach(i=>{h+=`<div class="nav-i ${state.view===i.v?'active':''}" data-act="nav" data-view="${i.v}"><span class="ic">${i.ic}</span><span class="lab">${i.lab}</span></div>`;});});
   document.getElementById('nav').innerHTML=h;}
 const VT={ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Kerja',
-  struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai'};
+  struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Uraian Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis URJAB',urjabinsight:'Insight & Rekomendasi URJAB',urjabcompare:'Komparasi Jabatan'};
 
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
   const a=act?`data-act="${act.a}" ${act.d||''}`:'';
@@ -645,6 +653,198 @@ function vSkill(){
   list.slice(0,400).forEach(o=>{const p=o.p;h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.nip)}</td><td class="mini">${esc(p.ue1)}</td><td>${availPill(o.st)}</td><td class="num-c">${o.n}</td><td class="num-c">${p.jml_tim}</td><td class="num-c">${p.perf&&p.perf.tepat_pct!=null?p.perf.tepat_pct+'%':'-'}</td></tr>`;});
   return h+`</tbody></table>${list.length>400?'<div class="mini" style="padding:8px">Menampilkan 400 dari '+list.length+'.</div>':''}</div>`;}
 
+/* ===== Repositori Uraian Jabatan (referensi ANJAB, lazy-load) ===== */
+const ES_LBL={1:'Eselon I',2:'Eselon II',3:'Eselon III',4:'Eselon IV'};
+function esTag(e){return e?`<span class="pill ${e<=2?'blue':e===3?'neu':'on'}">${ES_LBL[e]}</span>`:'<span class="pill neu">Fungsional/Pelaksana</span>';}
+function vUrjab(){
+  if(state.urjabErr)return '<div class="empty">Gagal memuat repositori uraian jabatan. Periksa koneksi lalu buka menu ini lagi.</div>';
+  if(!URJAB||state.urjabLoading)return '<div class="empty">Memuat repositori uraian jabatan (sekitar 7 MB), mohon tunggu...</div>';
+  const meta=URJAB.meta||{};const all=URJAB.jabatan||[];
+  const units=[...new Set(all.map(j=>j.unit_kode))].sort();
+  const totTugas=all.reduce((s,j)=>s+(j.uraian_tugas||[]).length,0);
+  // ---- filter bertingkat ES1 -> ES2 -> ES3 -> ES4 (anak direset saat induk berubah, ditangani di bindInputs) ----
+  const e1=state.urjabEs1,e2=state.urjabEs2,e3=state.urjabEs3,e4=state.urjabEs4;
+  const uniq=(arr)=>[...new Set(arr)].sort((a,b)=>a.localeCompare(b,'id'));
+  const es2opts=e1?uniq(all.filter(j=>j.unit_kode===e1&&j.lvl2).map(j=>j.lvl2)):[];
+  const es3opts=(e1&&e2)?uniq(all.filter(j=>j.unit_kode===e1&&j.lvl2===e2&&j.lvl3).map(j=>j.lvl3)):[];
+  const es4opts=(e1&&e2&&e3)?uniq(all.filter(j=>j.unit_kode===e1&&j.lvl2===e2&&j.lvl3===e3&&j.lvl4).map(j=>j.lvl4)):[];
+  // scoped = hasil filter eselon (untuk KPI); rows = scoped + pencarian teks (untuk daftar & "Hasil Tampil")
+  let scoped=all.map((j,i)=>({j,i}));
+  if(e1)scoped=scoped.filter(o=>o.j.unit_kode===e1);
+  if(e2)scoped=scoped.filter(o=>o.j.lvl2===e2);
+  if(e3)scoped=scoped.filter(o=>o.j.lvl3===e3);
+  if(e4)scoped=scoped.filter(o=>o.j.lvl4===e4);
+  let rows=scoped;
+  if(state.urjabQ){const q=state.urjabQ.toLowerCase();rows=scoped.filter(o=>{const j=o.j;
+    return j.jabatan.toLowerCase().includes(q)||(j.ikhtisar||'').toLowerCase().includes(q)||(j.uraian_tugas||[]).some(t=>t.toLowerCase().includes(q));});}
+  rows=rows.slice().sort((a,b)=>(a.j.eselon||9)-(b.j.eselon||9)||a.j.jabatan.localeCompare(b.j.jabatan,'id'));
+  const filtered=!!(e1||e2||e3||e4);
+  const scopedTugas=scoped.reduce((s,o)=>s+(o.j.uraian_tugas||[]).length,0);
+  const scopedFiles=new Set(scoped.map(o=>o.j.sumber)).size;
+  const cntU={};all.forEach(j=>cntU[j.unit_kode]=(cntU[j.unit_kode]||0)+1);
+  const opt=(arr,cur)=>arr.map(u=>`<option value="${esc(u)}" ${cur===u?'selected':''}>${esc(u)}</option>`).join('');
+  let h=`<div class="kpis">
+    <div class="kpi"><div class="lab">Total Jabatan</div><div class="val">${fmt(scoped.length)}</div><div class="note">${filtered?'dari '+fmt(all.length)+' jabatan':units.length+' unit Eselon I'}</div></div>
+    <div class="kpi gold"><div class="lab">Butir Uraian Tugas</div><div class="val">${fmt(scopedTugas)}</div>${filtered?`<div class="note">dari ${fmt(totTugas)}</div>`:''}</div>
+    <div class="kpi good"><div class="lab">Sumber File ANJAB</div><div class="val">${fmt(filtered?scopedFiles:(meta.jumlah_file||scopedFiles))}</div>${filtered?`<div class="note">dari ${fmt(meta.jumlah_file||0)}</div>`:''}</div>
+    <div class="kpi"><div class="lab">Hasil Tampil</div><div class="val">${fmt(rows.length)}</div>${state.urjabQ?'<div class="note">cocok pencarian</div>':''}</div></div>
+  <div class="note-box">Repositori referensi uraian jabatan (ANJAB) resmi dari sembilan unit Eselon I. Bersifat rujukan jabatan, tidak terkait pegawai atau NIP. Gunakan filter bertingkat (Eselon I &rarr; II &rarr; III &rarr; IV) untuk menelusuri struktur, atau ketik kata kunci. Jenjang dan jalur unit direkonstruksi dari nama jabatan dan urutan dokumen ANJAB. Klik kartu untuk rincian lengkap.</div>
+  <div class="toolbar">
+    <input class="search" id="urjabQ" placeholder="Cari jabatan / ikhtisar / isi tugas..." value="${esc(state.urjabQ)}">
+    <select class="flt" id="urjabEs1"><option value="">Semua Eselon I</option>${units.map(u=>`<option value="${esc(u)}" ${e1===u?'selected':''}>${esc(u)} (${cntU[u]})</option>`).join('')}</select>`;
+  if(es2opts.length)h+=`<select class="flt" id="urjabEs2"><option value="">Semua Eselon II (${es2opts.length})</option>${opt(es2opts,e2)}</select>`;
+  if(es3opts.length)h+=`<select class="flt" id="urjabEs3"><option value="">Semua Eselon III (${es3opts.length})</option>${opt(es3opts,e3)}</select>`;
+  if(es4opts.length)h+=`<select class="flt" id="urjabEs4"><option value="">Semua Eselon IV (${es4opts.length})</option>${opt(es4opts,e4)}</select>`;
+  h+=`<span class="mini">${rows.length} jabatan</span></div>
+  <div class="grid3">`;
+  rows.slice(0,300).forEach(o=>{const j=o.j;
+    h+=`<div class="card" style="cursor:pointer" data-act="urjabopen" data-idx="${o.i}">
+      <div style="font-weight:700;color:var(--brand-d);font-size:13.5px;min-height:38px">${esc(j.jabatan)}</div>
+      <div style="margin:6px 0;display:flex;flex-wrap:wrap;gap:5px;align-items:center"><span class="tag">${esc(j.unit_kode)}</span>${esTag(j.eselon)}<span class="mini">${(j.uraian_tugas||[]).length} uraian tugas</span></div>
+      <div class="mini" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(j.ikhtisar||'Tanpa ikhtisar.')}</div></div>`;});
+  return h+`</div>${rows.length>300?'<div class="mini" style="padding:8px">Menampilkan 300 dari '+fmt(rows.length)+' jabatan. Persempit dengan pencarian atau filter eselon.</div>':''}`;
+}
+function vUrjabDetail(){
+  if(!URJAB)return '<div class="empty">-</div>';
+  const j=(URJAB.jabatan||[])[state.urjabJab];
+  if(!j)return '<div class="empty">Jabatan tidak ditemukan.</div>';
+  const sec=(title,val)=>val?`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">${title}</h2><div style="font-size:13.5px;line-height:1.6">${esc(val)}</div></div>`:'';
+  const lst=(title,arr)=>arr&&arr.length?`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">${title} <span class="mini">(${arr.length})</span></h2><ol style="margin:0;padding-left:20px;font-size:13.5px;line-height:1.6">${arr.map(x=>`<li style="margin-bottom:5px">${esc(x)}</li>`).join('')}</ol></div>`:'';
+  const pathParts=[j.ue1,j.lvl2,j.lvl3,j.lvl4].filter(Boolean);
+  let h=`<div style="margin-bottom:10px"><span class="tag" data-act="nav" data-view="urjab" style="cursor:pointer">&larr; Kembali ke repositori</span></div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:18px;font-weight:800;color:var(--brand-d)">${esc(j.jabatan)}</div>
+    <div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:6px;align-items:center"><span class="tag">${esc(j.unit_kode)}</span>${esTag(j.eselon)}</div>
+    <div class="mini" style="margin-top:7px">${pathParts.map(esc).join(' &rsaquo; ')}</div>
+    ${j.kualifikasi?`<div class="mini" style="margin-top:5px">Kualifikasi: ${esc(j.kualifikasi)}</div>`:''}
+    <div class="mini" style="margin-top:5px">Sumber: ${esc(j.sumber)}</div></div>`;
+  h+=sec('Ikhtisar Jabatan',j.ikhtisar);
+  h+=sec('Tujuan Jabatan',j.tujuan);
+  h+=lst('Cluster Tusi',j.cluster_tusi);
+  h+=lst('Uraian Tugas',j.uraian_tugas);
+  h+=lst('Hasil Kerja',j.hasil_kerja);
+  h+=lst('Wewenang',j.wewenang);
+  h+=lst('Tanggung Jawab',j.tanggung_jawab);
+  h+=lst('Syarat Jabatan',j.syarat);
+  return h;
+}
+
+/* ===== Modul URJAB: helper analitik ===== */
+function uAvg(a){return a.length?a.reduce((s,x)=>s+x,0)/a.length:0;}
+const U_STOP={dan:1,'di':1,ke:1,dari:1,yang:1,untuk:1,pada:1,dengan:1,atau:1,dalam:1,serta:1,atas:1,oleh:1,sebagai:1,kepada:1,secara:1,guna:1,agar:1,bagi:1,para:1,antara:1,melalui:1,terhadap:1,dll:1,dsb:1,yaitu:1};
+function uTok(s){const o={};String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).forEach(w=>{if(w.length>3&&!U_STOP[w])o[w]=1;});return o;}
+function uJac(a,b){const ka=Object.keys(a),kb=Object.keys(b);if(!ka.length||!kb.length)return 0;let i=0;ka.forEach(x=>{if(b[x])i++;});return i/(ka.length+kb.length-i);}
+const U_ESCOL={1:'#0f5aa8',2:'#1467c0',3:'#5b9bd5',4:'#a9cdef',0:'#cbd5e1'};
+
+/* ===== URJAB: Analisis ===== */
+function vUrjabAnalisis(){
+  if(state.urjabErr)return '<div class="empty">Gagal memuat data uraian jabatan. Buka menu ini lagi.</div>';
+  if(!URJAB||state.urjabLoading)return '<div class="empty">Memuat data uraian jabatan (sekitar 7 MB)...</div>';
+  const all=URJAB.jabatan||[];const units=[...new Set(all.map(j=>j.unit_kode))].sort();
+  const u=state.urjabAnUE1;const list=u?all.filter(j=>j.unit_kode===u):all;const idxOf=new Map(all.map((j,i)=>[j,i]));
+  const tot=list.length;
+  const ce={1:0,2:0,3:0,4:0,0:0};list.forEach(j=>ce[j.eselon]++);
+  const dparts=[1,2,3,4,0].filter(e=>ce[e]).map(e=>({v:ce[e],c:U_ESCOL[e]}));
+  const tBy={1:[],2:[],3:[],4:[],0:[]};list.forEach(j=>tBy[j.eselon].push((j.uraian_tugas||[]).length));
+  const avgEs={};[1,2,3,4,0].forEach(e=>avgEs[e]=uAvg(tBy[e]));
+  const maxAvg=Math.max(1,avgEs[1],avgEs[2],avgEs[3],avgEs[4]);
+  const s2={},s3={};
+  list.forEach(j=>{if(j.lvl2&&j.lvl3){const k=j.unit_kode+'||'+j.lvl2;(s2[k]=s2[k]||{})[j.lvl3]=1;}if(j.lvl3&&j.lvl4){const k=j.unit_kode+'||'+j.lvl2+'||'+j.lvl3;(s3[k]=s3[k]||{})[j.lvl4]=1;}});
+  const sp2=Object.entries(s2).map(([k,v])=>({nm:k.split('||').slice(1).join(' / '),n:Object.keys(v).length}));
+  const sp3=Object.entries(s3).map(([k,v])=>({nm:k.split('||').slice(1).join(' / '),n:Object.keys(v).length}));
+  const widest=sp2.concat(sp3).sort((a,b)=>b.n-a.n).slice(0,8);
+  const over=list.map(j=>({j,n:(j.uraian_tugas||[]).length,a:avgEs[j.eselon]||0})).filter(o=>o.a&&o.n>1.3*o.a).sort((a,b)=>(b.n-b.a)-(a.n-a.a)).slice(0,10);
+  const GEN=/^penugasan lain/i;const cl={};list.forEach(j=>(j.cluster_tusi||[]).forEach(c=>{const key=String(c).trim();if(!key||GEN.test(key))return;cl[key]=(cl[key]||0)+1;}));
+  const topcl=Object.entries(cl).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  let h=`<div class="toolbar"><select class="flt" id="urjabAnUE1"><option value="">Semua Eselon I</option>${units.map(x=>`<option value="${esc(x)}" ${u===x?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="mini">${fmt(tot)} jabatan ${u?'di '+esc(u):'(9 unit Eselon I)'}</span></div>
+  <div class="kpis">
+    <div class="kpi"><div class="lab">Jabatan</div><div class="val">${fmt(tot)}</div></div>
+    <div class="kpi"><div class="lab">Eselon II / III / IV</div><div class="val" style="font-size:20px">${ce[2]} / ${ce[3]} / ${ce[4]}</div></div>
+    <div class="kpi gold"><div class="lab">Rata-rata Span ES3/ES2</div><div class="val">${sp2.length?uAvg(sp2.map(x=>x.n)).toFixed(1):'-'}</div><div class="note">ES4/ES3: ${sp3.length?uAvg(sp3.map(x=>x.n)).toFixed(1):'-'}</div></div>
+    <div class="kpi good"><div class="lab">Rata-rata Butir/Jabatan</div><div class="val">${uAvg(list.map(j=>(j.uraian_tugas||[]).length)).toFixed(1)}</div></div></div>
+  <div class="grid2">
+    <div class="card"><h2 class="sec" style="margin-top:0">Komposisi Jenjang Eselon</h2>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div>${donut(dparts,160,{big:fmt(tot),small:'JABATAN'})}</div>
+      <div style="flex:1;min-width:170px">${[1,2,3,4,0].filter(e=>ce[e]).map(e=>`<div class="bar-row"><div class="name">${ES_LBL[e]||'Fungsional/Pelaksana'}</div><div class="track"><div class="fill" style="width:${Math.round(100*ce[e]/Math.max(1,tot))}%;background:${U_ESCOL[e]}"></div></div><div class="num">${ce[e]}</div></div>`).join('')}</div></div></div>
+    <div class="card"><h2 class="sec" style="margin-top:0">Rata-rata Butir Uraian Tugas per Eselon</h2>${[1,2,3,4].map(e=>bar(ES_LBL[e],avgEs[e],maxAvg,'gold',avgEs[e].toFixed(1))).join('')}<div class="mini" style="margin-top:6px">Beban diukur dari jumlah butir uraian tugas (bukan bobot kerja riil).</div></div></div>`;
+  if(!u){const cu={};all.forEach(j=>cu[j.unit_kode]=(cu[j.unit_kode]||0)+1);const mx=Math.max.apply(null,Object.values(cu));
+    h+=`<div class="card"><h2 class="sec" style="margin-top:0">Jumlah Jabatan per Unit Eselon I</h2>${Object.entries(cu).sort((a,b)=>b[1]-a[1]).map(([k,v])=>bar(k,v,mx,'',fmt(v))).join('')}</div>`;}
+  h+=`<div class="grid2">
+    <div class="card"><h2 class="sec" style="margin-top:0">Rentang Kendali Terlebar</h2><div style="overflow-x:auto"><table><thead><tr><th>Unit</th><th class="num-c">Subunit</th></tr></thead><tbody>${widest.length?widest.map(x=>`<tr><td class="mini">${esc(x.nm)}</td><td class="num-c">${x.n}</td></tr>`).join(''):'<tr><td class="mini">-</td><td class="num-c">-</td></tr>'}</tbody></table></div></div>
+    <div class="card"><h2 class="sec" style="margin-top:0">Jabatan Beban Tugas Tertinggi</h2><div style="overflow-x:auto"><table><thead><tr><th>Jabatan</th><th>Unit</th><th class="num-c">Butir</th><th class="num-c">Rata2 ES</th></tr></thead><tbody>${over.map(o=>`<tr><td class="link" data-act="urjabopen" data-idx="${idxOf.get(o.j)}">${esc(o.j.jabatan)}</td><td class="mini">${esc(o.j.unit_kode)}</td><td class="num-c">${o.n}</td><td class="num-c mini">${o.a.toFixed(0)}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+  if(topcl.length)h+=`<div class="card"><h2 class="sec" style="margin-top:0">Taksonomi Fungsi (Cluster Tusi Terbanyak)</h2><div style="display:flex;flex-wrap:wrap;gap:7px">${topcl.map(c=>`<span class="tag" title="${esc(c[0])}">${esc(c[0].length>54?c[0].slice(0,54)+'&hellip;':c[0])} <b>${c[1]}</b></span>`).join('')}</div><div class="mini" style="margin-top:6px">Entri generik "Penugasan lainnya" dikecualikan.</div></div>`;
+  return h;
+}
+
+/* ===== URJAB: Insight & Rekomendasi (rules-engine) ===== */
+function vUrjabInsight(){
+  if(state.urjabErr)return '<div class="empty">Gagal memuat data uraian jabatan. Buka menu ini lagi.</div>';
+  if(!URJAB||state.urjabLoading)return '<div class="empty">Menganalisis uraian jabatan...</div>';
+  const all=URJAB.jabatan||[];const idxOf=new Map(all.map((j,i)=>[j,i]));
+  const tBy={1:[],2:[],3:[],4:[]};all.forEach(j=>{if(tBy[j.eselon])tBy[j.eselon].push((j.uraian_tugas||[]).length);});
+  const avg={};[1,2,3,4].forEach(e=>avg[e]=uAvg(tBy[e]));
+  const F=[];
+  all.forEach(j=>{const n=(j.uraian_tugas||[]).length;const a=avg[j.eselon];if(a&&n>=40&&n>1.5*a)F.push({sev:(n>2*a&&n>=60)?'tinggi':'sedang',cat:'Beban',unit:j.unit_kode,idx:idxOf.get(j),t:'Beban tugas tinggi: '+j.jabatan,d:n+' butir uraian tugas, jauh di atas rata-rata '+ES_LBL[j.eselon]+' (sekitar '+a.toFixed(0)+'). Pertimbangkan redistribusi tugas atau penajaman fungsi.'});});
+  const s2={},s3={};
+  all.forEach(j=>{if(j.lvl2&&j.lvl3){const k=j.unit_kode+'||'+j.lvl2;(s2[k]=s2[k]||{})[j.lvl3]=1;}if(j.lvl3&&j.lvl4){const k=j.unit_kode+'||'+j.lvl2+'||'+j.lvl3;(s3[k]=s3[k]||{})[j.lvl4]=1;}});
+  Object.entries(s2).forEach(([k,v])=>{const n=Object.keys(v).length;if(n>=7)F.push({sev:'sedang',cat:'Struktur',unit:k.split('||')[0],t:'Rentang kendali lebar (Eselon II)',d:k.split('||').slice(1).join(' / ')+' membawahi '+n+' unit Eselon III. Tinjau penyederhanaan atau pengelompokan fungsi.'});});
+  Object.entries(s3).forEach(([k,v])=>{const n=Object.keys(v).length;if(n>=7)F.push({sev:'sedang',cat:'Struktur',unit:k.split('||')[0],t:'Rentang kendali lebar (Eselon III)',d:k.split('||').slice(1).join(' / ')+' membawahi '+n+' unit Eselon IV.'});});
+  const grp={};all.forEach(j=>{const k=j.unit_kode+'||'+(j.lvl2||'');(grp[k]=grp[k]||[]).push(j);});
+  let red=0;
+  Object.values(grp).forEach(arr=>{if(arr.length<2||arr.length>50||red>=40)return;const tk=arr.map(j=>uTok((j.uraian_tugas||[]).join(' ')));
+    for(let a=0;a<arr.length&&red<40;a++)for(let b=a+1;b<arr.length&&red<40;b++){const sim=uJac(tk[a],tk[b]);if(sim>=0.6){red++;F.push({sev:sim>=0.8?'tinggi':'sedang',cat:'Redundansi',unit:arr[a].unit_kode,idx:idxOf.get(arr[a]),t:'Potensi tumpang tindih tugas ('+Math.round(sim*100)+'%)',d:'"'+arr[a].jabatan+'" dan "'+arr[b].jabatan+'" memiliki uraian tugas yang sangat mirip. Tinjau batas kewenangan agar tidak duplikatif.'});}}});
+  const noK=all.filter(j=>!j.kualifikasi).length;
+  if(noK)F.push({sev:'info',cat:'Kelengkapan',unit:'',t:'Kelengkapan data kualifikasi',d:noK+' dari '+all.length+' jabatan belum mencantumkan kualifikasi (pangkat/golongan). Lengkapi untuk analisis syarat jabatan.'});
+  const rank={tinggi:0,sedang:1,info:2};F.sort((a,b)=>rank[a.sev]-rank[b.sev]);
+  const cnt={tinggi:0,sedang:0,info:0};F.forEach(f=>cnt[f.sev]++);
+  const cats=[...new Set(F.map(f=>f.cat))];
+  let show=F.slice();
+  if(state.urjabInsSev)show=show.filter(f=>f.sev===state.urjabInsSev);
+  if(state.urjabInsCat)show=show.filter(f=>f.cat===state.urjabInsCat);
+  const sevPill=s=>`<span class="pill ${s==='tinggi'?'off':s==='sedang'?'warn':'neu'}">${s==='tinggi'?'Tinggi':s==='sedang'?'Sedang':'Info'}</span>`;
+  const bord={tinggi:'#e0413a',sedang:'#f59e0b',info:'#94a3b8'};
+  let h=`<div class="kpis">
+    <div class="kpi"><div class="lab">Total Temuan</div><div class="val">${F.length}</div></div>
+    <div class="kpi alert"><div class="lab">Tinggi</div><div class="val" style="color:#e0413a">${cnt.tinggi}</div></div>
+    <div class="kpi"><div class="lab">Sedang</div><div class="val" style="color:#f59e0b">${cnt.sedang}</div></div>
+    <div class="kpi"><div class="lab">Info</div><div class="val" style="color:#64748b">${cnt.info}</div></div></div>
+  <div class="note-box">Temuan dihasilkan otomatis (rules-engine) dari pola uraian jabatan: beban tugas, rentang kendali, kemiripan tugas antar jabatan dalam unit yang sama, dan kelengkapan data. Indikatif untuk ditindaklanjuti, bukan keputusan final. Kemiripan dihitung dari irisan kata uraian tugas.</div>
+  <div class="toolbar"><select class="flt" id="urjabInsSev"><option value="">Semua tingkat</option>${['tinggi','sedang','info'].map(s=>`<option value="${s}" ${state.urjabInsSev===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}</select>
+    <select class="flt" id="urjabInsCat"><option value="">Semua kategori</option>${cats.map(c=>`<option value="${esc(c)}" ${state.urjabInsCat===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
+    <span class="mini">${show.length} temuan</span></div>`;
+  if(!show.length)h+='<div class="empty">Tidak ada temuan pada filter ini.</div>';
+  h+=show.slice(0,200).map(f=>`<div class="card" style="border-left:4px solid ${bord[f.sev]};margin-bottom:10px">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="tag">${esc(f.cat)}</span>${sevPill(f.sev)}${f.unit?`<span class="mini">${esc(f.unit)}</span>`:''}${f.idx!=null?`<span class="link" style="margin-left:auto" data-act="urjabopen" data-idx="${f.idx}">Lihat jabatan &rarr;</span>`:''}</div>
+    <div style="font-weight:700;color:var(--brand-d);margin:6px 0 3px">${esc(f.t)}</div>
+    <div class="mini" style="line-height:1.5">${esc(f.d)}</div></div>`).join('');
+  if(show.length>200)h+=`<div class="mini" style="padding:8px">Menampilkan 200 dari ${show.length} temuan.</div>`;
+  return h;
+}
+
+/* ===== URJAB: Komparasi 2 jabatan ===== */
+function vUrjabCompare(){
+  if(state.urjabErr)return '<div class="empty">Gagal memuat data uraian jabatan. Buka menu ini lagi.</div>';
+  if(!URJAB||state.urjabLoading)return '<div class="empty">Memuat data uraian jabatan...</div>';
+  const all=URJAB.jabatan||[];
+  const sorted=all.map((j,i)=>({i,lab:j.unit_kode+' - '+j.jabatan})).sort((a,b)=>a.lab.localeCompare(b.lab,'id'));
+  const optsHtml=cur=>sorted.map(o=>`<option value="${o.i}" ${String(cur)===String(o.i)?'selected':''}>${esc(o.lab.length>72?o.lab.slice(0,72)+'…':o.lab)}</option>`).join('');
+  let h=`<div class="note-box">Pilih dua jabatan untuk membandingkan ikhtisar, uraian tugas, dan wewenang berdampingan. Berguna untuk meninjau batas fungsi atau menyiapkan penyelarasan uraian jabatan.</div>
+  <div class="toolbar"><select class="flt" id="urjabCmpA" style="max-width:340px"><option value="">Pilih jabatan A...</option>${optsHtml(state.urjabCmpA)}</select>
+  <select class="flt" id="urjabCmpB" style="max-width:340px"><option value="">Pilih jabatan B...</option>${optsHtml(state.urjabCmpB)}</select></div>`;
+  const A=state.urjabCmpA!==''?all[+state.urjabCmpA]:null;const B=state.urjabCmpB!==''?all[+state.urjabCmpB]:null;
+  if(!A||!B)return h+'<div class="empty">Pilih dua jabatan untuk mulai membandingkan.</div>';
+  const sim=uJac(uTok((A.uraian_tugas||[]).join(' ')),uTok((B.uraian_tugas||[]).join(' ')));
+  h+=`<div class="kpis"><div class="kpi"><div class="lab">Kemiripan Uraian Tugas</div><div class="val">${Math.round(sim*100)}%</div><div class="note">irisan kata</div></div>
+    <div class="kpi"><div class="lab">Butir Tugas A / B</div><div class="val" style="font-size:20px">${(A.uraian_tugas||[]).length} / ${(B.uraian_tugas||[]).length}</div></div></div>`;
+  const col=j=>`<div class="card"><div style="font-weight:800;color:var(--brand-d)">${esc(j.jabatan)}</div>
+    <div style="margin:6px 0;display:flex;gap:6px;flex-wrap:wrap"><span class="tag">${esc(j.unit_kode)}</span>${esTag(j.eselon)}</div>
+    <div class="mini">${esc([j.ue1,j.lvl2,j.lvl3,j.lvl4].filter(Boolean).join(' / '))}</div>
+    <h2 class="sec">Ikhtisar</h2><div class="mini" style="line-height:1.5">${esc(j.ikhtisar||'-')}</div>
+    <h2 class="sec">Uraian Tugas (${(j.uraian_tugas||[]).length})</h2><ol class="mini" style="padding-left:18px;line-height:1.5">${(j.uraian_tugas||[]).slice(0,25).map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+    <h2 class="sec">Wewenang (${(j.wewenang||[]).length})</h2><ol class="mini" style="padding-left:18px;line-height:1.5">${(j.wewenang||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`;
+  return h+`<div class="grid2">${col(A)}${col(B)}</div>`;
+}
+
 /* ===== Struktur (tree) ===== */
 function vStruktur(){
   const s=DATA.summary;
@@ -802,9 +1002,10 @@ function vEmp(){
 
 function renderCrumb(){
   const c=[];const v=state.view;
-  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Kerja',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai'}[v];
+  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Kerja',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai',urjab:'Repositori Uraian Jabatan',urjabanalisis:'Analisis URJAB',urjabinsight:'Insight & Rekomendasi URJAB',urjabcompare:'Komparasi Jabatan'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
+    if(v==='urjabdetail'){c.push(`<a data-act="nav" data-view="urjab">Repositori Uraian Jabatan</a>`);c.push('&rsaquo;');c.push(`<span>${esc(((URJAB&&URJAB.jabatan[state.urjabJab])||{}).jabatan||'Detail')}</span>`);}
     if(['unit1','unit2','team'].includes(v))c.push(`<a data-act="nav" data-view="struktur">Struktur</a>`);
     if(v==='emp')c.push(`<a data-act="nav" data-view="pegawai">Pegawai</a>`);
     if(state.ue1&&['unit1','unit2','team'].includes(v)){c.push('&rsaquo;');c.push(`<a data-act="ue1" data-ue1="${esc(state.ue1)}">${esc(state.ue1)}</a>`);}
@@ -818,10 +1019,11 @@ function renderCrumb(){
   document.getElementById('crumb').innerHTML=c.join(' ');
 }
 function render(){
+  if(state.view.indexOf('urjab')===0&&!URJAB&&!state.urjabLoading)ensureUrjab();
   renderNav();document.getElementById('vtitle').textContent=VT[state.view]||'';renderCrumb();
-  const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp};
+  const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare};
   document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))();
-  window.scrollTo({top:0});bindInputs();
+  setFootNote();window.scrollTo({top:0});bindInputs();
 }
 function bindInputs(){const q=id=>document.getElementById(id);
   if(q('timQ'))q('timQ').oninput=e=>{state.timQ=e.target.value;rerenderKeep(vTim,'timQ');};
@@ -833,7 +1035,17 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('avQ'))q('avQ').oninput=e=>{state.avQ=e.target.value;rerenderKeep(vAvail,'avQ');};
   if(q('avStat'))q('avStat').onchange=e=>{state.avStat=e.target.value;render();};
   if(q('avUE1'))q('avUE1').onchange=e=>{state.avUE1=e.target.value;render();};
-  if(q('skStat'))q('skStat').onchange=e=>{state.skillStat=e.target.value;render();};if(q('insCat'))q('insCat').onchange=e=>{state.insCat=e.target.value;render();};}
+  if(q('skStat'))q('skStat').onchange=e=>{state.skillStat=e.target.value;render();};if(q('insCat'))q('insCat').onchange=e=>{state.insCat=e.target.value;render();};
+  if(q('urjabQ'))q('urjabQ').oninput=e=>{state.urjabQ=e.target.value;rerenderKeep(vUrjab,'urjabQ');};
+  if(q('urjabEs1'))q('urjabEs1').onchange=e=>{state.urjabEs1=e.target.value;state.urjabEs2='';state.urjabEs3='';state.urjabEs4='';render();};
+  if(q('urjabEs2'))q('urjabEs2').onchange=e=>{state.urjabEs2=e.target.value;state.urjabEs3='';state.urjabEs4='';render();};
+  if(q('urjabEs3'))q('urjabEs3').onchange=e=>{state.urjabEs3=e.target.value;state.urjabEs4='';render();};
+  if(q('urjabEs4'))q('urjabEs4').onchange=e=>{state.urjabEs4=e.target.value;render();};
+  if(q('urjabAnUE1'))q('urjabAnUE1').onchange=e=>{state.urjabAnUE1=e.target.value;render();};
+  if(q('urjabInsSev'))q('urjabInsSev').onchange=e=>{state.urjabInsSev=e.target.value;render();};
+  if(q('urjabInsCat'))q('urjabInsCat').onchange=e=>{state.urjabInsCat=e.target.value;render();};
+  if(q('urjabCmpA'))q('urjabCmpA').onchange=e=>{state.urjabCmpA=e.target.value;render();};
+  if(q('urjabCmpB'))q('urjabCmpB').onchange=e=>{state.urjabCmpB=e.target.value;render();};}
 function rerenderKeep(fn,fid){const el=document.getElementById(fid);const pos=el?el.selectionStart:null;
   document.getElementById('view').innerHTML=fn();bindInputs();const n=document.getElementById(fid);if(n){n.focus();if(pos!=null)n.setSelectionRange(pos,pos);}}
 
@@ -844,6 +1056,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='team'){const t=DATA.teams[+el.dataset.team];state.view='team';state.teamIdx=+el.dataset.team;state.ue1=t.ue1;state.ue2=t.ue2;render();}
   else if(a==='emp'){state.view='emp';state.empId=el.dataset.emp;render();}
   else if(a==='skill'){state.view='skill';state.skill=el.dataset.skill;state.skillStat='';render();}
+  else if(a==='urjabopen'){state.urjabJab=+el.dataset.idx;state.view='urjabdetail';render();}
   else if(a==='exp'){const k=el.dataset.key;state.expanded[k]=!state.expanded[k];render();}
   else if(a==='expandAll'){Object.keys(DATA.ue1).forEach(u=>state.expanded['u:'+u]=true);render();}
   else if(a==='collapseAll'){state.expanded={};render();}
@@ -854,11 +1067,20 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='logout'){location.reload();}
 });
 function setFooters(){
-  const s=(DATA&&DATA.summary)||{};const tk=s.task||{};
+  const s=(DATA&&DATA.summary)||{};
   document.getElementById('sideFoot').innerHTML=`Data prototipe diolah ${s.tanggal_olah||''}.`;
-  document.getElementById('foot').innerHTML=`Keterlambatan dihitung ulang dari tanggal task; ${fmt(tk.anomali||0)} baris anomali (selesai &lt; mulai) dibuang; ${fmt(tk.tak_terukur||0)} task selesai tanpa tenggat ditandai tak terukur. Hierarki UE1/UE2 diturunkan dari jalur organisasi pegawai &amp; pemetaan pemilik kinerja. Skor indikatif = 60% penyelesaian + 40% ketepatan waktu.`;
   const YR=(s.tanggal_olah||'2026').slice(0,4);
   document.getElementById('appfoot').innerHTML=`<span>&copy; ${YR} Powered By <b>Donny Maha Putra</b> &middot; Prototipe</span><span class="r">Dashboard Mekanisme Kerja &middot; Biro Organisasi &amp; Ketatalaksanaan</span>`;
+}
+// Catatan metodologi kontekstual: beda untuk modul kinerja vs modul URJAB
+function setFootNote(){
+  const el=document.getElementById('foot');if(!el)return;
+  if(state.view.indexOf('urjab')===0){
+    el.innerHTML=`Repositori uraian jabatan (ANJAB) bersifat referensi, tanpa data pegawai/NIP. Jenjang eselon dan jalur unit (Eselon I sampai IV) direkonstruksi dari prefix nama jabatan dan urutan dokumen ANJAB, bukan data struktur resmi, sehingga dapat memuat sedikit ketidaktepatan. Beban tugas dihitung dari jumlah butir uraian tugas (bukan bobot kerja riil). Rentang kendali = jumlah subunit langsung. Kemiripan tugas dihitung dari irisan kata (indeks Jaccard) uraian tugas dalam unit yang sama. Temuan pada Insight bersifat indikatif untuk ditindaklanjuti.`;
+  }else{
+    const tk=((DATA&&DATA.summary)||{}).task||{};
+    el.innerHTML=`Keterlambatan dihitung ulang dari tanggal task; ${fmt(tk.anomali||0)} baris anomali (selesai &lt; mulai) dibuang; ${fmt(tk.tak_terukur||0)} task selesai tanpa tenggat ditandai tak terukur. Hierarki UE1/UE2 diturunkan dari jalur organisasi pegawai &amp; pemetaan pemilik kinerja. Skor indikatif = 60% penyelesaian + 40% ketepatan waktu.`;
+  }
 }
 const APPS_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec';async function authenticate(u,p){const url=APPS_URL+'?u='+encodeURIComponent(u)+'&p='+encodeURIComponent(p);const r=await fetch(url);const j=await r.json();if(!j||!j.ok)return null;DATA=j.data;return j.profil;}
 async function doLogin(){
