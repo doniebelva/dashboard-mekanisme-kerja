@@ -453,6 +453,14 @@ function scopeData(sc){
   return {summary,ue1,ue2,teams,pegawai,trend,trend_ue1:FULL.trend_ue1,trend_ue2:FULL.trend_ue2,skills_catalog:FULL.skills_catalog};
 }
 /* ===== Iris per TAHUN: hitung ulang seluruh agregat dari tim tahun terpilih ===== */
+function dispJenis(j){return j==='Squad Tim'?'Squad':(j&&j.indexOf('Regular')>=0?'Non-Squad':(j||'').replace(' Tim',''));}
+/* Normalisasi nama unit utk tampilan (jaga-jaga bila data lama: BKF -> DJSEF, Kemenkeu Pusat -> Kementerian Keuangan) */
+function fixNames(d){if(!d)return d;const R={'Badan Kebijakan Fiskal':'Direktorat Jenderal Strategi Ekonomi dan Fiskal','Kementerian Keuangan (Pusat)':'Kementerian Keuangan'};const ren=x=>R[x]||x;
+  (d.teams||[]).forEach(t=>{t.ue1=ren(t.ue1);t.ue2=ren(t.ue2);t.peng_ue1=ren(t.peng_ue1);t.peng_ue2=ren(t.peng_ue2);});
+  (d.pegawai||[]).forEach(p=>{p.ue1=ren(p.ue1);p.ue2=ren(p.ue2);(p.teams||[]).forEach(tt=>{tt.ue1=ren(tt.ue1);tt.ue2=ren(tt.ue2);});});
+  const rk=o=>{if(!o)return o;const n={};Object.keys(o).forEach(k=>{const a=k.split('||');n[a.map(ren).join('||')]=o[k];});return n;};
+  d.ue1=rk(d.ue1);d.ue2=rk(d.ue2);d.trend_ue1=rk(d.trend_ue1);d.trend_ue2=rk(d.trend_ue2);
+  return d;}
 function teamYear(t){return (t.mulai||t.selesai||'').slice(0,4);}
 function mkYearsOf(base){return [...new Set((base.teams||[]).map(teamYear).filter(Boolean))].sort();}
 function yearSlice(base,year){
@@ -554,7 +562,7 @@ let state={view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   urjabQ:'',urjabEs1:'',urjabEs2:'',urjabEs3:'',urjabEs4:'',urjabJab:null,urjabLoading:false,urjabErr:false,
   urjabAnUE1:'',urjabInsSev:'',urjabInsCat:'',urjabCmpA:'',urjabCmpB:'',
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,
-  otkMode:'pusat',otkVertDJ:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:''};
+  otkMode:'pusat',otkVertDJ:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:''};
 
 function renderNav(){const cur=curMod();let h='<div class="modsw">';
   MODULES.forEach(m=>{if(m.id!=='beranda'&&!canMod(m.id))return;
@@ -602,10 +610,10 @@ function vRingkasan(){
   h+=`</div><div class="card"><h3>Status siklus tim</h3><div class="cap">Komposisi seluruh tim.</div><div class="donut"><div>${donut(Object.entries(s.status_tim).map(([k,v])=>({v,c:{'Pelaksanaan':'#16a34a','Penetapan':'#1467c0','Rekrutmen':'#f59e0b','Seleksi':'#94a3b8'}[k]||'#cbd5e1'})),158,{big:s.total_tim,small:'TIM'})}</div><div>`;
   const stc={'Pelaksanaan':'#16a34a','Penetapan':'#1467c0','Rekrutmen':'#f59e0b','Seleksi':'#94a3b8'};
   Object.entries(s.status_tim).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>h+=`<div style="margin:5px 0"><span class="dot" style="background:${stc[k]||'#cbd5e1'}"></span>${k}: <b>${v}</b></div>`);
-  h+=`</div></div><div style="margin-top:16px"><h3>Hasil penyelesaian task</h3><div class="cap">Dihitung ulang dari tanggal; ${fmt(s.task.anomali)} anomali dibuang.</div>`;
+  h+=`</div></div></div></div><div class="card" style="margin-top:16px"><h3>Hasil penyelesaian task</h3><div class="cap">Dihitung ulang dari tanggal; ${fmt(s.task.anomali)} anomali dibuang.</div>`;
   const tk=s.task,tm=Math.max(tk.selesai_tepat,tk.telat,tk.berjalan,tk.belum_mulai,tk.overdue);
   h+=bar('Selesai tepat',tk.selesai_tepat,tm,'green',fmt(tk.selesai_tepat))+bar('Selesai telat',tk.telat,tm,'late',fmt(tk.telat))+bar('Sedang berjalan',tk.berjalan,tm,'',fmt(tk.berjalan))+bar('Belum mulai',tk.belum_mulai,tm,'',fmt(tk.belum_mulai))+bar('Overdue (lewat tenggat)',tk.overdue,tm,'late',fmt(tk.overdue));
-  h+=`</div></div><h2 class="sec">Unit dengan adopsi 0% &middot; target dorongan</h2><div class="card">`;
+  h+=`</div><h2 class="sec">Unit dengan adopsi 0% &middot; target dorongan</h2><div class="card">`;
   if(zero.length)zero.forEach(u=>h+=`<div class="gap-row"><span class="clk" data-act="ue1" data-ue1="${esc(u.k)}" style="cursor:pointer;color:var(--brand);font-weight:600">${esc(u.k)}</span><span><b>${u.jml_tim}</b> tim &middot; <span class="pill off">0% aktif</span></span></div>`);
   else h+=`<div class="empty">Tidak ada.</div>`;
   return h+`</div>`;
@@ -747,13 +755,26 @@ function vBeban(){
     <div class="kpi"><div class="lab">Pegawai dalam Tim</div><div class="val">${fmt(s.pegawai_dalam_tim)}</div></div>
     <div class="kpi"><div class="lab">Multi-tim (&ge;2)</div><div class="val">${fmt((wd['2']||0)+(wd['3']||0)+(wd['4+']||0))}</div></div>
     <div class="kpi ${(wd['3']||0)?'alert':''}"><div class="lab">Padat (&ge;3 tim)</div><div class="val">${fmt(wd['3']||0)}</div></div>
-    <div class="kpi gold"><div class="lab">Rata Anggota/Tim</div><div class="val">${Math.round(DATA.teams.reduce((a,t)=>a+(t.jml_anggota||0),0)/DATA.teams.length)}</div></div></div>
-  <div class="grid2"><div class="card"><h3>Distribusi keterlibatan pegawai</h3><div class="cap">Jumlah pegawai menurut banyak tim yang diikuti.</div>`;
-  const wm=Math.max(...Object.values(wd));['1','2','3','4+'].forEach(k=>{if(wd[k])h+=bar(k+' tim',wd[k],wm,k>='3'?'gold':'',fmt(wd[k])+' org');});
-  h+=`</div><div class="card"><h3>25 pegawai beban tertinggi</h3><div class="cap">Urut jumlah tim lalu task. Klik nama untuk detail.</div>
-    <table><thead><tr><th>Nama</th><th class="num-c">Tim</th><th class="num-c">Task</th><th class="num-c">%</th></tr></thead><tbody>`;
-  top.forEach(p=>h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="num-c">${p.jml_tim}${p.jml_tim>=3?' <span class="pill warn">padat</span>':''}</td><td class="num-c">${fmt(p.jml_task)}</td><td class="num-c">${p.persen}%</td></tr>`);
-  h+=`</tbody></table></div></div>`;
+    <div class="kpi gold"><div class="lab">Rata Anggota/Tim</div><div class="val">${DATA.teams.length?Math.round(DATA.teams.reduce((a,t)=>a+(t.jml_anggota||0),0)/DATA.teams.length):0}</div></div></div>`;
+  // Keterlibatan pegawai: kotak ringkas di atas (ganti pie chart)
+  const wdc={'1':'#1467c0','2':'#0ea5e9','3':'#f59e0b','4+':'#e0413a'};
+  h+=`<div class="kpis" style="margin-top:4px">`+['1','2','3','4+'].map(k=>`<div class="kpi"><div class="lab">${k} Tim Diikuti</div><div class="val" style="color:${wdc[k]}">${fmt(wd[k]||0)}</div><div class="note">pegawai</div></div>`).join('')+`</div>`;
+  // 25 pegawai beban tertinggi (full width) + filter UE1/UE2
+  const ue1opts=Object.keys(DATA.ue1).sort();
+  const ue2opts=state.bebanUE1?Object.keys(DATA.ue2).filter(k=>k.indexOf(state.bebanUE1+'||')===0).map(k=>k.split('||')[1]).sort():[];
+  let pf=DATA.pegawai.slice();
+  if(state.bebanUE1)pf=pf.filter(p=>p.ue1===state.bebanUE1);
+  if(state.bebanUE2)pf=pf.filter(p=>p.ue2===state.bebanUE2);
+  pf.sort((a,b)=>(b.jml_tim-a.jml_tim)||((b.jml_task||0)-(a.jml_task||0)));
+  const topf=pf.slice(0,25);
+  h+=`<div class="card" style="margin-top:14px"><h3>25 Pegawai Beban Tertinggi</h3><div class="cap">Urut jumlah tim lalu task. Klik nama untuk detail. <b>% Progres</b> = task selesai dibagi total task dari seluruh tim yang diikutinya (gabungan), bukan rata-rata per tim.</div>
+    <div class="toolbar"><select class="flt" id="bebanUE1"><option value="">Semua Eselon I</option>${ue1opts.map(u=>`<option value="${esc(u)}" ${state.bebanUE1===u?'selected':''}>${esc(u)}</option>`).join('')}</select>
+      <select class="flt" id="bebanUE2" ${state.bebanUE1?'':'disabled'}><option value="">Semua Eselon II</option>${ue2opts.map(u=>`<option value="${esc(u)}" ${state.bebanUE2===u?'selected':''}>${esc(u)}</option>`).join('')}</select>
+      <span class="mini">${fmt(pf.length)} pegawai</span></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Nama</th><th>Eselon I</th><th>Eselon II</th><th class="num-c">Tim</th><th class="num-c">Task</th><th class="num-c">% Progres</th></tr></thead><tbody>`;
+  if(!topf.length)h+=`<tr><td colspan="6" class="empty">Tidak ada pegawai untuk filter ini.</td></tr>`;
+  topf.forEach(p=>h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.ue1||'')}</td><td class="mini">${esc(p.ue2||'')}</td><td class="num-c">${p.jml_tim}${p.jml_tim>=3?' <span class="pill warn">padat</span>':''}</td><td class="num-c">${fmt(p.jml_task)}</td><td class="num-c">${p.persen==null?'-':p.persen+'%'}</td></tr>`);
+  h+=`</tbody></table></div>`;
   // ===== Beban Normal Penugasan per Eselon II (formula Pmin/Pmax) =====
   // Per TAHUN (formula: T = formasi seluruh tim dalam satu unit dalam satu tahun).
   // Hanya tim AKTIF (status Pelaksanaan); tim draft (Penetapan/Rekrutmen/Seleksi) dikecualikan.
@@ -865,7 +886,7 @@ function vTimAnalitik(){
     <div class="kpi gold"><div class="lab">Rata-rata Skor</div><div class="val">${avg}</div></div>
     <div class="kpi good"><div class="lab">Berkinerja Tinggi</div><div class="val">${hi}</div><div class="note">skor &ge; 70</div></div>
     <div class="kpi alert"><div class="lab">Perlu Perhatian</div><div class="val">${lo}</div><div class="note">skor &lt; 40</div></div></div>
-  <div class="grid2"><div class="card"><h3>Peta Kinerja Tim</h3><div class="cap">X: % penyelesaian &middot; Y: % tepat waktu &middot; ukuran bulatan: jumlah task. Arahkan kursor untuk nama tim.</div>${quadrant(pts,'% Penyelesaian →','% Tepat waktu →',['Unggul','Rapi tapi lambat','Cepat tapi telat','Perlu perhatian'],'task')}</div>
+  <div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)"><div class="card"><h3>Peta Kinerja Tim</h3><div class="cap">X: % penyelesaian &middot; Y: % tepat waktu &middot; ukuran bulatan: jumlah task. Arahkan kursor untuk nama tim.</div>${quadrant(pts,'% Penyelesaian →','% Tepat waktu →',['Unggul','Tepat tapi lambat','Tuntas tapi telat','Perlu perhatian'],'task')}</div>
     <div class="card"><h3>🏆 Top 10 Tim Terbaik</h3><div class="cap">Berdasarkan skor (penyelesaian + ketepatan). Klik untuk detail.</div>`;
   top.forEach((o,i)=>{const t=o.t;h+=rankRow(i,esc(t.nama),`skor ${t.skor}`,t.skor,skorColor(t.skor),`${t.task.total} task &middot; tepat ${t.tepat_pct}% &middot; ${esc(t.ue1)}`,`data-act="team" data-team="${o.i}"`);});
   h+=`</div></div>
@@ -1518,10 +1539,20 @@ function vUnit2(){
   h+=`<h2 class="sec">Tim (${teamsF.length}) &middot; klik untuk detail</h2>
   <div class="seg" style="margin-bottom:12px">${segb('','Semua')}${segb('Squad','Squad ('+cU2['Squad']+')')}${segb('Non-Squad','Non-Squad ('+cU2['Non-Squad']+')')}${segb('Tim Lainnya','Lainnya ('+cU2['Tim Lainnya']+')')}</div>
   <div class="card" style="overflow-x:auto"><table><thead><tr>
-    <th>Nama Tim</th><th>Kategori</th><th>Status</th><th class="num-c">Total Tugas</th><th class="num-c">Progres</th><th class="num-c">Tepat</th><th class="num-c">Skor</th></tr></thead><tbody>`;
+    <th>Nama Tim</th><th>Kategori</th><th>Pengelola</th><th>Status</th><th class="num-c">Total Tugas</th><th class="num-c">Progres</th><th class="num-c">Tepat</th><th class="num-c">Skor</th></tr></thead><tbody>`;
   teamsF.forEach(o=>{const t=o.t,tk=t.task;const done=tk?Math.round(100*(tk.selesai_tepat+tk.telat)/Math.max(1,tk.total)):null;const ct=timKategori(t);
-    h+=`<tr><td class="link" data-act="team" data-team="${o.i}">${esc(t.nama)}</td><td><span class="pill ${ct==='Squad'?'vio':ct==='Non-Squad'?'blue':'on'}">${ct}</span></td><td>${statusPill(t.status)}</td><td class="num-c">${tk?fmt(tk.total):'-'}</td><td class="num-c">${done==null?'-':done+'%'}</td><td class="num-c">${t.tepat_pct==null?'-':t.tepat_pct+'%'}</td><td class="num-c">${skorCell(t.skor)}</td></tr>`;});
-  return h+`</tbody></table></div>`;
+    h+=`<tr><td class="link" data-act="team" data-team="${o.i}">${esc(t.nama)}</td><td><span class="pill ${ct==='Squad'?'vio':ct==='Non-Squad'?'blue':'on'}">${ct}</span></td><td class="mini">${esc(t.peng_ue2||t.peng_ue1||t.pengelola||'-')}</td><td>${statusPill(t.status)}</td><td class="num-c">${tk?fmt(tk.total):'-'}</td><td class="num-c">${done==null?'-':done+'%'}</td><td class="num-c">${t.tepat_pct==null?'-':t.tepat_pct+'%'}</td><td class="num-c">${skorCell(t.skor)}</td></tr>`;});
+  h+=`</tbody></table></div>`;
+  // Tim yang DIKELOLA unit ini tetapi pemilik kinerjanya di unit lain (umumnya Eselon I)
+  const dikelola=DATA.teams.map((t,i)=>({t,i})).filter(o=>o.t.peng_ue2===state.ue2 && !(o.t.ue1===state.ue1&&o.t.ue2===state.ue2));
+  if(dikelola.length){
+    h+=`<h2 class="sec">Tim yang Dikelola Unit Ini (${dikelola.length})</h2>
+    <div class="note-box">Tim berikut <b>dikelola oleh unit ini</b> (Pengelola Tim), tetapi <b>pemilik kinerjanya</b> berada di unit lain (umumnya Eselon I), sehingga tidak dihitung dalam total tim di atas.</div>
+    <div class="card" style="overflow-x:auto"><table><thead><tr><th>Nama Tim</th><th>Kategori</th><th>Pemilik Kinerja</th><th>Status</th><th class="num-c">Total Tugas</th></tr></thead><tbody>`;
+    dikelola.forEach(o=>{const t=o.t,ct=timKategori(t);h+=`<tr><td class="link" data-act="team" data-team="${o.i}">${esc(t.nama)}</td><td><span class="pill ${ct==='Squad'?'vio':ct==='Non-Squad'?'blue':'on'}">${ct}</span></td><td class="mini">${esc(t.ue2||t.ue1||'')}</td><td>${statusPill(t.status)}</td><td class="num-c">${t.task?fmt(t.task.total):'-'}</td></tr>`;});
+    h+=`</tbody></table></div>`;
+  }
+  return h;
 }
 
 /* ===== Gantt ===== */
@@ -1549,7 +1580,7 @@ function gantt(tasks){
 function vTeam(){
   const t=DATA.teams[state.teamIdx];if(!t)return '<div class="empty">Tim tidak ada.</div>';const tk=t.task;
   let h=`<div class="kpis">
-    <div class="kpi"><div class="lab">Jenis &amp; Status</div><div class="val" style="font-size:17px">${t.jenis.replace(' Tim','')}</div><div class="note">${statusPill(t.status)}</div></div>
+    <div class="kpi"><div class="lab">Jenis &amp; Status</div><div class="val" style="font-size:17px">${dispJenis(t.jenis)}</div><div class="note">${statusPill(t.status)}</div></div>
     <div class="kpi gold"><div class="lab">Anggota</div><div class="val">${fmt(t.jml_anggota)}</div><div class="note">${(t.anggota||[]).filter(a=>a.is_leader).length} ketua</div></div>
     <div class="kpi"><div class="lab">Total Task</div><div class="val">${tk?fmt(tk.total):'-'}</div><div class="note">${tk?fmt(tk.selesai_tepat+tk.telat)+' selesai':'belum ada penugasan'}</div></div>
     <div class="kpi ${t.skor!=null&&t.skor<40?'alert':t.skor>=70?'good':''}"><div class="lab">Skor Indikatif</div><div class="val">${t.skor==null?'-':t.skor}</div><div class="note">${t.tepat_pct==null?'':'tepat '+t.tepat_pct+'% &middot; penting '+t.penting_pct+'%'}</div></div></div>
@@ -1574,11 +1605,13 @@ function vEmp(){
     <div class="kpi good"><div class="lab">Task Selesai</div><div class="val">${fmt(p.task_selesai)}</div></div>
     <div class="kpi ${p.persen<50?'alert':''}"><div class="lab">Progres</div><div class="val">${p.persen}%</div></div></div>
   <div class="card" style="margin-top:6px"><div class="cap"><b>NIP:</b> ${esc(p.nip)} &middot; <b>Unit:</b> ${esc(p.org)}</div>
-    ${pegSkills(p).length?`<div style="margin-top:8px"><span class="mini" style="font-weight:700">Keahlian (dari riwayat tugas): </span>${pegSkills(p).map(s=>`<span class="pill blue" data-act="skill" data-skill="${esc(s.c)}" style="cursor:pointer;margin:2px 3px 2px 0;display:inline-block">${esc(s.c)} &middot; ${s.n}</span>`).join('')}</div>`:''}</div>
-  <h2 class="sec">Performa di Tiap Tim (${p.teams.length})</h2><div class="card" style="overflow-x:auto"><table><thead><tr><th>Tim</th><th>UE1</th><th>Peran</th><th>Status</th><th class="num-c">Task</th><th class="num-c">Selesai</th><th>Progres</th></tr></thead><tbody>`;
-  if(!p.teams.length)h+=`<tr><td colspan="7" class="empty">Tidak ada keanggotaan tim tercatat.</td></tr>`;
-  p.teams.slice().sort((a,b)=>(b.jml_task||0)-(a.jml_task||0)).forEach(t=>{const pr=t.persen||0;
-    h+=`<tr><td class="link" data-act="team" data-team="${t.idx}">${esc(t.nama)}</td><td class="mini">${esc(t.ue1)}</td><td>${t.is_leader?'<span class="pill on">Ketua</span>':'<span class="pill neu">Anggota</span>'}</td><td>${statusPill(t.status)}</td><td class="num-c">${fmt(t.jml_task)}</td><td class="num-c">${fmt(t.task_selesai)}</td><td><div class="track" style="width:110px;display:inline-block;vertical-align:middle"><div class="fill" style="width:${Math.max(2,pr)}%"></div></div> <span class="mini">${pr}%</span></td></tr>`;});
+    ${pegSkills(p).length?`<div style="margin-top:8px"><span class="mini" style="font-weight:700">Keahlian (dari riwayat tugas): </span>${pegSkills(p).map(s=>`<span class="pill blue" data-act="skill" data-skill="${esc(s.c)}" style="cursor:pointer;margin:2px 3px 2px 0;display:inline-block">${esc(s.c)} &middot; ${s.n}</span>`).join('')}</div>`:''}</div>`;
+  const tmap={};DATA.teams.forEach((x,i)=>{tmap[x.nama+'|'+x.ue1+'|'+x.ue2]=i;});
+  const myTeams=(p.teams||[]).filter(t=>tmap[t.nama+'|'+t.ue1+'|'+t.ue2]!=null);
+  h+=`<h2 class="sec">Performa di Tiap Tim (${myTeams.length})${state.mkYear?' &middot; tahun '+esc(state.mkYear):''}</h2><div class="card" style="overflow-x:auto"><table><thead><tr><th>Tim</th><th>UE1</th><th>Peran</th><th>Status</th><th class="num-c">Task</th><th class="num-c">Selesai</th><th>Progres</th></tr></thead><tbody>`;
+  if(!myTeams.length)h+=`<tr><td colspan="7" class="empty">Tidak ada keanggotaan tim tercatat untuk tahun ini.</td></tr>`;
+  myTeams.slice().sort((a,b)=>(b.jml_task||0)-(a.jml_task||0)).forEach(t=>{const pr=t.persen||0;const ci=tmap[t.nama+'|'+t.ue1+'|'+t.ue2];
+    h+=`<tr><td class="link" data-act="team" data-team="${ci}">${esc(t.nama)}</td><td class="mini">${esc(t.ue1)}</td><td>${t.is_leader?'<span class="pill on">Ketua</span>':'<span class="pill neu">Anggota</span>'}</td><td>${statusPill(t.status)}</td><td class="num-c">${fmt(t.jml_task)}</td><td class="num-c">${fmt(t.task_selesai)}</td><td><div class="track" style="width:110px;display:inline-block;vertical-align:middle"><div class="fill" style="width:${Math.max(2,pr)}%"></div></div> <span class="mini">${pr}%</span></td></tr>`;});
   return h+`</tbody></table></div>`;
 }
 
@@ -1652,7 +1685,9 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('otkPusatUE1'))q('otkPusatUE1').onchange=e=>{state.otkPusatUE1=e.target.value;state.otkExp={};render();};
   if(q('bebanYear'))q('bebanYear').onchange=e=>{state.bebanYear=e.target.value;render();};
   if(q('katQ'))q('katQ').oninput=e=>{state.katQ=e.target.value;rerenderKeep(vKatalog,'katQ');};
-  if(q('katBidang'))q('katBidang').onchange=e=>{state.katBidang=e.target.value;render();};}
+  if(q('katBidang'))q('katBidang').onchange=e=>{state.katBidang=e.target.value;render();};
+  if(q('bebanUE1'))q('bebanUE1').onchange=e=>{state.bebanUE1=e.target.value;state.bebanUE2='';render();};
+  if(q('bebanUE2'))q('bebanUE2').onchange=e=>{state.bebanUE2=e.target.value;render();};}
 function rerenderKeep(fn,fid){const el=document.getElementById(fid);const pos=el?el.selectionStart:null;
   document.getElementById('view').innerHTML=fn();bindInputs();const n=document.getElementById(fid);if(n){n.focus();if(pos!=null)n.setSelectionRange(pos,pos);}}
 
@@ -1674,7 +1709,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='userDel'){doDelUser(el.dataset.u);}
   else if(a==='ue1'){state.view='unit1';state.ue1=el.dataset.ue1;state.ue2=null;render();}
   else if(a==='ue2'){state.view='unit2';state.ue1=el.dataset.ue1;state.ue2=el.dataset.ue2;render();}
-  else if(a==='team'){const t=DATA.teams[+el.dataset.team];state.view='team';state.teamIdx=+el.dataset.team;state.ue1=t.ue1;state.ue2=t.ue2;render();}
+  else if(a==='team'){const i=+el.dataset.team;const t=DATA.teams[i];if(!t)return;state.view='team';state.teamIdx=i;state.ue1=t.ue1;state.ue2=t.ue2;render();}
   else if(a==='emp'){state.view='emp';state.empId=el.dataset.emp;render();}
   else if(a==='skill'){state.view='skill';state.skill=el.dataset.skill;state.skillStat='';render();}
   else if(a==='urjabopen'){state.urjabJab=+el.dataset.idx;state.view='urjabdetail';render();}
@@ -1742,7 +1777,7 @@ function apiLocal(action,p){
 }
 async function authenticate(u,p){const j=await api('login',{u:u,p:p});if(!j||!j.ok)return null;
   TOKEN=j.token;ME={u:u,nama:j.profil.nama,must_change:!!j.must_change};ADMIN=!!j.admin;FEATURES=j.features||'all';
-  SCOPE=j.scope||{type:'all'};BASEDATA=j.data;MKYEARS=mkYearsOf(BASEDATA);state.mkYear=MKYEARS[MKYEARS.length-1]||'';
+  SCOPE=j.scope||{type:'all'};BASEDATA=fixNames(j.data);MKYEARS=mkYearsOf(BASEDATA);state.mkYear=MKYEARS[MKYEARS.length-1]||'';
   DATA=yearSlice(BASEDATA,state.mkYear);return j.profil;}
 /* modal */
 function openModal(html){document.getElementById('modalCard').innerHTML=html;document.getElementById('modal').classList.add('show');}
@@ -1844,7 +1879,7 @@ function downloadData(){
   var S='';
   // 1) Tim
   S+=_xsheet('Tim',['Nama Tim','Eselon I','Eselon II','Jenis','Status','Formasi','Mulai','Selesai','Total Task','Skor','% Tepat'],
-    DATA.teams.map(function(t){return [t.nama,t.ue1,t.ue2,t.jenis,t.status,t.jml_anggota||0,t.mulai||'',t.selesai||'',(t.task&&t.task.total)||0,t.skor==null?'':t.skor,t.tepat_pct==null?'':t.tepat_pct];}));
+    DATA.teams.map(function(t){return [t.nama,t.ue1,t.ue2,dispJenis(t.jenis),t.status,t.jml_anggota||0,t.mulai||'',t.selesai||'',(t.task&&t.task.total)||0,t.skor==null?'':t.skor,t.tepat_pct==null?'':t.tepat_pct];}));
   // 2) Pegawai (tanpa NIP)
   S+=_xsheet('Pegawai',['Nama','Eselon I','Eselon II','Jml Tim','Total Task','Task Selesai','% Penyelesaian','Ketua Tim'],
     DATA.pegawai.map(function(p){return [p.nama,p.ue1,p.ue2,p.jml_tim||0,p.jml_task||0,p.task_selesai||0,p.persen==null?'':p.persen,p.is_leader?'Ya':''];}));
