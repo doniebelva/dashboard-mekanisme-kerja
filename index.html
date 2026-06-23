@@ -1470,15 +1470,15 @@ function setFooters(){
 // Catatan metodologi kontekstual: beda untuk modul kinerja vs modul URJAB
 function setFootNote(){
   const el=document.getElementById('foot');if(!el)return;
-  if(state.view==='beranda'||state.view.indexOf('probis')===0||state.view.indexOf('pb_')===0){el.innerHTML='';return;}
-  if(state.view.indexOf('otk')===0){
+  const m=curMod();
+  if(m==='otk'){
     el.innerHTML=`Struktur organisasi resmi bersumber dari RPMK Organisasi dan Tata Kerja Kementerian Keuangan (mengacu Perpres 158 Tahun 2024). Hierarki, tugas, dan fungsi diekstrak dari teks regulasi (pola "terdiri atas", "mempunyai tugas", "menyelenggarakan fungsi"). Rentang kendali = jumlah subunit langsung. Data difilter sesuai lingkup login.`;
-  }else if(state.view.indexOf('urjab')===0){
+  }else if(m==='urjab'){
     el.innerHTML=`Repositori uraian jabatan (ANJAB) bersifat referensi, tanpa data pegawai/NIP. Jenjang eselon dan jalur unit (Eselon I sampai IV) direkonstruksi dari prefix nama jabatan dan urutan dokumen ANJAB, bukan data struktur resmi, sehingga dapat memuat sedikit ketidaktepatan. Beban tugas dihitung dari jumlah butir uraian tugas (bukan bobot kerja riil). Rentang kendali = jumlah subunit langsung. Kemiripan tugas dihitung dari irisan kata (indeks Jaccard) uraian tugas dalam unit yang sama. Temuan pada Insight bersifat indikatif untuk ditindaklanjuti.`;
-  }else{
+  }else if(m==='mk'){
     const tk=((DATA&&DATA.summary)||{}).task||{};
     el.innerHTML=`Keterlambatan dihitung ulang dari tanggal task; ${fmt(tk.anomali||0)} baris anomali (selesai &lt; mulai) dibuang; ${fmt(tk.tak_terukur||0)} task selesai tanpa tenggat ditandai tak terukur. Hierarki UE1/UE2 diturunkan dari jalur organisasi pegawai &amp; pemetaan pemilik kinerja. Skor indikatif = 60% penyelesaian + 40% ketepatan waktu.`;
-  }
+  }else{el.innerHTML='';}
 }
 /* ===== Autentikasi, API, Akun & Manajemen User ===== */
 async function api(action,params){
