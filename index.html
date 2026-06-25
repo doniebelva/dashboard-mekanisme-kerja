@@ -1272,7 +1272,7 @@ function vUrjabCompare(){
   const sorted=all.map((j,i)=>({i,lab:j.unit_kode+' - '+j.jabatan})).sort((a,b)=>a.lab.localeCompare(b.lab,'id'));
   const es1names=[...new Set(all.map(j=>j.ue1))].sort((a,b)=>a.localeCompare(b,'id'));
   const optsHtml=(cur,ue1)=>sorted.filter(o=>!ue1||all[o.i].ue1===ue1).map(o=>`<option value="${o.i}" ${String(cur)===String(o.i)?'selected':''}>${esc(o.lab.length>72?o.lab.slice(0,72)+'…':o.lab)}</option>`).join('');
-  const e1sel=(id,cur)=>`<select class="flt" id="${id}" style="max-width:200px"><option value="">Semua Eselon I</option>${es1names.map(x=>`<option value="${esc(x)}" ${cur===x?'selected':''}>${esc(x.replace('Direktorat Jenderal','DJ'))}</option>`).join('')}</select>`;
+  const e1sel=(id,cur)=>`<select class="flt" id="${id}" style="max-width:200px"><option value="">Semua Eselon I</option>${es1names.map(x=>`<option value="${esc(x)}" ${cur===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
   let h=`<div class="note-box">Pilih dua jabatan untuk membandingkan ikhtisar, uraian tugas, dan wewenang berdampingan. Gunakan filter Eselon I di tiap sisi untuk mempersempit pilihan. Berguna untuk meninjau batas fungsi atau menyiapkan penyelarasan uraian jabatan.</div>
   <div class="toolbar">${e1sel('urjabCmpUE1A',state.urjabCmpUE1A)}<select class="flt" id="urjabCmpA" style="max-width:320px"><option value="">Pilih jabatan A...</option>${optsHtml(state.urjabCmpA,state.urjabCmpUE1A)}</select>
   ${e1sel('urjabCmpUE1B',state.urjabCmpUE1B)}<select class="flt" id="urjabCmpB" style="max-width:320px"><option value="">Pilih jabatan B...</option>${optsHtml(state.urjabCmpB,state.urjabCmpUE1B)}</select></div>`;
@@ -1783,13 +1783,13 @@ function vUrjabRedun(){
     let rows=REP.slice(); if(state.redEs)rows=rows.filter(r=>r.eselon===+state.redEs);
     h+=`<div class="card"><h2 class="sec" style="margin-top:0">Jabatan Ter-replikasi Lintas Eselon I <span class="mini">(${rows.length})</span></h2>
       <div style="overflow-x:auto"><table><thead><tr><th>Nama Jabatan</th><th>Jenjang</th><th class="num-c">Jumlah DJ</th><th class="num-c">Jumlah Unit</th><th class="num-c">Rata Butir</th><th>Tersebar di</th></tr></thead><tbody>`;
-    h+=rows.slice(0,150).map(r=>`<tr><td>${esc(r.nama)}</td><td class="mini">${esLbl[r.eselon]||''}</td><td class="num-c"><b>${r.ndj}</b></td><td class="num-c">${r.nunit}</td><td class="num-c">${r.butir}</td><td class="mini">${esc(r.dj.map(x=>x.replace('Direktorat Jenderal','DJ')).slice(0,8).join(', '))}${r.dj.length>8?' +'+(r.dj.length-8):''}</td></tr>`).join('')||'<tr><td colspan="6" class="mini">Tidak ada.</td></tr>';
+    h+=rows.slice(0,150).map(r=>`<tr><td>${esc(r.nama)}</td><td class="mini">${esLbl[r.eselon]||''}</td><td class="num-c"><b>${r.ndj}</b></td><td class="num-c">${r.nunit}</td><td class="num-c">${r.butir}</td><td class="mini">${esc(r.dj.map(x=>x).slice(0,8).join(', '))}${r.dj.length>8?' +'+(r.dj.length-8):''}</td></tr>`).join('')||'<tr><td colspan="6" class="mini">Tidak ada.</td></tr>';
     h+=`</tbody></table></div></div>`;
   }else{
     h+=`<div class="card"><h2 class="sec" style="margin-top:0">Uraian Tugas Mirip, Nama Beda <span class="mini">(${MIR.length})</span></h2>
       <div class="mini" style="margin-bottom:8px">Pasangan jabatan di Eselon I berbeda dengan uraian tugas nyaris identik. Diurut dari kemiripan tertinggi.</div>
       <div style="overflow-x:auto"><table><thead><tr><th>Jabatan A</th><th>Jabatan B</th><th>Jenjang</th><th class="num-c">Kemiripan</th></tr></thead><tbody>`;
-    h+=MIR.slice(0,150).map(m=>`<tr><td>${esc(m.an)}<div class="mini">${esc(m.ae.replace('Direktorat Jenderal','DJ'))}</div></td><td>${esc(m.bn)}<div class="mini">${esc(m.be.replace('Direktorat Jenderal','DJ'))}</div></td><td class="mini">${esLbl[m.es]||''}</td><td class="num-c"><b>${Math.round(m.sim*100)}%</b></td></tr>`).join('')||'<tr><td colspan="4" class="mini">Tidak ada.</td></tr>';
+    h+=MIR.slice(0,150).map(m=>`<tr><td>${esc(m.an)}<div class="mini">${esc(m.ae)}</div></td><td>${esc(m.bn)}<div class="mini">${esc(m.be)}</div></td><td class="mini">${esLbl[m.es]||''}</td><td class="num-c"><b>${Math.round(m.sim*100)}%</b></td></tr>`).join('')||'<tr><td colspan="4" class="mini">Tidak ada.</td></tr>';
     h+=`</tbody></table></div></div>`;
   }
   return h;
@@ -1802,8 +1802,8 @@ function vOtkCompare(){
   const e1of=function(n){return (es1Of(n)||{}).nama||'';};
   const sorted=pool.map(function(n,i){return {i:i,n:n,e1:e1of(n)};}).sort(function(a,b){return a.n.nama.localeCompare(b.n.nama,'id');});
   const es1names=otkKids(0).filter(function(n){return !n.nonunit&&inS(n);}).map(function(n){return n.nama;});
-  function opts(cur,ue1){return sorted.filter(function(o){return !ue1||o.e1===ue1;}).map(function(o){var lb=o.n.nama+(o.e1&&o.n.level>1?' ('+o.e1.replace('Direktorat Jenderal','DJ')+')':'');return '<option value="'+o.i+'" '+(String(cur)===String(o.i)?'selected':'')+'>'+esc(lb.length>72?lb.slice(0,72)+'…':lb)+'</option>';}).join('');}
-  const e1sel=function(id,cur){return '<select class="flt" id="'+id+'" style="max-width:200px"><option value="">Semua Eselon I</option>'+es1names.map(function(x){return '<option value="'+esc(x)+'" '+(cur===x?'selected':'')+'>'+esc(x.replace('Direktorat Jenderal','DJ'))+'</option>';}).join('')+'</select>';};
+  function opts(cur,ue1){return sorted.filter(function(o){return !ue1||o.e1===ue1;}).map(function(o){var lb=o.n.nama+(o.e1&&o.n.level>1?' ('+o.e1+')':'');return '<option value="'+o.i+'" '+(String(cur)===String(o.i)?'selected':'')+'>'+esc(lb.length>72?lb.slice(0,72)+'…':lb)+'</option>';}).join('');}
+  const e1sel=function(id,cur){return '<select class="flt" id="'+id+'" style="max-width:200px"><option value="">Semua Eselon I</option>'+es1names.map(function(x){return '<option value="'+esc(x)+'" '+(cur===x?'selected':'')+'>'+esc(x)+'</option>';}).join('')+'</select>';};
   let h=`<div class="note-box">Pilih dua unit untuk membandingkan tugas dan fungsi berdampingan. Gunakan filter Eselon I di tiap sisi untuk mempersempit pilihan. Berguna untuk meninjau batas kewenangan, tumpang tindih fungsi, atau bahan konsolidasi.</div>
   <div class="toolbar">${e1sel('otkCmpUE1A',state.otkCmpUE1A)}<select class="flt" id="otkCmpA" style="max-width:300px"><option value="">Pilih unit A...</option>${opts(state.otkCmpA,state.otkCmpUE1A)}</select>
   ${e1sel('otkCmpUE1B',state.otkCmpUE1B)}<select class="flt" id="otkCmpB" style="max-width:300px"><option value="">Pilih unit B...</option>${opts(state.otkCmpB,state.otkCmpUE1B)}</select></div>`;
@@ -1816,7 +1816,7 @@ function vOtkCompare(){
     <div style="margin:6px 0">${otkTag(n.level)} <span class="mini">${esc(otkPath(n).slice(1).map(function(p){return p.nama;}).join(' / '))}</span></div>
     <h2 class="sec">Tugas</h2><div class="mini" style="line-height:1.55">${esc(n.tugas||'-')}</div>
     <h2 class="sec">Fungsi (${(n.fungsi||[]).length})</h2><ol class="mini" style="padding-left:18px;line-height:1.5">${(n.fungsi||[]).map(function(x){return '<li>'+esc(x)+'</li>';}).join('')||'<li>-</li>'}</ol></div>`;};
-  return h+`<div class="grid2">${col(A)}${col(B)}</div>`+cmpInsight(A.fungsi||[],B.fungsi||[],'fungsi',A.nama,B.nama,((es1Of(A)||{}).nama||'').replace('Direktorat Jenderal','DJ'),((es1Of(B)||{}).nama||'').replace('Direktorat Jenderal','DJ'));
+  return h+`<div class="grid2">${col(A)}${col(B)}</div>`+cmpInsight(A.fungsi||[],B.fungsi||[],'fungsi',A.nama,B.nama,((es1Of(A)||{}).nama||''),((es1Of(B)||{}).nama||''));
 }
 
 /* ===== Indeks Kesehatan Organisasi per Eselon I (scorecard lintas modul) ===== */
@@ -1848,7 +1848,7 @@ function vOtkOrg(){
     <div class="kpi"><div class="lab">Rata-rata Indeks</div><div class="val" style="color:${cw(avg)}">${avg}</div><div class="note">dari 100, ${fmt(rows.length)} Eselon I</div></div>
     <div class="kpi good"><div class="lab">Status Baik</div><div class="val">${fmt(baik)}</div><div class="note">indeks &ge; 70</div></div>
     <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Perlu Perhatian</div><div class="val">${fmt(perlu)}</div><div class="note">indeks &lt; 50</div></div>
-    <div class="kpi gold"><div class="lab">Acuan tertinggi</div><div class="val">${rows.length?rows[0].idx:'-'}</div><div class="note">${rows.length?esc(rows[0].n1.nama.replace('Direktorat Jenderal','DJ')):''}</div></div></div>
+    <div class="kpi gold"><div class="lab">Acuan tertinggi</div><div class="val">${rows.length?rows[0].idx:'-'}</div><div class="note">${rows.length?esc(rows[0].n1.nama):''}</div></div></div>
   <div class="note-box">Indeks kesehatan organisasi per Eselon I (skala 0-100) menyatukan empat dimensi lintas modul dengan bobot: <b>Adopsi Mekanisme Kerja</b> (30%), <b>Penyederhanaan Struktur</b> (persen Eselon II yang sudah delayering, 25%), <b>Kejelasan Fungsi</b> (persen Eselon II tanpa tumpang tindih substantif, 25%), dan <b>Kelengkapan Fungsi</b> (persen unit dengan fungsi tertulis, 20%). Status: Baik &ge;70, Cukup 50-69, Perlu Perhatian &lt;50. Eselon I di luar cakupan Mekanisme Kerja (mis. DJP, DJBC, Itjen, BPPK) ditandai "&mdash;" pada Adopsi dan indeksnya dihitung dari tiga dimensi lain, sehingga peringkatnya tidak sepenuhnya setara dengan unit yang dinilai penuh. Alat pembanding antarunit, bukan penilaian final.</div>
   <div class="card"><h2 class="sec" style="margin-top:0">Skor Kesehatan per Eselon I</h2>
     <div style="overflow-x:auto"><table><thead><tr><th>Eselon I</th><th class="num-c">Adopsi MK</th><th class="num-c">Penyederhanaan</th><th class="num-c">Kejelasan Fungsi</th><th class="num-c">Kelengkapan Fungsi</th><th class="num-c">Indeks</th><th>Status</th></tr></thead><tbody>`;
@@ -1883,7 +1883,7 @@ function vOtkIndeks(){
   const ue1Sel=(SCOPE.type==='all')?`<select class="flt" id="idxUE1" style="margin-left:auto"><option value="">Semua Eselon I</option>${es1opts.map(x=>`<option value="${esc(x)}" ${state.idxUE1===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`:'';
   const hdr=(t,n)=>`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">${t} <span class="mini">(${fmt(n)})</span></h2>${ue1Sel}</div>`;
   const chips=(arr,withEs1)=>{if(!arr||!arr.length)return '<span class="mini">-</span>';const a=arr.slice().sort((x,y)=>y.sim-x.sim);
-    return a.slice(0,6).map(p=>`<span class="tag link" data-act="otkopen" data-id="${p.id}" style="margin:1px" title="${esc(p.nm)} &middot; ${Math.round(p.sim*100)}%">${esc(p.nm.length>36?p.nm.slice(0,36)+'…':p.nm)}${withEs1&&p.es1?' <span class="mini">('+esc(p.es1.replace('Direktorat Jenderal','DJ'))+')</span>':''}</span>`).join(' ')+(a.length>6?` <span class="mini">+${a.length-6} lagi</span>`:'');};
+    return a.slice(0,6).map(p=>`<span class="tag link" data-act="otkopen" data-id="${p.id}" style="margin:1px" title="${esc(p.nm)} &middot; ${Math.round(p.sim*100)}%">${esc(p.nm.length>36?p.nm.slice(0,36)+'…':p.nm)}${withEs1&&p.es1?' <span class="mini">('+esc(p.es1)+')</span>':''}</span>`).join(' ')+(a.length>6?` <span class="mini">+${a.length-6} lagi</span>`:'');};
   let h=`<div class="toolbar"><span class="seg">${tb('struktur','Struktur · Delayering',delayering.length)}${tb('urjab','Uraian Jabatan & Wewenang',urjab.length)}${tb('sop','Proses Bisnis & SOP',sop.length)}</span><span class="tag link" data-act="exportkajian" style="margin-left:auto;cursor:pointer;font-weight:700">&#8595; Ekspor Kajian (Word)</span></div>
   <div class="kpis">
     <div class="kpi"><div class="lab">Struktur (Delayering)</div><div class="val">${fmt(delayering.length)}</div><div class="note">ES II belum delayering</div></div>
@@ -2273,7 +2273,7 @@ function vTema(){
     h+=`</tbody></table>${shown.length>300?'<div class="mini" style="padding:8px">Menampilkan 300 dari '+fmt(shown.length)+'.</div>':''}</div>`;
   }else{
     if(!URJAB)return h+`<div class="card"><div class="empty">Memuat data jabatan...</div></div>`;
-    urjRes.forEach(r=>{r.gkey=(r.unit||'?').replace('Direktorat Jenderal','DJ');r.kls=_temaKlsOf(r,qn);});
+    urjRes.forEach(r=>{r.gkey=(r.unit||'?');r.kls=_temaKlsOf(r,qn);});
     const by={}; urjRes.forEach(r=>{by[r.gkey]=(by[r.gkey]||0)+1;});
     const arr=Object.keys(by).map(k=>({k:k,v:by[k]})).sort((a,b)=>b.v-a.v);
     h+=_temaSebaran(arr,'Sebaran per unit',state.temaGrp);
@@ -2282,7 +2282,7 @@ function vTema(){
     let shown=urjRes.filter(r=>(!state.temaGrp||r.gkey===state.temaGrp)&&(!state.temaKls||r.kls===state.temaKls));
     h+=`<h2 class="sec">Jabatan yang memuat "${esc(q)}" <span class="mini">(${fmt(shown.length)})</span>${chips()}</h2><div class="card" style="overflow-x:auto"><table><thead><tr><th>Jabatan</th><th>Unit</th><th>Pola</th><th>Muncul di</th><th>Cuplikan</th></tr></thead><tbody>`;
     if(!shown.length)h+=`<tr><td colspan="5" class="empty">Tidak ada jabatan yang cocok.</td></tr>`;
-    shown.slice(0,300).forEach(r=>{ const sn=r.wh.indexOf('uraian tugas')>=0?_temaSnip((r.ut||[]).join(' • '),words):(r.wh.indexOf('ikhtisar')>=0?_temaSnip(r.ikh,words):''); h+=`<tr><td class="link" data-act="urjabopen" data-idx="${r.idx}">${_temaHL(r.nama,words)}</td><td class="mini">${esc((r.unit||'').replace('Direktorat Jenderal','DJ'))}</td><td>${_temaKlsPill(r.kls)}</td><td>${pill(r.wh)}</td><td class="mini">${sn}</td></tr>`; });
+    shown.slice(0,300).forEach(r=>{ const sn=r.wh.indexOf('uraian tugas')>=0?_temaSnip((r.ut||[]).join(' • '),words):(r.wh.indexOf('ikhtisar')>=0?_temaSnip(r.ikh,words):''); h+=`<tr><td class="link" data-act="urjabopen" data-idx="${r.idx}">${_temaHL(r.nama,words)}</td><td class="mini">${esc((r.unit||''))}</td><td>${_temaKlsPill(r.kls)}</td><td>${pill(r.wh)}</td><td class="mini">${sn}</td></tr>`; });
     h+=`</tbody></table>${shown.length>300?'<div class="mini" style="padding:8px">Menampilkan 300 dari '+fmt(shown.length)+'.</div>':''}</div>`;
   }
   return h;
@@ -2337,28 +2337,28 @@ function vOtkEval(){
   h+=`<div class="card"><h2 class="sec" style="margin-top:0">Peta ukuran struktur per Eselon I <span class="mini">(kotak besar = unit lebih banyak; klik untuk menyaring)</span></h2>
     <div class="seg" style="margin-bottom:8px"><span class="segb ${viz!=='bar'?'on':''}" data-act="evviz" data-v="peta">Peta (treemap)</span><span class="segb ${viz==='bar'?'on':''}" data-act="evviz" data-v="bar">Bar</span></div>
     ${viz==='bar'?_temaBars(arr,state.evUE1,'evue1'):_temaTree(arr,state.evUE1,'evue1')}</div>`;
-  h+=`<h2 class="sec">Ringkasan per Eselon I <span class="mini">(klik nama, atau angka delayering/gabung/lebur untuk rincian)</span>${flt?` <span class="tag link" data-act="evue1" data-g="${esc(flt)}">${esc(flt.replace('Direktorat Jenderal','DJ'))} &times;</span>`:''}</h2><div class="card" style="overflow-x:auto"><table><thead><tr><th>Eselon I</th><th class="num-c">Unit</th><th class="num-c">ES II</th><th class="num-c">ES III</th><th class="num-c">ES IV</th><th class="num-c">Rentang sempit</th><th class="num-c">Delayering</th><th class="num-c">Kand. gabung</th><th class="num-c">Kand. lebur</th></tr></thead><tbody>`;
-  rows.forEach(r=>{h+=`<tr><td class="link" data-act="evue1" data-g="${esc(r.nama)}"${state.evUE1===r.nama?' style="font-weight:800"':''}>${esc(r.nama.replace('Direktorat Jenderal','DJ'))}</td><td class="num-c">${r.n}</td><td class="num-c">${r.e2}</td><td class="num-c">${r.e3}</td><td class="num-c">${r.e4}</td><td class="num-c">${r.narrow||''}</td><td class="num-c">${r.delayer?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="delayer" style="font-weight:800;color:var(--brand)">'+r.delayer+'</span>':''}</td><td class="num-c">${r.gab?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="gabung">'+r.gab+'</span>':''}</td><td class="num-c">${r.leb?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="lebur" style="font-weight:800;color:var(--red)">'+r.leb+'</span>':''}</td></tr>`;});
+  h+=`<h2 class="sec">Ringkasan per Eselon I <span class="mini">(klik nama, atau angka delayering/gabung/lebur untuk rincian)</span>${flt?` <span class="tag link" data-act="evue1" data-g="${esc(flt)}">${esc(flt)} &times;</span>`:''}</h2><div class="card" style="overflow-x:auto"><table><thead><tr><th>Eselon I</th><th class="num-c">Unit</th><th class="num-c">ES II</th><th class="num-c">ES III</th><th class="num-c">ES IV</th><th class="num-c">Rentang sempit</th><th class="num-c">Delayering</th><th class="num-c">Kand. gabung</th><th class="num-c">Kand. lebur</th></tr></thead><tbody>`;
+  rows.forEach(r=>{h+=`<tr><td class="link" data-act="evue1" data-g="${esc(r.nama)}"${state.evUE1===r.nama?' style="font-weight:800"':''}>${esc(r.nama)}</td><td class="num-c">${r.n}</td><td class="num-c">${r.e2}</td><td class="num-c">${r.e3}</td><td class="num-c">${r.e4}</td><td class="num-c">${r.narrow||''}</td><td class="num-c">${r.delayer?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="delayer" style="font-weight:800;color:var(--brand)">'+r.delayer+'</span>':''}</td><td class="num-c">${r.gab?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="gabung">'+r.gab+'</span>':''}</td><td class="num-c">${r.leb?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="lebur" style="font-weight:800;color:var(--red)">'+r.leb+'</span>':''}</td></tr>`;});
   h+=`</tbody></table></div>`;
   const tab=state.evTab||'gabung';
   h+=`<div class="seg" id="evcand"><span class="segb ${tab==='gabung'?'on':''}" data-act="evtab" data-t="gabung">Penggabungan (${fmt(pairs.length)})</span><span class="segb ${tab==='lebur'?'on':''}" data-act="evtab" data-t="lebur">Peleburan (${fmt(leburU.length)})</span><span class="segb ${tab==='delayer'?'on':''}" data-act="evtab" data-t="delayer">Delayering (${fmt(delayerU.length)})</span></div>`;
   if(tab==='gabung'){
     h+=`<div class="note-box">Pasangan unit selevel dengan tumpang tindih tugas dan fungsi <b>substantif</b> (bukan sekadar serial/objek). Tinjau untuk konsolidasi atau penegasan batas kewenangan.</div><div class="card" style="overflow-x:auto"><table><thead><tr><th>Unit A</th><th>Unit B</th><th>Eselon I</th><th class="num-c">Kemiripan</th></tr></thead><tbody>`;
     if(!pairs.length)h+=`<tr><td colspan="4" class="empty">Tidak ada.</td></tr>`;
-    pairs.slice(0,200).forEach(x=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${x.a}">${esc(x.an)}</td><td class="link" data-act="otkopen" data-id="${x.b}">${esc(x.bn)}</td><td class="mini">${esc((x.es1||'').replace('Direktorat Jenderal','DJ'))}</td><td class="num-c">${Math.round(x.sim*100)}%</td></tr>`;});
+    pairs.slice(0,200).forEach(x=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${x.a}">${esc(x.an)}</td><td class="link" data-act="otkopen" data-id="${x.b}">${esc(x.bn)}</td><td class="mini">${esc((x.es1||''))}</td><td class="num-c">${Math.round(x.sim*100)}%</td></tr>`;});
     h+=`</tbody></table>${pairs.length>200?'<div class="mini" style="padding:8px">Menampilkan 200 dari '+fmt(pairs.length)+'.</div>':''}</div>`;
   }else if(tab==='lebur'){
     h+=`<div class="note-box">Unit Eselon II/III dengan mandat tipis (fungsi sangat sedikit) <b>dan</b> tumpang tindih dengan unit selevel. Kandidat dilebur ke unit terkait; perlu telaah beban riil.</div><div class="card" style="overflow-x:auto"><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Fungsi</th><th>Beririsan dengan</th></tr></thead><tbody>`;
     if(!leburU.length)h+=`<tr><td colspan="4" class="empty">Tidak ada.</td></tr>`;
-    leburU.slice(0,200).forEach(u=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${u.id}">${esc(u.nama)}</td><td class="mini">${esc((e1by[u.id]||'').replace('Direktorat Jenderal','DJ'))}</td><td class="num-c">${(u.fungsi||[]).length}</td><td class="mini">${esc((ovMap[u.id]||[]).slice(0,2).join('; '))}</td></tr>`;});
+    leburU.slice(0,200).forEach(u=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${u.id}">${esc(u.nama)}</td><td class="mini">${esc((e1by[u.id]||''))}</td><td class="num-c">${(u.fungsi||[]).length}</td><td class="mini">${esc((ovMap[u.id]||[]).slice(0,2).join('; '))}</td></tr>`;});
     h+=`</tbody></table></div>`;
   }else{
     h+=`<div class="note-box">Unit Eselon II dengan 4 atau lebih Eselon III, kandidat penyederhanaan struktur dengan mengalihkan sebagian ke jabatan fungsional (cara kerja tim/matriks).</div><div class="card" style="overflow-x:auto"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th class="num-c">Jumlah ES III</th></tr></thead><tbody>`;
     if(!delayerU.length)h+=`<tr><td colspan="3" class="empty">Tidak ada.</td></tr>`;
-    delayerU.slice(0,200).forEach(u=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${u.id}">${esc(u.nama)}</td><td class="mini">${esc((e1by[u.id]||'').replace('Direktorat Jenderal','DJ'))}</td><td class="num-c">${e3cnt(u)}</td></tr>`;});
+    delayerU.slice(0,200).forEach(u=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${u.id}">${esc(u.nama)}</td><td class="mini">${esc((e1by[u.id]||''))}</td><td class="num-c">${e3cnt(u)}</td></tr>`;});
     h+=`</tbody></table></div>`;
   }
-  const top=rows.slice(0,3).map(r=>r.nama.replace('Direktorat Jenderal','DJ')+' ('+r.n+')');
+  const top=rows.slice(0,3).map(r=>r.nama+' ('+r.n+')');
   h+=`<div class="note-box"><b>Kesimpulan.</b> Dari <b>${fmt(totN)}</b> unit Eselon II-IV: <b>${fmt(totGab)}</b> pasangan tumpang tindih substantif (kandidat penggabungan), <b>${fmt(totLeb)}</b> unit bermandat tipis dan tumpang tindih (kandidat peleburan), serta <b>${fmt(totDel)}</b> Eselon II kandidat delayering. Dari sisi jabatan, <b>${fmt(totRep)}</b> nama jabatan tereplikasi lintas Eselon I (kandidat standardisasi). Struktur terbesar: ${esc(top.join(', '))}. Seluruh temuan indikatif untuk ditelaah lebih lanjut bersama acuan PermenPAN-RB, bukan keputusan final.</div>`;
   return h;
 }
@@ -2707,7 +2707,7 @@ function exportKajian(){
   var delayNoTeam=delayered.filter(function(n){var t=unitTeams(n);return t.covered&&t.tim===0;});
   var ovS={},ovC={},pS={},pC={};
   (OVERLAP.sibling||[]).forEach(function(r){if(r.cls==='substantif'){ovS[r.a]=(ovS[r.a]||0)+1;ovS[r.b]=(ovS[r.b]||0)+1;(pS[r.a]=pS[r.a]||[]).push(r.bn);(pS[r.b]=pS[r.b]||[]).push(r.an);}});
-  (OVERLAP.cross||[]).forEach(function(r){if(r.cls==='substantif'){ovC[r.a]=(ovC[r.a]||0)+1;ovC[r.b]=(ovC[r.b]||0)+1;(pC[r.a]=pC[r.a]||[]).push(r.bn+' ('+(r.be||'').replace('Direktorat Jenderal','DJ')+')');(pC[r.b]=pC[r.b]||[]).push(r.an+' ('+(r.ae||'').replace('Direktorat Jenderal','DJ')+')');}});
+  (OVERLAP.cross||[]).forEach(function(r){if(r.cls==='substantif'){ovC[r.a]=(ovC[r.a]||0)+1;ovC[r.b]=(ovC[r.b]||0)+1;(pC[r.a]=pC[r.a]||[]).push(r.bn+' ('+(r.be||'')+')');(pC[r.b]=pC[r.b]||[]).push(r.an+' ('+(r.ae||'')+')');}});
   var urjab=es2.filter(function(n){return (ovS[n.id]||0)>0;}).map(function(n){return {n:n,v:ovS[n.id],p:pS[n.id]||[],e1:e1of(n)};}).sort(function(a,b){return b.v-a.v;});
   var sop=es2.filter(function(n){return (ovC[n.id]||0)>0;}).map(function(n){return {n:n,v:ovC[n.id],p:pC[n.id]||[],e1:e1of(n)};}).sort(function(a,b){return b.v-a.v;});
   // share service pillars
