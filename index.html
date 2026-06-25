@@ -579,7 +579,7 @@ const MODULES=[
  {id:'otk',icn:'otk',lab:'Struktur Organisasi',groups:[
    {grp:'Jelajah',items:[{v:'otk',lab:'Pohon Organisasi'},{v:'tema',lab:'Penelusuran Tematik'},{v:'otkcompare',lab:'Komparasi Struktur'}]},
    {grp:'Profil & Diagnostik',items:[{v:'otkanalisis',lab:'Komposisi & Rentang Kendali'},{v:'otkhealth',lab:'Kesehatan Struktur'},{v:'otkoverlap',lab:'Tumpang Tindih Tugas & Fungsi'},{v:'otkkaitan',lab:'Keterkaitan Antar Modul'}]},
-   {grp:'Penataan & Rekomendasi',items:[{v:'otkorg',lab:'Indeks Kesehatan Organisasi'},{v:'otkindeks',lab:'Usulan Penataan'},{v:'otkshare',lab:'Peluang Share Service'}]},
+   {grp:'Penataan & Rekomendasi',items:[{v:'otkeval',lab:'Evaluasi Organisasi'},{v:'otkorg',lab:'Indeks Kesehatan Organisasi'},{v:'otkindeks',lab:'Usulan Penataan'},{v:'otkshare',lab:'Peluang Share Service'}]},
  ]},
  {id:'urjab',icn:'urjab',lab:'Jabatan',groups:[
    {grp:'',items:[{v:'urjab',lab:'Repositori Jabatan'},{v:'tema',lab:'Penelusuran Tematik'},{v:'urjabanalisis',lab:'Analisis Jabatan'},{v:'urjabinsight',lab:'Insight Jabatan'},{v:'urjabcompare',lab:'Komparasi Jabatan'},{v:'urjabredun',lab:'Replikasi Jabatan'}]},
@@ -618,7 +618,7 @@ let state={view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   urjabQ:'',urjabEs1:'',urjabEs2:'',urjabEs3:'',urjabEs4:'',urjabJab:null,urjabLoading:false,urjabErr:false,
   urjabAnUE1:'',urjabInsSev:'',urjabInsCat:'',urjabCmpA:'',urjabCmpB:'',urjabCmpUE1A:'',urjabCmpUE1B:'',otkCmpA:'',otkCmpB:'',otkCmpUE1A:'',otkCmpUE1B:'',
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
-  otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:''};
+  otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta'};
 
 function renderNav(){const cur=curMod();let h='<div class="modsw">';
   MODULES.forEach(m=>{if(m.id!=='beranda'&&!canMod(m.id))return;
@@ -635,7 +635,7 @@ function renderNav(){const cur=curMod();let h='<div class="modsw">';
     h+='</div>';
   }
   document.getElementById('nav').innerHTML=h;}
-const VT={ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
+const VT={otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
   struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Analisis Beban Kerja',
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi'};
 
@@ -2150,7 +2150,7 @@ function _temaSnip(text, words){
   var start=Math.max(0,pos-45), end=Math.min(text.length,pos+135);
   return (start>0?'...':'')+_temaHL(text.slice(start,end),words)+(end<text.length?'...':'');
 }
-function _temaBars(items, sel){
+function _temaBars(items, sel, act){ act=act||'temagrp';
   if(!items.length)return '';
   var max=Math.max.apply(null, items.map(function(i){return i.v;}).concat([1]));
   var rowH=30, padL=185, padR=46, w=780, top=6, bw=w-padL-padR, h=top*2+items.length*rowH;
@@ -2162,7 +2162,7 @@ function _temaBars(items, sel){
     s+='<rect x="'+padL+'" y="'+(y+3)+'" width="'+bw+'" height="20" rx="4" fill="var(--line)"/>';
     s+='<rect x="'+padL+'" y="'+(y+3)+'" width="'+bl+'" height="20" rx="4" fill="'+(on?'var(--brand-d)':'var(--brand)')+'"/>';
     s+='<text x="'+(padL+bl+6)+'" y="'+(y+14)+'" font-size="12" font-weight="700" fill="var(--muted)">'+it.v+'</text>';
-    s+='<rect x="0" y="'+y+'" width="'+w+'" height="'+(rowH-2)+'" fill="transparent" style="cursor:pointer" data-act="temagrp" data-g="'+esc(it.k)+'"><title>'+esc(it.k)+': '+it.v+' (klik untuk saring)</title></rect>';
+    s+='<rect x="0" y="'+y+'" width="'+w+'" height="'+(rowH-2)+'" fill="transparent" style="cursor:pointer" data-act="'+act+'" data-g="'+esc(it.k)+'"><title>'+esc(it.k)+': '+it.v+' (klik untuk saring)</title></rect>';
   });
   return s+'</svg>';
 }
@@ -2202,6 +2202,44 @@ function _temaKlsNarasi(results){
   return s;
 }
 function _temaKlsPill(k){ return '<span class="pill '+KLSC[k]+'">'+({khusus:'Khusus',gabung:'Gabungan',tusi:'Di tugas/fungsi'}[k])+'</span>'; }
+/* Treemap (heatmap kotak): ukuran kotak = jumlah, warna makin pekat = makin banyak; kotak bisa diklik. */
+function _tmLayout(items,x,y,w,h,out){
+  if(!items.length)return;
+  if(items.length===1){out.push({k:items[0].k,v:items[0].v,x:x,y:y,w:w,h:h});return;}
+  var total=items.reduce(function(s,i){return s+i.v;},0)||1, half=total/2, acc=0, idx=1;
+  for(var i=0;i<items.length;i++){ if(i>0&&acc+items[i].v>half)break; acc+=items[i].v; idx=i+1; }
+  var g1=items.slice(0,idx), g2=items.slice(idx); if(!g2.length){g2=[g1.pop()];}
+  var a1=g1.reduce(function(s,i){return s+i.v;},0), frac=a1/total;
+  if(w>=h){var w1=w*frac; _tmLayout(g1,x,y,w1,h,out); _tmLayout(g2,x+w1,y,w-w1,h,out);}
+  else {var h1=h*frac; _tmLayout(g1,x,y,w,h1,out); _tmLayout(g2,x,y+h1,w,h-h1,out);}
+}
+function _tmColor(t){ // light brand -> brand gelap
+  var L=[226,238,252], D=[15,74,150], c=L.map(function(a,i){return Math.round(a+(D[i]-a)*t);});
+  return 'rgb('+c[0]+','+c[1]+','+c[2]+')';
+}
+function _temaTree(items, sel, act){ act=act||'temagrp';
+  if(!items.length)return '';
+  var W=780,H=Math.max(180,Math.min(420,60+items.length*16)), max=Math.max.apply(null,items.map(function(i){return i.v;}).concat([1]));
+  var sorted=items.slice().sort(function(a,b){return b.v-a.v;}), out=[]; _tmLayout(sorted,0,0,W,H,out);
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:100%">';
+  out.forEach(function(b){
+    var t=b.v/max, on=sel===b.k, dark=t>0.45;
+    s+='<g style="cursor:pointer" data-act="'+act+'" data-g="'+esc(b.k)+'">';
+    s+='<rect x="'+(b.x+1)+'" y="'+(b.y+1)+'" width="'+Math.max(0,b.w-2)+'" height="'+Math.max(0,b.h-2)+'" rx="3" fill="'+_tmColor(t)+'" stroke="'+(on?'var(--brand-d)':'#fff')+'" stroke-width="'+(on?2.5:1)+'"/>';
+    if(b.w>64&&b.h>26){
+      var fill=dark?'#fff':'var(--ink)', lab=b.k.length>Math.floor(b.w/7)?b.k.slice(0,Math.floor(b.w/7)-1)+'…':b.k;
+      s+='<text x="'+(b.x+7)+'" y="'+(b.y+16)+'" font-size="11.5" font-weight="600" fill="'+fill+'">'+esc(lab)+'</text>';
+      s+='<text x="'+(b.x+7)+'" y="'+(b.y+31)+'" font-size="12.5" font-weight="800" fill="'+fill+'">'+b.v+'</text>';
+    }
+    s+='<title>'+esc(b.k)+': '+b.v+' (klik untuk saring)</title></g>';
+  });
+  return s+'</svg>';
+}
+function _temaSebaran(arr, title, sel){
+  var viz=state.temaViz||'bar';
+  var tg='<div class="seg" style="margin-bottom:8px"><span class="segb '+(viz!=='peta'?'on':'')+'" data-act="temaviz" data-v="bar">Bar</span><span class="segb '+(viz==='peta'?'on':'')+'" data-act="temaviz" data-v="peta">Peta (treemap)</span></div>';
+  return '<div class="card"><h2 class="sec" style="margin-top:0">'+title+' <span class="mini">(klik untuk menyaring)</span></h2>'+tg+(viz==='peta'?_temaTree(arr,sel):_temaBars(arr,sel))+'</div>';
+}
 function vTema(){
   const q=(state.temaQ||'').trim();
   let h=`<div class="note-box">Cari satu istilah (mis. <b>kepatuhan internal</b>, <b>manajemen risiko</b>, <b>data</b>) untuk melihat istilah itu muncul di <b>unit</b> mana saja (Struktur: pusat, vertikal, BLU/Non-Eselon) dan di <b>jabatan</b> apa saja (nama, ikhtisar, uraian tugas). Klik hasil untuk membuka detailnya.</div>
@@ -2225,7 +2263,7 @@ function vTema(){
     otkRes.forEach(r=>{r.gkey=r.grp;r.kls=_temaKlsOf(r,qn);});
     const by={}; otkRes.forEach(r=>{by[r.gkey]=(by[r.gkey]||0)+1;});
     const arr=Object.keys(by).map(k=>({k:k,v:by[k]})).sort((a,b)=>b.v-a.v);
-    h+=`<div class="card"><h2 class="sec" style="margin-top:0">Sebaran per lingkup <span class="mini">(klik batang untuk menyaring)</span></h2>${_temaBars(arr,state.temaGrp)}</div>`;
+    h+=_temaSebaran(arr,'Sebaran per lingkup',state.temaGrp);
     h+=_temaKlsCard(otkRes,state.temaKls);
     h+=`<div class="note-box"><b>Kesimpulan.</b> ${_temaNarasi(q,arr,otkRes.length,'otk')}${_temaKlsNarasi(otkRes)}</div>`;
     let shown=otkRes.filter(r=>(!state.temaGrp||r.gkey===state.temaGrp)&&(!state.temaKls||r.kls===state.temaKls));
@@ -2238,7 +2276,7 @@ function vTema(){
     urjRes.forEach(r=>{r.gkey=(r.unit||'?').replace('Direktorat Jenderal','DJ');r.kls=_temaKlsOf(r,qn);});
     const by={}; urjRes.forEach(r=>{by[r.gkey]=(by[r.gkey]||0)+1;});
     const arr=Object.keys(by).map(k=>({k:k,v:by[k]})).sort((a,b)=>b.v-a.v);
-    h+=`<div class="card"><h2 class="sec" style="margin-top:0">Sebaran per unit <span class="mini">(klik batang untuk menyaring)</span></h2>${_temaBars(arr,state.temaGrp)}</div>`;
+    h+=_temaSebaran(arr,'Sebaran per unit',state.temaGrp);
     h+=_temaKlsCard(urjRes,state.temaKls);
     h+=`<div class="note-box"><b>Kesimpulan.</b> ${_temaNarasi(q,arr,urjRes.length,'urjab')}${_temaKlsNarasi(urjRes)}</div>`;
     let shown=urjRes.filter(r=>(!state.temaGrp||r.gkey===state.temaGrp)&&(!state.temaKls||r.kls===state.temaKls));
@@ -2249,11 +2287,86 @@ function vTema(){
   }
   return h;
 }
+/* ===== Evaluasi Organisasi: diagnosis struktur+jabatan (gemuk/gabung/lebur/delayering) ===== */
+function vOtkEval(){
+  const U=OTK.unit;
+  const e3cnt=u=>otkKids(u.id).filter(c=>c.level===3).length;
+  const ovMap={}; (OVERLAP.sibling||[]).forEach(x=>{ if(x.cls==='substantif'){ (ovMap[x.a]=ovMap[x.a]||[]).push(x.bn); (ovMap[x.b]=ovMap[x.b]||[]).push(x.an); }});
+  const thin=u=>(u.level===2||u.level===3)&&((u.fungsi||[]).length<=3);
+  const e1by={}; U.forEach(u=>{const e=es1Of(u);e1by[u.id]=e?e.nama:'';});
+  function verdict(u){
+    if(u.nonunit||u.level<2)return 'sehat';
+    if(u.level===2&&e3cnt(u)>=4)return 'delayer';
+    if(ovMap[u.id]&&thin(u))return 'lebur';
+    if(ovMap[u.id])return 'gabung';
+    return 'sehat';
+  }
+  const e1s=U.filter(u=>u.level===1);
+  const rows=e1s.map(e=>{
+    const d=U.filter(u=>!u.nonunit&&u.level>=2&&e1by[u.id]===e.nama);
+    const cE=l=>d.filter(u=>u.level===l).length;
+    const delayer=d.filter(u=>u.level===2&&e3cnt(u)>=4).length;
+    const narrow=d.filter(u=>(u.level===2||u.level===3)&&otkKids(u.id).length===1).length;
+    const leb=d.filter(u=>verdict(u)==='lebur').length;
+    const gab=(OVERLAP.sibling||[]).filter(x=>x.cls==='substantif'&&x.es1===e.nama).length;
+    const tinjau=d.filter(u=>verdict(u)!=='sehat').length;
+    return {nama:e.nama,n:d.length,e2:cE(2),e3:cE(3),e4:cE(4),delayer:delayer,narrow:narrow,gab:gab,leb:leb,tinjau:tinjau};
+  }).filter(r=>r.n>0).sort((a,b)=>b.n-a.n);
+  let pairs=(OVERLAP.sibling||[]).filter(x=>x.cls==='substantif').sort((a,b)=>b.sim-a.sim);
+  let leburU=U.filter(u=>verdict(u)==='lebur');
+  let delayerU=U.filter(u=>u.level===2&&!u.nonunit&&e3cnt(u)>=4).sort((a,b)=>e3cnt(b)-e3cnt(a));
+  const flt=state.evUE1;
+  if(flt){pairs=pairs.filter(x=>x.es1===flt);leburU=leburU.filter(u=>e1by[u.id]===flt);delayerU=delayerU.filter(u=>e1by[u.id]===flt);}
+  const totN=rows.reduce((s,r)=>s+r.n,0), totGab=(OVERLAP.sibling||[]).filter(x=>x.cls==='substantif').length, totLeb=U.filter(u=>verdict(u)==='lebur').length, totDel=U.filter(u=>u.level===2&&!u.nonunit&&e3cnt(u)>=4).length, totRep=(REDUN&&REDUN.replikasi?REDUN.replikasi.length:0);
+  let h=`<div class="note-box">Evaluasi struktur berdasarkan <b>tugas dan fungsi</b> serta <b>jabatan</b> saat ini (dimensi beban kerja/ABK menyusul). Kriteria: <b>kandidat penggabungan</b> = unit selevel dengan tumpang tindih tusi substantif; <b>kandidat peleburan</b> = unit Eselon II/III bermandat tipis (fungsi minim) sekaligus tumpang tindih; <b>delayering</b> = Eselon II dengan 4 atau lebih Eselon III. Semua bersifat <b>indikatif untuk ditelaah</b>, bukan keputusan; kemiripan berbasis kata sehingga perlu konfirmasi.</div>`;
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Dimensi evaluasi <span class="mini">(peta jalan &middot; saat ini 2 dimensi inti)</span></h2>
+    <div class="mini" style="margin-bottom:7px">Mengacu praktik desain organisasi (Galbraith Star Model, McKinsey 7S) dan PermenPAN-RB. Evaluasi dikembangkan bertahap, belum mencakup semua dimensi.</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <span class="pill good">Tugas &amp; fungsi &#10003;</span><span class="pill good">Jabatan &amp; komposisi &#10003;</span><span class="pill good">Rentang kendali &#10003;</span><span class="pill good">Lapisan/delayering &#10003;</span><span class="pill good">Ukuran struktur &#10003;</span>
+      <span class="pill gold">Beban kerja (ABK) &rsaquo;</span><span class="pill gold">Kinerja/aktivitas &rsaquo;</span><span class="pill gold">Proses bisnis &rsaquo;</span>
+      <span class="pill neu">Proporsionalitas SDM</span><span class="pill neu">Kesesuaian strategi/regulasi</span><span class="pill neu">Beban layanan &amp; geografis</span></div>
+    <div class="mini" style="margin-top:8px"><span class="pill good">hijau</span> dipakai sekarang &middot; <span class="pill gold">kuning</span> menyusul &middot; <span class="pill neu">abu</span> rencana</div></div>
+  <div class="kpis">
+    <div class="kpi"><div class="lab">Unit dievaluasi</div><div class="val">${fmt(totN)}</div></div>
+    <div class="kpi gold"><div class="lab">Kandidat penggabungan</div><div class="val">${fmt(totGab)}</div><div class="note">pasangan</div></div>
+    <div class="kpi alert"><div class="lab">Kandidat peleburan</div><div class="val">${fmt(totLeb)}</div><div class="note">unit</div></div>
+    <div class="kpi"><div class="lab">Kandidat delayering</div><div class="val">${fmt(totDel)}</div><div class="note">Eselon II</div></div>
+    <div class="kpi good"><div class="lab">Replikasi jabatan</div><div class="val">${fmt(totRep)}</div><div class="note">nama lintas DJ</div></div></div>`;
+  const arr=rows.map(r=>({k:r.nama,v:r.n}));
+  const viz=state.evViz||'peta';
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Peta ukuran struktur per Eselon I <span class="mini">(kotak besar = unit lebih banyak; klik untuk menyaring)</span></h2>
+    <div class="seg" style="margin-bottom:8px"><span class="segb ${viz!=='bar'?'on':''}" data-act="evviz" data-v="peta">Peta (treemap)</span><span class="segb ${viz==='bar'?'on':''}" data-act="evviz" data-v="bar">Bar</span></div>
+    ${viz==='bar'?_temaBars(arr,state.evUE1,'evue1'):_temaTree(arr,state.evUE1,'evue1')}</div>`;
+  h+=`<h2 class="sec">Ringkasan per Eselon I <span class="mini">(klik nama, atau angka delayering/gabung/lebur untuk rincian)</span>${flt?` <span class="tag link" data-act="evue1" data-g="${esc(flt)}">${esc(flt.replace('Direktorat Jenderal','DJ'))} &times;</span>`:''}</h2><div class="card" style="overflow-x:auto"><table><thead><tr><th>Eselon I</th><th class="num-c">Unit</th><th class="num-c">ES II</th><th class="num-c">ES III</th><th class="num-c">ES IV</th><th class="num-c">Rentang sempit</th><th class="num-c">Delayering</th><th class="num-c">Kand. gabung</th><th class="num-c">Kand. lebur</th></tr></thead><tbody>`;
+  rows.forEach(r=>{h+=`<tr><td class="link" data-act="evue1" data-g="${esc(r.nama)}"${state.evUE1===r.nama?' style="font-weight:800"':''}>${esc(r.nama.replace('Direktorat Jenderal','DJ'))}</td><td class="num-c">${r.n}</td><td class="num-c">${r.e2}</td><td class="num-c">${r.e3}</td><td class="num-c">${r.e4}</td><td class="num-c">${r.narrow||''}</td><td class="num-c">${r.delayer?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="delayer" style="font-weight:800;color:var(--brand)">'+r.delayer+'</span>':''}</td><td class="num-c">${r.gab?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="gabung">'+r.gab+'</span>':''}</td><td class="num-c">${r.leb?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="lebur" style="font-weight:800;color:var(--red)">'+r.leb+'</span>':''}</td></tr>`;});
+  h+=`</tbody></table></div>`;
+  const tab=state.evTab||'gabung';
+  h+=`<div class="seg" id="evcand"><span class="segb ${tab==='gabung'?'on':''}" data-act="evtab" data-t="gabung">Penggabungan (${fmt(pairs.length)})</span><span class="segb ${tab==='lebur'?'on':''}" data-act="evtab" data-t="lebur">Peleburan (${fmt(leburU.length)})</span><span class="segb ${tab==='delayer'?'on':''}" data-act="evtab" data-t="delayer">Delayering (${fmt(delayerU.length)})</span></div>`;
+  if(tab==='gabung'){
+    h+=`<div class="note-box">Pasangan unit selevel dengan tumpang tindih tugas dan fungsi <b>substantif</b> (bukan sekadar serial/objek). Tinjau untuk konsolidasi atau penegasan batas kewenangan.</div><div class="card" style="overflow-x:auto"><table><thead><tr><th>Unit A</th><th>Unit B</th><th>Eselon I</th><th class="num-c">Kemiripan</th></tr></thead><tbody>`;
+    if(!pairs.length)h+=`<tr><td colspan="4" class="empty">Tidak ada.</td></tr>`;
+    pairs.slice(0,200).forEach(x=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${x.a}">${esc(x.an)}</td><td class="link" data-act="otkopen" data-id="${x.b}">${esc(x.bn)}</td><td class="mini">${esc((x.es1||'').replace('Direktorat Jenderal','DJ'))}</td><td class="num-c">${Math.round(x.sim*100)}%</td></tr>`;});
+    h+=`</tbody></table>${pairs.length>200?'<div class="mini" style="padding:8px">Menampilkan 200 dari '+fmt(pairs.length)+'.</div>':''}</div>`;
+  }else if(tab==='lebur'){
+    h+=`<div class="note-box">Unit Eselon II/III dengan mandat tipis (fungsi sangat sedikit) <b>dan</b> tumpang tindih dengan unit selevel. Kandidat dilebur ke unit terkait; perlu telaah beban riil.</div><div class="card" style="overflow-x:auto"><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Fungsi</th><th>Beririsan dengan</th></tr></thead><tbody>`;
+    if(!leburU.length)h+=`<tr><td colspan="4" class="empty">Tidak ada.</td></tr>`;
+    leburU.slice(0,200).forEach(u=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${u.id}">${esc(u.nama)}</td><td class="mini">${esc((e1by[u.id]||'').replace('Direktorat Jenderal','DJ'))}</td><td class="num-c">${(u.fungsi||[]).length}</td><td class="mini">${esc((ovMap[u.id]||[]).slice(0,2).join('; '))}</td></tr>`;});
+    h+=`</tbody></table></div>`;
+  }else{
+    h+=`<div class="note-box">Unit Eselon II dengan 4 atau lebih Eselon III, kandidat penyederhanaan struktur dengan mengalihkan sebagian ke jabatan fungsional (cara kerja tim/matriks).</div><div class="card" style="overflow-x:auto"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th class="num-c">Jumlah ES III</th></tr></thead><tbody>`;
+    if(!delayerU.length)h+=`<tr><td colspan="3" class="empty">Tidak ada.</td></tr>`;
+    delayerU.slice(0,200).forEach(u=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${u.id}">${esc(u.nama)}</td><td class="mini">${esc((e1by[u.id]||'').replace('Direktorat Jenderal','DJ'))}</td><td class="num-c">${e3cnt(u)}</td></tr>`;});
+    h+=`</tbody></table></div>`;
+  }
+  const top=rows.slice(0,3).map(r=>r.nama.replace('Direktorat Jenderal','DJ')+' ('+r.n+')');
+  h+=`<div class="note-box"><b>Kesimpulan.</b> Dari <b>${fmt(totN)}</b> unit Eselon II-IV: <b>${fmt(totGab)}</b> pasangan tumpang tindih substantif (kandidat penggabungan), <b>${fmt(totLeb)}</b> unit bermandat tipis dan tumpang tindih (kandidat peleburan), serta <b>${fmt(totDel)}</b> Eselon II kandidat delayering. Dari sisi jabatan, <b>${fmt(totRep)}</b> nama jabatan tereplikasi lintas Eselon I (kandidat standardisasi). Struktur terbesar: ${esc(top.join(', '))}. Seluruh temuan indikatif untuk ditelaah lebih lanjut bersama acuan PermenPAN-RB, bukan keputusan final.</div>`;
+  return h;
+}
 function renderCrumb(){
   const c=[];const v=state.view;
   if(v.indexOf('pb_')===0){var _mid=VIEW2MOD[v]||'probis';var _ml=(MODULES.find(function(m){return m.id===_mid;})||{}).lab||'Proses Bisnis';document.getElementById('crumb').innerHTML='<span>'+esc(_ml)+' &rsaquo; '+esc(PB_LBL[v.slice(3)]||'')+'</span>';return;}
   const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Analisis Beban Kerja',
-    beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi'}[v];
+    beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
     if(v==='urjabdetail'){c.push(`<a data-act="nav" data-view="urjab">Repositori Uraian Jabatan</a>`);c.push('&rsaquo;');c.push(`<span>${esc(((URJAB&&URJAB.jabatan[state.urjabJab])||{}).jabatan||'Detail')}</span>`);}
@@ -2286,7 +2399,7 @@ function render(){
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,abk:vAbk,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema};
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,abk:vAbk,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema};
   document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))();
   setFootNote();window.scrollTo({top:0});bindInputs();
 }
@@ -2390,6 +2503,11 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='temagrp'){var g=el.dataset.g;state.temaGrp=(state.temaGrp===g?'':g);render();}
   else if(a==='temakls'){var kk=el.dataset.k;state.temaKls=(state.temaKls===kk?'':kk);render();}
   else if(a==='gotema'){state.temaTab=(curMod()==='urjab'?'urjab':'otk');state.temaQ=el.dataset.q||'';state.temaGrp='';state.temaKls='';state.view='tema';render();}
+  else if(a==='temaviz'){state.temaViz=el.dataset.v;render();}
+  else if(a==='evue1'){var g=el.dataset.g;state.evUE1=(state.evUE1===g?'':g);render();if(state.evUE1){var ec=document.getElementById('evcand');if(ec)ec.scrollIntoView({behavior:'smooth',block:'start'});}}
+  else if(a==='evcell'){state.evUE1=el.dataset.g;state.evTab=el.dataset.t;render();var ec2=document.getElementById('evcand');if(ec2)ec2.scrollIntoView({behavior:'smooth',block:'start'});}
+  else if(a==='evtab'){state.evTab=el.dataset.t;render();}
+  else if(a==='evviz'){state.evViz=el.dataset.v;render();}
   else if(a==='otkvexpand'){const _vs=curVSet();((_vs.ds[_vs.key]||{unit:[]}).unit).forEach(n=>state.otkExpV[n.id]=true);render();}
   else if(a==='otkvcollapse'){state.otkExpV={};render();}
   else if(a==='exp'){const k=el.dataset.key;state.expanded[k]=!state.expanded[k];render();}
