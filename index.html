@@ -404,6 +404,11 @@ function ensureUrjab(){if(URJAB||state.urjabLoading)return;state.urjabLoading=tr
 /* Katalog Keahlian (taksonomi resmi, ~944KB) - lazy-load seperti URJAB */
 let KATALOG=null;const KATALOG_URL='';
 async function loadKatalog(){if(KATALOG)return KATALOG;if(REMOTE){KATALOG=await api('katalog',{});return KATALOG;}if(KATALOG_URL){const r=await fetch(KATALOG_URL);KATALOG=await r.json();return KATALOG;}return KATALOG;}
+/* Analisis Beban Kerja (ABK): sensitif -> LOKAL inline; REMOTE null lalu fetch lewat gerbang saat menu dibuka */
+let ABK=null;const ABK_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?abk=1';
+async function loadAbk(){if(ABK)return ABK;if(REMOTE){ABK=await api('abk',{});return ABK;}if(ABK_URL){const r=await fetch(ABK_URL);ABK=await r.json();}return ABK;}
+function ensureAbk(){if(ABK||state.abkLoading)return;state.abkLoading=true;state.abkErr=false;progStart();
+  loadAbk().then(()=>{state.abkLoading=false;progDone();render();}).catch(()=>{state.abkLoading=false;progDone();state.abkErr=true;render();});}
 /* Mode 'files': muat semua data inti (struktural + MK + akun) dari ./data/*.json sebelum login/render. */
 async function ensureCore(){
   if(DATAMODE!=='files'||OTK)return;
@@ -618,7 +623,8 @@ let state={view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   urjabQ:'',urjabEs1:'',urjabEs2:'',urjabEs3:'',urjabEs4:'',urjabJab:null,urjabLoading:false,urjabErr:false,
   urjabAnUE1:'',urjabInsSev:'',urjabInsCat:'',urjabCmpA:'',urjabCmpB:'',urjabCmpUE1A:'',urjabCmpUE1B:'',otkCmpA:'',otkCmpB:'',otkCmpUE1A:'',otkCmpUE1B:'',
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
-  otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta'};
+  otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',
+  abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false};
 
 function renderNav(){const cur=curMod();let h='<div class="modsw">';
   MODULES.forEach(m=>{if(m.id!=='beranda'&&!canMod(m.id))return;
@@ -636,7 +642,7 @@ function renderNav(){const cur=curMod();let h='<div class="modsw">';
   }
   document.getElementById('nav').innerHTML=h;}
 const VT={otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
-  struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Analisis Beban Kerja',
+  struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Analisis Beban Kerja',abkunit:'Detail Beban Unit',
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi'};
 
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
@@ -1490,6 +1496,11 @@ function profil360(n){
   let c='';
   c+=`<div ${box}><div ${lab}>Jabatan</div>`+((ur&&ur.jab)?`<div ${big}>${fmt(ur.jab)}</div><div ${sub}>jabatan &middot; ${fmt(ur.butir)} butir tugas</div>${showUrj?`<div style="margin-top:8px"><span class="tag link" data-act="otk2urj" data-uk="${esc(uk)}">Buka di Jabatan &rsaquo;</span></div>`:''}`:`<div ${emp}>Belum ada data</div>`)+`</div>`;
   c+=`<div ${box}><div ${lab}>Mekanisme Kerja</div>`+(mk?`<div ${big}>${fmt(mk.tim)}</div><div ${sub}>tim &middot; adopsi ${mk.adopsi==null?'-':mk.adopsi+'%'} &middot; ${fmt(mk.peg)} dalam tim</div>${showMk?`<div style="margin-top:8px"><span class="tag link" data-act="otk2mk" data-uk="${esc(uk)}">Buka di Mekanisme Kerja &rsaquo;</span></div>`:''}`:`<div ${emp}>${showMk?'Belum ada tim / di luar cakupan':'Perlu akses modul'}</div>`)+`</div>`;
+  const showAbk=(typeof canMod!=='function')||canMod('abk');
+  let abkC;
+  if(typeof ABK==='undefined'||!ABK){abkC=showAbk?`<div style="margin-top:6px"><span class="tag link" data-act="loadabk">Tampilkan beban kerja &rsaquo;</span></div>`:`<div ${emp}>Perlu akses modul</div>`;}
+  else{const fa=abkFind(n.nama);abkC=fa?`<div ${big}>${(+fa.u.eu1).toFixed(2)}</div><div ${sub}>efisiensi (EU.1) &middot; bezetting ${fmt(fa.u.ada)} / kebutuhan ${fmt(fa.u.butuh)}</div>${showAbk?`<div style="margin-top:8px"><span class="tag link" data-act="abkunit" data-k="${fa.u.kode}">Buka di Beban Kerja &rsaquo;</span></div>`:''}`:`<div ${emp}>Di luar cakupan data ABK</div>`;}
+  c+=`<div ${box}><div ${lab}>Analisis Beban Kerja</div>${abkC}</div>`;
   c+=`<div ${box}><div ${lab}>Proses Bisnis</div><div ${emp}>Segera</div></div>`;
   return `<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Profil Unit 360 <span class="mini">keterkaitan antar-modul</span></h2><div style="display:flex;gap:10px;flex-wrap:wrap">${c}</div></div>`;
 }
@@ -1951,14 +1962,205 @@ function vOtkShare(){
   return h;
 }
 
-/* ===== Analisis Beban Kerja (placeholder, segera rilis) ===== */
+/* ===== Analisis Beban Kerja (ABK) - PMK 175/2016 jo. 238/2020 ===== */
+/* Indikator: EU.1/EJ.1 = EFISIENSI = Beban/(pegawai x JKE), zona wajar 0,75-1,25.
+   EU.2/EJ.2 = EFEKTIVITAS = % beban sesuai tusi. Data per unit dari FP4, per jabatan dari FP3. */
+function abkZona(v){
+  const z=(ABK&&ABK.meta&&ABK.meta.zona)||{rendah:0.75,tinggi:1.25};
+  if(v<z.rendah)return{c:'#2563eb',bg:'#e8f0fe',t:'Beban rendah'};
+  if(v>z.tinggi)return{c:'#c1121f',bg:'#fde8e8',t:'Beban tinggi'};
+  return{c:'#157f3d',bg:'#e7f6ec',t:'Wajar'};
+}
+function abkPill(v){const z=abkZona(v);return `<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;color:${z.c};background:${z.bg}">${(+v).toFixed(2)}</span> <span class="mini" style="color:${z.c}">${z.t}</span>`;}
+function abkNorm(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
+function abkEs1(){if(!ABK||!ABK.eselon1||!ABK.eselon1.length)return null;if(state.abkUE1){const f=ABK.eselon1.find(e=>e.kode===state.abkUE1);if(f)return f;}return ABK.eselon1[0];}
+function abkUnitOf(kode){if(!ABK||!ABK.eselon1)return null;for(const e of ABK.eselon1){const u=e.units.find(x=>x.kode===kode);if(u)return{u:u,e:e};}return null;}
+function abkFind(nama){if(!ABK||!ABK.eselon1)return null;const k=abkNorm(nama);for(const e of ABK.eselon1){for(const u of e.units){if(abkNorm(u.nama)===k)return{u:u,e:e};}}return null;}
+function abkPedoman(){return (ABK&&ABK.meta&&ABK.meta.pedoman)||'PMK 175/PMK.01/2016 s.t.d.d. PMK 238/PMK.01/2020';}
+function abkNote(){const m=(ABK&&ABK.meta)||{};return `Penghitungan mengacu pada ${esc(abkPedoman())}. Jam Kerja Efektif <b>${fmt(m.jke||1476)} jam/tahun</b>. Beban Kerja = Volume x Norma Waktu. <b>Efisiensi</b> (EU.1) = Beban / (Jumlah pegawai x JKE); zona wajar <b>0,75-1,25</b>. <b>Efektivitas</b> (EU.2) = persentase beban sesuai tugas dan fungsi. Beban dalam satuan jam/tahun.`;}
+
 function vAbk(){
-  return `<div class="card" style="text-align:center;padding:48px 20px">
-    <div style="display:inline-flex;width:64px;height:64px;align-items:center;justify-content:center;border-radius:16px;background:var(--side);color:var(--brand);margin-bottom:14px">${svgIcon('abk',32)}</div>
-    <div style="font-size:20px;font-weight:800;color:var(--brand-d)">Analisis Beban Kerja</div>
-    <div style="margin-top:10px"><span class="pill blue">Segera Rilis</span></div>
-    <div class="mini" style="max-width:560px;margin:12px auto 0;font-size:13.5px;line-height:1.6">Modul Analisis Beban Kerja sedang dalam tahap deploy dan akan segera tersedia. Modul ini akan menyajikan analisis beban kerja unit dan pegawai untuk mendukung penataan organisasi dan distribusi sumber daya.</div>
+  if(state.abkErr)return `<div class="card"><div class="empty">Gagal memuat data Analisis Beban Kerja. <span class="link" data-act="loadabk">Coba muat ulang</span>.</div></div>`;
+  if(!ABK)return `<div class="card" style="text-align:center;padding:44px 20px"><div style="display:inline-flex;width:60px;height:60px;align-items:center;justify-content:center;border-radius:16px;background:var(--side);color:var(--brand);margin-bottom:12px">${svgIcon('abk',30)}</div><div class="mini">Memuat data Analisis Beban Kerja...</div></div>`;
+  const tab=state.abkTab||'ringkasan';
+  const tabs=[['ringkasan','Ringkasan Kemenkeu'],['unit','Beban per Unit'],['diag','Diagnostik'],['metode','Metodologi']];
+  const seg=`<div class="seg" style="margin-bottom:12px">${tabs.map(t=>`<span class="segb ${tab===t[0]?'on':''}" data-act="abktab" data-t="${t[0]}">${t[1]}</span>`).join('')}</div>`;
+  const body=tab==='unit'?vAbkUnitTab():tab==='diag'?vAbkDiag():tab==='metode'?vAbkMetode():vAbkRingkasan();
+  const vint=(ABK.meta&&ABK.meta.vintage)?`<div class="note-box" style="border-left-color:#f59e0b;background:#fff8ec">${esc(ABK.meta.vintage)}</div>`:'';
+  return seg+vint+body;
+}
+
+function vAbkRingkasan(){
+  const fed={};(ABK.eselon1||[]).forEach(e=>fed[abkNorm(e.nama)]=e);
+  // daftar Eselon I: dari OTK (13 unit) bila ada, jika tidak dari ABK
+  let roots=[];
+  if(typeof OTK!=='undefined'&&OTK&&OTK.unit)roots=OTK.unit.filter(n=>n.level===1&&!n.nonunit).map(n=>n.nama);
+  (ABK.eselon1||[]).forEach(e=>{if(!roots.some(r=>abkNorm(r)===abkNorm(e.nama)))roots.push(e.nama);});
+  const nTot=roots.length, nFed=(ABK.eselon1||[]).length;
+  let sAda=0,sButuh=0,sUnit=0;(ABK.eselon1||[]).forEach(e=>{sAda+=e.total.ada;sButuh+=e.total.butuh;sUnit+=e.units.length;});
+  let h=`<div class="kpis">
+    <div class="kpi"><div class="lab">Eselon I Terisi Data</div><div class="val">${nFed} / ${nTot}</div><div class="note">unit kerja Eselon I</div></div>
+    <div class="kpi gold"><div class="lab">Unit Dievaluasi</div><div class="val">${fmt(sUnit)}</div><div class="note">Eselon II</div></div>
+    <div class="kpi"><div class="lab">Bezetting</div><div class="val">${fmt(sAda)}</div></div>
+    <div class="kpi"><div class="lab">Kebutuhan Pegawai</div><div class="val">${fmt(sButuh)}</div></div>
+    <div class="kpi"><div class="lab">Selisih</div><div class="val" style="color:${sAda-sButuh<0?'#c1121f':'#157f3d'}">${(sAda-sButuh>0?'+':'')+fmt(sAda-sButuh)}</div><div class="note">${sAda-sButuh<0?'kekurangan':'kelebihan'} pegawai</div></div>
   </div>`;
+  h+=`<div class="note-box">${abkNote()}</div>`;
+  h+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">Rekap per Eselon I</h2><span style="margin-left:auto"><span class="tag link" data-act="abkexport">Ekspor Laporan (Word)</span></span></div>
+  <table><thead><tr><th>Unit Eselon I</th><th>Status</th><th class="num-c">Unit</th><th class="num-c">Bezetting</th><th class="num-c">Kebutuhan</th><th class="num-c">Selisih</th><th class="num-c">Efisiensi (EU.1)</th><th class="num-c">Efektivitas (EU.2)</th></tr></thead><tbody>`;
+  roots.forEach(nm=>{const e=fed[abkNorm(nm)];
+    if(!e){h+=`<tr style="opacity:.55"><td>${esc(nm)}</td><td><span class="pill neu">Belum ada data</span></td><td class="num-c">-</td><td class="num-c">-</td><td class="num-c">-</td><td class="num-c">-</td><td class="num-c">-</td><td class="num-c">-</td></tr>`;return;}
+    const t=e.total;h+=`<tr style="cursor:pointer" data-act="abkpick" data-k="${e.kode}"><td class="link">${esc(e.nama)} <span class="mini">(${esc(e.tahun)})</span></td><td><span class="pill on">Terisi</span></td><td class="num-c">${fmt(e.units.length)}</td><td class="num-c">${fmt(t.ada)}</td><td class="num-c">${fmt(t.butuh)}</td><td class="num-c" style="color:${t.selisih<0?'#c1121f':'#157f3d'}">${(t.selisih>0?'+':'')+fmt(t.selisih)}</td><td class="num-c">${abkPill(t.eu1)}</td><td class="num-c">${(+t.eu2).toFixed(1)}%</td></tr>`;});
+  h+=`</tbody></table><div class="mini" style="margin-top:8px">Klik baris Eselon I yang terisi untuk menelusuri beban per unit Eselon II. Eselon I lain menyusul seiring pemasukan data ABK secara bertahap.</div></div>`;
+  return h;
+}
+
+function vAbkUnitTab(){
+  const e=abkEs1();if(!e)return '<div class="card"><div class="empty">Belum ada data unit.</div></div>';
+  const t=e.total, z={rendah:0,wajar:0,tinggi:0};
+  e.units.forEach(u=>{const zz=abkZona(u.eu1);z[zz.t==='Beban rendah'?'rendah':zz.t==='Beban tinggi'?'tinggi':'wajar']++;});
+  const sel=((ABK.eselon1||[]).length>1)?`<select class="flt" id="abkUE1" style="margin-left:auto">${ABK.eselon1.map(x=>`<option value="${x.kode}" ${state.abkUE1===x.kode||(!state.abkUE1&&x===ABK.eselon1[0])?'selected':''}>${esc(x.nama)}</option>`).join('')}</select>`:'';
+  let h=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px"><span class="mini">Unit Eselon I:</span> <b>${esc(e.nama)}</b> <span class="pill blue">${esc(e.tahun)}</span>${sel}</div>`;
+  h+=`<div class="kpis">
+    <div class="kpi"><div class="lab">Beban Kerja Unit</div><div class="val">${fmt(Math.round(t.beban))}</div><div class="note">jam/tahun</div></div>
+    <div class="kpi"><div class="lab">Bezetting</div><div class="val">${fmt(t.ada)}</div></div>
+    <div class="kpi"><div class="lab">Kebutuhan</div><div class="val">${fmt(t.butuh)}</div></div>
+    <div class="kpi"><div class="lab">Selisih</div><div class="val" style="color:${t.selisih<0?'#c1121f':'#157f3d'}">${(t.selisih>0?'+':'')+fmt(t.selisih)}</div></div>
+    <div class="kpi gold"><div class="lab">Efisiensi Unit (EU.1)</div><div class="val" style="font-size:22px">${abkPill(t.eu1)}</div><div class="note">Efektivitas ${(+t.eu2).toFixed(1)}%</div></div>
+  </div>`;
+  h+=`<div class="note-box">Sebaran zona efisiensi: <b>${z.wajar}</b> unit di zona wajar (0,75-1,25), <b>${z.tinggi}</b> beban tinggi (&gt;1,25), <b>${z.rendah}</b> beban rendah (&lt;0,75). ${(z.tinggi+z.rendah)===0?'Seluruh unit berada di zona wajar menurut kriteria PMK.':'Unit di luar zona wajar perlu penjelasan sesuai PMK.'}</div>`;
+  // treemap
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Peta Beban per Unit <span class="mini">(luas = beban, warna = zona efisiensi; klik untuk detail)</span></h2>${_abkTree(e.units)}</div>`;
+  // tabel
+  const S=state.abkSort||{k:'eu1',d:-1};
+  const sorted=e.units.slice().sort((a,b)=>{const k=S.k;let va=a[k],vb=b[k];if(k==='nama'){return S.d*String(va).localeCompare(String(vb));}return S.d*((va||0)-(vb||0));});
+  const th=(k,l,n)=>`<th class="${n?'num-c':''}" data-act="abksort" data-k="${k}" style="cursor:pointer">${l}${S.k===k?(S.d<0?' &darr;':' &uarr;'):''}</th>`;
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Beban dan Efektivitas per Unit Eselon II</h2>
+  <table><thead><tr>${th('nama','Unit')}${th('beban','Beban (jam)',1)}${th('ada','Bezetting',1)}${th('butuh','Kebutuhan',1)}${th('selisih','Selisih',1)}${th('eu1','Efisiensi',1)}${th('eu2','Efektivitas',1)}${th('jml_jabatan','Jabatan',1)}</tr></thead><tbody>`;
+  sorted.forEach(u=>{h+=`<tr style="cursor:pointer" data-act="abkunit" data-k="${u.kode}"><td class="link">${esc(u.nama)}</td><td class="num-c">${fmt(Math.round(u.beban))}</td><td class="num-c">${fmt(u.ada)}</td><td class="num-c">${fmt(u.butuh)}</td><td class="num-c" style="color:${u.selisih<0?'#c1121f':'#157f3d'}">${(u.selisih>0?'+':'')+fmt(u.selisih)}</td><td class="num-c">${abkPill(u.eu1)}</td><td class="num-c">${(+u.eu2).toFixed(1)}%</td><td class="num-c">${fmt(u.jml_jabatan)}</td></tr>`;});
+  h+=`</tbody></table></div>`;
+  return h;
+}
+
+function _abkTree(units){
+  const arr=units.filter(u=>u.beban>0);if(!arr.length)return '<div class="empty">-</div>';
+  const W=820,H=Math.max(220,Math.min(440,120+arr.length*10));
+  const items=arr.map(u=>({k:u.kode,v:u.beban})).sort((a,b)=>b.v-a.v);const out=[];_tmLayout(items,0,0,W,H,out);
+  const by={};units.forEach(u=>by[u.kode]=u);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%">`;
+  out.forEach(b=>{const u=by[b.k];if(!u)return;const zc=abkZona(u.eu1);
+    s+=`<g style="cursor:pointer" data-act="abkunit" data-k="${u.kode}"><rect x="${b.x+1}" y="${b.y+1}" width="${Math.max(0,b.w-2)}" height="${Math.max(0,b.h-2)}" rx="3" fill="${zc.bg}" stroke="${zc.c}" stroke-width="1.3"/>`;
+    if(b.w>78&&b.h>30){const lab=u.nama.length>Math.floor(b.w/7)?u.nama.slice(0,Math.floor(b.w/7)-1)+'…':u.nama;
+      s+=`<text x="${b.x+7}" y="${b.y+16}" font-size="11" font-weight="700" fill="${zc.c}">${esc(lab)}</text><text x="${b.x+7}" y="${b.y+31}" font-size="11.5" font-weight="800" fill="${zc.c}">${fmt(Math.round(u.beban))} jam &middot; ${(+u.eu1).toFixed(2)}</text>`;}
+    s+=`<title>${esc(u.nama)}: beban ${fmt(Math.round(u.beban))} jam, EU.1 ${(+u.eu1).toFixed(2)} (${zc.t})</title></g>`;});
+  return s+'</svg>';
+}
+
+function vAbkDiag(){
+  const e=abkEs1();if(!e)return '<div class="card"><div class="empty">Belum ada data.</div></div>';
+  const us=e.units;
+  // kuadran: x=EU.1 (efisiensi), y=EU.2 (efektivitas/fokus tusi)
+  const W=760,H=380,P=46;
+  const xs=us.map(u=>u.eu1),ys=us.map(u=>u.eu2);
+  const x0=Math.min(0.7,Math.min.apply(null,xs)-0.03),x1=Math.max(1.3,Math.max.apply(null,xs)+0.03);
+  const y0=Math.min(78,Math.min.apply(null,ys)-2),y1=100.5;
+  const cx=1.0, cy=90;  // garis acuan
+  const px=v=>P+(v-x0)/(x1-x0)*(W-2*P), py=v=>H-P-(v-y0)/(y1-y0)*(H-2*P);
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%;background:var(--side);border-radius:10px">`;
+  svg+=`<line x1="${px(cx)}" y1="${P-8}" x2="${px(cx)}" y2="${H-P}" stroke="#cbd5e1" stroke-dasharray="4 4"/><line x1="${P}" y1="${py(cy)}" x2="${W-P}" y2="${py(cy)}" stroke="#cbd5e1" stroke-dasharray="4 4"/>`;
+  svg+=`<text x="${W-P}" y="${H-P+22}" font-size="11" fill="var(--muted)" text-anchor="end">Beban per pegawai makin berat &rarr;</text><text x="${P-8}" y="${P-14}" font-size="11" fill="var(--muted)">&uarr; Makin sesuai tugas dan fungsi</text>`;
+  svg+=`<text x="${px(cx)+6}" y="${P-2}" font-size="10" fill="#94a3b8">EU.1 = 1,0</text><text x="${P+2}" y="${py(cy)-4}" font-size="10" fill="#94a3b8">EU.2 = 90%</text>`;
+  // label kuadran (bahasa lugas)
+  svg+=`<text x="${W-P-4}" y="${P+10}" font-size="10.5" font-weight="700" fill="#157f3d" text-anchor="end">Berat, sesuai tugas dan fungsi</text>`;
+  svg+=`<text x="${P+4}" y="${P+10}" font-size="10.5" font-weight="700" fill="#2563eb">Ringan, sesuai tugas dan fungsi</text>`;
+  svg+=`<text x="${W-P-4}" y="${H-P-6}" font-size="10.5" font-weight="700" fill="#c1121f" text-anchor="end">Berat, banyak tugas tambahan</text>`;
+  svg+=`<text x="${P+4}" y="${H-P-6}" font-size="10.5" font-weight="700" fill="#94a3b8">Ringan, banyak tugas tambahan</text>`;
+  us.forEach(u=>{const zc=abkZona(u.eu1);svg+=`<g style="cursor:pointer" data-act="abkunit" data-k="${u.kode}"><circle cx="${px(u.eu1).toFixed(1)}" cy="${py(u.eu2).toFixed(1)}" r="6" fill="${zc.bg}" stroke="${zc.c}" stroke-width="1.6"/><title>${esc(u.nama)}: EU.1 ${(+u.eu1).toFixed(2)}, EU.2 ${(+u.eu2).toFixed(1)}%</title></g>`;});
+  svg+='</svg>';
+  // klasifikasi
+  const grp={tf:[],lf:[],tm:[],lm:[]};
+  us.forEach(u=>{const hi=u.eu1>=cx,fo=u.eu2>=cy;grp[hi?(fo?'tf':'tm'):(fo?'lf':'lm')].push(u);});
+  const chips=arr=>arr.map(u=>`<span class="tag link" data-act="abkunit" data-k="${u.kode}" style="margin:2px 4px 2px 0;display:inline-block">${esc(u.nama)}</span>`).join('')||'<span class="mini">-</span>';
+  let h=`<div class="card"><h2 class="sec" style="margin-top:0">Peta Beban dan Kesesuaian Tugas</h2>${svg}
+    <div class="mini" style="margin-top:6px">Sumbu mendatar menunjukkan berat beban per pegawai (makin ke kanan makin berat). Sumbu tegak menunjukkan seberapa beban sesuai tugas dan fungsi unit (makin ke atas makin sesuai). Klik titik untuk membuka detail unit.</div></div>`;
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Bacaan Indikatif</h2>
+    <div style="margin-bottom:10px"><b style="color:#157f3d">Beban berat dan sesuai tugas dan fungsi (${grp.tf.length})</b> &middot; beban besar untuk pekerjaan pokok, paling layak diusulkan penambahan pegawai. ${chips(grp.tf)}</div>
+    <div style="margin-bottom:10px"><b style="color:#c1121f">Beban berat tetapi banyak tugas tambahan (${grp.tm.length})</b> &middot; bebannya besar namun banyak untuk pekerjaan di luar tugas dan fungsi, sebaiknya rapikan dulu lingkup kerjanya sebelum menambah pegawai. ${chips(grp.tm)}</div>
+    <div style="margin-bottom:10px"><b style="color:#2563eb">Beban ringan dan sesuai tugas dan fungsi (${grp.lf.length})</b> &middot; masih ada sisa kapasitas, pekerjaannya sudah pada tugas pokok. ${chips(grp.lf)}</div>
+    <div><b style="color:#64748b">Beban ringan dan banyak tugas tambahan (${grp.lm.length})</b> &middot; masih ada sisa kapasitas dan banyak pekerjaan di luar tugas dan fungsi. ${chips(grp.lm)}</div></div>`;
+  h+=`<div class="note-box">Pengelompokan bersifat <b>indikatif</b> sebagai bahan telaah, bukan keputusan. Garis pembagi memakai berat beban per pegawai (EU.1) = 1,0 dan kesesuaian tugas dan fungsi (EU.2) = 90%; penilaian zona tetap mengacu pada PMK (efisiensi wajar 0,75-1,25).</div>`;
+  return h;
+}
+
+function vAbkMetode(){
+  const m=ABK.meta||{};const ru=m.rumus||{};
+  let h=`<div class="card"><h2 class="sec" style="margin-top:0">Dasar Hukum dan Metodologi</h2>
+  <p style="font-size:13.5px;line-height:1.7">${abkNote()}</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+    <div style="flex:1;min-width:200px;background:var(--side);border:1px solid var(--line);border-radius:10px;padding:12px 14px"><div class="mini" style="font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)">Jam Kerja Efektif</div><div style="font-size:22px;font-weight:800;color:var(--brand-d)">${fmt(m.jke||1476)} jam/th</div><div class="mini">233 hari kerja, allowance 25% (Lampiran A PMK 238)</div></div>
+    <div style="flex:1;min-width:200px;background:var(--side);border:1px solid var(--line);border-radius:10px;padding:12px 14px"><div class="mini" style="font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)">Zona Efisiensi Wajar</div><div style="font-size:22px;font-weight:800;color:var(--brand-d)">0,75 - 1,25</div><div class="mini">di luar zona perlu penjelasan (PMK)</div></div>
+    <div style="flex:1;min-width:200px;background:var(--side);border:1px solid var(--line);border-radius:10px;padding:12px 14px"><div class="mini" style="font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)">Sumber Data</div><div style="font-size:15px;font-weight:800;color:var(--brand-d);margin-top:4px">FP.4, FP.3, Form B</div><div class="mini">aplikasi ABK Kemenkeu</div></div>
+  </div>
+  <table style="margin-top:12px"><thead><tr><th>Indikator</th><th>Rumus</th></tr></thead><tbody>
+    <tr><td>Beban Kerja</td><td>${esc(ru.beban||'Volume Kerja x Norma Waktu')}</td></tr>
+    <tr><td>Kebutuhan Pegawai</td><td>${esc(ru.kebutuhan||'Beban jabatan / Jam Kerja Efektif')}</td></tr>
+    <tr><td>Efisiensi (EU.1 / EJ.1)</td><td>${esc(ru.efisiensi||'Beban / (Jumlah pegawai x JKE)')}</td></tr>
+    <tr><td>Efektivitas (EU.2 / EJ.2)</td><td>${esc(ru.efektivitas||'Beban sesuai tusi / Beban total x 100%')}</td></tr>
+    <tr><td>Selisih</td><td>Bezetting - Kebutuhan Pegawai</td></tr>
+  </tbody></table></div>`;
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Peta Jalan Modul</h2>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <span class="pill on">Tahap 1 (kini): rekap unit, drill jabatan, produk pendorong, kuadran, metodologi</span>
+    <span class="pill warn">Tahap 2 (menyusul): integrasi ke Evaluasi Organisasi (beban &lt; struktur), kaitan Mekanisme Kerja, benchmark antar Eselon I</span>
+    <span class="pill neu">Tahap 3: tren historis 5 tahun, proyeksi pensiun/CPNS</span>
+  </div>
+  <div class="mini" style="margin-top:8px">Tahap 2 dan 3 aktif seiring pemasukan data Eselon I lain dan data multi-tahun.</div></div>`;
+  return h;
+}
+
+function vAbkUnit(){
+  const f=abkUnitOf(state.abkUnit);
+  if(!f)return '<div class="card"><div class="empty">Unit tidak ditemukan. <span class="link" data-act="abkback">Kembali</span>.</div></div>';
+  const u=f.u, e=f.e;
+  let h=`<div style="margin-bottom:10px"><span class="tag" data-act="abkback" style="cursor:pointer">&larr; Kembali ke Beban per Unit</span></div>
+  <div class="card" style="margin-bottom:12px"><div style="font-size:18px;font-weight:800;color:var(--brand-d)">${esc(u.nama)}</div><div class="mini" style="margin-top:5px">${esc(e.nama)} &middot; Tahun ${esc(e.tahun)} &middot; ${fmt(u.jml_jabatan)} jabatan &middot; ${fmt(u.jml_produk)} produk</div></div>`;
+  h+=`<div class="kpis">
+    <div class="kpi"><div class="lab">Beban Kerja</div><div class="val">${fmt(Math.round(u.beban))}</div><div class="note">jam/tahun &middot; tusi ${fmt(Math.round(u.beban_tusi))}</div></div>
+    <div class="kpi"><div class="lab">Bezetting</div><div class="val">${fmt(u.ada)}</div></div>
+    <div class="kpi"><div class="lab">Kebutuhan</div><div class="val">${fmt(u.butuh)}</div></div>
+    <div class="kpi"><div class="lab">Selisih</div><div class="val" style="color:${u.selisih<0?'#c1121f':'#157f3d'}">${(u.selisih>0?'+':'')+fmt(u.selisih)}</div></div>
+    <div class="kpi gold"><div class="lab">Efisiensi (EU.1)</div><div class="val" style="font-size:22px">${abkPill(u.eu1)}</div><div class="note">Efektivitas ${(+u.eu2).toFixed(1)}%</div></div>
+  </div>`;
+  // produk
+  const pcard=(title,list,empty)=>`<div style="flex:1;min-width:280px"><h2 class="sec" style="margin-top:0">${title}</h2>${list.length?`<table><tbody>${list.map(p=>`<tr><td>${esc(p.nama)}</td><td class="num-c" style="white-space:nowrap">${fmt(Math.round(p.beban))} jam</td></tr>`).join('')}</tbody></table>`:`<div class="mini">${empty}</div>`}</div>`;
+  h+=`<div class="card"><div style="display:flex;gap:20px;flex-wrap:wrap">${pcard('10 Produk Beban Terberat',u.produk_top||[],'-')}${pcard('10 Produk Beban Teringan',u.produk_bottom||[],'Jumlah produk &le; 10.')}</div></div>`;
+  // jabatan
+  const jbAll=(u.jabatan||[]).slice().sort((a,b)=>b.beban-a.beban);
+  const CAP=300, jb=jbAll.slice(0,CAP);
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Beban per Jabatan <span class="mini">(${fmt(jbAll.length)}${jbAll.length>CAP?`, menampilkan ${CAP} terbesar`:''})</span></h2>
+  <table><thead><tr><th>Jabatan</th><th>Sub-unit</th><th class="num-c">Beban (jam)</th><th class="num-c">Bezetting</th><th class="num-c">Kebutuhan</th><th class="num-c">Selisih</th><th class="num-c">EJ.1</th><th class="num-c">EJ.2</th></tr></thead><tbody>`;
+  jb.forEach(j=>{h+=`<tr><td>${esc(j.jab)}</td><td class="mini">${esc(j.org||'')}</td><td class="num-c">${fmt(Math.round(j.beban))}</td><td class="num-c">${fmt(j.ada)}</td><td class="num-c">${(+j.butuh).toFixed(1)}</td><td class="num-c" style="color:${j.selisih<0?'#c1121f':'#157f3d'}">${(+j.selisih).toFixed(1)}</td><td class="num-c">${abkPill(j.ej1)}</td><td class="num-c">${(+j.ej2).toFixed(1)}%</td></tr>`;});
+  h+=`</tbody></table><div class="mini" style="margin-top:6px">EJ.1 (efisiensi jabatan) di zona wajar 0,75-1,25; jabatan struktural dipatok formasi sehingga EJ.1 menunjukkan tingkat beban. EJ.2 = porsi beban sesuai tusi.</div></div>`;
+  return h;
+}
+
+function abkExport(){
+  if(!ABK)return;
+  const now=new Date();const bln=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const tgl=now.getDate()+' '+bln[now.getMonth()]+' '+now.getFullYear();
+  function tbl(head,rows){return '<table border="1" cellspacing="0" cellpadding="5" style="border-collapse:collapse;width:100%;font-size:10pt"><tr>'+head.map(x=>'<th style="background:#1467c0;color:#fff;text-align:left">'+esc(x)+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map((c,i)=>'<td'+(i>=2?' align="right"':'')+'>'+esc(String(c))+'</td>').join('')+'</tr>').join('')+'</table>';}
+  let H='<h1 style="color:#0f3d6e">LAPORAN ANALISIS BEBAN KERJA</h1>';
+  H+='<p><b>Tanggal:</b> '+tgl+'<br><i>'+esc(abkPedoman())+'. Jam Kerja Efektif '+fmt((ABK.meta||{}).jke||1476)+' jam/tahun. Dihasilkan otomatis dari Dashboard Pengelolaan Organisasi, Biro Organisasi dan Ketatalaksanaan.</i></p>';
+  (ABK.eselon1||[]).forEach(e=>{const t=e.total;
+    H+='<h2 style="color:#1467c0">'+esc(e.nama)+' (Tahun '+esc(e.tahun)+')</h2>';
+    H+='<p>Beban kerja unit '+fmt(Math.round(t.beban))+' jam. Bezetting '+fmt(t.ada)+', kebutuhan '+fmt(t.butuh)+', selisih '+(t.selisih>0?'+':'')+fmt(t.selisih)+'. Efisiensi unit (EU.1) '+(+t.eu1).toFixed(2)+', efektivitas (EU.2) '+(+t.eu2).toFixed(1)+'%.</p>';
+    H+='<h3>Tabel FP.4 - Rekap per Unit Eselon II</h3>';
+    H+=tbl(['Unit Eselon II','Tahun','Beban (jam)','Bezetting','Kebutuhan','Selisih','EU.1','EU.2 (%)'],e.units.map(u=>[u.nama,e.tahun,Math.round(u.beban),u.ada,u.butuh,(u.selisih>0?'+':'')+u.selisih,(+u.eu1).toFixed(2),(+u.eu2).toFixed(1)]));
+  });
+  H+='<h2 style="color:#1467c0">Catatan Metodologi</h2><p style="font-size:10pt">Beban Kerja = Volume x Norma Waktu. Kebutuhan = Beban / Jam Kerja Efektif. Efisiensi (EU.1) = Beban / (Jumlah pegawai x JKE); zona wajar 0,75-1,25, di luar zona perlu penjelasan. Efektivitas (EU.2) = persentase beban sesuai tugas dan fungsi. Sumber: aplikasi ABK Kemenkeu (Form B, FP.3, FP.4).</p>';
+  const doc='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Aptos,Calibri,Arial,sans-serif;font-size:11pt;color:#222}h1{font-size:18pt}h2{font-size:13pt;margin-top:18px}h3{font-size:11.5pt}table{margin:8px 0}td,th{border:1px solid #9bb}</style></head><body>'+H+'</body></html>';
+  const blob=new Blob(['﻿'+doc],{type:'application/msword'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Laporan_ABK.doc';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
 }
 
 /* ===== Struktur (tree) ===== */
@@ -2365,7 +2567,7 @@ function vOtkEval(){
 function renderCrumb(){
   const c=[];const v=state.view;
   if(v.indexOf('pb_')===0){var _mid=VIEW2MOD[v]||'probis';var _ml=(MODULES.find(function(m){return m.id===_mid;})||{}).lab||'Proses Bisnis';document.getElementById('crumb').innerHTML='<span>'+esc(_ml)+' &rsaquo; '+esc(PB_LBL[v.slice(3)]||'')+'</span>';return;}
-  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Analisis Beban Kerja',
+  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Analisis Beban Kerja',abkunit:'Detail Beban Unit',
     beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
@@ -2388,6 +2590,7 @@ function render(){
   if(!canView(state.view))state.view='beranda';
   if((state.view.indexOf('urjab')===0||state.view==='tema')&&!URJAB&&!state.urjabLoading)ensureUrjab();
   if(state.view==='katalog'&&!KATALOG&&!state.katLoading)ensureKatalog();
+  if((state.view==='abk'||state.view==='abkunit')&&!ABK&&!state.abkLoading)ensureAbk();
   renderNav();
   const isPb=state.view.indexOf('pb_')===0;const pbPanel=isPb?state.view.slice(3):null;
   document.getElementById('vtitle').textContent=isPb?(PB_LBL[pbPanel]||'Proses Bisnis'):(state.view==='otkvdetail'?('Detail Unit ('+({vertikal:'Instansi Vertikal',blu:'BLU',noneselon:'Non Eselon'}[state.otkMode]||'Instansi Vertikal')+')'):(VT[state.view]||''));
@@ -2399,7 +2602,7 @@ function render(){
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,abk:vAbk,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema};
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,abk:vAbk,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema};
   document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))();
   setFootNote();window.scrollTo({top:0});bindInputs();
 }
@@ -2448,7 +2651,8 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('katBidang'))q('katBidang').onchange=e=>{state.katBidang=e.target.value;render();};
   if(q('temaQ'))q('temaQ').oninput=e=>{state.temaQ=e.target.value;state.temaGrp='';state.temaKls='';rerenderKeep(vTema,'temaQ');};
   if(q('bebanUE1'))q('bebanUE1').onchange=e=>{state.bebanUE1=e.target.value;state.bebanUE2='';render();};
-  if(q('bebanUE2'))q('bebanUE2').onchange=e=>{state.bebanUE2=e.target.value;render();};}
+  if(q('bebanUE2'))q('bebanUE2').onchange=e=>{state.bebanUE2=e.target.value;render();};
+  if(q('abkUE1'))q('abkUE1').onchange=e=>{state.abkUE1=e.target.value;render();};}
 function rerenderKeep(fn,fid){const el=document.getElementById(fid);const pos=el?el.selectionStart:null;
   document.getElementById('view').innerHTML=fn();bindInputs();const n=document.getElementById(fid);if(n){n.focus();if(pos!=null)n.setSelectionRange(pos,pos);}}
 
@@ -2493,6 +2697,13 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='pntab'){state.pnTab=el.dataset.t;render();}
   else if(a==='redtab'){state.redTab=el.dataset.t;render();}
   else if(a==='exportkajian'){exportKajian();}
+  else if(a==='abktab'){state.abkTab=el.dataset.t;render();}
+  else if(a==='abkpick'){state.abkUE1=el.dataset.k;state.abkTab='unit';state.view='abk';render();}
+  else if(a==='abkunit'){state.abkUnit=el.dataset.k;state.view='abkunit';render();}
+  else if(a==='abkback'){state.view='abk';state.abkTab='unit';render();}
+  else if(a==='abksort'){const k=el.dataset.k;state.abkSort=state.abkSort.k===k?{k,d:-state.abkSort.d}:{k,d:k==='nama'?1:-1};render();}
+  else if(a==='abkexport'){try{abkExport();}catch(e){alert('Gagal menyiapkan ekspor: '+e);}}
+  else if(a==='loadabk'){ensureAbk();}
   else if(a==='otkvexp'){const k=+el.dataset.id;state.otkExpV[k]=!state.otkExpV[k];render();}
   else if(a==='otkvopen'){state.otkVertSel=+el.dataset.id;state.view='otkvdetail';render();}
   else if(a==='temaopen'){var src=el.dataset.src,key=el.dataset.key,id=+el.dataset.id;
@@ -2538,6 +2749,8 @@ function setFootNote(){
   }else if(m==='mk'){
     const tk=((DATA&&DATA.summary)||{}).task||{};
     el.innerHTML=`Keterlambatan dihitung ulang dari tanggal task; ${fmt(tk.anomali||0)} baris anomali (selesai &lt; mulai) dibuang; ${fmt(tk.tak_terukur||0)} task selesai tanpa tenggat ditandai tak terukur. Hierarki UE1/UE2 diturunkan dari jalur organisasi pegawai &amp; pemetaan pemilik kinerja. Skor indikatif = 60% penyelesaian + 40% ketepatan waktu.`;
+  }else if(m==='abk'&&ABK){
+    el.innerHTML=abkNote();
   }else{el.innerHTML='';}
 }
 /* ===== Autentikasi, API, Akun & Manajemen User ===== */
