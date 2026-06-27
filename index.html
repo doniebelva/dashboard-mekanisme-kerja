@@ -598,7 +598,7 @@ const MODULES=[
  ]},
  {id:'abk',icn:'abk',lab:'Analisis Beban Kerja',groups:[
    {grp:'Penyajian',items:[{v:'abk',lab:'Metode As Is'}]},
-   {grp:'Analisis',items:[{v:'abkkalibrasi',lab:'Kalibrasi'},{v:'abkstruktur',lab:'Beban vs Struktur'},{v:'abkpareto',lab:'Pareto Produk'},{v:'abksimulasi',lab:'Simulasi Efisiensi'}]},
+   {grp:'Analisis',items:[{v:'abkkalibrasi',lab:'Kalibrasi'},{v:'abknorma',lab:'Norma Waktu'},{v:'abkstruktur',lab:'Beban vs Struktur'},{v:'abkpareto',lab:'Pareto Produk'},{v:'abksimulasi',lab:'Simulasi Efisiensi'}]},
  ]},
  {id:'mk',icn:'mk',lab:'Mekanisme Kerja',groups:[
    {grp:'Eksekutif',items:[{v:'ringkasan',lab:'Dashboard Pimpinan'},{v:'analisis',lab:'Analisis Kinerja'},{v:'insight',lab:'Insight & Rekomendasi'}]},
@@ -627,7 +627,7 @@ let state={view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
   otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
-  kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',
+  kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
   simUE1:'',simUnit:'',simTarget:300,simTrR:0,simTrS:0,simTrK:0};
 
@@ -647,7 +647,7 @@ function renderNav(){const cur=curMod();let h='<div class="modsw">';
   }
   document.getElementById('nav').innerHTML=h;}
 const VT={otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
-  struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
+  struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi'};
 
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
@@ -2334,6 +2334,36 @@ function _kalProduk(){
   return h;
 }
 
+/* ===== ABK - NORMA WAKTU (benchmark norma per tahapan baku lintas unit) ===== */
+function vAbkNorma(){
+  if(state.abkErr||!ABK)return vAbk();
+  const N=ABK.norma;
+  if(!N||!N.items||!N.items.length)return `<div class="note-box">Data analisis norma waktu belum tersedia pada abk.json. Jalankan build_norma.py lalu unggah ulang.</div>`;
+  const U={};(ABK.eselon1||[]).forEach(e=>(e.units||[]).forEach(u=>{U[u.kode]={nama:u.nama,es1:e.nama};}));
+  const unm=k=>U[k]?U[k].nama:('Unit '+k), ues=k=>U[k]?U[k].es1:'';
+  const jke=(ABK.meta&&ABK.meta.jke)||1476;
+  const q=(state.normaQ||'').toLowerCase().trim();
+  let items=N.items; if(q)items=items.filter(x=>x.nama.toLowerCase().indexOf(q)>=0);
+  let h=`<div class="note-box">Norma waktu ideal = <b>modus</b> (nilai yang dipakai mayoritas unit) untuk tahapan yang sama lintas unit. Unit <b>di atas</b> norma (&ge;1,5x) menggelembungkan beban; <b>di bawah</b> (&le;0,67x) mungkin terlalu cepat. Hanya tahapan baku (berulang &ge;3 unit) yang dibandingkan; tahapan unik tak punya pembanding. Bersifat <b>indikatif</b> untuk standardisasi norma. Data 2024.</div>
+  <div class="kpis">
+    <div class="kpi"><div class="lab">Tahapan Baku Menyimpang</div><div class="val">${fmt(N.n_tahapan)}</div></div>
+    <div class="kpi"><div class="lab">Unit-Tahapan Menyimpang</div><div class="val" style="color:#c1121f">${fmt(N.n_deviasi)}</div></div>
+    <div class="kpi gold"><div class="lab">Estimasi Beban Berlebih</div><div class="val" style="color:#c1121f">${fmt(Math.round(N.total_lebih))}</div><div class="note">jam/tahun &middot; ~${fmt(Math.round(N.total_lebih/jke))} orang</div></div>
+  </div>
+  <div class="toolbar"><input class="search" id="normaQ" placeholder="Cari tahapan..." value="${esc(state.normaQ||'')}" style="max-width:340px"></div>
+  <div class="card"><h2 class="sec" style="margin-top:0">Tahapan dengan Norma Waktu Menyimpang <span class="mini">(${fmt(items.length)}, urut dampak beban)</span></h2>
+  <table><thead><tr><th>Tahapan</th><th class="num-c">Unit</th><th class="num-c">Norma Ideal</th><th class="num-c">Rentang (mnt)</th><th class="num-c">Over</th><th class="num-c">Under</th><th class="num-c">Beban Berlebih (jam)</th></tr></thead><tbody>`;
+  items.slice(0,200).forEach(x=>{const open=state.normaExp===x.nama;
+    h+=`<tr style="cursor:pointer" data-act="normaexp" data-k="${esc(x.nama)}"><td class="link">${open?'&#9662; ':'&#9656; '}${esc(x.nama)}</td><td class="num-c">${fmt(x.n)}</td><td class="num-c"><b>${fmt(x.ideal)}</b> mnt</td><td class="num-c">${fmt(x.min)}-${fmt(x.max)}</td><td class="num-c">${x.nover?`<span style="color:#c1121f;font-weight:700">${x.nover}</span>`:'0'}</td><td class="num-c">${x.nunder||0}</td><td class="num-c">${x.lebih?fmt(Math.round(x.lebih)):'-'}</td></tr>`;
+    if(open){
+      h+=`<tr><td colspan="7" style="background:var(--side);padding:10px 14px"><div class="mini" style="margin-bottom:6px">Norma ideal (modus) <b>${fmt(x.ideal)} menit</b>. Unit yang menyimpang (baris merah = di atas norma):</div><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Norma</th><th>Status</th><th class="num-c">Volume</th><th class="num-c">Beban Berlebih (jam)</th></tr></thead><tbody>`;
+      x.rows.forEach(r=>{const over=r.st==='over';h+=`<tr style="${over?'background:#fde8e8':''}"><td class="mini">${esc(unm(r.k))}</td><td class="mini">${esc(ues(r.k))}</td><td class="num-c">${fmt(r.nw)} mnt</td><td><span style="color:${over?'#c1121f':'#2563eb'};font-weight:700">${over?'di atas':'di bawah'}</span></td><td class="num-c">${fmt(r.vol)}</td><td class="num-c">${over?fmt(Math.round(r.lj||0)):'-'}</td></tr>`;});
+      h+=`</tbody></table></td></tr>`;
+    }});
+  h+=`</tbody></table>${items.length>200?`<div class="mini" style="margin-top:6px">Menampilkan 200 dari ${fmt(items.length)}.</div>`:''}</div>`;
+  return h;
+}
+
 /* ===== ABK - BEBAN vs STRUKTUR (silang ABK 2024 x OTK PMK 124) ===== */
 let _BVS=null;
 function abkStrukData(){
@@ -2931,7 +2961,7 @@ function vOtkEval(){
 function renderCrumb(){
   const c=[];const v=state.view;
   if(v.indexOf('pb_')===0){var _mid=VIEW2MOD[v]||'probis';var _ml=(MODULES.find(function(m){return m.id===_mid;})||{}).lab||'Proses Bisnis';document.getElementById('crumb').innerHTML='<span>'+esc(_ml)+' &rsaquo; '+esc(PB_LBL[v.slice(3)]||'')+'</span>';return;}
-  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
+  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
     beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
@@ -2950,8 +2980,10 @@ function renderCrumb(){
   }
   document.getElementById('crumb').innerHTML=c.join(' ');
 }
+let _lastView=null;
 function render(){
   if(!canView(state.view))state.view='beranda';
+  const _sv=(_lastView===state.view);_lastView=state.view;
   if((state.view.indexOf('urjab')===0||state.view==='tema')&&!URJAB&&!state.urjabLoading)ensureUrjab();
   if(state.view==='katalog'&&!KATALOG&&!state.katLoading)ensureKatalog();
   if(state.view.indexOf('abk')===0&&!ABK&&!state.abkLoading)ensureAbk();
@@ -2963,12 +2995,12 @@ function render(){
   if(yw){if((curMod()==='mk'||state.view==='beranda')&&MKYEARS&&MKYEARS.length>1){yw.innerHTML='<span class="mini">Tahun</span><select class="flt" id="mkYearSel">'+MKYEARS.map(y=>'<option '+(y===state.mkYear?'selected':'')+'>'+y+'</option>').join('')+'</select>';const sl=document.getElementById('mkYearSel');if(sl)sl.onchange=e=>setYear(e.target.value);}else yw.innerHTML='';}
   pbHost(isPb,pbPanel);
   const viewEl=document.getElementById('view');const footEl=document.getElementById('foot');
-  if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();window.scrollTo({top:0});return;}
+  if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();if(!_sv)window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema};
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema};
   document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))();
-  setFootNote();window.scrollTo({top:0});bindInputs();
+  setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
 function bindInputs(){const q=id=>document.getElementById(id);
   if(q('timQ'))q('timQ').oninput=e=>{state.timQ=e.target.value;rerenderKeep(vTim,'timQ');};
@@ -3019,6 +3051,7 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('abkUE1'))q('abkUE1').onchange=e=>{state.abkUE1=e.target.value;render();};
   if(q('kalMin'))q('kalMin').onchange=e=>{state.kalMin=+e.target.value;render();};
   if(q('kalQ'))q('kalQ').oninput=e=>{state.kalQ=e.target.value;rerenderKeep(vAbkKalibrasi,'kalQ');};
+  if(q('normaQ'))q('normaQ').oninput=e=>{state.normaQ=e.target.value;rerenderKeep(vAbkNorma,'normaQ');};
   if(q('paretoUE1'))q('paretoUE1').onchange=e=>{state.paretoUE1=e.target.value;render();};
   if(q('kalProdUE1'))q('kalProdUE1').onchange=e=>{state.kalProdUE1=e.target.value;state.kalProdU=null;render();};
   if(q('simUE1'))q('simUE1').onchange=e=>{state.simUE1=e.target.value;state.simUnit='';render();};
@@ -3079,9 +3112,10 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='abkexport'){try{abkExport();}catch(e){alert('Gagal menyiapkan ekspor: '+e);}}
   else if(a==='loadabk'){ensureAbk();}
   else if(a==='kaltab'){state.kalTab=el.dataset.t;state.kalJab=null;render();}
-  else if(a==='kaljab'){state.kalJab=(state.kalJab===el.dataset.k?null:el.dataset.k);render();}
-  else if(a==='kalprodu'){state.kalProdU=(state.kalProdU===el.dataset.k?null:el.dataset.k);render();}
+  else if(a==='kaljab'){const _y=window.scrollY;state.kalJab=(state.kalJab===el.dataset.k?null:el.dataset.k);render();window.scrollTo({top:_y});}
+  else if(a==='kalprodu'){const _y=window.scrollY;state.kalProdU=(state.kalProdU===el.dataset.k?null:el.dataset.k);render();window.scrollTo({top:_y});}
   else if(a==='kalprodue1'){state.kalProdUE1=el.dataset.k||'';state.kalProdU=null;render();}
+  else if(a==='normaexp'){const _y=window.scrollY;state.normaExp=(state.normaExp===el.dataset.k?null:el.dataset.k);render();window.scrollTo({top:_y});}
   else if(a==='paretof'){state.paretoF=el.dataset.f||'';render();}
   else if(a==='paretosort'){const k=el.dataset.k;state.paretoSort=state.paretoSort.k===k?{k,d:-state.paretoSort.d}:{k,d:-1};render();}
   else if(a==='otkvexp'){const k=+el.dataset.id;state.otkExpV[k]=!state.otkExpV[k];render();}
