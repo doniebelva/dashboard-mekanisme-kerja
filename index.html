@@ -627,7 +627,7 @@ let state={view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
   otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
-  kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,
+  kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
   simUE1:'',simUnit:'',simTarget:300,simTrR:0,simTrS:0,simTrK:0};
 
@@ -2339,25 +2339,30 @@ function vAbkNorma(){
   if(state.abkErr||!ABK)return vAbk();
   const N=ABK.norma;
   if(!N||!N.items||!N.items.length)return `<div class="note-box">Data analisis norma waktu belum tersedia pada abk.json. Jalankan build_norma.py lalu unggah ulang.</div>`;
-  const U={};(ABK.eselon1||[]).forEach(e=>(e.units||[]).forEach(u=>{U[u.kode]={nama:u.nama,es1:e.nama};}));
+  const U={};(ABK.eselon1||[]).forEach(e=>(e.units||[]).forEach(u=>{U[u.kode]={nama:u.nama,es1:e.nama,es1k:e.kode};}));
   const unm=k=>U[k]?U[k].nama:('Unit '+k), ues=k=>U[k]?U[k].es1:'';
+  const normaUnits=new Set();N.items.forEach(x=>x.rows.forEach(r=>normaUnits.add(r.k)));
   const jke=(ABK.meta&&ABK.meta.jke)||1476;
   const q=(state.normaQ||'').toLowerCase().trim();
   let items=N.items; if(q)items=items.filter(x=>x.nama.toLowerCase().indexOf(q)>=0);
+  if(state.normaUE2)items=items.filter(x=>x.rows.some(r=>r.k===state.normaUE2));
+  else if(state.normaUE1)items=items.filter(x=>x.rows.some(r=>U[r.k]&&U[r.k].es1k===state.normaUE1));
   let h=`<div class="note-box">Norma waktu ideal = <b>modus</b> (nilai yang dipakai mayoritas unit) untuk tahapan yang sama lintas unit. Unit <b>di atas</b> norma (&ge;1,5x) menggelembungkan beban; <b>di bawah</b> (&le;0,67x) mungkin terlalu cepat. Hanya tahapan baku (berulang &ge;3 unit) yang dibandingkan; tahapan unik tak punya pembanding. Bersifat <b>indikatif</b> untuk standardisasi norma. Data 2024.</div>
   <div class="kpis">
     <div class="kpi"><div class="lab">Tahapan Baku Menyimpang</div><div class="val">${fmt(N.n_tahapan)}</div></div>
     <div class="kpi"><div class="lab">Unit-Tahapan Menyimpang</div><div class="val" style="color:#c1121f">${fmt(N.n_deviasi)}</div></div>
     <div class="kpi gold"><div class="lab">Estimasi Beban Berlebih</div><div class="val" style="color:#c1121f">${fmt(Math.round(N.total_lebih))}</div><div class="note">jam/tahun &middot; ~${fmt(Math.round(N.total_lebih/jke))} orang</div></div>
   </div>
-  <div class="toolbar"><input class="search" id="normaQ" placeholder="Cari tahapan..." value="${esc(state.normaQ||'')}" style="max-width:340px"></div>
+  <div class="toolbar"><input class="search" id="normaQ" placeholder="Cari tahapan..." value="${esc(state.normaQ||'')}" style="max-width:300px">
+    <select class="flt" id="normaUE1"><option value="">Semua Eselon I</option>${(ABK.eselon1||[]).map(e=>`<option value="${e.kode}"${state.normaUE1===e.kode?' selected':''}>${esc(e.nama)}</option>`).join('')}</select>
+    <select class="flt" id="normaUE2"${state.normaUE1?'':' disabled'}><option value="">Semua Eselon II</option>${state.normaUE1?(((ABK.eselon1||[]).find(e=>e.kode===state.normaUE1)||{units:[]}).units||[]).filter(u=>normaUnits.has(u.kode)).slice().sort((a,b)=>a.nama.localeCompare(b.nama)).map(u=>`<option value="${u.kode}"${state.normaUE2===u.kode?' selected':''}>${esc(u.nama)}</option>`).join(''):''}</select></div>
   <div class="card"><h2 class="sec" style="margin-top:0">Tahapan dengan Norma Waktu Menyimpang <span class="mini">(${fmt(items.length)}, urut dampak beban)</span></h2>
   <table><thead><tr><th>Tahapan</th><th class="num-c">Unit</th><th class="num-c">Norma Ideal</th><th class="num-c">Rentang (mnt)</th><th class="num-c">Over</th><th class="num-c">Under</th><th class="num-c">Beban Berlebih (jam)</th></tr></thead><tbody>`;
   items.slice(0,200).forEach(x=>{const open=state.normaExp===x.nama;
     h+=`<tr style="cursor:pointer" data-act="normaexp" data-k="${esc(x.nama)}"><td class="link">${open?'&#9662; ':'&#9656; '}${esc(x.nama)}</td><td class="num-c">${fmt(x.n)}</td><td class="num-c"><b>${fmt(x.ideal)}</b> mnt</td><td class="num-c">${fmt(x.min)}-${fmt(x.max)}</td><td class="num-c">${x.nover?`<span style="color:#c1121f;font-weight:700">${x.nover}</span>`:'0'}</td><td class="num-c">${x.nunder||0}</td><td class="num-c">${x.lebih?fmt(Math.round(x.lebih)):'-'}</td></tr>`;
     if(open){
       h+=`<tr><td colspan="7" style="background:var(--side);padding:10px 14px"><div class="mini" style="margin-bottom:6px">Norma ideal (modus) <b>${fmt(x.ideal)} menit</b>. Unit yang menyimpang (baris merah = di atas norma):</div><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Norma</th><th>Status</th><th class="num-c">Volume</th><th class="num-c">Beban Berlebih (jam)</th></tr></thead><tbody>`;
-      x.rows.forEach(r=>{const over=r.st==='over';h+=`<tr style="${over?'background:#fde8e8':''}"><td class="mini">${esc(unm(r.k))}</td><td class="mini">${esc(ues(r.k))}</td><td class="num-c">${fmt(r.nw)} mnt</td><td><span style="color:${over?'#c1121f':'#2563eb'};font-weight:700">${over?'di atas':'di bawah'}</span></td><td class="num-c">${fmt(r.vol)}</td><td class="num-c">${over?fmt(Math.round(r.lj||0)):'-'}</td></tr>`;});
+      x.rows.forEach(r=>{const over=r.st==='over';const sel=state.normaUE2&&r.k===state.normaUE2;h+=`<tr style="${sel?'outline:2px solid #2563eb;outline-offset:-2px;':''}${over?'background:#fde8e8':''}"><td class="mini">${sel?'&#9656; ':''}${esc(unm(r.k))}</td><td class="mini">${esc(ues(r.k))}</td><td class="num-c">${fmt(r.nw)} mnt</td><td><span style="color:${over?'#c1121f':'#2563eb'};font-weight:700">${over?'di atas':'di bawah'}</span></td><td class="num-c">${fmt(r.vol)}</td><td class="num-c">${over?fmt(Math.round(r.lj||0)):'-'}</td></tr>`;});
       h+=`</tbody></table></td></tr>`;
     }});
   h+=`</tbody></table>${items.length>200?`<div class="mini" style="margin-top:6px">Menampilkan 200 dari ${fmt(items.length)}.</div>`:''}</div>`;
@@ -3052,6 +3057,8 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('kalMin'))q('kalMin').onchange=e=>{state.kalMin=+e.target.value;render();};
   if(q('kalQ'))q('kalQ').oninput=e=>{state.kalQ=e.target.value;rerenderKeep(vAbkKalibrasi,'kalQ');};
   if(q('normaQ'))q('normaQ').oninput=e=>{state.normaQ=e.target.value;rerenderKeep(vAbkNorma,'normaQ');};
+  if(q('normaUE1'))q('normaUE1').onchange=e=>{state.normaUE1=e.target.value;state.normaUE2='';state.normaExp=null;render();};
+  if(q('normaUE2'))q('normaUE2').onchange=e=>{state.normaUE2=e.target.value;state.normaExp=null;render();};
   if(q('paretoUE1'))q('paretoUE1').onchange=e=>{state.paretoUE1=e.target.value;render();};
   if(q('kalProdUE1'))q('kalProdUE1').onchange=e=>{state.kalProdUE1=e.target.value;state.kalProdU=null;render();};
   if(q('simUE1'))q('simUE1').onchange=e=>{state.simUE1=e.target.value;state.simUnit='';render();};
