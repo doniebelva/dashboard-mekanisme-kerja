@@ -627,7 +627,7 @@ let state={view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
   otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
-  kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',
+  kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
   simUE1:'',simUnit:'',simTarget:300,simTrR:0,simTrS:0,simTrK:0};
 
@@ -2215,11 +2215,11 @@ function vAbkKalibrasi(){
   if(state.abkErr)return vAbk();           // pakai pesan error/loading yg sama
   if(!ABK)return vAbk();
   const tab=state.kalTab||'jabatan';
-  const tabs=[['jabatan','Jabatan Sejenis'],['zona','Kepatuhan Zona'],['data','Kualitas Data']];
+  const tabs=[['jabatan','Jabatan Sejenis'],['zona','Kepatuhan Zona'],['data','Kualitas Data'],['produk','Validasi Produk']];
   const seg=`<div class="seg" style="margin-bottom:12px">${tabs.map(t=>`<span class="segb ${tab===t[0]?'on':''}" data-act="kaltab" data-t="${t[0]}">${t[1]}</span>`).join('')}</div>`;
   const intro=`<div class="note-box">Kalibrasi membaca data ABK untuk menilai <b>kewajaran dan kualitasnya</b> sebelum dipakai mengambil keputusan. Temuan bersifat <b>indikatif</b>: nilai di luar kewajaran bisa berarti ketimpangan beban yang nyata <i>atau</i> pengisian norma/volume yang perlu diperbaiki.</div>`;
   const K=kalData();
-  const body=tab==='zona'?_kalZona(K):tab==='data'?_kalKualitas(K):_kalJabatan(K);
+  const body=tab==='zona'?_kalZona(K):tab==='data'?_kalKualitas(K):tab==='produk'?_kalProduk():_kalJabatan(K);
   return seg+intro+body;
 }
 
@@ -2285,6 +2285,52 @@ function _kalKualitas(K){
     x=>`<tr style="cursor:pointer" data-act="abkunit" data-k="${x.kode}"><td class="link">${esc(x.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${fmt(Math.round(x.beban))}</td><td class="num-c">${fmt(x.ada)}</td></tr>`);
   h+=sec('Unit EU.1 di Luar Zona','Unit dengan efisiensi di luar 0,75 - 1,25 (perlu penjelasan menurut PMK).',K.eu1ext,['Unit','Eselon I','EU.1','Bezetting'],
     x=>`<tr style="cursor:pointer" data-act="abkunit" data-k="${x.kode}"><td class="link">${esc(x.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${abkPill(x.eu1)}</td><td class="num-c">${fmt(x.ada)}</td></tr>`);
+  return h;
+}
+
+function _kalProduk(){
+  const es1=ABK.eselon1||[];
+  const byEs1={}; let all=[];
+  es1.forEach(e=>{const us=(e.units||[]).filter(u=>(u.val_a_n||0)+(u.val_b_n||0)>0||u.val_ref===0);
+    if(us.length){byEs1[e.nama]=us;us.forEach(u=>all.push(Object.assign({es1:e.nama},u)));}});
+  if(!all.length)return `<div class="note-box">Belum ada temuan validasi produk pada data saat ini.</div>`;
+  const ue1=state.kalProdUE1||'';
+  const sel=`<select class="flt" id="kalProdUE1"><option value="">Semua Eselon I (ringkasan)</option>${Object.keys(byEs1).map(n=>`<option value="${esc(n)}" ${ue1===n?'selected':''}>${esc(n)}</option>`).join('')}</select>`;
+  const intro=`<div class="note-box">Validasi penempatan produk: <b>Form A semestinya Tusi, Form B non-Tusi.</b> Tiap produk dibandingkan maknanya dengan kamus tugas-fungsi (OTK) dan uraian jabatan (URJAB) unit; kegiatan generik (rapat, upacara, lomba, dll) selalu non-Tusi. Hasil <b>indikatif untuk diverifikasi</b> (nama produk teks bebas). Form A baru tersedia untuk Setjen.</div>
+  <div class="note-box" style="border-left-color:#b45309;background:#fff8ec"><b>Catatan pengembangan diri:</b> tugas belajar dan mengikuti diklat/pelatihan bukan output unit (menerima kapasitas, bukan menghasilkan). Khusus <b>tugas belajar</b>, pegawainya tetap tercatat di unit (belum dialihkan ke SDM) sehingga menjadi beban semu yang menggelembungkan kebutuhan, dan idealnya <b>dikeluarkan dari beban unit</b>, bukan sekadar dipindah ke Form B. Sebaliknya, <b>menyelenggarakan/memberi diklat atau menjadi narasumber</b> tetap dihitung Tusi bila sesuai mandat unit (mis. BPPK).</div>`;
+  if(!ue1){
+    const sAn=all.reduce((s,u)=>s+(u.val_a_n||0),0),sBn=all.reduce((s,u)=>s+(u.val_b_n||0),0),noref=all.filter(u=>u.val_ref===0).length;
+    let h=intro+`<div class="kpis">
+      <div class="kpi"><div class="lab">Unit Dianalisis</div><div class="val">${fmt(all.length)}</div></div>
+      <div class="kpi gold"><div class="lab">Non-Tusi di Form A</div><div class="val" style="color:#c1121f">${fmt(sAn)}</div><div class="note">usul ke Form B</div></div>
+      <div class="kpi"><div class="lab">Tusi di Form B</div><div class="val" style="color:#c1121f">${fmt(sBn)}</div><div class="note">usul ke Form A</div></div>
+      <div class="kpi"><div class="lab">Unit Tanpa Referensi</div><div class="val" style="color:${noref?'#c1121f':'#157f3d'}">${fmt(noref)}</div><div class="note">OTK/URJAB belum ada</div></div>
+    </div>`;
+    h+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">Ketidaksesuaian per Eselon I</h2><span style="margin-left:auto">${sel}</span></div>
+    <table><thead><tr><th>Eselon I</th><th class="num-c">Unit</th><th class="num-c">Non-Tusi di A</th><th class="num-c">Tusi di B</th><th class="num-c">Tanpa Referensi</th></tr></thead><tbody>`;
+    Object.keys(byEs1).forEach(n=>{const us=byEs1[n];
+      const an=us.reduce((s,u)=>s+(u.val_a_n||0),0),aj=us.reduce((s,u)=>s+(u.val_a_beban||0),0);
+      const bn=us.reduce((s,u)=>s+(u.val_b_n||0),0),bj=us.reduce((s,u)=>s+(u.val_b_beban||0),0);
+      const nr=us.filter(u=>u.val_ref===0).length;
+      h+=`<tr style="cursor:pointer" data-act="kalprodue1" data-k="${esc(n)}"><td class="link">&#9656; ${esc(n)}</td><td class="num-c">${fmt(us.length)}</td><td class="num-c">${an?fmt(an)+` <span class="mini">(${fmt(Math.round(aj))}j)</span>`:'—'}</td><td class="num-c">${bn?fmt(bn)+` <span class="mini">(${fmt(Math.round(bj))}j)</span>`:'0'}</td><td class="num-c">${nr?`<span style="color:#c1121f;font-weight:700">${fmt(nr)}</span>`:'0'}</td></tr>`;});
+    h+=`</tbody></table><div class="mini" style="margin-top:6px">Klik Eselon I untuk menelusuri per unit Eselon II. Kolom "Tanpa Referensi" = unit yang data OTK/URJAB-nya belum ada (validasi terbatas).</div></div>`;
+    return h;
+  }
+  const units=(byEs1[ue1]||[]).slice().sort((a,b)=>((b.val_a_beban||0)+(b.val_b_beban||0))-((a.val_a_beban||0)+(a.val_b_beban||0)));
+  const noref=units.filter(u=>u.val_ref===0);
+  const warn=noref.length?`<div class="note-box" style="border-left-color:#c1121f;background:#fde8e8"><b style="color:#b91c1c">Perhatian:</b> data OTK dan URJAB belum tersedia untuk <b>${noref.map(u=>esc(u.nama)).slice(0,5).join(', ')}${noref.length>5?', dll':''}</b>. <b>Segera upload data OTK dan URJAB unit tersebut agar validasi optimal.</b> Tanpa itu, validasi hanya dilakukan berdasarkan pengetahuan umum.</div>`:'';
+  let h=intro+`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><span class="tag" data-act="kalprodue1" data-k="" style="cursor:pointer">&larr; Semua Eselon I</span><h2 class="sec" style="margin:0">${esc(ue1)} <span class="mini">(per unit Eselon II)</span></h2><span style="margin-left:auto">${sel}</span></div>${warn}
+  <table><thead><tr><th>Unit</th><th class="num-c">Non-Tusi di A</th><th class="num-c">Tusi di B</th><th class="num-c">EU.2</th><th class="num-c">EU.2 Koreksi</th></tr></thead><tbody>`;
+  units.forEach(u=>{const open=state.kalProdU===u.kode;
+    const eu2k=u.beban?Math.max(0,Math.min(100,(u.beban_tusi-(u.val_a_beban||0)+(u.val_b_beban||0))/u.beban*100)):0;
+    h+=`<tr style="cursor:pointer" data-act="kalprodu" data-k="${u.kode}"><td class="link">${open?'&#9662; ':'&#9656; '}${esc(u.nama)}${u.val_ref===0?' <span class="pill" style="background:#fde8e8;color:#b91c1c">tanpa referensi</span>':''}</td><td class="num-c">${u.val_a_n?`${fmt(u.val_a_n)} <span class="mini">(${fmt(Math.round(u.val_a_beban))}j)</span>`:'<span class="mini">—</span>'}</td><td class="num-c">${u.val_b_n?`${fmt(u.val_b_n)} <span class="mini">(${fmt(Math.round(u.val_b_beban))}j)</span>`:'0'}</td><td class="num-c">${(+u.eu2).toFixed(1)}%</td><td class="num-c">${eu2k.toFixed(1)}%</td></tr>`;
+    if(open){
+      const lst=(arr,empty)=>(arr&&arr.length)?`<table><tbody>${arr.map(p=>`<tr><td>${esc(p.nama)}${p.k?' <span class="pill" style="background:#fde8e8;color:#b91c1c">keluarkan</span>':''}</td><td class="num-c" style="white-space:nowrap">${fmt(Math.round(p.beban))} jam</td></tr>`).join('')}</tbody></table>`:`<div class="mini">${empty}</div>`;
+      const jke=(ABK.meta&&ABK.meta.jke)||1476;
+      const keluarNote=(u.val_keluar_beban>0)?`<div class="mini" style="margin-top:6px;color:#b45309">Termasuk pengembangan diri (tugas belajar / mengikuti diklat) <b>${fmt(Math.round(u.val_keluar_beban))} jam (~${(u.val_keluar_beban/jke).toFixed(1)} orang)</b> yang idealnya dikeluarkan dari beban unit.</div>`:'';
+      h+=`<tr><td colspan="5" style="background:var(--side);padding:10px 14px">${u.val_ref?'':`<div class="note-box" style="margin:0 0 8px;border-left-color:#c1121f;background:#fde8e8"><b style="color:#b91c1c">Data OTK dan URJAB ${esc(u.nama)} belum tersedia.</b> Segera upload agar validasi optimal; tanpa itu validasi hanya dilakukan berdasarkan pengetahuan umum.</div>`}<div style="display:flex;gap:20px;flex-wrap:wrap"><div style="flex:1;min-width:280px"><div class="mini" style="font-weight:700;margin-bottom:4px;color:#c1121f">Non-Tusi di Form A &rarr; usul pindah ke Form B (tag "keluarkan" = pengembangan diri, hapus dari beban)</div>${lst(u.val_a,(u.produk_top_a&&u.produk_top_a.length)?'Tidak ada.':'Form A belum tersedia untuk unit ini.')}</div><div style="flex:1;min-width:280px"><div class="mini" style="font-weight:700;margin-bottom:4px;color:#c1121f">Tusi di Form B &rarr; usul pindah ke Form A</div>${lst(u.val_b,'Tidak ada.')}</div></div>${keluarNote}${(u.val_a_n>15||u.val_b_n>15)?`<div class="mini" style="margin-top:4px">Menampilkan maksimal 15 teratas per sisi.</div>`:''}</td></tr>`;
+    }});
+  h+=`</tbody></table><div class="mini" style="margin-top:6px">EU.2 Koreksi = perkiraan efektivitas bila produk dipindah ke form yang benar (indikatif). Klik unit untuk rincian.</div></div>`;
   return h;
 }
 
@@ -2974,6 +3020,7 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('kalMin'))q('kalMin').onchange=e=>{state.kalMin=+e.target.value;render();};
   if(q('kalQ'))q('kalQ').oninput=e=>{state.kalQ=e.target.value;rerenderKeep(vAbkKalibrasi,'kalQ');};
   if(q('paretoUE1'))q('paretoUE1').onchange=e=>{state.paretoUE1=e.target.value;render();};
+  if(q('kalProdUE1'))q('kalProdUE1').onchange=e=>{state.kalProdUE1=e.target.value;state.kalProdU=null;render();};
   if(q('simUE1'))q('simUE1').onchange=e=>{state.simUE1=e.target.value;state.simUnit='';render();};
   if(q('simUnit'))q('simUnit').onchange=e=>{state.simUnit=e.target.value;render();};
   if(q('simTarget'))q('simTarget').onchange=e=>{state.simTarget=e.target.value;render();};
@@ -3033,6 +3080,8 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='loadabk'){ensureAbk();}
   else if(a==='kaltab'){state.kalTab=el.dataset.t;state.kalJab=null;render();}
   else if(a==='kaljab'){state.kalJab=(state.kalJab===el.dataset.k?null:el.dataset.k);render();}
+  else if(a==='kalprodu'){state.kalProdU=(state.kalProdU===el.dataset.k?null:el.dataset.k);render();}
+  else if(a==='kalprodue1'){state.kalProdUE1=el.dataset.k||'';state.kalProdU=null;render();}
   else if(a==='paretof'){state.paretoF=el.dataset.f||'';render();}
   else if(a==='paretosort'){const k=el.dataset.k;state.paretoSort=state.paretoSort.k===k?{k,d:-state.paretoSort.d}:{k,d:-1};render();}
   else if(a==='otkvexp'){const k=+el.dataset.id;state.otkExpV[k]=!state.otkExpV[k];render();}
