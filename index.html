@@ -416,8 +416,8 @@ async function ensureCore(){
   const j=async f=>{const r=await fetch(DATA_BASE+f);if(!r.ok)throw new Error('Gagal memuat '+f);return r.json();};
   const a=await Promise.all([j('otk.json'),j('otk_bagan_map.json'),j('otk_vertikal.json'),j('otk_blu.json'),
     j('otk_blu_xref.json'),j('otk_xref.json'),j('otk_overlap.json'),j('urjab_redundansi.json'),
-    j('protected/dashboard_data.json'),j('protected/users.json')]);
-  OTK=a[0];BAGAN=a[1];OTKVERT=a[2];OTKBLU=a[3];BLUXREF=a[4];XREF=a[5];OVERLAP=a[6];REDUN=a[7];FULL=a[8];DATA=a[8];USERS=a[9];
+    j('protected/dashboard_data.json'),j('protected/users.json'),j('jafung.json').catch(()=>null)]);
+  OTK=a[0];BAGAN=a[1];OTKVERT=a[2];OTKBLU=a[3];BLUXREF=a[4];XREF=a[5];OVERLAP=a[6];REDUN=a[7];FULL=a[8];DATA=a[8];USERS=a[9];if(a[10]&&a[10].jfkn)JF=a[10];
 }
 /* Mode remote (gerbang Apps Script): muat bundel data struktur OTK setelah login (token wajib). */
 async function ensureOtkRemote(){
@@ -425,10 +425,17 @@ async function ensureOtkRemote(){
   const j=await api('otk',{});
   if(j&&j.otk){OTK=j.otk;BAGAN=j.bagan;OTKVERT=j.otkvert;OTKBLU=j.otkblu;BLUXREF=j.bluxref;XREF=j.xref;OVERLAP=j.overlap;REDUN=j.redun;}
 }
+/* JF (Jabatan Fungsional, publik) - dimuat lewat gerbang saat login (mode remote). Kegagalan tidak menghalangi login. */
+async function ensureJfRemote(){
+  if(JF||!REMOTE)return;
+  const j=await api('jf',{});
+  if(j&&j.jfkn)JF=j;
+}
 function ensureKatalog(){if(KATALOG||state.katLoading)return;state.katLoading=true;state.katErr=false;progStart();
   loadKatalog().then(()=>{state.katLoading=false;progDone();render();}).catch(()=>{state.katLoading=false;progDone();state.katErr=true;render();});}
 /* OTK (struktur organisasi resmi) - ditanam langsung (870KB). SCOPE = lingkup login utk filter lintas modul. */
 let OTK=null;let BAGAN=null;let OTKVERT=null;let OTKBLU=null;let BLUXREF=null;let XREF=null;let OVERLAP=null;let REDUN=null;let SCOPE={type:'all'};
+let JF=null;   /* Jabatan Fungsional Keuangan Negara (publik). LOKAL inline; REMOTE null -> muat via gerbang saat login; INTERNAL dari data/jafung.json */
 /* ===== Proses Bisnis: embed mulus (sidebar Probis disembunyikan, menu kita yang mengendalikan) ===== */
 const PBV='1714881';
 const PB_LBL={exec:'Dashboard Pimpinan',ringkasan:'Ringkasan',tree:'Tree Diagram',heatmap:'Heatmap Unit',tematik:'Analisis Tematik',jaringan:'Jaringan Unit',profil:'Profil Domain',spbe:'SPBE & Maturitas',gap:'Gap & Whitespace',layanan:'Layanan',aplikasi:'Aplikasi',monitoring:'Monitoring',katalog:'Proses Bisnis',validasi:'Validasi Probis',level:'Validasi Level',perubahan:'Perubahan'};
@@ -588,7 +595,9 @@ const MODULES=[
    {grp:'Penataan & Rekomendasi',items:[{v:'otkeval',lab:'Evaluasi Organisasi'},{v:'otkorg',lab:'Indeks Kesehatan Organisasi'},{v:'otkindeks',lab:'Usulan Penataan'},{v:'otkshare',lab:'Peluang Share Service'}]},
  ]},
  {id:'urjab',icn:'urjab',lab:'Jabatan',groups:[
-   {grp:'',items:[{v:'urjab',lab:'Repositori Jabatan'},{v:'tema',lab:'Penelusuran Tematik'},{v:'urjabanalisis',lab:'Analisis Jabatan'},{v:'urjabinsight',lab:'Insight Jabatan'},{v:'urjabcompare',lab:'Komparasi Jabatan'},{v:'urjabredun',lab:'Replikasi Jabatan'}]},
+   {grp:'Ikhtisar',items:[{v:'jabkomposisi',lab:'Komposisi Jabatan per Eselon I'}]},
+   {grp:'Jabatan Struktural',items:[{v:'urjab',lab:'Repositori Jabatan'},{v:'tema',lab:'Penelusuran Tematik'},{v:'urjabanalisis',lab:'Analisis Jabatan'},{v:'urjabinsight',lab:'Insight Jabatan'},{v:'urjabcompare',lab:'Komparasi Jabatan'},{v:'urjabredun',lab:'Replikasi Jabatan'}]},
+   {grp:'Jabatan Fungsional',items:[{v:'jf',lab:'Peta JF Keuangan Negara'},{v:'jffungsi',lab:'Fungsionalisasi (Delayering)'}]},
  ]},
  {id:'probis',icn:'probis',lab:'Proses Bisnis',groups:[
    {grp:'Ringkasan',items:[{v:'pb_exec',lab:'Dashboard Pimpinan'},{v:'pb_ringkasan',lab:'Ringkasan'}]},
@@ -609,7 +618,7 @@ const MODULES=[
    {grp:'',items:[{v:'katalog',lab:'Kompetensi'},{v:'pb_katalog',lab:'Proses Bisnis'},{v:'pb_layanan',lab:'Layanan'},{v:'pb_aplikasi',lab:'Aplikasi'}]},
  ]},
 ];
-const VIEW2MOD={beranda:'beranda',urjabdetail:'urjab',otkdetail:'otk',otkvdetail:'otk',skill:'mk',unit1:'mk',unit2:'mk',team:'mk',emp:'mk'};
+const VIEW2MOD={beranda:'beranda',urjabdetail:'urjab',otkdetail:'otk',otkvdetail:'otk',skill:'mk',unit1:'mk',unit2:'mk',team:'mk',emp:'mk',jfprofil:'urjab'};
 const MODDEF={};
 MODULES.forEach(m=>{MODDEF[m.id]=(m.groups[0]&&m.groups[0].items[0]&&m.groups[0].items[0].v)||m.id;
   m.groups.forEach(g=>g.items.forEach(it=>VIEW2MOD[it.v]=m.id));});
@@ -629,7 +638,8 @@ let state={view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
   kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
-  simUE1:'',simUnit:'',simTarget:300,simTrR:0,simTrS:0,simTrK:0};
+  simUE1:'',simUnit:'',simTarget:300,simTrR:0,simTrS:0,simTrK:0,
+  jfQ:'',jfJenis:'',jfSel:null,jfFungUE1:'',jfFungF:'',jkView:'bezetting'};
 
 function renderNav(){const cur=curMod();let h='<div class="modsw">';
   MODULES.forEach(m=>{if(m.id!=='beranda'&&!canMod(m.id))return;
@@ -648,7 +658,7 @@ function renderNav(){const cur=curMod();let h='<div class="modsw">';
   document.getElementById('nav').innerHTML=h;}
 const VT={otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
   struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
-  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi'};
+  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I'};
 
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
   const a=act?`data-act="${act.a}" ${act.d||''}`:'';
@@ -1778,6 +1788,180 @@ function vOtkHealth(){
     h+=rows.map(r=>`<tr><td class="link" data-act="otkopen" data-id="${r.n.id}">${esc(r.n.nama)}</td><td class="mini">${esc(r.es1)}</td><td class="num-c">${r.sub}</td><td class="num-c">${fmt(r.tot)}</td><td class="num-c">${r.jab==null?'&mdash;':fmt(r.jab)}</td><td class="num-c">${r.peg==null?'&mdash;':fmt(r.peg)}</td><td class="mini">${r.flag?'<span class="pill warn">'+r.flag+'</span>':''}</td></tr>`).join('');
     h+=`</tbody></table></div></div>`;
   }
+  return h;
+}
+
+/* ===== Modul Jabatan Fungsional (JF Keuangan Negara) ===== */
+// nama resmi LENGKAP Eselon I dari slug (jangan singkat nama unit di tampilan)
+function jfEs1Name(key){if(typeof OTK!=='undefined'&&OTK&&OTK.unit){const n=OTK.unit.find(u=>u.level===1&&u.unit_key===key);if(n)return n.nama;}
+  return ({setjen:'Sekretariat Jenderal',djsef:'Direktorat Jenderal Strategi Ekonomi dan Fiskal',dja:'Direktorat Jenderal Anggaran',djp:'Direktorat Jenderal Pajak',djbc:'Direktorat Jenderal Bea dan Cukai',djpb:'Direktorat Jenderal Perbendaharaan',djkn:'Direktorat Jenderal Kekayaan Negara',djpk:'Direktorat Jenderal Perimbangan Keuangan',djppr:'Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko',djspsk:'Direktorat Jenderal Stabilitas dan Pengembangan Sektor Keuangan',itjen:'Inspektorat Jenderal',batii:'Badan Teknologi, Informasi, dan Intelijen Keuangan',bppk:'Badan Pendidikan dan Pelatihan Keuangan'})[key]||key;}
+function jfKN(k){return (JF.jfkn||[]).find(j=>j.key===k)||null;}
+function jfKNName(k){const x=jfKN(k);return x?x.nama:k;}
+function vJf(){
+  if(!JF||!JF.jfkn||!JF.jfkn.length)return '<div class="empty">Data Jabatan Fungsional belum tersedia.</div>';
+  const M=JF.meta||{},KN=JF.jfkn||[],KON=JF.konsolidasi||[];
+  const jenis=state.jfJenis||'',qq=(state.jfQ||'').toLowerCase();
+  let rows=KON.slice();
+  if(jenis)rows=rows.filter(r=>r.jenis===jenis);
+  if(qq)rows=rows.filter(r=>(r.jf_lama+' '+jfKNName(r.jf_kn)+' '+(r.bidang||'')).toLowerCase().indexOf(qq)>=0);
+  let h=`<div class="note-box">Melalui <b>PermenPANRB 11/2023</b> dan <b>PMK 132/2023</b>, sebanyak <b>23 jabatan fungsional</b> binaan Kementerian Keuangan dikonsolidasikan menjadi <b>4 Jabatan Fungsional di Bidang Keuangan Negara</b> (JF KN). Penyederhanaan ini menjadi muara kebijakan delayering: fungsi yang sebelumnya melekat pada jabatan struktural dialihkan ke jabatan fungsional. Peta konsolidasi 6 JF Terbuka bersumber resmi dari SE-8/2024; pemetaan JF Tertutup disusun dari bidang tugas PMK 132/2023 dan telah diverifikasi Biro Organta.</div>`;
+  h+=`<div class="kpis">
+    <div class="kpi"><div class="lab">JF sebelum konsolidasi</div><div class="val">${M.jml_jf_lama||23}</div><div class="note">binaan Kementerian Keuangan</div></div>
+    <div class="kpi good"><div class="lab">JF Keuangan Negara</div><div class="val">${M.jml_jf_kn||4}</div><div class="note">hasil konsolidasi</div></div>
+    <div class="kpi gold"><div class="lab">Batas penyesuaian nomenklatur</div><div class="val" style="font-size:20px">7 Agu 2025</div><div class="note">bagi instansi pengguna</div></div>
+    <div class="kpi"><div class="lab">Jenjang</div><div class="val">3 + 4</div><div class="note">keterampilan + keahlian</div></div></div>`;
+  h+=`<h2 class="sec">Empat Jabatan Fungsional di Bidang Keuangan Negara</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">`;
+  KN.forEach(j=>{const asal=KON.filter(r=>r.jf_kn===j.key).length;
+    h+=`<div class="card" style="cursor:pointer" data-act="jfopen" data-k="${j.key}">
+      <div style="font-weight:800;color:var(--brand-d);font-size:16px">${esc(j.nama)}</div>
+      <div class="mini" style="margin:6px 0 8px">${esc(j.ringkas)}</div>
+      <div style="margin-bottom:8px">${(j.bidang_tugas||[]).map(b=>`<span class="pill neu">${esc(b)}</span> `).join('')}</div>
+      <div class="mini">Menyerap <b>${asal}</b> nomenklatur JF lama</div>
+      <div class="mini" style="margin-top:4px;color:var(--brand)">Lihat profil &rsaquo;</div></div>`;});
+  h+=`</div>`;
+  h+=`<h2 class="sec" style="margin-top:18px">Lini Masa Transformasi</h2><div class="card">`;
+  (JF.timeline||[]).forEach((t,i)=>{h+=`<div style="display:flex;gap:12px;align-items:flex-start;padding:8px 0${i?';border-top:1px solid var(--line)':''}">
+    <div style="font-weight:800;color:var(--brand);min-width:46px">${t.tahun}</div><div class="mini">${esc(t.peristiwa)}</div></div>`;});
+  h+=`</div>`;
+  const jseg=(v,l)=>`<span class="segb ${jenis===v?'on':''}" data-act="jfjenis" data-j="${v}">${l}</span>`;
+  h+=`<h2 class="sec" style="margin-top:18px">Peta Konsolidasi 23 &rarr; 4</h2>
+    <div class="toolbar"><input class="search" id="jfQ" placeholder="Cari jabatan / bidang tugas..." value="${esc(state.jfQ||'')}"><span class="seg" style="margin-left:auto">${jseg('','Semua')}${jseg('Terbuka','Terbuka')}${jseg('Tertutup','Tertutup')}</span></div>
+    <div class="card"><div style="overflow-x:auto"><table><thead><tr><th>JF Lama</th><th>Jenis</th><th>JF Keuangan Negara</th><th>Bidang Tugas</th><th>Unit Pengguna</th><th>Sumber</th></tr></thead><tbody>`;
+  h+=rows.map(r=>`<tr><td>${esc(r.jf_lama)}</td>
+      <td><span class="pill ${r.jenis==='Terbuka'?'good':'neu'}">${esc(r.jenis)}</span></td>
+      <td class="link" data-act="jfopen" data-k="${r.jf_kn}"><b>${esc(jfKNName(r.jf_kn))}</b></td>
+      <td class="mini">${esc(r.bidang||'')}</td>
+      <td class="mini">${(r.pengguna||[]).map(p=>esc(jfEs1Name(p))).join(', ')}</td>
+      <td class="mini">${r.confidence==='resmi'?'<span class="pill good">resmi</span>':(r.confidence==='verifikasi'?'<span class="pill good" title="'+esc(r.sumber||'')+'">terverifikasi</span>':'<span class="pill warn" title="'+esc(r.sumber||'')+'">indikatif</span>')}</td></tr>`).join('')||'<tr><td colspan="6" class="mini">Tidak ada pada filter ini.</td></tr>';
+  h+=`</tbody></table></div><div class="mini" style="margin-top:8px;color:var(--muted)">"resmi" = tercantum di SE-8/2024. "terverifikasi" = pemetaan JF Tertutup dari bidang tugas PMK 132/2023, dikonfirmasi Biro Organta.</div></div>`;
+  return h;
+}
+function vJfProfil(){
+  const j=jfKN(state.jfSel);
+  if(!j)return '<div class="empty">Pilih salah satu Jabatan Fungsional pada Peta JF.</div>';
+  const M=JF.meta||{},KON=(JF.konsolidasi||[]).filter(r=>r.jf_kn===j.key),jj=M.jenjang||{};
+  let h=`<div class="toolbar"><span class="tag" data-act="jfback" style="cursor:pointer">&lsaquo; Kembali ke Peta JF</span></div>`;
+  h+=`<div class="card"><div style="font-weight:800;color:var(--brand-d);font-size:20px">${esc(j.nama)}</div>
+    <div class="mini" style="margin-top:6px">${esc(j.ringkas)}</div></div>`;
+  h+=`<div class="kpis"><div class="kpi"><div class="lab">Nomenklatur lama diserap</div><div class="val">${KON.length}</div></div>
+    <div class="kpi"><div class="lab">Bidang tugas</div><div class="val">${(j.bidang_tugas||[]).length}</div></div>
+    <div class="kpi"><div class="lab">Unit pengguna</div><div class="val">${(j.pengguna||[]).length}</div><div class="note">Eselon I</div></div></div>`;
+  const jz=j.jenjang||jj||{}, KJ=M.kelas_jabatan||{};
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Jenjang Jabatan &amp; Kelas</h2>
+    <div style="overflow-x:auto"><table><thead><tr><th>Kategori</th><th>Jenjang</th><th class="num-c">Kelas Jabatan</th></tr></thead><tbody>`;
+  [['keterampilan','Keterampilan'],['keahlian','Keahlian']].forEach(cc=>{const arr=jz[cc[0]]||[];arr.forEach((jn,i)=>{
+    h+=`<tr>${i===0?`<td rowspan="${arr.length}"><b>${cc[1]}</b></td>`:''}<td>${esc(jn)}</td><td class="num-c">${KJ[jn]!=null?fmt(KJ[jn]):'&mdash;'}</td></tr>`;});});
+  h+=`</tbody></table></div>${M.kelas_sumber?`<div class="mini" style="margin-top:6px;color:var(--muted)">${esc(M.kelas_sumber)}</div>`:''}</div>`;
+  const uk=M.ukom||{};
+  if(uk.ringkas)h+=`<div class="card"><h2 class="sec" style="margin-top:0">Uji Kompetensi</h2>
+    <div class="mini">${esc(uk.ringkas)}</div>
+    <div style="margin:8px 0">${(uk.jenis||[]).map(x=>`<span class="pill neu">${esc(x)}</span> `).join('')}</div>
+    ${uk.pelaksanaan?`<div class="mini"><b>Pelaksanaan:</b> ${esc(uk.pelaksanaan)}</div>`:''}
+    ${uk.dasar?`<div class="mini" style="color:var(--muted);margin-top:4px">Dasar: ${esc(uk.dasar)}</div>`:''}</div>`;
+  const lp=M.learning_path||{};
+  if(lp.ringkas)h+=`<div class="card"><h2 class="sec" style="margin-top:0">Learning Path</h2>
+    <div class="mini">${esc(lp.ringkas)}</div>
+    ${lp.pelaksana?`<div class="mini" style="margin-top:4px"><b>Pengelola:</b> ${esc(lp.pelaksana)}</div>`:''}
+    ${lp.dasar?`<div class="mini" style="color:var(--muted);margin-top:4px">Dasar: ${esc(lp.dasar)}</div>`:''}</div>`;
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Bidang Tugas</h2><div>${(j.bidang_tugas||[]).map(b=>`<span class="pill neu">${esc(b)}</span> `).join('')}</div></div>`;
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Unit Pengguna (Eselon I)</h2><div class="mini" style="margin-bottom:6px">Klik untuk membuka struktur unit di modul Struktur Organisasi.</div><div>`;
+  (j.pengguna||[]).forEach(p=>{const n=(typeof OTK!=='undefined'&&OTK&&OTK.unit)?OTK.unit.find(u=>u.level===1&&u.unit_key===p):null;
+    if(n)h+=`<span class="pill neu link" data-act="otkopen" data-id="${n.id}" style="cursor:pointer">${esc(jfEs1Name(p))}</span> `;
+    else h+=`<span class="pill neu">${esc(jfEs1Name(p))}</span> `;});
+  h+=`</div></div>`;
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Nomenklatur JF Lama yang Melebur</h2>
+    <div style="overflow-x:auto"><table><thead><tr><th>JF Lama</th><th>Jenis</th><th>Bidang Tugas</th><th>Sumber</th></tr></thead><tbody>`;
+  h+=KON.map(r=>`<tr><td>${esc(r.jf_lama)}</td><td><span class="pill ${r.jenis==='Terbuka'?'good':'neu'}">${esc(r.jenis)}</span></td><td class="mini">${esc(r.bidang||'')}</td><td class="mini">${r.confidence==='resmi'?'<span class="pill good">resmi</span>':(r.confidence==='verifikasi'?'<span class="pill good">terverifikasi</span>':'<span class="pill warn">indikatif</span>')}</td></tr>`).join('')||'<tr><td colspan="4" class="mini">Belum ada.</td></tr>';
+  h+=`</tbody></table></div></div>`;
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Dasar Hukum</h2><ul class="mini" style="margin:0;padding-left:18px">${(M.dasar_hukum||[]).map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>`;
+  return h;
+}
+function vJfFungsi(){
+  if(typeof OTK==='undefined'||!OTK||!OTK.unit)return '<div class="empty">Data struktur organisasi belum dimuat.</div>';
+  const set=otkScopeSet();const inS=n=>!set||set.has(n.id);
+  const es3Of=n=>otkKids(n.id).filter(c=>c.level===3).length;
+  const P=JF.pengguna_es1||{};
+  const fU=n=>!(SCOPE.type==='all'&&state.jfFungUE1)||((es1Of(n)||{}).nama===state.jfFungUE1);
+  const es2all=OTK.unit.filter(n=>!n.nonunit&&inS(n)&&n.level===2);
+  const es2=es2all.filter(fU);
+  const delayered=es2.filter(n=>es3Of(n)<=1);
+  const rows=delayered.map(n=>{const e1=es1Of(n)||{};const t=unitTeams(n);return {n,es1:e1.nama||'',jfs:(P[e1.unit_key]||[]),tim:t.tim,covered:t.covered};});
+  const withJf=rows.filter(r=>r.jfs.length).length;
+  const noTeam=rows.filter(r=>r.covered&&r.tim===0).length;
+  const es1opts=[...new Set(es2all.map(n=>(es1Of(n)||{}).nama).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
+  const ue1Sel=(SCOPE.type==='all')?`<select class="flt" id="jfFungUE1"><option value="">Semua Eselon I</option>${es1opts.map(x=>`<option value="${esc(x)}" ${state.jfFungUE1===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`:'';
+  const seg=(v,l)=>`<span class="segb ${(state.jfFungF||'')===v?'on':''}" data-act="jffungf" data-f="${v}">${l}</span>`;
+  let vis=rows.slice();
+  if(state.jfFungF==='noteam')vis=vis.filter(r=>r.covered&&r.tim===0);
+  vis.sort((a,b)=>{const ar=(a.covered&&a.tim===0)?0:1,br=(b.covered&&b.tim===0)?0:1;return ar-br||a.es1.localeCompare(b.es1,'id')||a.n.nama.localeCompare(b.n.nama,'id');});
+  let h=`<div class="note-box">Delayering memangkas lapisan struktural (Eselon III) dan mengalihkan fungsinya ke <b>jabatan fungsional</b>. Halaman ini menautkan tiap unit Eselon II yang sudah delayering ke <b>rumpun JF Keuangan Negara</b> yang menjadi muara pengalihan (diturunkan dari JF pengguna pada Eselon I unit tersebut), sekaligus status <b>tim kerja (Mekanisme Kerja)</b>-nya. Pemetaan unit ke JF bersifat indikatif pada tingkat Eselon I; pendalaman per jabatan menyusul saat data pemangku JF internal tersedia.</div>`;
+  h+=`<div class="kpis">
+    <div class="kpi good"><div class="lab">Unit sudah delayering</div><div class="val">${fmt(delayered.length)}</div><div class="note">Eselon II dalam cakupan</div></div>
+    <div class="kpi"><div class="lab">Terpetakan ke JF KN</div><div class="val">${fmt(withJf)}</div><div class="note">punya rumpun JF pengguna</div></div>
+    <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Belum ada tim kerja</div><div class="val">${fmt(noTeam)}</div><div class="note">prioritas aktivasi matriks</div></div></div>`;
+  h+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">Unit Delayering &rarr; Rumpun JF Tujuan <span class="mini">(${vis.length})</span></h2>
+    <span style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="seg">${seg('','Semua')}${seg('noteam','Belum ada tim')}</span>${ue1Sel}</span></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th>Rumpun JF Tujuan</th><th class="num-c">Tim Kerja (MK)</th><th>Rekomendasi</th></tr></thead><tbody>`;
+  h+=vis.map(r=>{const tcell=!r.covered?'<span class="mini">&mdash;</span>':(r.tim===0?'<span class="pill off">0 tim</span>':'<b>'+fmt(r.tim)+'</b>');
+    const jfcell=r.jfs.length?r.jfs.map(k=>`<span class="pill neu link" data-act="jfopen" data-k="${k}" style="cursor:pointer">${esc(jfKNName(k))}</span> `).join(''):'<span class="mini">&mdash;</span>';
+    const rek=!r.covered?'Data Mekanisme Kerja belum tersedia untuk Eselon I ini.':(r.tim===0?'<b>Prioritas:</b> aktifkan cara kerja tim/matriks bagi jabatan fungsionalnya.':'Perkuat dan perluas cara kerja tim/matriks yang berjalan.');
+    return `<tr><td class="link" data-act="otkopen" data-id="${r.n.id}">${esc(r.n.nama)}</td><td class="mini">${esc(r.es1)}</td><td>${jfcell}</td><td class="num-c">${tcell}</td><td class="mini">${rek}</td></tr>`;}).join('')||'<tr><td colspan="5" class="mini">Tidak ada pada cakupan ini.</td></tr>';
+  h+=`</tbody></table></div>
+    <div class="mini" style="margin-top:8px;color:var(--muted)">Definisi delayering konsisten dengan modul Struktur Organisasi (Kesehatan Struktur): unit Eselon II dengan paling banyak satu Eselon III. Rumpun JF tujuan diturunkan dari JF pengguna di Eselon I unit; satu unit dapat bermuara ke lebih dari satu rumpun JF.</div></div>`;
+  return h;
+}
+
+/* ===== Komposisi Jabatan: Struktural / Fungsional / Pelaksana (dari ABK, kamus JF dari jf.json) ===== */
+function jabKlas(nm){
+  const n=String(nm||'').trim().toLowerCase();
+  if(/^(kepala|direktur|sekretaris|inspektur|wakil|staf ahli|tenaga pengkaji|menteri|plt)\b/.test(n))return 'struktural';
+  if(!jabKlas._stems||!jabKlas._stems.length)jabKlas._stems=(((typeof JF!=='undefined'&&JF&&JF.konsolidasi)||[]).map(r=>String(r.jf_lama||'').trim().toLowerCase()).filter(Boolean));
+  for(let i=0;i<jabKlas._stems.length;i++){if(n.indexOf(jabKlas._stems[i])===0)return 'fungsional';}
+  if(/(ahli (pertama|muda|madya|utama)|terampil|mahir|penyelia|pemula)\b/.test(n))return 'fungsional';
+  return 'pelaksana';
+}
+function vJabKomposisi(){
+  if(!ABK){
+    if(state.abkLoading)return '<div class="empty">Memuat data beban kerja...</div>';
+    if(state.abkErr)return '<div class="note-box">Gagal memuat data beban kerja (ABK). <a class="link" data-act="loadabk">Coba muat ulang</a>, atau buka <a class="link" data-act="nav" data-view="urjab">Repositori Jabatan (Struktural)</a>.</div>';
+    return '<div class="note-box">Komposisi jabatan memerlukan data beban kerja (ABK) yang belum tersedia untuk akun ini. Silakan buka <a class="link" data-act="nav" data-view="urjab">Repositori Jabatan (Struktural)</a>.</div>';
+  }
+  const mode=state.jkView||'bezetting';
+  const COL={struktural:'#3b6ea5',fungsional:'#2e9e6b',pelaksana:'#9aa4b2'};
+  const LBL={struktural:'Struktural',fungsional:'Fungsional',pelaksana:'Pelaksana'};
+  const rows=(((ABK&&ABK.eselon1)||[]).map(es=>{
+    const c={struktural:0,fungsional:0,pelaksana:0};
+    (es.units||[]).forEach(un=>(un.jabatan||[]).forEach(j=>{const k=jabKlas(j.jab);c[k]+=(mode==='bezetting'?(j.ada||0):1);}));
+    const tot=c.struktural+c.fungsional+c.pelaksana;
+    return {nama:es.nama,kode:es.kode,c,tot,fpct:tot?c.fungsional/tot:0};
+  })).filter(r=>r.tot>0);
+  const g={struktural:0,fungsional:0,pelaksana:0};rows.forEach(r=>{g.struktural+=r.c.struktural;g.fungsional+=r.c.fungsional;g.pelaksana+=r.c.pelaksana;});
+  const gt=g.struktural+g.fungsional+g.pelaksana||1;
+  rows.sort((a,b)=>b.fpct-a.fpct);
+  const unit=mode==='bezetting'?'pegawai':'jabatan';
+  const tg=(v,l)=>`<span class="segb ${mode===v?'on':''}" data-act="jkview" data-v="${v}">${l}</span>`;
+  const pct=x=>Math.round(1000*x/gt)/10;
+  let h=`<div class="note-box">Komposisi jabatan dari data beban kerja (ABK, tahun 2024) diklasifikasikan menjadi tiga: <b>Struktural</b> (jabatan pimpinan, administrator, pengawas), <b>Fungsional</b> (jabatan fungsional, dikenali dari kamus nomenklatur JF), dan <b>Pelaksana</b>. Makin tinggi porsi <b>Fungsional</b>, makin jauh unit menjalankan penyederhanaan birokrasi (delayering). Angka bersifat agregat per Eselon I; nomenklatur masih era pra-konsolidasi (23 JF, sebelum PMK 124) dan cakupan tiap Eselon I bervariasi.</div>`;
+  h+=`<div class="kpis">
+    <div class="kpi"><div class="lab">Total ${unit}</div><div class="val">${fmt(gt)}</div><div class="note">tercakup ABK 2024</div></div>
+    <div class="kpi good"><div class="lab">Fungsional</div><div class="val">${pct(g.fungsional)}%</div><div class="note">${fmt(g.fungsional)} ${unit}</div></div>
+    <div class="kpi"><div class="lab">Struktural</div><div class="val">${pct(g.struktural)}%</div><div class="note">${fmt(g.struktural)} ${unit}</div></div>
+    <div class="kpi gold"><div class="lab">Pelaksana</div><div class="val">${pct(g.pelaksana)}%</div><div class="note">${fmt(g.pelaksana)} ${unit}</div></div></div>`;
+  h+=`<div class="toolbar"><span class="seg">${tg('bezetting','Bezetting (pegawai)')}${tg('jumlah','Jumlah jabatan')}</span>
+    <span style="margin-left:auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap">${['struktural','fungsional','pelaksana'].map(k=>`<span class="mini" style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:${COL[k]};display:inline-block"></span>${LBL[k]}</span>`).join('')}</span></div>`;
+  const canAbk=(typeof canMod==='function'&&canMod('abk'));
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Komposisi per Eselon I <span class="mini">(urut porsi fungsional tertinggi)</span></h2>
+    <div style="overflow-x:auto"><table><thead><tr><th>Eselon I</th><th style="min-width:170px">Komposisi</th><th class="num-c">Struktural</th><th class="num-c">Fungsional</th><th class="num-c">Pelaksana</th><th class="num-c">% Fungsional</th></tr></thead><tbody>`;
+  h+=rows.map(r=>{const s=Math.round(100*r.c.struktural/r.tot),f=Math.round(100*r.c.fungsional/r.tot),p=Math.max(0,100-s-f);
+    const bar=`<div style="display:flex;height:14px;border-radius:5px;overflow:hidden;background:var(--line)" title="Struktural ${fmt(r.c.struktural)} / Fungsional ${fmt(r.c.fungsional)} / Pelaksana ${fmt(r.c.pelaksana)}"><div style="width:${s}%;background:${COL.struktural}"></div><div style="width:${f}%;background:${COL.fungsional}"></div><div style="width:${p}%;background:${COL.pelaksana}"></div></div>`;
+    const nameCell=canAbk?`<td class="link" data-act="abkpick" data-k="${esc(r.kode)}">${esc(r.nama)}</td>`:`<td>${esc(r.nama)}</td>`;
+    return `<tr>${nameCell}<td>${bar}</td><td class="num-c">${fmt(r.c.struktural)}</td><td class="num-c">${fmt(r.c.fungsional)}</td><td class="num-c">${fmt(r.c.pelaksana)}</td><td class="num-c"><b>${Math.round(100*r.fpct)}%</b></td></tr>`;}).join('')||'<tr><td colspan="6" class="mini">Belum ada data.</td></tr>';
+  h+=`</tbody></table></div>`;
+  if(canAbk)h+=`<div class="mini" style="margin-top:8px;color:var(--muted)">Klik nama Eselon I untuk menelusuri unitnya di modul Analisis Beban Kerja.</div>`;
+  h+=`</div>`;
+  const top=rows[0],bot=rows[rows.length-1];
+  if(top&&bot&&top!==bot)h+=`<div class="card"><h2 class="sec" style="margin-top:0">Bacaan</h2><div class="mini">Porsi jabatan fungsional tertinggi ada di <b>${esc(top.nama)}</b> (${Math.round(100*top.fpct)}%), menandakan pengalihan fungsi ke jabatan fungsional paling maju. Sebaliknya, <b>${esc(bot.nama)}</b> (${Math.round(100*bot.fpct)}%) relatif masih bertumpu pada jabatan struktural dan pelaksana. Pola ini indikatif dan sebaiknya dibaca bersama modul Kesehatan Struktur (delayering) serta Fungsionalisasi pada grup Jabatan Fungsional.</div></div>`;
   return h;
 }
 
@@ -2965,12 +3149,14 @@ function vOtkEval(){
 }
 function renderCrumb(){
   const c=[];const v=state.view;
-  if(v.indexOf('pb_')===0){var _mid=VIEW2MOD[v]||'probis';var _ml=(MODULES.find(function(m){return m.id===_mid;})||{}).lab||'Proses Bisnis';document.getElementById('crumb').innerHTML='<span>'+esc(_ml)+' &rsaquo; '+esc(PB_LBL[v.slice(3)]||'')+'</span>';return;}
+  const bk=_hist.length?`<a data-act="navback" title="Kembali ke menu sebelumnya" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;font-weight:700;color:var(--brand)">&lsaquo; Kembali</a> <span style="color:var(--line);margin:0 4px">|</span> `:'';
+  if(v.indexOf('pb_')===0){var _mid=VIEW2MOD[v]||'probis';var _ml=(MODULES.find(function(m){return m.id===_mid;})||{}).lab||'Proses Bisnis';document.getElementById('crumb').innerHTML=bk+'<span>'+esc(_ml)+' &rsaquo; '+esc(PB_LBL[v.slice(3)]||'')+'</span>';return;}
   const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
-    beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi'}[v];
+    beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi',jf:'Peta JF Keuangan Negara',jffungsi:'Fungsionalisasi (Delayering)',jabkomposisi:'Komposisi Jabatan per Eselon I'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
     if(v==='urjabdetail'){c.push(`<a data-act="nav" data-view="urjab">Repositori Uraian Jabatan</a>`);c.push('&rsaquo;');c.push(`<span>${esc(((URJAB&&URJAB.jabatan[state.urjabJab])||{}).jabatan||'Detail')}</span>`);}
+    if(v==='jfprofil'){c.push(`<a data-act="nav" data-view="jf">Peta JF Keuangan Negara</a>`);c.push('&rsaquo;');c.push(`<span>${esc(jfKNName(state.jfSel)||'Profil')}</span>`);}
     if(v==='otkdetail'){c.push(`<a data-act="nav" data-view="otk">Struktur Organisasi</a>`);c.push('&rsaquo;');c.push(`<span>${esc((OTK.unit[state.otkSel]||{}).nama||'Unit')}</span>`);}
     if(v==='otkvdetail'){const _vs=curVSet();c.push(`<a data-act="nav" data-view="otk">Struktur Organisasi</a>`);c.push('&rsaquo;');c.push(`<span>${esc((((_vs.ds[_vs.key]||{unit:[]}).unit[state.otkVertSel])||{}).nama||'Unit')}</span>`);}
     if(['unit1','unit2','team'].includes(v))c.push(`<a data-act="nav" data-view="struktur">Struktur</a>`);
@@ -2983,15 +3169,35 @@ function renderCrumb(){
     if(v==='emp'){c.push('&rsaquo;');c.push(`<span>${esc(DATA.pegawai.find(x=>x.id===state.empId)?.nama||'Pegawai')}</span>`);}
     if(v==='skill'){c.push(`<a data-act="nav" data-view="keahlian">Keahlian</a>`);c.push('&rsaquo;');c.push(`<span>${esc(state.skill)}</span>`);}
   }
-  document.getElementById('crumb').innerHTML=c.join(' ');
+  document.getElementById('crumb').innerHTML=bk+c.join(' ');
 }
-let _lastView=null;
+/* Pager antar-menu: tautan "Sebelumnya / Berikutnya" mengikuti urutan item menu modul aktif (yang boleh diakses). */
+function navPager(){
+  const mod=MODULES.find(m=>m.id===curMod());if(!mod)return '';
+  const items=[];mod.groups.forEach(g=>g.items.forEach(it=>{if(featOK(it.v))items.push(it);}));
+  const idx=items.findIndex(it=>it.v===state.view);
+  if(idx<0)return '';                          // view drill / bukan item menu -> tanpa pager
+  const prev=idx>0?items[idx-1]:null,next=idx<items.length-1?items[idx+1]:null;
+  if(!prev&&!next)return '';
+  const btn=(it,dir)=>{
+    if(!it)return '<span></span>';
+    const hint=dir<0?'&lsaquo; Sebelumnya':'Berikutnya &rsaquo;';
+    return `<a data-act="nav" data-view="${it.v}" style="cursor:pointer;display:inline-flex;flex-direction:column;gap:2px;padding:9px 13px;border:1px solid var(--line);border-radius:9px;max-width:47%;text-decoration:none;align-items:${dir<0?'flex-start':'flex-end'}">`
+      +`<span class="mini" style="color:var(--muted)">${hint}</span>`
+      +`<span style="font-weight:700;color:var(--brand-d);text-align:${dir<0?'left':'right'}">${esc(it.lab)}</span></a>`;
+  };
+  return `<div style="display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)">${btn(prev,-1)}${btn(next,1)}</div>`;
+}
+let _lastView=null;let _hist=[];let _navBack=false;
 function render(){
   if(!canView(state.view))state.view='beranda';
+  const _prev=_lastView;
   const _sv=(_lastView===state.view);_lastView=state.view;
+  if(_navBack){_navBack=false;}else if(_prev&&_prev!==state.view){_hist.push(_prev);if(_hist.length>60)_hist.shift();}
   if((state.view.indexOf('urjab')===0||state.view==='tema')&&!URJAB&&!state.urjabLoading)ensureUrjab();
   if(state.view==='katalog'&&!KATALOG&&!state.katLoading)ensureKatalog();
   if(state.view.indexOf('abk')===0&&!ABK&&!state.abkLoading)ensureAbk();
+  if(state.view==='jabkomposisi'&&!ABK&&!state.abkLoading)ensureAbk();
   renderNav();
   const isPb=state.view.indexOf('pb_')===0;const pbPanel=isPb?state.view.slice(3):null;
   document.getElementById('vtitle').textContent=isPb?(PB_LBL[pbPanel]||'Proses Bisnis'):(state.view==='otkvdetail'?('Detail Unit ('+({vertikal:'Instansi Vertikal',blu:'BLU',noneselon:'Non Eselon'}[state.otkMode]||'Instansi Vertikal')+')'):(VT[state.view]||''));
@@ -3003,8 +3209,8 @@ function render(){
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();if(!_sv)window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema};
-  document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))();
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi};
+  document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
 function bindInputs(){const q=id=>document.getElementById(id);
@@ -3066,11 +3272,14 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('simTarget'))q('simTarget').onchange=e=>{state.simTarget=e.target.value;render();};
   if(q('simTrR'))q('simTrR').onchange=e=>{state.simTrR=e.target.value;render();};
   if(q('simTrS'))q('simTrS').onchange=e=>{state.simTrS=e.target.value;render();};
-  if(q('simTrK'))q('simTrK').onchange=e=>{state.simTrK=e.target.value;render();};}
+  if(q('simTrK'))q('simTrK').onchange=e=>{state.simTrK=e.target.value;render();};
+  if(q('jfQ'))q('jfQ').oninput=e=>{state.jfQ=e.target.value;rerenderKeep(vJf,'jfQ');};
+  if(q('jfFungUE1'))q('jfFungUE1').onchange=e=>{state.jfFungUE1=e.target.value;render();};}
 function rerenderKeep(fn,fid){const el=document.getElementById(fid);const pos=el?el.selectionStart:null;
   document.getElementById('view').innerHTML=fn();bindInputs();const n=document.getElementById(fid);if(n){n.focus();if(pos!=null)n.setSelectionRange(pos,pos);}}
 
 document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const a=el.dataset.act;
+  if(a==='navback'){if(_hist.length){_navBack=true;state.view=_hist.pop();render();}return;}
   if(a==='nav'){const tv=el.dataset.view;if(!canView(tv)){return;}state.view=tv;render();if(window.innerWidth<=760){document.getElementById('sidebar').classList.remove('open');document.getElementById('backdrop').classList.remove('show');}}
   else if(a==='mod'){if(el.dataset.mod!=='beranda'&&!canMod(el.dataset.mod)){return;}state.view=firstView(el.dataset.mod);render();if(window.innerWidth<=760){document.getElementById('sidebar').classList.remove('open');document.getElementById('backdrop').classList.remove('show');}}
   else if(a==='theme'){toggleTheme();}
@@ -3110,6 +3319,11 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='shgap'){state.shGap=el.dataset.g||'';render();}
   else if(a==='pntab'){state.pnTab=el.dataset.t;render();}
   else if(a==='redtab'){state.redTab=el.dataset.t;render();}
+  else if(a==='jfopen'){state.jfSel=el.dataset.k;state.view='jfprofil';render();}
+  else if(a==='jfback'){state.view='jf';render();}
+  else if(a==='jfjenis'){state.jfJenis=el.dataset.j||'';render();}
+  else if(a==='jffungf'){state.jfFungF=el.dataset.f||'';render();}
+  else if(a==='jkview'){state.jkView=el.dataset.v;render();}
   else if(a==='exportkajian'){exportKajian();}
   else if(a==='abktab'){state.abkTab=el.dataset.t;render();}
   else if(a==='abkpick'){state.abkUE1=el.dataset.k;state.abkTab='unit';state.view='abk';render();}
@@ -3399,11 +3613,12 @@ async function doLogin(){
   try{prof=await authenticate(u,p);}catch(e){done();errEl.textContent='Gagal terhubung ke server. Coba lagi.';return;}
   if(!prof){done();errEl.textContent='Username atau password salah.';return;}
   try{await ensureOtkRemote();}catch(e){done();errEl.textContent='Gagal memuat data struktur. Coba muat ulang.';return;}
+  try{await ensureJfRemote();}catch(e){}
   done();errEl.textContent='';
   document.getElementById('whoName').textContent=prof.nama;document.getElementById('whoName').title=prof.nama;
   document.getElementById('whoSub').textContent=prof.sub;document.getElementById('whoSub').title=prof.sub;
   document.getElementById('whoPic').textContent=initials(prof.nama);document.getElementById('whoPic2').textContent=initials(prof.nama);
-  state.view='beranda';state.ue1=null;state.ue2=null;state.expanded={};state.otkExp={};
+  state.view='beranda';state.ue1=null;state.ue2=null;state.expanded={};state.otkExp={};_hist=[];_lastView=null;
   document.getElementById('loginOverlay').style.display='none';
   setFooters();render();
   if(ME&&ME.must_change)openChangePw(true);
