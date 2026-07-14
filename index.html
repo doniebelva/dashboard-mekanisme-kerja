@@ -590,7 +590,7 @@ function svgIcon(k,s){s=s||17;return `<svg viewBox="0 0 24 24" width="${s}" heig
 const MODULES=[
  {id:'beranda',icn:'home',lab:'Beranda',groups:[]},
  {id:'otk',icn:'otk',lab:'Struktur Organisasi',groups:[
-   {grp:'Jelajah',items:[{v:'otk',lab:'Pohon Organisasi'},{v:'tema',lab:'Penelusuran Tematik'},{v:'otkcompare',lab:'Komparasi Struktur'}]},
+   {grp:'Jelajah',items:[{v:'otk',lab:'Pohon Organisasi'},{v:'tema',lab:'Penelusuran Tematik'},{v:'jfmap',lab:'Peta Pengelola JF'},{v:'otkcompare',lab:'Komparasi Struktur'}]},
    {grp:'Profil & Diagnostik',items:[{v:'otkanalisis',lab:'Komposisi & Rentang Kendali'},{v:'otkhealth',lab:'Kesehatan Struktur'},{v:'otkoverlap',lab:'Tumpang Tindih Tugas & Fungsi'},{v:'otkkaitan',lab:'Keterkaitan Antar Modul'}]},
    {grp:'Penataan & Rekomendasi',items:[{v:'otkeval',lab:'Evaluasi Organisasi'},{v:'otkorg',lab:'Indeks Kesehatan Organisasi'},{v:'otkindeks',lab:'Usulan Penataan'},{v:'otkshare',lab:'Peluang Share Service'}]},
  ]},
@@ -634,7 +634,7 @@ let state={view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   urjabQ:'',urjabEs1:'',urjabEs2:'',urjabEs3:'',urjabEs4:'',urjabJab:null,urjabLoading:false,urjabErr:false,
   urjabAnUE1:'',urjabInsSev:'',urjabInsCat:'',urjabCmpA:'',urjabCmpB:'',urjabCmpUE1A:'',urjabCmpUE1B:'',otkCmpA:'',otkCmpB:'',otkCmpUE1A:'',otkCmpUE1B:'',
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
-  otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',
+  otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',jfFx:'',jfOpen:{},
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
   kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
@@ -656,7 +656,7 @@ function renderNav(){const cur=curMod();let h='<div class="modsw">';
     h+='</div>';
   }
   document.getElementById('nav').innerHTML=h;}
-const VT={otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
+const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
   struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I'};
 
@@ -3147,12 +3147,89 @@ function vOtkEval(){
   h+=`<div class="note-box"><b>Kesimpulan.</b> Dari <b>${fmt(totN)}</b> unit Eselon II-IV: <b>${fmt(totGab)}</b> pasangan tumpang tindih substantif (kandidat penggabungan), <b>${fmt(totLeb)}</b> unit bermandat tipis dan tumpang tindih (kandidat peleburan), serta <b>${fmt(totDel)}</b> Eselon II kandidat delayering. Dari sisi jabatan, <b>${fmt(totRep)}</b> nama jabatan tereplikasi lintas Eselon I (kandidat standardisasi). Struktur terbesar: ${esc(top.join(', '))}. Seluruh temuan indikatif untuk ditelaah lebih lanjut bersama acuan PermenPAN-RB, bukan keputusan final.</div>`;
   return h;
 }
+/* ===== Peta Unit Pengelola JF: unit yang menangani "jabatan fungsional" di tugas/fungsi, treemap bersarang ES1>2>3>4 ===== */
+function vJfMap(){
+  const KEY='jabatan fungsional';
+  const U=OTK.unit, byid={}; U.forEach(u=>byid[u.id]=u);
+  const hay=u=>((u.tugas||'')+' '+((u.fungsi||[]).join(' '))).toLowerCase();
+  const matched=U.filter(u=>u.level>=1&&hay(u).indexOf(KEY)>=0);
+  const clip=(s,n)=>s.length>n?s.slice(0,Math.max(1,n-1))+'…':s;
+  // ===== lapis 2: klaster per fungsi (kata kerja di sekitar frasa "jabatan fungsional") =====
+  const FXCATS=[
+    ['Pembinaan',['pembinaan']],
+    ['Pengembangan Kapasitas/Kompetensi',['pengembangan','penguatan kapasitas','peningkatan kapasitas','kompetensi','sertifikasi','uji kompetensi','penjaminan mutu','diklat','pelatihan']],
+    ['Penataan & Formasi',['penataan','formasi','kebutuhan jabatan','analisis jabatan']],
+    ['Regulasi & Hukum',['regulasi','hukum','peraturan perundang']],
+    ['Pengelolaan & Administrasi',['pengelolaan','administrasi','administratif','tata kelola','angka kredit','mutasi','layanan']],
+    ['Perencanaan Kerja & Pemetaan',['pemetaan','distribusi','rencana kerja','sistem kerja','pembagian']],
+    ['Koordinasi & Monev',['koordinasi','pemantauan','evaluasi','monitoring']],
+    ['Dukungan Teknis',['dukungan teknis','fasilitasi','dukungan']]];
+  const FXC={'Pembinaan':'#1b6ca8','Pengembangan Kapasitas/Kompetensi':'#2a9d8f','Penataan & Formasi':'#8e44ad','Regulasi & Hukum':'#6c757d','Pengelolaan & Administrasi':'#e76f51','Perencanaan Kerja & Pemetaan':'#e9c46a','Koordinasi & Monev':'#457b9d','Dukungan Teknis':'#adb5bd','Lainnya':'#ced4da'};
+  const FXLIGHT={'Perencanaan Kerja & Pemetaan':1,'Dukungan Teknis':1,'Lainnya':1};
+  function jfClass(u){const h=hay(u);let win='',i=h.indexOf(KEY);while(i>=0){win+=' '+h.slice(Math.max(0,i-70),i+30);i=h.indexOf(KEY,i+1);}for(let j=0;j<FXCATS.length;j++){if(FXCATS[j][1].some(m=>win.indexOf(m)>=0))return FXCATS[j][0];}return 'Lainnya';}
+  matched.forEach(u=>u._fx=jfClass(u));
+  const fxDist=FXCATS.map(c=>c[0]).concat(['Lainnya']).map(name=>({k:name,v:matched.filter(u=>u._fx===name).length})).filter(x=>x.v>0);
+  // bangun pohon: matched + semua leluhurnya
+  const root={nm:'Kementerian Keuangan',lv:0,id:0,kids:{},cnt:0,m:false};
+  matched.forEach(u=>{const ch=[];let x=u;while(x){ch.unshift(x);x=byid[x.parent];}let node=root;ch.forEach(seg=>{if(seg.level===0)return;const k=seg.id;if(!node.kids[k])node.kids[k]={nm:seg.nama,lv:seg.level,id:seg.id,kids:{},cnt:0,m:false};node=node.kids[k];});node.m=true;node.fx=u._fx;});
+  function cnt(n){let c=n.m?1:0;for(const k in n.kids)c+=cnt(n.kids[k]);n.cnt=c;return c;}
+  cnt(root);
+  const kids=n=>Object.keys(n.kids).map(k=>n.kids[k]).sort((a,b)=>b.cnt-a.cnt);
+  // (treemap dihapus atas permintaan; diganti daftar pohon drill-down gaya Pohon Organisasi di bawah)
+  // KPI per eselon + per ES1
+  const byLv=k=>matched.filter(u=>u.level===k).length;
+  const e1s=kids(root);
+  let h=`<div class="note-box">Daftar unit yang <b>menangani jabatan fungsional</b> berdasarkan kata kunci frasa <b>&ldquo;jabatan fungsional&rdquo; pada uraian tugas/fungsi</b> (bukan pada nama unit), sehingga unit tanpa nomenklatur JF pun ikut terpetakan. Disusun hierarkis Eselon I &rarr; II &rarr; III &rarr; IV; angka di kanan tiap cabang = jumlah unit pengurus JF di bawahnya. Penanda <b>&bull; menangani JF</b> = unit induk yang dirinya sendiri juga menangani JF. Klik panah untuk membuka cabang, klik unit Eselon IV untuk membuka detail. Cakupan: Kantor Pusat.</div>`;
+  h+=`<div class="kpis">
+    <div class="kpi"><div class="lab">Total unit pengurus JF</div><div class="val">${fmt(matched.length)}</div><div class="note">Kantor Pusat</div></div>
+    <div class="kpi"><div class="lab">Eselon I terlibat</div><div class="val">${e1s.length}</div></div>
+    <div class="kpi good"><div class="lab">Eselon II</div><div class="val">${byLv(2)}</div></div>
+    <div class="kpi gold"><div class="lab">Eselon III</div><div class="val">${byLv(3)}</div></div>
+    <div class="kpi alert"><div class="lab">Eselon IV</div><div class="val">${byLv(4)}</div></div></div>`;
+  // panel klaster per fungsi (lapis 2)
+  const fxSel=state.jfFx||'', fxMax=Math.max.apply(null,fxDist.map(x=>x.v).concat([1]));
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Klaster per fungsi pengelolaan JF <span class="mini">(klik salah satu untuk menampilkan daftar unitnya)</span></h2>
+    <div style="display:flex;flex-direction:column;gap:5px">`+fxDist.map(x=>`<div data-act="jffx" data-f="${esc(x.k)}" style="cursor:pointer;display:flex;align-items:center;gap:9px;padding:4px 6px;border-radius:7px;${fxSel===x.k?'background:var(--side);outline:2px solid '+FXC[x.k]:''}">
+      <span style="width:13px;height:13px;background:${FXC[x.k]};border-radius:3px;flex:none"></span>
+      <span style="flex:1;font-size:13px;font-weight:${fxSel===x.k?700:500}">${esc(x.k)}</span>
+      <div style="width:130px;background:var(--side);border-radius:4px;height:9px;flex:none"><div style="width:${Math.round(x.v/fxMax*100)}%;background:${FXC[x.k]};height:9px;border-radius:4px"></div></div>
+      <b style="width:32px;text-align:right">${x.v}</b></div>`).join('')+`</div>
+    ${fxSel?`<div class="mini" style="margin-top:8px"><span class="tag link" data-act="jffx" data-f="${esc(fxSel)}">Hapus sorotan &times;</span></div>`:''}</div>`;
+  // daftar unit untuk fungsi yang dipilih
+  if(fxSel){
+    const e1name=u=>{let x=u;while(x&&x.level>1)x=byid[x.parent];return x?x.nama:'';};
+    const flist=matched.filter(u=>u._fx===fxSel).sort((a,b)=>(a.level-b.level)||e1name(a).localeCompare(e1name(b))||a.nama.localeCompare(b.nama));
+    h+=`<div class="card"><h2 class="sec" style="margin-top:0"><span style="display:inline-block;width:13px;height:13px;background:${FXC[fxSel]};border-radius:3px;vertical-align:-1px;margin-right:6px"></span>Daftar unit &mdash; ${esc(fxSel)} <span class="mini">(${flist.length} unit &middot; klik untuk detail)</span></h2>
+      <div style="overflow-x:auto"><table><thead><tr><th>Unit</th><th class="num-c">Jenjang</th><th>Eselon I</th></tr></thead><tbody>`;
+    flist.forEach(u=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${u.id}">${esc(u.nama)}</td><td class="num-c">${otkTag(u.level)}</td><td class="mini">${esc(e1name(u))}</td></tr>`;});
+    h+=`</tbody></table></div></div>`;
+  }
+  // ===== Daftar pohon drill-down (gaya Pohon Organisasi) sampai Eselon IV =====
+  state.jfOpen=state.jfOpen||{};
+  function jfRows(node,depth){
+    return kids(node).map(c=>{
+      const has=Object.keys(c.kids).length>0, open=!!state.jfOpen[c.id];
+      const dimr=state.jfFx&&!has&&c.fx!==state.jfFx;
+      let r=`<div class="trow" style="padding-left:${depth*16}px${dimr?';opacity:.32':''}">`
+        +(has?`<span class="tw" data-act="jftoggle" data-id="${c.id}" style="cursor:pointer">${open?'&#9662;':'&#9656;'}</span>`:`<span class="tw">&#9679;</span>`)
+        +`<span class="tname link" data-act="${has?'jftoggle':'otkopen'}" data-id="${c.id}" title="${esc(c.nm)}">${esc(c.nm)}${c.m&&has?' <span class="mini" style="color:var(--brand)">&bull; menangani JF</span>':''}</span>`
+        +`<span class="tmet">${otkTag(c.lv)}${has?`<span class="tag">${c.cnt} unit</span>`:`<span class="pill" style="background:${FXC[c.fx]||'#ced4da'};color:${FXLIGHT[c.fx]?'#12335e':'#fff'}" title="Fungsi: ${esc(c.fx)}">${esc(c.fx)}</span>`}</span></div>`;
+      if(has&&open) r+=jfRows(c,depth+1);
+      return r;
+    }).join('');
+  }
+  h+=`<h2 class="sec">Daftar unit pengurus JF &mdash; telusuri sampai Eselon IV <span class="mini">(klik panah untuk membuka cabang, klik unit Eselon IV untuk detail)</span></h2>`;
+  h+=`<div class="toolbar"><span class="tag" data-act="jfexpand" style="cursor:pointer">Buka semua Eselon II</span><span class="tag" data-act="jfcollapse" style="cursor:pointer">Tutup semua</span>${state.jfFx?`<span class="tag" style="background:${FXC[state.jfFx]};color:${FXLIGHT[state.jfFx]?'#12335e':'#fff'}">Sorot fungsi: ${esc(state.jfFx)} <span class="link" data-act="jffx" data-f="${esc(state.jfFx)}">&times;</span></span>`:''}<span class="mini">${fmt(matched.length)} unit</span></div>
+    <div class="card tree">${jfRows(root,0)}</div>`;
+  h+=`<div class="note-box"><b>Catatan.</b> Daftar ini menunjukkan <b>sebaran unit pengelola/pengurus JF</b>, bukan jumlah pemangku jabatan fungsionalnya. Wadah &ldquo;Kelompok Jabatan Fungsional&rdquo; (pemangku, bukan pengurus) tidak dihitung. Instansi vertikal (Bagian Umum/Subbagian Kepegawaian di DJBC, DJP, DJKN) juga menangani JF secara administratif namun berada di luar cakupan Kantor Pusat pada peta ini.</div>`;
+  return h;
+}
 function renderCrumb(){
   const c=[];const v=state.view;
   const bk=_hist.length?`<a data-act="navback" title="Kembali ke menu sebelumnya" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;font-weight:700;color:var(--brand)">&lsaquo; Kembali</a> <span style="color:var(--line);margin:0 4px">|</span> `:'';
   if(v.indexOf('pb_')===0){var _mid=VIEW2MOD[v]||'probis';var _ml=(MODULES.find(function(m){return m.id===_mid;})||{}).lab||'Proses Bisnis';document.getElementById('crumb').innerHTML=bk+'<span>'+esc(_ml)+' &rsaquo; '+esc(PB_LBL[v.slice(3)]||'')+'</span>';return;}
   const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
-    beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi',jf:'Peta JF Keuangan Negara',jffungsi:'Fungsionalisasi (Delayering)',jabkomposisi:'Komposisi Jabatan per Eselon I'}[v];
+    beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi',jfmap:'Peta Unit Pengelola JF',jf:'Peta JF Keuangan Negara',jffungsi:'Fungsionalisasi (Delayering)',jabkomposisi:'Komposisi Jabatan per Eselon I'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
     if(v==='urjabdetail'){c.push(`<a data-act="nav" data-view="urjab">Repositori Uraian Jabatan</a>`);c.push('&rsaquo;');c.push(`<span>${esc(((URJAB&&URJAB.jabatan[state.urjabJab])||{}).jabatan||'Detail')}</span>`);}
@@ -3209,7 +3286,7 @@ function render(){
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();if(!_sv)window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi};
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi};
   document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
@@ -3354,6 +3431,10 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='evcell'){state.evUE1=el.dataset.g;state.evTab=el.dataset.t;render();var ec2=document.getElementById('evcand');if(ec2)ec2.scrollIntoView({behavior:'smooth',block:'start'});}
   else if(a==='evtab'){state.evTab=el.dataset.t;render();}
   else if(a==='evviz'){state.evViz=el.dataset.v;render();}
+  else if(a==='jffx'){var jf=el.dataset.f;state.jfFx=(state.jfFx===jf?'':jf);render();}
+  else if(a==='jftoggle'){var jid=+el.dataset.id;state.jfOpen=state.jfOpen||{};state.jfOpen[jid]=!state.jfOpen[jid];render();}
+  else if(a==='jfexpand'){state.jfOpen={};OTK.unit.filter(function(u){return u.level===1;}).forEach(function(u){state.jfOpen[u.id]=true;});render();}
+  else if(a==='jfcollapse'){state.jfOpen={};render();}
   else if(a==='otkvexpand'){const _vs=curVSet();((_vs.ds[_vs.key]||{unit:[]}).unit).forEach(n=>state.otkExpV[n.id]=true);render();}
   else if(a==='otkvcollapse'){state.otkExpV={};render();}
   else if(a==='exp'){const k=el.dataset.key;state.expanded[k]=!state.expanded[k];render();}
