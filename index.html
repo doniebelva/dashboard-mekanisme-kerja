@@ -592,9 +592,12 @@ const ICONP={
  mk:'<circle cx="9" cy="8" r="3"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 5.5a3 3 0 0 1 0 5.8"/><path d="M15.5 20a5.5 5.5 0 0 0-1.6-3.9"/>',
  abk:'<path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M21 20H3"/>',
  katalog:'<rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.2"/>',
- tk:'<path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.2l5-.7z"/><path d="M8.5 21h7"/><path d="M12 17.5V21"/>'
+ tk:'<path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.2l5-.7z"/><path d="M8.5 21h7"/><path d="M12 17.5V21"/>',
+ mofin:'<circle cx="12" cy="13" r="7.5"/><path d="M12 13l3.5-3"/><path d="M12 3.5v2M4.6 6.2l1.4 1.4M19.4 6.2 18 7.6"/>'
 };
 function svgIcon(k,s){s=s||17;return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${s>30?1.3:1.7}" stroke-linecap="round" stroke-linejoin="round">${ICONP[k]||''}</svg>`;}
+/* MOFIN: dimuat via gerbang api('mofin') saat login (pola TKPP). */
+let MOFIN=null;
 const MODULES=[
  {id:'beranda',icn:'home',lab:'Beranda',groups:[]},
  {id:'otk',icn:'otk',lab:'Struktur Organisasi',groups:[
@@ -630,6 +633,11 @@ const MODULES=[
    {grp:'Analitik',items:[{v:'timanalitik',lab:'Tim Analitik'},{v:'kategoritim',lab:'Kategori Tim'},{v:'people',lab:'People Analytics'},{v:'heatmap',lab:'Heatmap Adopsi'},{v:'beban',lab:'Beban Tim & Pegawai'}]},
    {grp:'Jelajah',items:[{v:'struktur',lab:'Struktur Unit'},{v:'tim',lab:'Penjelajah Tim'},{v:'pegawai',lab:'Penjelajah Pegawai'},{v:'keahlian',lab:'Keahlian (Expert Locator)'},{v:'avail',lab:'Ketersediaan Pegawai'}]},
  ]},
+ {id:'mofin',icn:'mofin',lab:'MOFIN',groups:[
+   {grp:'Ikhtisar',items:[{v:'mofin',lab:'Beranda'}]},
+   {grp:'Deskriptif',items:[{v:'mofheatmap',lab:'Heatmap Skor Organisasi'},{v:'mofprofil',lab:'Profil Unit'},{v:'moftl',lab:'Status Tindak Lanjut'}]},
+   {grp:'Analisis (Diagnostik)',items:[{v:'mofkuadran',lab:'Kuadran Kelemahan \u00d7 Respons'},{v:'mofgap',lab:'Prioritas Tindak Lanjut'}]},
+ ]},
  {id:'katalog',icn:'katalog',lab:'Katalog',groups:[
    {grp:'',items:[{v:'katalog',lab:'Kompetensi'},{v:'pb_katalog',lab:'Proses Bisnis'},{v:'pb_layanan',lab:'Layanan'},{v:'pb_aplikasi',lab:'Aplikasi'}]},
  ]},
@@ -655,7 +663,8 @@ let state={view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
   simUE1:'',simUnit:'',simTarget:300,simTrR:0,simTrS:0,simTrK:0,
-  jfQ:'',jfJenis:'',jfSel:null,jfFungUE1:'',jfFungF:'',jkView:'bezetting'};
+  jfQ:'',jfJenis:'',jfSel:null,jfFungUE1:'',jfFungF:'',jkView:'bezetting',
+  mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null};
 
 function renderNav(){const cur=curMod();let h='<div class="modsw">';
   MODULES.forEach(m=>{if(m.id!=='beranda'&&!canMod(m.id))return;
@@ -676,7 +685,8 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I',
   tk:'Beranda',tkintegritas:'Zona Integritas (WBK/WBBM)',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
-  tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
+  tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola',
+  mofin:'Beranda MOFIN',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)'};
 
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
   const a=act?`data-act="${act.a}" ${act.d||''}`:'';
@@ -3686,10 +3696,281 @@ function render(){
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
-    tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
+    tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks,
+    mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap};
   document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
+
+/* ==================== MODUL MOFIN ==================== */
+function mofUnits(){return (MOFIN&&MOFIN.units)||[];}
+function mofDims(){return ((MOFIN&&MOFIN.dimensi)||[]).map(d=>d.nama);}
+function mofU(kode){return mofUnits().find(u=>u.kode===kode)||null;}
+async function ensureMofinRemote(){if((MOFIN&&MOFIN.units)||!REMOTE)return;try{var j=await api('mofin');if(j&&j.units)MOFIN=j;}catch(e){}}
+function mofLerp(t){t=Math.max(0,Math.min(1,t));var s=[[224,65,58],[245,158,11],[22,163,74]];var a,b,f;
+  if(t<0.5){a=s[0];b=s[1];f=t/0.5;}else{a=s[1];b=s[2];f=(t-0.5)/0.5;}
+  var c=a.map((x,i)=>Math.round(x+(b[i]-x)*f));
+  var m=c.map(x=>Math.round(x+(255-x)*0.42)); /* tint ke putih supaya teks gelap terbaca */
+  return 'rgb('+m[0]+','+m[1]+','+m[2]+')';}
+function mofCellScore(v,unit){if(v==null)return '<td class="cell" style="background:#f3f6fb;color:#b6bfca">&mdash;</td>';
+  var a=unit?' data-act="mofopen" data-unit="'+unit+'" style="cursor:pointer;background:'+mofLerp((v-72)/(93-72))+'"':' style="background:'+mofLerp((v-72)/(93-72))+'"';
+  return '<td class="cell"'+a+'>'+v.toFixed(0)+'</td>';}
+function mofCellTL(v,unit,dim){if(v==null)return '<td class="cell" style="background:#f3f6fb;color:#b6bfca">&mdash;</td>';
+  var a=unit?' data-act="mofdrill" data-unit="'+unit+'" data-dim="'+(dim||'')+'" style="cursor:pointer;background:'+mofLerp(v)+'"':' style="background:'+mofLerp(v)+'"';
+  return '<td class="cell"'+a+'>'+Math.round(v*100)+'</td>';}
+function mofStack(d,o,n,unit){var t=d+o+n||1;
+  var seg=function(c,val,lab,st){if(!val)return '';var w=(100*val/t)+'%';
+    if(unit)return '<div data-act="mofdrill" data-unit="'+unit+'" data-status="'+st+'" title="'+lab+' '+val+' — klik untuk detail" style="cursor:pointer;width:'+w+';background:'+c+'"></div>';
+    return '<div title="'+lab+' '+val+'" style="width:'+w+';background:'+c+'"></div>';};
+  return '<div style="display:flex;height:16px;border-radius:5px;overflow:hidden;border:1px solid var(--line)">'
+    +seg('#16a34a',d,'Selesai','Done')+seg('#f59e0b',o,'On-Progress','On-Progress')+seg('#e0413a',n,'Belum mulai','Not-started')+'</div>';}
+function mofStatusBadge(s){var m={'Done':['#16a34a','Selesai'],'On-Progress':['#f59e0b','On-Progress'],'Not-started':['#e0413a','Belum mulai']};
+  var x=m[s]||['#94a3b8',s||'-'];return '<span class="pill" style="background:'+x[0]+'1a;color:'+x[0]+';border:1px solid '+x[0]+'55;font-weight:700">'+x[1]+'</span>';}
+function mofDrillPanel(){
+  var f=state.mofDrill;if(!f||f.view!==state.view||!MOFIN.rekomendasi)return '';
+  var items=MOFIN.rekomendasi.filter(function(r){
+    if(f.unit&&f.unit!=='Kemenkeu'&&r.unit!==f.unit)return false;
+    if(f.dim&&r.dimensi!==f.dim)return false;
+    if(f.status&&r.status!==f.status)return false;return true;});
+  var agg=(!f.unit||f.unit==='Kemenkeu');
+  var parts=[];
+  if(f.unit)parts.push('<b>'+esc(f.unit==='Kemenkeu'?'Kemenkeu (seluruh unit)':((mofU(f.unit)||{}).nama||f.unit))+'</b>');
+  if(f.dim)parts.push('Dimensi '+esc(f.dim));
+  if(f.status)parts.push(mofStatusBadge(f.status));
+  var head='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'
+    +'<div class="slab" style="margin:0">Detail Rekomendasi &amp; Tindak Lanjut &mdash; '+parts.join(' &middot; ')+' <span style="color:var(--muted);font-weight:700">('+items.length+')</span></div>'
+    +'<span class="tag" data-act="mofdrillclose" style="cursor:pointer">&times; Tutup</span></div>';
+  var td=function(inner,st){return '<td style="padding:8px 10px;'+(st||'')+'">'+inner+'</td>';};
+  var rows=items.map(function(r,i){return '<tr style="border-bottom:1px solid var(--line);vertical-align:top">'
+    +td((i+1),'color:var(--muted);white-space:nowrap')
+    +(agg?td('<b>'+esc(r.unit)+'</b>','white-space:nowrap'):'')
+    +(f.dim?'':td('<span class="mini">'+esc(r.dimensi||'-')+'</span>','white-space:nowrap'))
+    +td(esc(r.rekomendasi||'-'),'width:40%;line-height:1.5')
+    +td(r.tindak_lanjut?esc(r.tindak_lanjut):'<span style="color:var(--muted)">&mdash; belum ada</span>','width:40%;line-height:1.5;color:#475569')
+    +td(mofStatusBadge(r.status),'white-space:nowrap')
+    +'</tr>';}).join('');
+  var cols=1+(agg?1:0)+(f.dim?0:1)+3;
+  return '<div class="card" id="mofdrill" style="margin-top:14px;border:1px solid var(--brand-l2)">'+head
+    +'<div style="overflow-x:auto;margin-top:10px"><table style="width:100%;border-collapse:collapse;font-size:12px">'
+    +'<tr style="text-align:left;color:var(--muted);border-bottom:2px solid var(--line)">'
+    +'<th style="padding:6px 10px">No</th>'+(agg?'<th style="padding:6px 10px">Unit</th>':'')
+    +(f.dim?'':'<th style="padding:6px 10px">Dimensi</th>')
+    +'<th style="padding:6px 10px">Rekomendasi</th><th style="padding:6px 10px">Tindak Lanjut</th><th style="padding:6px 10px">Status</th></tr>'
+    +(rows||'<tr><td colspan="'+cols+'" style="padding:14px;color:var(--muted)">Tidak ada rekomendasi pada filter ini.</td></tr>')
+    +'</table></div></div>';}
+function mofRadar(vals,ref,labs,size,showRef){var cx=size/2,cy=size/2,R=size/2-56,n=labs.length,LO=60,HI=95;
+  var pt=(i,r)=>{var a=-Math.PI/2+2*Math.PI*i/n;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];};
+  var rr=v=>R*Math.max(0.02,Math.min(1,(v-LO)/(HI-LO)));
+  var g='';
+  [65,75,85,95].forEach(function(lv){var f=(lv-LO)/(HI-LO),p='';for(var i=0;i<n;i++){var q=pt(i,R*f);p+=(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1);}
+    g+='<path d="'+p+'Z" fill="none" stroke="#e7ebf1"/><text x="'+(cx+3)+'" y="'+(cy-R*f-1).toFixed(1)+'" font-size="8" fill="#c2cbd6">'+lv+'</text>';});
+  for(var i=0;i<n;i++){var e=pt(i,R);g+='<line x1="'+cx+'" y1="'+cy+'" x2="'+e[0].toFixed(1)+'" y2="'+e[1].toFixed(1)+'" stroke="#eef2f7"/>';
+    var l=pt(i,R+20);g+='<text x="'+l[0].toFixed(1)+'" y="'+l[1].toFixed(1)+'" font-size="9.5" fill="var(--muted)" text-anchor="middle">'+esc(labs[i])+'</text>';}
+  var poly=function(arr,col,fill,dots){var p='';for(var i=0;i<n;i++){var q=pt(i,rr(arr[i]));p+=(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1);}
+    var s='<path d="'+p+'Z" fill="'+fill+'" stroke="'+col+'" stroke-width="2"/>';
+    if(dots){for(var i=0;i<n;i++){var q=pt(i,rr(arr[i]));s+='<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="2.6" fill="'+col+'"/><text x="'+q[0].toFixed(1)+'" y="'+(q[1]-5).toFixed(1)+'" font-size="9.5" font-weight="700" fill="'+col+'" text-anchor="middle">'+arr[i].toFixed(1)+'</text>';}}
+    return s;};
+  if(showRef)g+=poly(ref,'#94a3b8','rgba(148,163,184,.12)',false);
+  g+=poly(vals,'#1467c0','rgba(20,103,192,.16)',true);
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'+g+'</svg>';}
+
+function vMofin(){
+  if(!MOFIN)return '<div class="empty">Data MOFIN belum dimuat.</div>';
+  var U=mofUnits(),km=mofU('Kemenkeu');
+  var done=0,onp=0,not=0;U.filter(u=>u.ada_tl&&u.kode!=='Kemenkeu').forEach(u=>{done+=u.tl.done;onp+=u.tl.on_progress;not+=u.tl.not_started;});
+  var totTL=done+onp+not,pct=totTL?Math.round(100*done/totTL):0;
+  var nd=km.skor_dimensi,wdim=Object.keys(nd).sort((a,b)=>nd[a]-nd[b])[0];
+  var BLUE='#1467c0',VIO='#7c3aed',TEAL='#2f8467',ORANGE='#e8951a';
+  var card=(v,lab,val,note,col)=>'<div class="kpi" data-act="nav" data-view="'+v+'" style="cursor:pointer;border-top:3px solid '+col+';background:'+col+'14"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';
+  var h='<div class="kpis">'
+    +card('mofheatmap','Skor MOFIN Kemenkeu',km.skor_total,'agregat organisasi, skala 0&ndash;100',BLUE)
+    +card('mofheatmap','Unit Dinilai',U.length,'13 unit + 2 struktur lama',VIO)
+    +card('moftl','Rekomendasi',fmt(MOFIN.meta.total_rekomendasi),pct+'% tindak lanjut selesai',TEAL)
+    +card('mofprofil','Dimensi Terlemah',esc(wdim),'skor '+nd[wdim].toFixed(1)+' (Kemenkeu)',ORANGE)
+    +'</div>';
+  h+='<div class="note-box" style="margin-top:12px;background:#fff7ed;color:#7c4a13"><b>Temuan utama:</b> Kapabilitas adalah titik lemah sistemik. Dua indikator terlemah Kemenkeu &mdash; <b>Perolehan Talenta</b> ('+(km.skor_indikator['Perolehan Talenta']||0).toFixed(1)+') dan <b>Penggunaan Keahlian Eksternal</b> ('+(km.skor_indikator['Penggunaan Keahlian Eksternal']||0).toFixed(1)+') &mdash; keduanya berada di dimensi Kapabilitas, yang sekaligus paling lambat ditindaklanjuti.</div>';
+  var nav=(v,t,d)=>'<div class="card" data-act="nav" data-view="'+v+'" style="cursor:pointer"><h3 style="margin:0">'+t+'</h3><div class="mini" style="margin-top:4px">'+d+'</div><div class="mini" style="margin-top:6px;color:var(--brand)">Buka &rsaquo;</div></div>';
+  h+='<h2 class="sec">Telusuri modul MOFIN</h2><div class="grid3">'
+    +nav('mofheatmap','Heatmap Skor Organisasi','Peta 15 unit &times; 9 dimensi; klik unit untuk drill ke 37 indikator.')
+    +nav('mofprofil','Profil Unit','Radar dimensi vs rata-rata nasional + rincian indikator & tindak lanjut.')
+    +nav('moftl','Status Tindak Lanjut','Progress penyelesaian rekomendasi per unit dan per dimensi.')
+    +'</div>';
+  h+='<h2 class="sec">Peringkat Skor Total Antar Unit</h2><div class="card">';
+  var sorted=U.slice().sort((a,b)=>b.skor_total-a.skor_total);
+  sorted.forEach(u=>{h+=bar(u.kode+(u.struktur_lama?' *':''),u.skor_total,100,(u.skor_total>=88?'':(u.skor_total<82?'red':'')),u.skor_total,{a:'mofopen',d:'data-unit="'+u.kode+'"'});});
+  h+='<div class="mini" style="margin-top:6px">* struktur unit lama; skor saja, tanpa data tindak lanjut. Skala 0&ndash;100.</div></div>';
+  h+='<h2 class="sec">Analisis Diagnostik</h2><div class="grid2 eq">'
+    +nav('mofkuadran','Kuadran Kelemahan &times; Respons','Peta skor dimensi vs penyelesaian tindak lanjut; temukan area perlu perhatian (lemah & belum ditindaklanjuti).')
+    +nav('mofgap','Prioritas Tindak Lanjut','Dimensi terlemah tiap unit dan seberapa jauh direspons; daftar prioritas intervensi.')
+    +'</div>';
+  return h;}
+
+function vMofinHeatmap(){
+  if(!MOFIN)return '<div class="empty">Data MOFIN belum dimuat.</div>';
+  var U=mofUnits(),dims=mofDims(),mode=state.mofMode||'skor';
+  var h='<div class="seg" style="margin-bottom:12px">'
+    +'<span class="segb '+(mode==='skor'?'on':'')+'" data-act="mofmode" data-mode="skor">Skor Kapabilitas Organisasi</span>'
+    +'<span class="segb '+(mode==='tl'?'on':'')+'" data-act="mofmode" data-mode="tl">Skor Tindak Lanjut</span></div>';
+  h+='<div class="card" style="overflow-x:auto"><table class="hm"><tr><th class="rh"></th>';
+  dims.forEach(d=>h+='<th class="ch">'+esc(d)+'</th>');
+  h+='<th class="ch" style="color:var(--brand-d)">'+(mode==='skor'?'Total':'Progress')+'</th></tr>';
+  U.forEach(u=>{
+    h+='<tr><td class="rh" data-act="mofopen" data-unit="'+u.kode+'" title="'+esc(u.nama)+'">'+u.kode+(u.struktur_lama?' *':'')+'</td>';
+    dims.forEach(d=>{
+      if(mode==='skor'){h+=mofCellScore(u.skor_dimensi[d],u.kode);}
+      else{if(!u.ada_tl){h+=mofCellTL(null);}else{var c=u.tl_dimensi[d];h+=mofCellTL(c?c.skor_tl:null,u.kode,d);}}
+    });
+    if(mode==='skor')h+=mofCellScore(u.skor_total,u.kode);
+    else h+=(!u.ada_tl?mofCellTL(null):mofCellTL(u.tl.skor_tl,u.kode,''));
+    h+='</tr>';
+  });
+  h+='</table><div class="mini" style="margin-top:8px">'
+    +(mode==='skor'?'Nilai = skor kapabilitas (skala 0&ndash;100). Klik sel untuk profil unit.':'Nilai = indeks tindak lanjut (Selesai=100, On-Progress=50, Belum=0). Klik sel untuk detail rekomendasi.')
+    +' Merah rendah &rarr; hijau tinggi. * struktur lama (skor saja).</div></div>';
+  h+=mofDrillPanel();
+  return h;}
+
+function vMofinProfil(){
+  if(!MOFIN)return '<div class="empty">Data MOFIN belum dimuat.</div>';
+  var U=mofUnits(),km=mofU('Kemenkeu'),dims=mofDims();
+  var sel=state.mofUnit&&mofU(state.mofUnit)?state.mofUnit:'DJP';
+  var u=mofU(sel);
+  var opt=U.map(x=>'<option value="'+x.kode+'"'+(x.kode===sel?' selected':'')+'>'+esc(x.nama)+'</option>').join('');
+  var h='<div class="note-box" style="margin:0 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>Unit:</b> <select class="flt" id="mofUnitSel" style="min-width:320px">'+opt+'</select>'
+    +(u.struktur_lama?'<span class="pill off">struktur lama &middot; tanpa data tindak lanjut</span>':'')+'</div>';
+  var labsShort=dims.map(d=>d.length>11?d.slice(0,10)+'…':d);
+  var vv=dims.map(d=>u.skor_dimensi[d]||0),rv=dims.map(d=>km.skor_dimensi[d]||0);
+  var isKk=(sel==='Kemenkeu');
+  var byScore=dims.map(function(d){return {d:d,v:u.skor_dimensi[d]||0,r:km.skor_dimensi[d]||0};}).sort((a,b)=>b.v-a.v);
+  var infoRow=function(x){var dl=x.v-x.r;return '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)"><span style="color:#475569">'+esc(x.d)+'</span><span style="font-weight:700;white-space:nowrap">'+x.v.toFixed(1)+(isKk?'':' <span style="color:'+(dl>=0?'#16a34a':'#e0413a')+';font-weight:600">('+(dl>=0?'+':'')+dl.toFixed(1)+')</span>')+'</span></div>';};
+  var refLbl=isKk?'':' &nbsp; <span style="color:#94a3b8;font-weight:700">&#9632; Kemenkeu</span>';
+  h+='<div class="grid2"><div class="card"><div class="slab">Skor 9 Dimensi &mdash; '+esc(u.kode)+(isKk?'':' vs Kemenkeu')+'</div>'
+    +'<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:6px">'
+    +'<div style="flex:1;min-width:300px;text-align:center">'+mofRadar(vv,rv,labsShort,330,!isKk)
+    +'<div class="mini"><span style="color:#1467c0;font-weight:700">&#9632; '+esc(u.kode)+'</span>'+refLbl+'</div></div>'
+    +'<div style="flex:1;min-width:210px;font-size:12px">'
+    +'<div class="mini" style="margin-bottom:2px;text-transform:uppercase;letter-spacing:.4px">Dimensi: tertinggi &rarr; terendah'+(isKk?'':' (selisih vs Kemenkeu)')+'</div>'
+    +byScore.map(infoRow).join('')
+    +'</div></div></div>';
+  h+='<div class="card"><div class="slab">Ringkasan</div>'
+    +'<div style="display:flex;gap:10px;margin:8px 0">'
+    +'<div class="kpi" style="flex:1;min-height:auto"><div class="lab">Skor Total</div><div class="val" style="color:#1467c0;font-size:24px">'+u.skor_total+'</div></div>';
+  if(u.ada_tl){var p=u.tl.skor_tl!=null?Math.round(u.tl.skor_tl*100):0;
+    h+='<div class="kpi" style="flex:1;min-height:auto"><div class="lab">Indeks Tindak Lanjut</div><div class="val" style="color:#2f8467;font-size:24px">'+p+'</div></div>'
+      +'<div class="kpi" data-act="mofdrill" data-unit="'+u.kode+'" style="flex:1;min-height:auto;cursor:pointer" title="Klik untuk detail"><div class="lab">Rekomendasi</div><div class="val" style="color:#e8951a;font-size:24px">'+u.tl.n+'</div></div>';}
+  h+='</div>';
+  if(u.ada_tl){h+='<div class="mini" style="color:var(--muted);margin-bottom:8px">Indeks Tindak Lanjut = rata-rata tertimbang penyelesaian rekomendasi: <b>Selesai=100</b>, <b>On-Progress=50</b>, <b>Belum mulai=0</b>. Klik bilah status untuk lihat detailnya.</div>';
+    h+='<div class="slab" style="margin-top:6px">Status Tindak Lanjut</div>'+mofStack(u.tl.done,u.tl.on_progress,u.tl.not_started,u.kode)
+    +'<div class="legend" style="margin-top:6px"><span data-act="mofdrill" data-unit="'+u.kode+'" data-status="Done" style="cursor:pointer"><span class="dot" style="background:#16a34a"></span>Selesai '+u.tl.done+'</span><span data-act="mofdrill" data-unit="'+u.kode+'" data-status="On-Progress" style="cursor:pointer"><span class="dot" style="background:#f59e0b"></span>On-Progress '+u.tl.on_progress+'</span><span data-act="mofdrill" data-unit="'+u.kode+'" data-status="Not-started" style="cursor:pointer"><span class="dot" style="background:#e0413a"></span>Belum '+u.tl.not_started+'</span></div>';}
+  else{h+='<div class="mini" style="margin-top:10px">'+esc(u.catatan)+'</div>';}
+  h+='</div></div>';
+  h+='<h2 class="sec">Rincian per Dimensi &amp; Indikator</h2><div class="card" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px">'
+    +'<tr style="text-align:left;color:var(--muted)"><th style="padding:6px 8px">Dimensi / Indikator</th><th class="num-c" style="padding:6px 8px">Skor '+esc(u.kode)+'</th><th class="num-c" style="padding:6px 8px">Kemenkeu</th><th class="num-c" style="padding:6px 8px">Selisih</th>'+(u.ada_tl?'<th class="num-c" style="padding:6px 8px">Indeks TL</th>':'')+'</tr>';
+  (MOFIN.dimensi||[]).forEach(dg=>{
+    var ds=u.skor_dimensi[dg.nama],dn=km.skor_dimensi[dg.nama];
+    var tl=u.ada_tl&&u.tl_dimensi[dg.nama]?u.tl_dimensi[dg.nama].skor_tl:null;
+    h+='<tr style="background:var(--brand-l)"'+(u.ada_tl?' data-act="mofdrill" data-unit="'+u.kode+'" data-dim="'+esc(dg.nama)+'" title="Klik untuk detail rekomendasi dimensi ini"':'')+'><td style="padding:7px 8px;font-weight:800;color:var(--brand-d)'+(u.ada_tl?';cursor:pointer':'')+'">'+esc(dg.nama)+(u.ada_tl?' &rsaquo;':'')+'</td>'
+      +'<td class="num-c" style="padding:7px 8px;font-weight:700">'+(ds!=null?ds.toFixed(1):'-')+'</td>'
+      +'<td class="num-c" style="padding:7px 8px">'+(dn!=null?dn.toFixed(1):'-')+'</td>'
+      +'<td class="num-c" style="padding:7px 8px;font-weight:700;color:'+((ds-dn)>=0?'#16a34a':'#e0413a')+'">'+(ds!=null?((ds-dn>=0?'+':'')+(ds-dn).toFixed(1)):'-')+'</td>'
+      +(u.ada_tl?'<td class="num-c" style="padding:7px 8px;font-weight:700">'+(tl!=null?Math.round(tl*100):'&mdash;')+'</td>':'')+'</tr>';
+    dg.indikator.forEach(ind=>{var vs=u.skor_indikator[ind],vn=km.skor_indikator[ind];
+      h+='<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px 8px 6px 22px;color:#475569">'+esc(ind)+'</td>'
+        +'<td class="num-c" style="padding:6px 8px">'+(vs!=null?vs.toFixed(1):'-')+'</td>'
+        +'<td class="num-c" style="padding:6px 8px;color:var(--muted)">'+(vn!=null?vn.toFixed(1):'-')+'</td>'
+        +'<td class="num-c" style="padding:6px 8px;color:'+((vs-vn)>=0?'#16a34a':'#e0413a')+'">'+(vs!=null?((vs-vn>=0?'+':'')+(vs-vn).toFixed(1)):'-')+'</td>'
+        +(u.ada_tl?'<td class="num-c" style="padding:6px 8px"></td>':'')+'</tr>';});
+  });
+  h+='</table></div>';
+  h+=mofDrillPanel();
+  return h;}
+
+function vMofinTL(){
+  if(!MOFIN)return '<div class="empty">Data MOFIN belum dimuat.</div>';
+  var U=mofUnits().filter(u=>u.ada_tl&&u.kode!=='Kemenkeu');
+  var dims=mofDims();
+  var h='<div class="grid2"><div class="card"><div class="slab">Progress Tindak Lanjut per Unit</div><div style="margin-top:8px">';
+  var sorted=U.slice().sort((a,b)=>(b.tl.skor_tl||0)-(a.tl.skor_tl||0));
+  sorted.forEach(u=>{var p=u.tl.skor_tl!=null?Math.round(u.tl.skor_tl*100):0;
+    h+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><b data-act="mofopen" data-unit="'+u.kode+'" style="cursor:pointer" title="Buka profil unit">'+u.kode+'</b><span class="mini" data-act="mofdrill" data-unit="'+u.kode+'" style="cursor:pointer" title="Klik untuk detail rekomendasi">indeks '+p+' &middot; '+u.tl.n+' rekomendasi &rsaquo;</span></div>'+mofStack(u.tl.done,u.tl.on_progress,u.tl.not_started,u.kode)+'</div>';});
+  h+='<div class="legend" style="margin-top:4px"><span><span class="dot" style="background:#16a34a"></span>Selesai</span><span><span class="dot" style="background:#f59e0b"></span>On-Progress</span><span><span class="dot" style="background:#e0413a"></span>Belum mulai</span></div></div></div>';
+  var agg={};dims.forEach(d=>agg[d]={n:0,b:0});
+  U.forEach(u=>dims.forEach(d=>{var c=u.tl_dimensi[d];if(c){agg[d].n+=c.n;agg[d].b+=(c.skor_tl!=null?c.skor_tl*c.n:0);}}));
+  h+='<div class="card"><div class="slab">Indeks Tindak Lanjut per Dimensi (Kemenkeu)</div><div style="margin-top:8px">';
+  var rows=dims.map(d=>({d:d,n:agg[d].n,v:agg[d].n?agg[d].b/agg[d].n:null})).filter(r=>r.n).sort((a,b)=>a.v-b.v);
+  rows.forEach(r=>{h+=bar(r.d,Math.round(r.v*100),100,(r.v<0.45?'red':(r.v>0.6?'':'gold')),Math.round(r.v*100)+' · '+r.n+' rekomendasi',{a:'mofdrill',d:'data-dim="'+r.d+'"'});});
+  h+='<div class="mini" style="margin-top:6px">Indeks Tindak Lanjut 0&ndash;100 (Selesai=100, On-Progress=50, Belum mulai=0), gabungan seluruh unit. Klik nama dimensi untuk detail. Diurut dari terlemah.</div></div></div></div>';
+  h+=mofDrillPanel();
+  return h;}
+
+/* ---------- Tahap 2: Diagnostik ---------- */
+var MOF_QCOL={buta:'#e0413a',responsif:'#16a34a',tertunda:'#f59e0b',terjaga:'#1467c0'};
+var MOF_QLAB={buta:'Perlu Perhatian',responsif:'Responsif',tertunda:'TL Tertunda',terjaga:'Terjaga'};
+function mofQuad(x,y,xt){if(x<xt&&y<50)return 'buta';if(x<xt)return 'responsif';if(y<50)return 'tertunda';return 'terjaga';}
+function mofDiagCells(){var cells=[];mofUnits().forEach(function(u){if(!u.ada_tl||u.kode==='Kemenkeu')return;
+  (MOFIN.dimensi||[]).forEach(function(dg){var c=u.tl_dimensi[dg.nama];if(!c)return;
+    cells.push({unit:u.kode,unitNama:u.nama,dim:dg.nama,x:u.skor_dimensi[dg.nama]||0,
+      y:(c.skor_tl!=null?c.skor_tl*100:0),n:c.n,not:c.not_started});});});
+  return cells;}
+function mofScatter(cells,xt){var W=1040,H=460,mL=56,mR=22,mT=20,mB=48;
+  var x0=68,x1=95;
+  var px=v=>mL+(v-x0)/(x1-x0)*(W-mL-mR);var py=v=>H-mB-(v/100)*(H-mT-mB);
+  var xtP=px(xt),ytP=py(50),xL=px(x0),xR=px(x1),yB=py(0),yT=py(100);
+  var g='';
+  g+='<rect x="'+xL+'" y="'+ytP+'" width="'+(xtP-xL)+'" height="'+(yB-ytP)+'" fill="rgba(224,65,58,.08)"/>';
+  g+='<rect x="'+xL+'" y="'+yT+'" width="'+(xtP-xL)+'" height="'+(ytP-yT)+'" fill="rgba(22,163,74,.07)"/>';
+  g+='<rect x="'+xtP+'" y="'+ytP+'" width="'+(xR-xtP)+'" height="'+(yB-ytP)+'" fill="rgba(245,158,11,.07)"/>';
+  g+='<rect x="'+xtP+'" y="'+yT+'" width="'+(xR-xtP)+'" height="'+(ytP-yT)+'" fill="rgba(20,103,192,.06)"/>';
+  g+='<line x1="'+xL+'" y1="'+yB+'" x2="'+xR+'" y2="'+yB+'" stroke="#cbd5e1"/><line x1="'+xL+'" y1="'+yB+'" x2="'+xL+'" y2="'+yT+'" stroke="#cbd5e1"/>';
+  g+='<line x1="'+xtP+'" y1="'+yB+'" x2="'+xtP+'" y2="'+yT+'" stroke="#94a3b8" stroke-dasharray="4 3"/><line x1="'+xL+'" y1="'+ytP+'" x2="'+xR+'" y2="'+ytP+'" stroke="#94a3b8" stroke-dasharray="4 3"/>';
+  for(var xv=70;xv<=95;xv+=5){g+='<text x="'+px(xv)+'" y="'+(H-mB+15)+'" font-size="9" fill="var(--muted)" text-anchor="middle">'+xv+'</text>';}
+  for(var yv=0;yv<=100;yv+=25){g+='<text x="'+(mL-7)+'" y="'+(py(yv)+3)+'" font-size="9" fill="var(--muted)" text-anchor="end">'+yv+'</text>';}
+  g+='<text x="'+((xL+xR)/2)+'" y="'+(H-4)+'" font-size="10.5" fill="var(--ink)" text-anchor="middle" font-weight="700">Skor Kapabilitas Organisasi (makin kanan makin kuat)</text>';
+  g+='<text transform="translate(14,'+((yB+yT)/2)+') rotate(-90)" font-size="10.5" fill="var(--ink)" text-anchor="middle" font-weight="700">Indeks Tindak Lanjut</text>';
+  g+='<text x="'+(xL+6)+'" y="'+(yB-8)+'" font-size="10" fill="#e0413a" font-weight="800">PERLU PERHATIAN</text>';
+  g+='<text x="'+(xL+6)+'" y="'+(yT+14)+'" font-size="10" fill="#16a34a" font-weight="800">RESPONSIF</text>';
+  g+='<text x="'+(xR-6)+'" y="'+(yB-8)+'" font-size="10" fill="#d98a0b" font-weight="800" text-anchor="end">TL TERTUNDA</text>';
+  g+='<text x="'+(xR-6)+'" y="'+(yT+14)+'" font-size="10" fill="#1467c0" font-weight="800" text-anchor="end">TERJAGA</text>';
+  cells.forEach(function(c){var q=mofQuad(c.x,c.y,xt),r=4+Math.min(6,c.n/6);
+    g+='<g data-act="mofdrill" data-unit="'+c.unit+'" data-dim="'+c.dim+'" style="cursor:pointer"><circle cx="'+px(c.x).toFixed(1)+'" cy="'+py(c.y).toFixed(1)+'" r="'+r.toFixed(1)+'" fill="'+MOF_QCOL[q]+'" fill-opacity="0.72" stroke="#fff" stroke-width="1"><title>'+esc(c.unit)+' — '+esc(c.dim)+' · skor '+c.x.toFixed(1)+' · indeks TL '+Math.round(c.y)+' · '+c.n+' rekomendasi</title></circle></g>';});
+  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block">'+g+'</svg>';}
+
+function vMofinKuadran(){
+  if(!MOFIN)return '<div class="empty">Data MOFIN belum dimuat.</div>';
+  var cells=mofDiagCells();
+  var xs=cells.map(c=>c.x).slice().sort((a,b)=>a-b);var xt=xs.length?xs[Math.floor(xs.length/2)]:85;
+  var cnt={buta:0,responsif:0,tertunda:0,terjaga:0};cells.forEach(c=>cnt[mofQuad(c.x,c.y,xt)]++);
+  var h='<div class="note-box" style="margin:0 0 12px">Tiap titik = satu <b>unit × dimensi</b> yang punya rekomendasi. Sumbu X = skor kapabilitas (makin kiri makin lemah), sumbu Y = indeks tindak lanjut (makin bawah makin mandek). Kuadran kiri-bawah <b style="color:#e0413a">Perlu Perhatian</b> = kelemahan yang belum ditindaklanjuti &mdash; prioritas utama. Klik titik untuk detail rekomendasi.</div>';
+  var kc=q=>'<div class="kpi" data-act="nav" data-view="mofgap" style="cursor:pointer;min-height:auto;border-top:3px solid '+MOF_QCOL[q]+'"><div class="lab">'+MOF_QLAB[q]+'</div><div class="val" style="color:'+MOF_QCOL[q]+';font-size:24px">'+cnt[q]+'</div><div class="note">unit × dimensi</div></div>';
+  h+='<div class="kpis" style="margin-bottom:12px">'+kc('buta')+kc('responsif')+kc('tertunda')+kc('terjaga')+'</div>';
+  h+='<div class="card" style="overflow-x:auto">'+mofScatter(cells,xt)+'<div class="mini" style="margin-top:6px">Garis putus-putus: ambang skor (median '+xt.toFixed(1)+') dan indeks TL 50. Ukuran titik sebanding jumlah rekomendasi.</div></div>';
+  var buta=cells.filter(c=>mofQuad(c.x,c.y,xt)==='buta').sort((a,b)=>(a.x+a.y)-(b.x+b.y));
+  h+='<h2 class="sec">Daftar Perlu Perhatian &mdash; kelemahan yang belum ditindaklanjuti</h2><div class="card" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><tr style="text-align:left;color:var(--muted)"><th style="padding:6px 8px">Unit</th><th style="padding:6px 8px">Dimensi</th><th class="num-c" style="padding:6px 8px">Skor</th><th class="num-c" style="padding:6px 8px">Indeks TL</th><th class="num-c" style="padding:6px 8px">Rekomendasi</th><th class="num-c" style="padding:6px 8px">Belum mulai</th></tr>';
+  if(!buta.length)h+='<tr><td colspan="6" style="padding:12px;color:var(--muted)">Tidak ada yang perlu perhatian pada ambang ini.</td></tr>';
+  buta.forEach(function(c){h+='<tr data-act="mofdrill" data-unit="'+c.unit+'" data-dim="'+c.dim+'" style="cursor:pointer;border-bottom:1px solid var(--line)"><td style="padding:7px 8px;font-weight:700" title="'+esc(c.unitNama)+'">'+c.unit+' &rsaquo;</td><td style="padding:7px 8px">'+esc(c.dim)+'</td><td class="num-c" style="padding:7px 8px;color:#e0413a;font-weight:700">'+c.x.toFixed(1)+'</td><td class="num-c" style="padding:7px 8px;color:#e0413a;font-weight:700">'+Math.round(c.y)+'</td><td class="num-c" style="padding:7px 8px">'+c.n+'</td><td class="num-c" style="padding:7px 8px;color:#e0413a">'+c.not+'</td></tr>';});
+  h+='</table></div>';
+  h+=mofDrillPanel();
+  return h;}
+
+function vMofinGap(){
+  if(!MOFIN)return '<div class="empty">Data MOFIN belum dimuat.</div>';
+  var rows=[];
+  mofUnits().forEach(function(u){if(!u.ada_tl||u.kode==='Kemenkeu')return;
+    var cand=(MOFIN.dimensi||[]).map(function(dg){var c=u.tl_dimensi[dg.nama];
+      return c?{dim:dg.nama,score:u.skor_dimensi[dg.nama]||0,tl:(c.skor_tl!=null?c.skor_tl*100:0),n:c.n}:null;}).filter(Boolean);
+    if(!cand.length)return;cand.sort((a,b)=>a.score-b.score);var w=cand[0];
+    w.gap=Math.round((Math.max(0,90-w.score))*(100-w.tl)/100*10)/10;
+    w.unit=u.kode;w.unitNama=u.nama;rows.push(w);});
+  rows.sort((a,b)=>b.gap-a.gap);
+  var verdict=tl=>tl<40?['#e0413a','Perlu perhatian']:(tl<70?['#f59e0b','Sebagian']:['#16a34a','Ditangani']);
+  var pill=(col,txt)=>'<span class="pill" style="background:'+col+'1a;color:'+col+';border:1px solid '+col+'55;font-weight:700">'+txt+'</span>';
+  var h='<div class="note-box" style="margin:0 0 12px">Untuk tiap unit diambil <b>dimensi dengan skor terlemah</b> (yang memiliki rekomendasi), lalu dinilai seberapa jauh ditindaklanjuti. <b>Gap</b> = besar kelemahan (90 &minus; skor) &times; kurangnya respons (100 &minus; indeks TL). Makin atas makin prioritas. Klik baris untuk detail rekomendasi &amp; tindak lanjut.</div>';
+  h+='<div class="card" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><tr style="text-align:left;color:var(--muted)"><th style="padding:6px 8px">#</th><th style="padding:6px 8px">Unit</th><th style="padding:6px 8px">Dimensi Terlemah</th><th class="num-c" style="padding:6px 8px">Skor</th><th class="num-c" style="padding:6px 8px">Indeks TL</th><th class="num-c" style="padding:6px 8px">Rekomendasi</th><th style="padding:6px 8px">Respons</th><th class="num-c" style="padding:6px 8px">Gap</th></tr>';
+  rows.forEach(function(r,i){var v=verdict(r.tl);h+='<tr data-act="mofdrill" data-unit="'+r.unit+'" data-dim="'+r.dim+'" style="cursor:pointer;border-bottom:1px solid var(--line)"><td style="padding:7px 8px;font-weight:800;color:var(--muted)">'+(i+1)+'</td><td style="padding:7px 8px;font-weight:700" title="'+esc(r.unitNama)+'">'+r.unit+' &rsaquo;</td><td style="padding:7px 8px">'+esc(r.dim)+'</td><td class="num-c" style="padding:7px 8px;font-weight:700">'+r.score.toFixed(1)+'</td><td class="num-c" style="padding:7px 8px;font-weight:700;color:'+v[0]+'">'+Math.round(r.tl)+'</td><td class="num-c" style="padding:7px 8px">'+r.n+'</td><td style="padding:7px 8px">'+pill(v[0],v[1])+'</td><td class="num-c" style="padding:7px 8px;font-weight:800">'+r.gap.toFixed(1)+'</td></tr>';});
+  h+='</table><div class="mini" style="margin-top:6px">Gap tinggi = kelemahan besar yang belum banyak ditindaklanjuti. Baris merah (Perlu perhatian) = prioritas intervensi.</div></div>';
+  h+=mofDrillPanel();
+  return h;}
+
 function bindInputs(){const q=id=>document.getElementById(id);
   if(q('tkUE1Sel'))q('tkUE1Sel').onchange=e=>{state.tkUE1=e.target.value;render();};
   if(q('tkYearSel'))q('tkYearSel').onchange=e=>{state.tkYear=e.target.value;render();};
@@ -3753,7 +4034,8 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('simTrS'))q('simTrS').onchange=e=>{state.simTrS=e.target.value;render();};
   if(q('simTrK'))q('simTrK').onchange=e=>{state.simTrK=e.target.value;render();};
   if(q('jfQ'))q('jfQ').oninput=e=>{state.jfQ=e.target.value;rerenderKeep(vJf,'jfQ');};
-  if(q('jfFungUE1'))q('jfFungUE1').onchange=e=>{state.jfFungUE1=e.target.value;render();};}
+  if(q('jfFungUE1'))q('jfFungUE1').onchange=e=>{state.jfFungUE1=e.target.value;render();};
+  if(q('mofUnitSel'))q('mofUnitSel').onchange=e=>{state.mofUnit=e.target.value;render();};}
 function rerenderKeep(fn,fid){const el=document.getElementById(fid);const pos=el?el.selectionStart:null;
   document.getElementById('view').innerHTML=fn();bindInputs();const n=document.getElementById(fid);if(n){n.focus();if(pos!=null)n.setSelectionRange(pos,pos);}}
 
@@ -3804,6 +4086,10 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='jffungf'){state.jfFungF=el.dataset.f||'';render();}
   else if(a==='jkview'){state.jkView=el.dataset.v;render();}
   else if(a==='tknav'){if(el.dataset.tab)state.tkKantorTab=el.dataset.tab;state.view=el.dataset.v;render();}
+  else if(a==='mofopen'){state.mofDrill=null;state.mofUnit=el.dataset.unit;state.view='mofprofil';render();}
+  else if(a==='mofmode'){state.mofDrill=null;state.mofMode=el.dataset.mode;render();}
+  else if(a==='mofdrill'){state.mofDrill={view:state.view,unit:el.dataset.unit||'',dim:el.dataset.dim||'',status:el.dataset.status||''};render();var _n=document.getElementById('mofdrill');if(_n)_n.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  else if(a==='mofdrillclose'){state.mofDrill=null;render();}
   else if(a==='tkflt'){const k=el.dataset.k;state[k]=(state[k]===el.dataset.v?'':el.dataset.v);render();}
   else if(a==='tkreset'){state.tkUE1='';state.tkYear='';render();}
   else if(a==='exportkajian'){exportKajian();}
@@ -4101,6 +4387,7 @@ async function doLogin(){
   try{await ensureOtkRemote();}catch(e){done();errEl.textContent='Gagal memuat data struktur. Coba muat ulang.';return;}
   try{await ensureJfRemote();}catch(e){}
   try{await ensureTkRemote();}catch(e){}
+  try{await ensureMofinRemote();}catch(e){}
   done();errEl.textContent='';
   document.getElementById('whoName').textContent=prof.nama;document.getElementById('whoName').title=prof.nama;
   document.getElementById('whoSub').textContent=prof.sub;document.getElementById('whoSub').title=prof.sub;
