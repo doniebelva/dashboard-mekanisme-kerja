@@ -593,7 +593,8 @@ const ICONP={
  abk:'<path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M21 20H3"/>',
  katalog:'<rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.2"/>',
  tk:'<path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.2l5-.7z"/><path d="M8.5 21h7"/><path d="M12 17.5V21"/>',
- mofin:'<circle cx="12" cy="13" r="7.5"/><path d="M12 13l3.5-3"/><path d="M12 3.5v2M4.6 6.2l1.4 1.4M19.4 6.2 18 7.6"/>'
+ mofin:'<circle cx="12" cy="13" r="7.5"/><path d="M12 13l3.5-3"/><path d="M12 3.5v2M4.6 6.2l1.4 1.4M19.4 6.2 18 7.6"/>',
+ pelwen:'<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12.5l1.8 1.8 3.7-3.8"/>'
 };
 function svgIcon(k,s){s=s||17;return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${s>30?1.3:1.7}" stroke-linecap="round" stroke-linejoin="round">${ICONP[k]||''}</svg>`;}
 /* MOFIN: dimuat via gerbang api('mofin') saat login (pola TKPP). */
@@ -638,6 +639,11 @@ const MODULES=[
    {grp:'Deskriptif',items:[{v:'mofheatmap',lab:'Heatmap Skor Organisasi'},{v:'mofprofil',lab:'Profil Unit'},{v:'moftl',lab:'Status Tindak Lanjut'}]},
    {grp:'Analisis (Diagnostik)',items:[{v:'mofkuadran',lab:'Kuadran Kelemahan \u00d7 Respons'},{v:'mofgap',lab:'Prioritas Tindak Lanjut'}]},
  ]},
+ {id:'pelwen',icn:'pelwen',lab:'PELWEN',groups:[
+   {grp:'Ikhtisar',items:[{v:'pelwen',lab:'Beranda'}]},
+   {grp:'Penyajian',items:[{v:'pelunit',lab:'Pelwen per Unit'},{v:'pellintas',lab:'Pelwen Lintas Unit'},{v:'pelcari',lab:'Cari Kewenangan'}]},
+   {grp:'Referensi',items:[{v:'peltentang',lab:'Tentang Pelwen'}]},
+ ]},
  {id:'katalog',icn:'katalog',lab:'Katalog',groups:[
    {grp:'',items:[{v:'katalog',lab:'Kompetensi'},{v:'pb_katalog',lab:'Proses Bisnis'},{v:'pb_layanan',lab:'Layanan'},{v:'pb_aplikasi',lab:'Aplikasi'}]},
  ]},
@@ -664,7 +670,8 @@ let state={view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
   simUE1:'',simUnit:'',simTarget:300,simTrR:0,simTrS:0,simTrK:0,
   jfQ:'',jfJenis:'',jfSel:null,jfFungUE1:'',jfFungF:'',jkView:'bezetting',
-  mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlTab:'ue1'};
+  mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlTab:'ue1',
+  pwUnit:null,pwJab:null,pwTema:null,pwJab2:null,pwQ:'',pwFilUnit:'',pwFilJenis:''};
 
 function renderNav(){const cur=curMod();let h='<div class="modsw">';
   MODULES.forEach(m=>{if(m.id!=='beranda'&&!canMod(m.id))return;
@@ -686,7 +693,8 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I',
   tk:'Beranda',tkintegritas:'Zona Integritas (WBK/WBBM)',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola',
-  mofin:'Beranda MOFIN',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)'};
+  mofin:'Beranda MOFIN',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',
+  pelwen:'Beranda PELWEN',pelunit:'Pelwen per Unit Eselon I',pellintas:'Pelwen Lintas Unit',pelcari:'Cari Kewenangan',peltentang:'Tentang Pelwen'};
 
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
   const a=act?`data-act="${act.a}" ${act.d||''}`:'';
@@ -3697,7 +3705,8 @@ function render(){
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks,
-    mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap};
+    mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,
+    pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,peltentang:vPelTentang};
   document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
@@ -3986,6 +3995,172 @@ function vMofinGap(){
   h+=mofDrillPanel();
   return h;}
 
+/* ==================== MODUL PELWEN (Pelimpahan Kewenangan/Mandat, KMK 167/2025) ==================== */
+let PW=null;   /* Pelimpahan Kewenangan. REMOTE null -> muat via gerbang api('pw') saat login. */
+async function ensurePwRemote(){if((PW&&PW.detail)||!REMOTE)return;try{var j=await api('pw');if(j&&j.detail)PW=j;}catch(e){}}
+function pwReady(){return !!(PW&&PW.detail);}
+const PW_JENIS_ORDER=['Penandatanganan','Penetapan KMK','Penetapan','Persetujuan','Lainnya'];
+const PW_COL={'Penandatanganan':'#1467c0','Penetapan KMK':'#7c3aed','Penetapan':'#2f8467','Persetujuan':'#e8951a','Lainnya':'#64748b'};
+function pwChip(j){var c=PW_COL[j]||'#64748b';return '<span class="pill" style="background:'+c+'1a;color:'+c+';border:1px solid '+c+'55;font-weight:700">'+esc(j)+'</span>';}
+function pwDet(key){return (PW&&PW.detail&&PW.detail[key])||null;}
+function pwFlat(){if(PW._flat)return PW._flat;var arr=[];Object.keys(PW.detail).forEach(function(k){var d=PW.detail[k];d.jabatan.forEach(function(jb,ji){jb.items.forEach(function(it){arr.push({key:k,scope:d.scope,unit:d.kode,unitNama:d.nama,lamp:d.lamp,jab:jb.nama,ji:ji,no:it.no,materi:it.materi,jenis:it.jenis});});});});PW._flat=arr;return arr;}
+function pwJabName(s){return s.replace(/\//g,' / ');}
+function pwGrpByJenis(items){var g={};items.forEach(function(it){(g[it.jenis]=g[it.jenis]||[]).push(it);});
+  return PW_JENIS_ORDER.filter(function(j){return g[j];}).map(function(j){return {jenis:j,items:g[j]};});}
+function pwItemRow(it){
+  var tags=pwChip(it.jenis);
+  if(it.rincian)tags+=' <span class="pill" style="background:#eef2f7;color:#64748b;border:1px solid #cbd5e1">rincian a/b/c</span>';
+  var disp=it.tujuan_disposisi?'<div class="mini" style="margin-top:4px;color:var(--brand)">&rarr; disposisi ke: <b>'+esc(it.tujuan_disposisi)+'</b></div>':'';
+  return '<div style="padding:9px 0;border-bottom:1px solid var(--line)"><div style="display:flex;gap:9px">'
+    +'<div style="flex:0 0 30px;font-weight:800;color:var(--muted)">'+(it.no!=null?it.no+'.':'&bull;')+'</div>'
+    +'<div style="flex:1"><div>'+esc(it.materi)+'</div>'+disp+'<div style="margin-top:5px">'+tags+'</div></div></div></div>';}
+function pwCrumb(parts){ // parts: [{lab, act, d}] last item plain
+  return '<div class="mini" style="margin-bottom:10px">'+parts.map(function(p,i){
+    if(p.act)return '<span class="tag" data-act="'+p.act+'" '+(p.d||'')+' style="cursor:pointer">'+esc(p.lab)+'</span>';
+    return '<span style="color:var(--muted)">'+esc(p.lab)+'</span>';}).join(' <span style="color:var(--line)">&rsaquo;</span> ')+'</div>';}
+
+function vPelwen(){
+  if(!pwReady())return '<div class="empty">Data PELWEN belum dimuat. Coba muat ulang halaman setelah login.</div>';
+  var m=PW.meta,r=PW.ringkas;
+  var BLUE='#1467c0',VIO='#7c3aed',TEAL='#2f8467',ORANGE='#e8951a';
+  var card=function(v,lab,val,note,col){return '<div class="kpi" data-act="nav" data-view="'+v+'" style="cursor:pointer;border-top:3px solid '+col+';background:'+col+'14"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';};
+  var h='<div class="note-box" style="margin-bottom:14px"><b>'+esc(m.dasar_hukum)+'</b> &mdash; '+esc(m.ringkas)+' <span class="mini">Pedoman: '+esc(m.pedoman)+'. Ditetapkan oleh '+esc(m.penandatangan)+'.</span></div>';
+  h+='<div class="kpis">'
+    +card('pelunit','Butir Kewenangan',fmt(r.butir),'materi kewenangan dilimpahkan',BLUE)
+    +card('pelunit','Jabatan Penerima',fmt(r.jabatan),'kombinasi jabatan-unit',VIO)
+    +card('pelunit','Unit Eselon I',fmt(r.unit),'ruang lingkup per unit',TEAL)
+    +card('pellintas','Tema Lintas Unit',fmt(r.lintas_tema),'kewenangan lintas organisasi',ORANGE)
+    +'</div>';
+  h+='<div style="margin:12px 0 2px">'+PW_JENIS_ORDER.filter(function(j){return PW.jenis_ringkas[j];}).map(function(j){return pwChip(j)+' <b style="margin:0 10px 0 3px">'+PW.jenis_ringkas[j]+'</b>';}).join('')+'</div>';
+  var nav=function(v,t,d){return '<div class="card" data-act="nav" data-view="'+v+'" style="cursor:pointer"><h3 style="margin:0">'+t+'</h3><div class="mini" style="margin-top:4px">'+d+'</div><div class="mini" style="margin-top:6px;color:var(--brand)">Buka &rsaquo;</div></div>';};
+  h+='<h2 class="sec">Telusuri modul PELWEN</h2><div class="grid3">'
+    +nav('pelunit','Pelwen per Unit','Peta mandat 13 Unit Eselon I; klik unit lalu jabatan untuk melihat rincian kewenangan.')
+    +nav('pellintas','Pelwen Lintas Unit','Enam tema kewenangan yang berlaku lintas unit organisasi (pengguna barang, keberatan/banding, hibah, dsb).')
+    +nav('pelcari','Cari Kewenangan','Telusuri seluruh butir kewenangan berdasarkan kata kunci, unit, dan jenis.')
+    +'</div>';
+  h+='<h2 class="sec">Sebaran Mandat per Unit Eselon I</h2><div class="card">';
+  var mx=PW.per_unit[0]?PW.per_unit[0].jml_butir:1;
+  PW.per_unit.forEach(function(u){h+=bar(u.kode+' · '+u.nama,u.jml_butir,mx,'',u.jml_butir+' butir · '+u.jml_jabatan+' jab',{a:'pwunit',d:'data-key="'+u.kode+'"'});});
+  h+='<div class="mini" style="margin-top:6px">Klik satu unit untuk masuk ke daftar jabatan penerima mandat.</div></div>';
+  h+='<h2 class="sec">Kewenangan Lintas Unit</h2><div class="grid3">';
+  PW.lintas.forEach(function(t){h+='<div class="card" data-act="pwtema" data-key="'+t.lamp+'" style="cursor:pointer"><div class="mini">Lampiran '+t.lamp+'</div><h3 style="margin:3px 0">'+esc(t.tema)+'</h3><div class="mini">'+t.jml_butir+' butir · '+t.jml_jabatan+' jabatan</div><div class="mini" style="margin-top:5px;color:var(--brand)">Buka &rsaquo;</div></div>';});
+  h+='</div>';
+  h+='<div class="mini" style="margin-top:14px"><span class="tag" data-act="nav" data-view="peltentang" style="cursor:pointer">Tentang PELWEN &amp; ketentuan pokok &rsaquo;</span></div>';
+  return h;}
+
+function vPelUnit(){
+  if(!pwReady())return '<div class="empty">Data PELWEN belum dimuat.</div>';
+  // Level 2: detail jabatan
+  if(state.pwUnit&&state.pwJab!=null){
+    var d=pwDet(state.pwUnit);if(!d)return '<div class="empty">Unit tidak ditemukan. <span class="link" data-act="pwunitback">Kembali</span>.</div>';
+    var jb=d.jabatan[state.pwJab];if(!jb)return '<div class="empty">Jabatan tidak ditemukan. <span class="link" data-act="pwjabback">Kembali</span>.</div>';
+    var h=pwCrumb([{lab:'Semua Unit',act:'pwunitback'},{lab:d.kode,act:'pwjabback'},{lab:jb.nama}]);
+    h+='<div style="margin-bottom:10px"><span class="tag" data-act="pwjabback" style="cursor:pointer">&larr; Kembali ke '+esc(d.kode)+'</span></div>';
+    h+='<div class="card"><div class="mini">'+esc(d.nama)+'</div><h2 style="margin:2px 0 2px">'+esc(jb.nama)+'</h2>'
+      +'<div class="mini" style="margin-bottom:8px">'+jb.jml_butir+' butir kewenangan dilimpahkan</div>';
+    pwGrpByJenis(jb.items).forEach(function(g){
+      h+='<h3 class="sec" style="font-size:13px;margin:12px 0 2px">'+pwChip(g.jenis)+' <span style="color:var(--muted);font-weight:600">('+g.items.length+')</span></h3>';
+      g.items.forEach(function(it){h+=pwItemRow(it);});});
+    h+='</div>';return h;}
+  // Level 1: profil unit (daftar jabatan)
+  if(state.pwUnit){
+    var d1=pwDet(state.pwUnit);if(!d1)return '<div class="empty">Unit tidak ditemukan. <span class="link" data-act="pwunitback">Kembali</span>.</div>';
+    var h1=pwCrumb([{lab:'Semua Unit',act:'pwunitback'},{lab:d1.kode}]);
+    h1+='<div style="margin-bottom:10px"><span class="tag" data-act="pwunitback" style="cursor:pointer">&larr; Kembali ke daftar unit</span></div>';
+    h1+='<div class="note-box" style="margin-bottom:12px"><b>'+esc(d1.kode)+' &mdash; '+esc(d1.nama)+'</b><br><span class="mini">'+d1.jml_butir+' butir kewenangan dilimpahkan kepada '+d1.jml_jabatan+' jabatan penerima mandat. Klik satu jabatan untuk melihat rincian.</span></div>';
+    d1.jabatan.forEach(function(jb,ji){
+      var jm=Object.keys(jb.jenis).map(function(j){var c=PW_COL[j]||'#64748b';return '<span title="'+esc(j)+'" style="display:inline-block;width:'+Math.max(6,jb.jenis[j]*4)+'px;height:8px;background:'+c+';border-radius:2px;margin-right:2px"></span>';}).join('');
+      h1+='<div class="card" data-act="pwjab" data-jab="'+ji+'" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 13px;margin-bottom:7px">'
+        +'<div style="flex:1"><div style="font-weight:700">'+esc(jb.nama)+'</div><div style="margin-top:4px">'+jm+'</div></div>'
+        +'<div style="text-align:right"><div style="font-size:19px;font-weight:800;color:var(--brand-d)">'+jb.jml_butir+'</div><div class="mini">butir</div></div>'
+        +'<div style="color:var(--brand);font-weight:800">&rsaquo;</div></div>';});
+    return h1;}
+  // Level 0: grid unit
+  var h0='<div class="note-box" style="margin-bottom:12px">Pilih Unit Eselon I untuk melihat jabatan penerima mandat dan rincian kewenangannya. Kartu diurutkan dari mandat terbanyak.</div><div class="grid3">';
+  PW.per_unit.forEach(function(u){
+    h0+='<div class="card" data-act="pwunit" data-key="'+u.kode+'" style="cursor:pointer"><h3 style="margin:0 0 2px">'+esc(u.kode)+'</h3><div class="mini" style="min-height:32px">'+esc(u.nama)+'</div>'
+      +'<div style="display:flex;gap:14px;margin-top:8px"><div><div style="font-size:18px;font-weight:800;color:var(--brand-d)">'+u.jml_butir+'</div><div class="mini">butir</div></div>'
+      +'<div><div style="font-size:18px;font-weight:800;color:var(--brand-d)">'+u.jml_jabatan+'</div><div class="mini">jabatan</div></div></div>'
+      +'<div class="mini" style="margin-top:6px;color:var(--brand)">Buka &rsaquo;</div></div>';});
+  h0+='</div>';return h0;}
+
+function vPelLintas(){
+  if(!pwReady())return '<div class="empty">Data PELWEN belum dimuat.</div>';
+  // Level 2: detail jabatan
+  if(state.pwTema&&state.pwJab2!=null){
+    var d=pwDet(state.pwTema);if(!d)return '<div class="empty">Tema tidak ditemukan. <span class="link" data-act="pwtemaback">Kembali</span>.</div>';
+    var jb=d.jabatan[state.pwJab2];if(!jb)return '<div class="empty">Jabatan tidak ditemukan. <span class="link" data-act="pwjab2back">Kembali</span>.</div>';
+    var h=pwCrumb([{lab:'Semua Tema',act:'pwtemaback'},{lab:'Lampiran '+d.lamp,act:'pwjab2back'},{lab:jb.nama}]);
+    h+='<div style="margin-bottom:10px"><span class="tag" data-act="pwjab2back" style="cursor:pointer">&larr; Kembali ke tema</span></div>';
+    h+='<div class="card"><div class="mini">Lampiran '+d.lamp+' &mdash; '+esc(d.nama)+'</div><h2 style="margin:2px 0">'+esc(jb.nama)+'</h2>'
+      +'<div class="mini" style="margin-bottom:8px">'+jb.jml_butir+' butir kewenangan</div>';
+    pwGrpByJenis(jb.items).forEach(function(g){
+      h+='<h3 class="sec" style="font-size:13px;margin:12px 0 2px">'+pwChip(g.jenis)+' <span style="color:var(--muted);font-weight:600">('+g.items.length+')</span></h3>';
+      g.items.forEach(function(it){h+=pwItemRow(it);});});
+    h+='</div>';return h;}
+  // Level 1: profil tema (daftar jabatan)
+  if(state.pwTema){
+    var d1=pwDet(state.pwTema);if(!d1)return '<div class="empty">Tema tidak ditemukan. <span class="link" data-act="pwtemaback">Kembali</span>.</div>';
+    var h1=pwCrumb([{lab:'Semua Tema',act:'pwtemaback'},{lab:'Lampiran '+d1.lamp}]);
+    h1+='<div style="margin-bottom:10px"><span class="tag" data-act="pwtemaback" style="cursor:pointer">&larr; Kembali ke daftar tema</span></div>';
+    h1+='<div class="note-box" style="margin-bottom:12px"><b>Lampiran '+d1.lamp+' &mdash; '+esc(d1.nama)+'</b><br><span class="mini">'+d1.jml_butir+' butir kewenangan lintas unit, '+d1.jml_jabatan+' jabatan penerima. Klik satu jabatan untuk rincian.</span></div>';
+    d1.jabatan.forEach(function(jb,ji){
+      h1+='<div class="card" data-act="pwjab2" data-jab="'+ji+'" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 13px;margin-bottom:7px">'
+        +'<div style="flex:1;font-weight:700">'+esc(jb.nama)+'</div>'
+        +'<div style="text-align:right"><div style="font-size:19px;font-weight:800;color:var(--brand-d)">'+jb.jml_butir+'</div><div class="mini">butir</div></div>'
+        +'<div style="color:var(--brand);font-weight:800">&rsaquo;</div></div>';});
+    return h1;}
+  // Level 0: grid tema
+  var h0='<div class="note-box" style="margin-bottom:12px">Kewenangan yang ruang lingkupnya lintas unit organisasi (bukan milik satu Eselon I). Enam tema di bawah bersumber dari Lampiran XIV&ndash;XIX KMK 167/2025.</div><div class="grid3">';
+  PW.lintas.forEach(function(t){
+    h0+='<div class="card" data-act="pwtema" data-key="'+t.lamp+'" style="cursor:pointer"><div class="mini">Lampiran '+t.lamp+'</div><h3 style="margin:3px 0;min-height:40px">'+esc(t.tema)+'</h3>'
+      +'<div style="display:flex;gap:14px"><div><div style="font-size:18px;font-weight:800;color:var(--brand-d)">'+t.jml_butir+'</div><div class="mini">butir</div></div>'
+      +'<div><div style="font-size:18px;font-weight:800;color:var(--brand-d)">'+t.jml_jabatan+'</div><div class="mini">jabatan</div></div></div>'
+      +'<div class="mini" style="margin-top:6px;color:var(--brand)">Buka &rsaquo;</div></div>';});
+  h0+='</div>';return h0;}
+
+function vPelCari(){
+  if(!pwReady())return '<div class="empty">Data PELWEN belum dimuat.</div>';
+  var q=(state.pwQ||'').trim().toLowerCase(),fu=state.pwFilUnit||'',fj=state.pwFilJenis||'';
+  var units=[]; PW.per_unit.forEach(function(u){units.push([u.kode,u.kode+' - '+u.nama]);}); PW.lintas.forEach(function(t){units.push([t.lamp,'Lintas: '+t.tema]);});
+  var h='<div class="card" style="margin-bottom:12px"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+    +'<input id="pwQ" class="fld" style="flex:1;min-width:220px;margin:0" placeholder="Cari kata kunci kewenangan, mis. hibah, piutang, lelang..." value="'+esc(state.pwQ||'')+'">'
+    +'<select id="pwFilUnit" class="flt"><option value="">Semua unit/tema</option>'+units.map(function(u){return '<option value="'+u[0]+'"'+(fu===u[0]?' selected':'')+'>'+esc(u[1])+'</option>';}).join('')+'</select>'
+    +'<select id="pwFilJenis" class="flt"><option value="">Semua jenis</option>'+PW_JENIS_ORDER.map(function(j){return '<option value="'+j+'"'+(fj===j?' selected':'')+'>'+j+'</option>';}).join('')+'</select>'
+    +'</div></div>';
+  var res=pwFlat().filter(function(x){
+    if(fu&&x.key!==fu)return false;
+    if(fj&&x.jenis!==fj)return false;
+    if(q&&x.materi.toLowerCase().indexOf(q)<0&&x.jab.toLowerCase().indexOf(q)<0)return false;
+    return true;});
+  if(!q&&!fu&&!fj){h+='<div class="mini" style="margin-bottom:8px">Menampilkan seluruh '+res.length+' butir. Ketik kata kunci atau pilih filter untuk mempersempit.</div>';}
+  else{h+='<div class="mini" style="margin-bottom:8px"><b>'+res.length+'</b> butir cocok.</div>';}
+  var LIM=200,shown=res.slice(0,LIM);
+  h+='<div class="card">';
+  if(!res.length)h+='<div class="empty">Tidak ada butir yang cocok.</div>';
+  shown.forEach(function(x){
+    var badge=x.scope==='unit'?x.unit:('Lintas '+x.lamp);
+    h+='<div style="padding:9px 0;border-bottom:1px solid var(--line)">'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill" style="background:#eef2f7;color:#334155;border:1px solid #cbd5e1;font-weight:700">'+esc(badge)+'</span>'+pwChip(x.jenis)
+      +'<span class="tag link" data-act="pwgoto" data-key="'+x.key+'" data-ji="'+x.ji+'" data-scope="'+x.scope+'" style="cursor:pointer;margin-left:auto">'+esc(x.jab)+' &rsaquo;</span></div>'
+      +'<div style="margin-top:5px">'+esc(x.materi)+'</div></div>';});
+  if(res.length>LIM)h+='<div class="mini" style="margin-top:8px">Menampilkan '+LIM+' dari '+res.length+' butir. Persempit dengan kata kunci atau filter.</div>';
+  h+='</div>';return h;}
+
+function vPelTentang(){
+  if(!pwReady())return '<div class="empty">Data PELWEN belum dimuat.</div>';
+  var m=PW.meta;
+  var h='<div class="card"><h2 style="margin:0 0 4px">'+esc(m.judul)+' (PELWEN)</h2>'
+    +'<div class="mini">'+esc(m.dasar_hukum)+'</div>'
+    +'<p style="margin:10px 0">'+esc(m.ringkas)+'</p>'
+    +'<div class="mini">Pedoman penetapan: '+esc(m.pedoman)+'.<br>Ditetapkan oleh: '+esc(m.penandatangan)+'.</div></div>';
+  h+='<h2 class="sec">Ketentuan Pokok</h2><div class="card"><ul style="margin:0;padding-left:18px">'
+    +m.ketentuan_pokok.map(function(x){return '<li style="margin:5px 0">'+esc(x)+'</li>';}).join('')+'</ul></div>';
+  h+='<h2 class="sec">Peraturan yang Dicabut ('+m.mencabut.length+')</h2><div class="card">'
+    +'<div class="mini" style="margin-bottom:8px">KMK 167/2025 mencabut dan menyatakan tidak berlaku peraturan berikut:</div>';
+  m.mencabut.forEach(function(x){h+='<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>'+esc(x.nomor)+'</b> &mdash; '+esc(x.judul)+'</div>';});
+  h+='</div>';return h;}
+
 function bindInputs(){const q=id=>document.getElementById(id);
   if(q('tkUE1Sel'))q('tkUE1Sel').onchange=e=>{state.tkUE1=e.target.value;render();};
   if(q('tkYearSel'))q('tkYearSel').onchange=e=>{state.tkYear=e.target.value;render();};
@@ -4000,6 +4175,9 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('avUE1'))q('avUE1').onchange=e=>{state.avUE1=e.target.value;render();};
   if(q('skStat'))q('skStat').onchange=e=>{state.skillStat=e.target.value;render();};if(q('insCat'))q('insCat').onchange=e=>{state.insCat=e.target.value;render();};
   if(q('urjabQ'))q('urjabQ').oninput=e=>{state.urjabQ=e.target.value;rerenderKeep(vUrjab,'urjabQ');};
+  if(q('pwQ'))q('pwQ').oninput=e=>{state.pwQ=e.target.value;rerenderKeep(vPelCari,'pwQ');};
+  if(q('pwFilUnit'))q('pwFilUnit').onchange=e=>{state.pwFilUnit=e.target.value;render();};
+  if(q('pwFilJenis'))q('pwFilJenis').onchange=e=>{state.pwFilJenis=e.target.value;render();};
   if(q('otkKaitUE1'))q('otkKaitUE1').onchange=e=>{state.otkKaitUE1=e.target.value;render();};
   if(q('shUE1'))q('shUE1').onchange=e=>{state.shUE1=e.target.value;render();};
   if(q('idxUE1'))q('idxUE1').onchange=e=>{state.idxUE1=e.target.value;render();};
@@ -4151,6 +4329,16 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if
   else if(a==='closeNav'){document.getElementById('sidebar').classList.remove('open');document.getElementById('backdrop').classList.remove('show');}
   else if(a==='timsort'){const k=el.dataset.k;state.timSort=state.timSort.k===k?{k,d:-state.timSort.d}:{k,d:1};render();}
   else if(a==='pegsort'){const k=el.dataset.k;state.pegSort=state.pegSort.k===k?{k,d:-state.pegSort.d}:{k,d:1};render();}
+  else if(a==='pwunit'){state.pwUnit=el.dataset.key;state.pwJab=null;state.view='pelunit';render();}
+  else if(a==='pwjab'){state.pwJab=+el.dataset.jab;render();window.scrollTo({top:0});}
+  else if(a==='pwunitback'){state.pwUnit=null;state.pwJab=null;render();}
+  else if(a==='pwjabback'){state.pwJab=null;render();window.scrollTo({top:0});}
+  else if(a==='pwtema'){state.pwTema=el.dataset.key;state.pwJab2=null;state.view='pellintas';render();}
+  else if(a==='pwjab2'){state.pwJab2=+el.dataset.jab;render();window.scrollTo({top:0});}
+  else if(a==='pwtemaback'){state.pwTema=null;state.pwJab2=null;render();}
+  else if(a==='pwjab2back'){state.pwJab2=null;render();window.scrollTo({top:0});}
+  else if(a==='pwgoto'){var sc=el.dataset.scope,k=el.dataset.key,ji=+el.dataset.ji;
+    if(sc==='unit'){state.pwUnit=k;state.pwJab=ji;state.view='pelunit';}else{state.pwTema=k;state.pwJab2=ji;state.view='pellintas';}render();window.scrollTo({top:0});}
   else if(a==='logout'){location.reload();}
 });
 function fmtTgl(s){if(!s)return'';const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return s;const b=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];return (+m[3])+' '+b[(+m[2])-1]+' '+m[1];}
@@ -4404,6 +4592,7 @@ async function doLogin(){
   try{await ensureJfRemote();}catch(e){}
   try{await ensureTkRemote();}catch(e){}
   try{await ensureMofinRemote();}catch(e){}
+  try{await ensurePwRemote();}catch(e){}
   done();errEl.textContent='';
   document.getElementById('whoName').textContent=prof.nama;document.getElementById('whoName').title=prof.nama;
   document.getElementById('whoSub').textContent=prof.sub;document.getElementById('whoSub').title=prof.sub;
