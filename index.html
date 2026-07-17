@@ -656,7 +656,7 @@ const MODULES=[
    {grp:'Jelajah',items:[{v:'struktur',lab:'Struktur Unit'},{v:'tim',lab:'Penjelajah Tim'},{v:'pegawai',lab:'Penjelajah Pegawai'},{v:'keahlian',lab:'Keahlian (Expert Locator)'},{v:'avail',lab:'Ketersediaan Pegawai'}]},
  ]},
  {id:'takelola',icn:'govern',lab:'Tata Kelola',groups:[
-   {grp:'Pelimpahan Wewenang',items:[{v:'pelwen',lab:'Beranda'},{v:'pelunit',lab:'Per Unit Eselon I'},{v:'pellintas',lab:'Lintas Unit'},{v:'pelcari',lab:'Cari Kewenangan'},{v:'pelinsight',lab:'Keterkaitan & Insight'},{v:'peltentang',lab:'Tentang'}]},
+   {grp:'Pelimpahan Wewenang',items:[{v:'pelwen',lab:'Beranda'},{v:'pelunit',lab:'Per Unit Eselon I'},{v:'pellintas',lab:'Lintas Unit'},{v:'pelcari',lab:'Cari Kewenangan'},{v:'pelanalisis',lab:'Analisis Delegasi'},{v:'pelinsight',lab:'Keterkaitan & Insight'},{v:'peltentang',lab:'Tentang'}]},
  ]},
  {id:'layanan',icn:'tk',lab:'Layanan Publik',groups:[
    {grp:'Ikhtisar',items:[{v:'tk',lab:'Beranda'}]},
@@ -740,7 +740,7 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   tk:'Beranda',tkintegritas:'Zona Integritas (WBK/WBBM)',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola',
   mofin:'Beranda MOFIN',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',
-  pelwen:'Beranda Pelimpahan Wewenang',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang'};
+  pelwen:'Beranda Pelimpahan Wewenang',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang'};
 
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
   const a=act?`data-act="${act.a}" ${act.d||''}`:'';
@@ -3754,7 +3754,7 @@ function render(){
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,
-    pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelinsight:vPelInsight,peltentang:vPelTentang};
+    pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang};
   document.getElementById('view').innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
@@ -4336,6 +4336,83 @@ function vPelInsight(){
     +'<div class="card"><h3 style="margin:0 0 4px">Konsentrasi mandat tertinggi</h3><div class="mini"><b>'+esc(top.kode)+'</b> memegang '+top.butir+' butir mandat atas '+top.n_proses+' proses bisnis (rasio '+top.rasio+'). Beban kewenangan Menteri yang didelegasikan ke unit ini paling padat relatif terhadap cakupan prosesnya.</div></div>'
     +(lowcov?'<div class="card"><h3 style="margin:0 0 4px">Kaitan proses terlemah</h3><div class="mini"><b>'+esc(lowcov.kode)+'</b> hanya '+lowcov.pct_terkait+'% butirnya berkaitan kata kunci dengan proses bisnis tercatat. Kandidat untuk penajaman pemetaan proses bisnis atau peninjauan relevansi mandat.</div></div>':'')
     +'</div>';
+  return h;}
+
+/* View: Analisis Delegasi Wewenang (diagnostik struktur delegasi) */
+const PW_SIFAT_COL={'Administratif':'#1467c0','Penetapan':'#7c3aed','Regulatif':'#e0413a'};
+const PW_SUB_COL={'Penandatanganan naskah dinas':'#1467c0','Persetujuan & rekomendasi':'#2f8467','Usulan & pelaporan':'#e8951a','Disposisi naskah dinas':'#64748b'};
+const PW_UORD=['Setjen','DJSEF','DJA','DJP','DJBC','DJPb','DJKN','DJPK','DJPPR','DJSPSK','Itjen','BTIIK','BPPK'];
+function pwStack(parts,total,colmap){
+  var t=total||parts.reduce(function(s,p){return s+p.v;},0)||1;
+  var seg=parts.filter(function(p){return p.v;}).map(function(p){
+    return '<div title="'+esc(p.k)+': '+p.v+'" style="width:'+(100*p.v/t)+'%;background:'+(colmap[p.k]||'#94a3b8')+'"></div>';}).join('');
+  return '<div style="display:flex;height:15px;border-radius:5px;overflow:hidden;border:1px solid var(--line)">'+seg+'</div>';}
+function vPelAnalisis(){
+  if(!pwReady())return '<div class="empty">Data Pelimpahan Wewenang belum dimuat.</div>';
+  if(!PW.analisis||!PW.sifat)return '<div class="empty">Data analisis belum tersedia. Muat ulang pelwen.json versi terbaru.</div>';
+  var A=PW.analisis,S=PW.sifat;
+  var BLUE='#1467c0',VIO='#7c3aed',TEAL='#2f8467',ORANGE='#e8951a';
+  var totB=(S.global.Administratif||0)+(S.global.Penetapan||0)+(S.global.Regulatif||0);
+  var formalN=A.formal.length, formalPct=Math.round(100*formalN/totB);
+  var card=function(lab,val,note,col){return '<div class="kpi" style="border-top:3px solid '+col+';background:'+col+'14"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';};
+  var h='<div class="note-box" style="margin-bottom:12px">Diagnostik struktur delegasi: seberapa terpusat mandat, sedalam apa diturunkan, dan sekuat apa sifatnya. <span class="mini">Sifat ditentukan produk hukum: KMK/PMK = Penetapan/Regulatif; selain itu Administratif.</span></div>';
+  h+='<div class="kpis">'
+    +card('Butir Kewenangan',fmt(totB),A.konsentrasi_kum.n_jabatan+' jabatan penerima (unit)',BLUE)
+    +card('Wewenang Formal',formalN,'menghasilkan KMK/PMK ('+formalPct+'%)',VIO)
+    +card('Konsentrasi',A.konsentrasi_kum.share_top8+'%','dipegang 8 jabatan teratas',ORANGE)
+    +card('Administratif',Math.round(100*(S.global.Administratif||0)/totB)+'%','sisanya penetapan & regulatif',TEAL)
+    +'</div>';
+
+  // 1. KONSENTRASI
+  h+='<h2 class="sec">1. Konsentrasi Kewenangan</h2><div class="card">';
+  h+='<div class="mini" style="margin-bottom:8px">8 jabatan teratas memegang <b>'+A.konsentrasi_kum.share_top8+'%</b> dari '+A.konsentrasi_kum.total+' butir (dari '+A.konsentrasi_kum.n_jabatan+' jabatan penerima). Titik konsentrasi = kandidat bottleneck keputusan.</div>';
+  var mx=A.konsentrasi[0].butir;
+  A.konsentrasi.slice(0,12).forEach(function(x){h+=bar(x.unit+' · '+x.jabatan,x.butir,mx,(x.butir>=40?'':(x.butir<6?'':'')),x.butir+' butir');});
+  h+='</div>';
+
+  // 2. KEDALAMAN DELEGASI
+  h+='<h2 class="sec">2. Kedalaman Delegasi</h2><div class="card">';
+  h+='<div class="mini" style="margin-bottom:10px">Porsi mandat yang ditahan di Dirjen (Eselon I) vs diturunkan ke Eselon II dan bawah/vertikal. Batang penuh di kiri gelap = sentralistik.</div>';
+  var dord=['Eselon I','Eselon II','Eselon III/IV','Vertikal/lain'];
+  var dcol={'Eselon I':'#123a6b','Eselon II':'#2f6fb0','Eselon III/IV':'#7aa7d4','Vertikal/lain':'#b9c4d4'};
+  var sentra=[],desentra=[];
+  PW_UORD.forEach(function(uk){var dd=A.depth[uk];if(!dd)return;
+    var t=dord.reduce(function(s,k){return s+(dd[k]||0);},0);if(!t)return;
+    var esi=Math.round(100*(dd['Eselon I']||0)/t);
+    if(esi>=80)sentra.push(uk); else if(esi<=55)desentra.push(uk);
+    h+='<div style="display:flex;align-items:center;gap:10px;margin:6px 0"><div style="flex:0 0 60px;font-weight:700;font-size:12px">'+uk+'</div>'
+      +'<div style="flex:1">'+pwStack(dord.map(function(k){return {k:k,v:dd[k]||0};}),t,dcol)+'</div>'
+      +'<div class="mini" style="flex:0 0 70px;text-align:right">Es I '+esi+'%</div></div>';});
+  h+='<div class="mini" style="margin-top:8px">'+dord.map(function(k){return '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+dcol[k]+';margin:0 3px 0 8px"></span>'+k;}).join('')+'</div>';
+  h+='<div class="note-box" style="margin-top:10px;background:#f0f6ff;color:#274a73"><b>Baca:</b> Sentralistik (wewenang ditahan di Dirjen): <b>'+(sentra.join(', ')||'-')+'</b>. Desentralistik (banyak diturunkan): <b>'+(desentra.join(', ')||'-')+'</b>.</div>';
+  h+='</div>';
+
+  // 3. PROFIL KARAKTER
+  h+='<h2 class="sec">3. Profil Karakter Wewenang</h2><div class="card">';
+  ['Administratif','Penetapan','Regulatif'].forEach(function(s){
+    h+=bar(s,S.global[s]||0,totB,'',(S.global[s]||0)+' ('+Math.round(100*(S.global[s]||0)/totB)+'%)');});
+  h+='<div class="mini" style="margin:10px 0 4px;font-weight:700;color:var(--muted)">Tekstur Administratif</div>';
+  var subs=S.subgrup_administratif||Object.keys(S.global_sub||{});
+  var mxs=Math.max.apply(null,subs.map(function(k){return (S.global_sub||{})[k]||0;}));
+  subs.forEach(function(k){h+=bar(k,(S.global_sub||{})[k]||0,mxs,'',(S.global_sub||{})[k]||0);});
+  h+='</div>';
+  h+='<div class="note-box" style="margin-top:10px;background:#f6f2fd;color:#4c2f7a"><b>Insight:</b> Mandat yang dilimpahkan didominasi tindakan <b>administratif</b> ('+Math.round(100*(S.global.Administratif||0)/totB)+'%). Wewenang "berat" yang menghasilkan <b>KMK/PMK hanya '+formalN+' butir ('+formalPct+'%)</b>, terpusat di Setjen dan DJP. Artinya sebagian besar yang dilimpahkan adalah eksekusi administratif, bukan pembentukan keputusan/norma.</div>';
+
+  // Tabel wewenang formal (KMK/PMK)
+  h+='<h2 class="sec">Wewenang Formal (menghasilkan KMK/PMK)</h2><div class="card"><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr style="text-align:left;border-bottom:2px solid var(--line)"><th style="padding:6px 8px">Unit</th><th style="padding:6px 8px">Sifat</th><th style="padding:6px 8px">Jabatan</th><th style="padding:6px 8px">Materi</th></tr></thead><tbody>';
+  A.formal.forEach(function(f){var c=PW_SIFAT_COL[f.sifat];
+    h+='<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px 8px;font-weight:700">'+esc(f.unit==='Lintas'?('Lintas '+f.lamp):f.unit)+'</td>'
+      +'<td style="padding:6px 8px"><span class="pill" style="background:'+c+'1a;color:'+c+';border:1px solid '+c+'55">'+esc(f.sifat)+'</span></td>'
+      +'<td style="padding:6px 8px">'+esc(f.jabatan.length>34?f.jabatan.slice(0,34)+'…':f.jabatan)+'</td>'
+      +'<td style="padding:6px 8px">'+esc(f.materi.length>90?f.materi.slice(0,90)+'…':f.materi)+'</td></tr>';});
+  h+='</tbody></table></div></div>';
+
+  // 4. BEBAN PENANDATANGANAN
+  h+='<h2 class="sec">4. Beban Penandatanganan</h2><div class="card">';
+  h+='<div class="mini" style="margin-bottom:8px">Jabatan dengan beban tanda tangan naskah dinas terbanyak, kandidat untuk pelimpahan lanjutan / penyederhanaan.</div>';
+  var mxb=A.beban_ttd.length?A.beban_ttd[0].n:1;
+  A.beban_ttd.slice(0,10).forEach(function(x){h+=bar(x.unit+' · '+x.jabatan,x.n,mxb,'',x.n+' butir');});
+  h+='</div>';
   return h;}
 
 function bindInputs(){const q=id=>document.getElementById(id);
