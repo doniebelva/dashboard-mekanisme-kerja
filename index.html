@@ -4258,24 +4258,46 @@ function pwRefRow(r){
     +'<div style="flex:1"><span class="tag link" data-act="pwgoto" data-key="'+r.key+'" data-ji="'+r.ji+'" data-scope="'+r.scope+'" style="cursor:pointer">'+esc(r.jabatan)+' &rsaquo;</span></div>'
     +'<div style="text-align:right"><span style="font-weight:800;color:var(--brand-d)">'+r.jml_butir+'</span> <span class="mini">butir</span></div></div>';}
 /* panel untuk modul Struktur (detail unit OTK) */
+/* seksi mandat LINTAS UNIT (kolektif) yang berlaku utk jabatan/unit ini (tidak dihitung ke total unit) */
+function pwLintasForUrjab(idx){return ((PW.link&&PW.link.lintas_by_urjab)||{})[String(idx)]||[];}
+function pwLintasForOtk(id){return ((PW.link&&PW.link.lintas_by_otkid)||{})[String(id)]||[];}
+function pwLintasSection(list){
+  if(!list||!list.length)return '';
+  var tot=list.reduce(function(s,e){return s+e.jml_butir;},0);
+  var h='<div class="card" style="margin-bottom:12px;border-left:3px solid #e8951a"><h2 class="sec" style="margin-top:0">Mandat Lintas Unit yang Berlaku <span class="mini" style="font-weight:500;text-transform:none;letter-spacing:0">(kolektif, tidak dihitung ke total unit)</span></h2>'
+    +'<div class="mini" style="margin-bottom:8px">Jabatan ini termasuk penerima kolektif mandat lintas unit (Lampiran XIV&ndash;XIX KMK 167/2025), total <b>'+tot+' butir</b>. Klik untuk rincian.</div>';
+  list.forEach(function(e){
+    var tema=(PW.detail[e.key]&&PW.detail[e.key].nama)||('Lampiran '+e.lamp);
+    h+='<div style="padding:7px 0;border-bottom:1px solid var(--line)">'
+      +'<div style="display:flex;align-items:center;gap:8px"><span class="tag link" data-act="pwgoto" data-key="'+e.key+'" data-ji="'+e.ji+'" data-scope="lintas" style="cursor:pointer;flex:1">Lampiran '+e.lamp+' &mdash; '+esc(tema)+' &rsaquo;</span>'
+      +'<span style="font-weight:800;color:var(--brand-d)">'+e.jml_butir+'</span> <span class="mini">butir</span></div>'
+      +'<div class="mini" style="color:var(--muted)">berlaku kolektif untuk: '+esc(e.recipient.length>72?e.recipient.slice(0,72)+'…':e.recipient)+'</div></div>';});
+  h+='</div>';return h;}
+/* panel untuk modul Struktur (detail unit OTK) */
 function pwPanelOtk(node){
   if(!pwLinkReady()||(typeof canMod==='function'&&!canMod('takelola')))return '';
-  var info=pwForOtk(node);
-  if(!info.list.length)return '';
-  var h='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Pelimpahan Wewenang</h2>'
-    +'<div class="mini" style="margin-bottom:8px">Unit ini beserta unit di bawahnya memegang <b>'+info.butir+' butir</b> mandat Menteri Keuangan (KMK 167/2025), tersebar pada '+info.list.length+' jabatan. Klik jabatan untuk rincian.</div>';
-  info.list.forEach(function(r){h+=pwRefRow(r);});
-  h+='</div>';return h;}
+  var info=pwForOtk(node), h='';
+  if(info.list.length){
+    h+='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Pelimpahan Wewenang</h2>'
+      +'<div class="mini" style="margin-bottom:8px">Unit ini beserta unit di bawahnya memegang <b>'+info.butir+' butir</b> mandat Menteri Keuangan (KMK 167/2025), tersebar pada '+info.list.length+' jabatan. Klik jabatan untuk rincian.</div>';
+    info.list.forEach(function(r){h+=pwRefRow(r);});
+    h+='</div>';
+  }
+  h+=pwLintasSection(pwLintasForOtk(node.id));
+  return h;}
 /* panel untuk modul Repositori Jabatan (detail uraian jabatan URJAB) */
 function pwPanelUrjab(j){
   if(!pwLinkReady()||(typeof canMod==='function'&&!canMod('takelola')))return '';
-  var refs=pwForUrjab(j.unit_kode,j.jabatan);
-  if(!refs.length)return '';
-  var r=refs[0], tot=refs.reduce(function(s,x){return s+x.jml_butir;},0);
-  var h='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Pelimpahan Wewenang</h2>'
-    +'<div class="mini" style="margin-bottom:8px">Jabatan ini menerima <b>'+tot+' butir</b> mandat Menteri Keuangan dalam KMK 167/2025.</div>';
-  refs.forEach(function(x){h+=pwRefRow(x);});
-  h+='</div>';return h;}
+  var refs=pwForUrjab(j.unit_kode,j.jabatan), h='';
+  if(refs.length){
+    var tot=refs.reduce(function(s,x){return s+x.jml_butir;},0);
+    h+='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Pelimpahan Wewenang</h2>'
+      +'<div class="mini" style="margin-bottom:8px">Jabatan ini menerima <b>'+tot+' butir</b> mandat Menteri Keuangan dalam KMK 167/2025.</div>';
+    refs.forEach(function(x){h+=pwRefRow(x);});
+    h+='</div>';
+  }
+  h+=pwLintasSection(pwLintasForUrjab(state.urjabJab));
+  return h;}
 /* panel Keterkaitan di detail jabatan PELWEN: tautan ke Struktur, Uraian Jabatan, dan Probis */
 function pwKeterkaitan(key,ji){
   if(!pwLinkReady())return '';
