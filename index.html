@@ -212,6 +212,32 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 .kpis .kpi:nth-child(4){animation-delay:.12s}
 .kpis .kpi:nth-child(5){animation-delay:.16s}
 
+/* ---- Kartu Profil Eselon I ----
+   JANGAN pakai .bento di sini. .bento memakai kolom berbasis isi, dan utk 14 kartu dia
+   menghasilkan 12 kolom selebar ~104-139px: nama unit pecah 5 baris & 5 kartu terpotong
+   keluar layar (terukur limpahan 554px). Grid ini pakai auto-fill+minmax sehingga jumlah
+   kolom menyesuaikan lebar layar dan lebar tiap kartu SELALU sama. */
+/* min(232px,100%) - BUKAN 232px saja: kalau ruang yang tersedia lebih sempit dari 232px,
+   nilai tetap memaksa kolom selebar itu dan kartunya melimpah keluar. Dgn min() kolom
+   ikut menyusut, jadi limpahan mendatar mustahil terjadi di lebar berapa pun. */
+.profgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(232px,100%),1fr));gap:var(--sp-7)}
+.profcard{display:flex;flex-direction:column;cursor:pointer;padding:var(--sp-8);
+  border:1px solid var(--line);border-radius:var(--r);background:var(--surface);
+  box-shadow:var(--sh-sm);transition:box-shadow var(--t-med) ease,transform var(--t-med) ease,border-color var(--t-med) ease}
+.profcard:hover{box-shadow:var(--sh-md);transform:translateY(-2px);border-color:var(--brand)}
+.profcard .pkode{align-self:flex-start;font-size:var(--fs-micro);font-weight:800;letter-spacing:.6px;
+  color:#fff;background:var(--brand);padding:3px var(--sp-5);border-radius:var(--rad-pill)}
+.profcard .pnama{font-family:var(--font-display);font-weight:700;font-size:var(--fs-md);
+  line-height:1.35;margin:var(--sp-6) 0 var(--sp-5);color:var(--ink)}
+/* margin-top:auto -> blok modul selalu menempel ke dasar, jadi tinggi kartu terlihat rata */
+.profcard .pmods{margin-top:auto;display:flex;flex-wrap:wrap;gap:4px}
+.pchip{font-size:var(--fs-micro);font-weight:600;padding:2px var(--sp-4);border-radius:var(--rad-pill);
+  border:1px solid var(--line);color:var(--muted);background:var(--surface-2)}
+.pchip.on{border-color:transparent;background:var(--brand-l);color:var(--brand-d)}
+.pbar{height:4px;border-radius:2px;background:var(--track);margin-top:var(--sp-5);overflow:hidden}
+.pbar>i{display:block;height:100%;background:var(--brand);border-radius:2px}
+.profcard .pnote{font-size:var(--fs-micro);color:var(--muted);margin-top:var(--sp-4)}
+
 /* Angka tabular. Font proporsional bikin "1" lebih sempit dari "8", jadi kolom angka di tabel tidak
    lurus secara optis & nilai yg berubah terlihat bergeser. tabular-nums menyamakan lebar tiap digit.
    Hanya berlaku pd digit, jadi aman dipasang di teks campuran spt label sumbu grafik. */
@@ -4701,20 +4727,27 @@ function _zonaEu1(v){                        /* PMK 175/238: zona wajar EU-1 0,7
 function vProfil(){
   const U=_petaUnit();
   if(!U.length)return '<div class="empty">Peta unit belum tersedia. Jalankan <b>peta_unit.py</b> lalu build ulang.</div>';
-  let h='<div class="card"><h3>Profil Eselon I</h3><p class="sub">Satu halaman per unit yang menyatukan struktur, beban kerja, kapabilitas, mandat, dan layanan publik. '+
-        'Titik yang kosong berarti modul itu belum punya data untuk unit tersebut, bukan nilainya nol.</p></div>';
-  h+='<div class="bento">';
+  const MOD=['abk','mofin','pelwen','tkpp'];
+  const lengkap=U.filter(function(u){return (u.ada||[]).length===MOD.length;}).length;
+  let h='<div class="kpis">'+
+    kpiBox('Unit Eselon I',U.length,'termasuk LNSW yang berdiri sendiri','')+
+    kpiBox('Data lengkap',lengkap+' / '+U.length,'terisi di keempat modul',lengkap>=U.length*0.6?'good':'')+
+    kpiBox('Perlu dilengkapi',U.length-lengkap,'ada modul yang belum mengukur',(U.length-lengkap)?'gold':'good')+
+    '</div>';
+  h+='<div class="card"><h3>Profil Eselon I</h3><p class="sub">Satu halaman per unit yang menyatukan struktur, beban kerja, kapabilitas, mandat, dan layanan publik. '+
+     'Chip yang redup berarti modul itu belum punya data untuk unit tersebut, bukan nilainya nol.</p></div>';
+  h+='<div class="profgrid">';
   U.forEach(function(u){
     const s=u.sumber||{}, ada=u.ada||[];
-    const kode=(s.abk||s.mofin||s.pelwen||{}).kode||'';
-    h+='<div class="card" data-act="profpick" data-k="'+esc(u.kunci)+'" style="cursor:pointer">'+
-       '<div class="mini" style="font-weight:700;color:var(--brand)">'+esc(String(kode).toUpperCase())+'</div>'+
-       '<div style="font-weight:700;margin:4px 0 8px">'+esc(u.nama)+'</div>'+
-       '<div class="mini">'+['abk','mofin','pelwen','tkpp'].map(function(k){
-          const on=ada.indexOf(k)>=0;
-          return '<span style="display:inline-block;margin-right:6px;opacity:'+(on?1:.35)+'">'+
-                 (on?'&#9679;':'&#9675;')+' '+k.toUpperCase()+'</span>';}).join('')+'</div>'+
-       (ada.length<4?'<div class="mini" style="margin-top:6px;color:var(--muted)">'+(4-ada.length)+' modul belum berdata</div>':'')+
+    const kode=(s.abk||s.mofin||s.pelwen||s.tkpp||{}).kode||'-';
+    const n=ada.length, pct=Math.round(n/MOD.length*100);
+    h+='<div class="profcard" data-act="profpick" data-k="'+esc(u.kunci)+'" title="'+esc(u.nama)+'">'+
+       '<span class="pkode">'+esc(String(kode).toUpperCase())+'</span>'+
+       '<div class="pnama">'+esc(u.nama)+'</div>'+
+       '<div class="pmods">'+MOD.map(function(k){
+          return '<span class="pchip'+(ada.indexOf(k)>=0?' on':'')+'">'+k.toUpperCase()+'</span>';}).join('')+'</div>'+
+       '<div class="pbar"><i style="width:'+pct+'%"></i></div>'+
+       '<div class="pnote">'+(n===MOD.length?'Data lengkap':(MOD.length-n)+' modul belum berdata')+'</div>'+
        '</div>';
   });
   h+='</div>';
