@@ -113,11 +113,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 *::-webkit-scrollbar-track{background:transparent}
 @keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 @keyframes popin{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
-@keyframes fadein{from{opacity:0}to{opacity:1}}
 @keyframes shimmer{from{background-position:-460px 0}to{background-position:460px 0}}
-/* dipasang ulang tiap render() supaya perpindahan menu mengalir, bukan menghentak.
-   Semua animasi otomatis mati lewat @media(prefers-reduced-motion:reduce) di bagian bawah. */
-.viewin{animation:fadein .14s ease both}
+/* JANGAN menaruh animasi opacity di #view (wadah SELURUH isi aplikasi).
+   Pernah dicoba 20 Jul 2026 (.viewin{animation:fadein .14s both}) dan HARUS DICABUT: dgn fill-mode
+   both + from{opacity:0}, kalau animasi tak bisa maju (tab di latar, animasi dibatasi browser,
+   render beruntun yg saling mereset) hasilnya BUKAN efek kurang halus tapi HALAMAN KOSONG total.
+   Perpindahan view sudah cukup dihaluskan oleh 'rise' di .card & .kpi yg lingkupnya per komponen. */
 
 /* ============================ 3. KERANGKA =============================== */
 .app{display:flex;min-height:100vh}
@@ -4171,10 +4172,6 @@ function render(){
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   viewEl.innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
-  // Animasi masuk view: HANYA opacity. Transform sengaja tidak dipakai krn .card & .kpi sudah punya
-  // 'rise' (translateY) sendiri; dua transform bertumpuk bikin gerakan terasa dobel & lambat.
-  // Kelas dilepas lalu dipasang lagi (dgn reflow paksa) supaya animasi mulai ulang tiap render.
-  viewEl.classList.remove('viewin');void viewEl.offsetWidth;viewEl.classList.add('viewin');
   vtipPrepare(viewEl);vtipHide();
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
