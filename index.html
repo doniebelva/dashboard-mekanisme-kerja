@@ -156,6 +156,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 
 .appfoot{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--side);border-top:1px solid var(--line);padding:9px 22px;
   display:flex;justify-content:space-between;align-items:center;font-size:var(--fs-sm);color:var(--muted);gap:var(--sp-4);box-shadow:0 -2px 8px rgba(13,60,120,.06)}
+/* Footer melayang ini murni teks (tidak ada tautan), jadi TIDAK BOLEH memakan klik.
+   Tanpa ini, apa pun yg kebetulan berada di 35px terbawah layar jadi tak bisa diklik. */
+.appfoot{pointer-events:none}
+.appfoot a{pointer-events:auto}
 .appfoot b{color:var(--brand-d)}
 .appfoot .r{color:var(--ink-grp)}
 .foot{font-size:var(--fs-mini);color:var(--muted);margin-top:26px;line-height:1.6}
@@ -523,7 +527,10 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
        header sticky (th{position:sticky;top:0}) benar-benar bekerja. Tanpa batas tinggi,
        overflow-x:auto memaksa overflow-y jadi auto -> wadah jadi scroll-container yang
        tidak pernah scroll -> sticky mati. Tabel pendek tak menyentuh batas ini. ---- */
-.tblw{overflow:auto;max-height:72vh}
+/* -48px = tinggi .appfoot yg melayang (fixed) + sedikit napas. Tanpa ini, tepi bawah tabel
+   panjang berhenti TEPAT di bawah footer sehingga baris terakhir terkubur & tak bisa diklik
+   (ditemukan smoke test 20 Jul 2026: baris di y 735-796 sedangkan footer mulai y 755). */
+.tblw{overflow:auto;max-height:calc(72vh - 48px)}
 .tblw table{width:100%}
 /* sortir generik: tiap th bisa diklik kecuali yang sudah punya handler modul (th.srt) */
 .tblw th{cursor:pointer;user-select:none;white-space:nowrap}
@@ -683,6 +690,521 @@ function ensureKatalog(){if(KATALOG||state.katLoading)return;state.katLoading=tr
 let OTK=null;let BAGAN=null;let OTKVERT=null;let OTKBLU=null;let BLUXREF=null;let XREF=null;let OVERLAP=null;let REDUN=null;let SCOPE={type:'all'};
 let JF=null;   /* Jabatan Fungsional Keuangan Negara (publik). LOKAL inline; REMOTE null -> muat via gerbang saat login; INTERNAL dari data/jafung.json */
 let MOFIN=null;   /* MOFIN (Kapabilitas Kelembagaan). LOKAL inline; REMOTE null -> gerbang api('mofin') */
+const PETA={
+ "meta": {
+  "catatan": "Irisan terendah semua dataset = Eselon I. Disambung lewat NAMA resmi unit.",
+  "sumber": [
+   "abk",
+   "mofin",
+   "pelwen",
+   "tkpp"
+  ],
+  "jml_unit": 14,
+  "lengkap": 9
+ },
+ "unit": [
+  {
+   "nama": "Badan Pendidikan dan Pelatihan Keuangan",
+   "otk_id": 13,
+   "sumber": {
+    "abk": {
+     "kode": "bppk",
+     "total": {
+      "beban": 1950327.8,
+      "beban_tusi": 1664758.2,
+      "butuh": 1308,
+      "ada": 1269,
+      "selisih": -39,
+      "eu1": 1.041,
+      "eu2": 85.4
+     },
+     "jml_unit": 13
+    },
+    "mofin": {
+     "kode": "BPPK",
+     "skor_total": 86
+    },
+    "pelwen": {
+     "kode": "BPPK",
+     "jml_jabatan": 3,
+     "jml_butir": 5
+    },
+    "tkpp": {
+     "kode": "BPPK"
+    }
+   },
+   "kunci": "badan pendidikan pelatihan keuangan",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen",
+    "tkpp"
+   ],
+   "lengkap": true
+  },
+  {
+   "nama": "Direktorat Jenderal Anggaran",
+   "otk_id": 3,
+   "sumber": {
+    "abk": {
+     "kode": "dja",
+     "total": {
+      "beban": 1376999.3,
+      "beban_tusi": 1194103.3,
+      "butuh": 888,
+      "ada": 836,
+      "selisih": -52,
+      "eu1": 1.116,
+      "eu2": 86.7
+     },
+     "jml_unit": 10
+    },
+    "mofin": {
+     "kode": "DJA",
+     "skor_total": 81
+    },
+    "pelwen": {
+     "kode": "DJA",
+     "jml_jabatan": 2,
+     "jml_butir": 20
+    },
+    "tkpp": {
+     "kode": "DJA"
+    }
+   },
+   "kunci": "direktorat jenderal anggaran",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen",
+    "tkpp"
+   ],
+   "lengkap": true
+  },
+  {
+   "nama": "Direktorat Jenderal Bea dan Cukai",
+   "otk_id": 5,
+   "sumber": {
+    "abk": {
+     "kode": "djbc",
+     "total": {
+      "beban": 25198462.0,
+      "beban_tusi": 21969889.6,
+      "butuh": 17076,
+      "ada": 15955,
+      "selisih": -1121,
+      "eu1": 1.07,
+      "eu2": 87.2
+     },
+     "jml_unit": 39
+    },
+    "mofin": {
+     "kode": "DJBC",
+     "skor_total": 90
+    },
+    "pelwen": {
+     "kode": "DJBC",
+     "jml_jabatan": 2,
+     "jml_butir": 17
+    },
+    "tkpp": {
+     "kode": "DJBC"
+    }
+   },
+   "kunci": "direktorat jenderal bea cukai",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen",
+    "tkpp"
+   ],
+   "lengkap": true
+  },
+  {
+   "nama": "Direktorat Jenderal Kekayaan Negara",
+   "otk_id": 7,
+   "sumber": {
+    "abk": {
+     "kode": "djkn",
+     "total": {
+      "beban": 5616337.4,
+      "beban_tusi": 5352434.0,
+      "butuh": 3973,
+      "ada": 3854,
+      "selisih": -119,
+      "eu1": 0.987,
+      "eu2": 95.3
+     },
+     "jml_unit": 29
+    },
+    "mofin": {
+     "kode": "DJKN",
+     "skor_total": 89
+    },
+    "pelwen": {
+     "kode": "DJKN",
+     "jml_jabatan": 9,
+     "jml_butir": 103
+    },
+    "tkpp": {
+     "kode": "DJKN"
+    }
+   },
+   "kunci": "direktorat jenderal kekayaan negara",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen",
+    "tkpp"
+   ],
+   "lengkap": true
+  },
+  {
+   "nama": "Direktorat Jenderal Pajak",
+   "otk_id": 4,
+   "sumber": {
+    "abk": {
+     "kode": "djp",
+     "total": {
+      "beban": 67527707.7,
+      "beban_tusi": 62669666.8,
+      "butuh": 45850,
+      "ada": 44371,
+      "selisih": -1479,
+      "eu1": 1.031,
+      "eu2": 92.8
+     },
+     "jml_unit": 54
+    },
+    "mofin": {
+     "kode": "DJP",
+     "skor_total": 85
+    },
+    "pelwen": {
+     "kode": "DJP",
+     "jml_jabatan": 1,
+     "jml_butir": 16
+    },
+    "tkpp": {
+     "kode": "DJP"
+    }
+   },
+   "kunci": "direktorat jenderal pajak",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen",
+    "tkpp"
+   ],
+   "lengkap": true
+  },
+  {
+   "nama": "Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko",
+   "otk_id": 9,
+   "sumber": {
+    "abk": {
+     "kode": "djppr",
+     "total": {
+      "beban": 876220.5,
+      "beban_tusi": 810646.4,
+      "butuh": 568,
+      "ada": 505,
+      "selisih": -63,
+      "eu1": 1.176,
+      "eu2": 92.5
+     },
+     "jml_unit": 9
+    },
+    "mofin": {
+     "kode": "DJPPR",
+     "skor_total": 83
+    },
+    "pelwen": {
+     "kode": "DJPPR",
+     "jml_jabatan": 3,
+     "jml_butir": 42
+    },
+    "tkpp": {
+     "kode": "DJPPR"
+    }
+   },
+   "kunci": "direktorat jenderal pengelolaan pembiayaan risiko",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen",
+    "tkpp"
+   ],
+   "lengkap": true
+  },
+  {
+   "nama": "Direktorat Jenderal Perbendaharaan",
+   "otk_id": 6,
+   "sumber": {
+    "abk": {
+     "kode": "djpb",
+     "total": {
+      "beban": 10502789.2,
+      "beban_tusi": 9742459.0,
+      "butuh": 6898,
+      "ada": 6639,
+      "selisih": -259,
+      "eu1": 1.072,
+      "eu2": 92.8
+     },
+     "jml_unit": 46
+    },
+    "mofin": {
+     "kode": "DJPB",
+     "skor_total": 92
+    },
+    "pelwen": {
+     "kode": "DJPb",
+     "jml_jabatan": 2,
+     "jml_butir": 33
+    },
+    "tkpp": {
+     "kode": "DJPb"
+    }
+   },
+   "kunci": "direktorat jenderal perbendaharaan",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen",
+    "tkpp"
+   ],
+   "lengkap": true
+  },
+  {
+   "nama": "Direktorat Jenderal Perimbangan Keuangan",
+   "otk_id": 8,
+   "sumber": {
+    "abk": {
+     "kode": "djpk",
+     "total": {
+      "beban": 919746.6,
+      "beban_tusi": 879121.6,
+      "butuh": 617,
+      "ada": 528,
+      "selisih": -89,
+      "eu1": 1.18,
+      "eu2": 95.6
+     },
+     "jml_unit": 9
+    },
+    "mofin": {
+     "kode": "DJPK",
+     "skor_total": 87
+    },
+    "pelwen": {
+     "kode": "DJPK",
+     "jml_jabatan": 3,
+     "jml_butir": 15
+    },
+    "tkpp": {
+     "kode": "DJPK"
+    }
+   },
+   "kunci": "direktorat jenderal perimbangan keuangan",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen",
+    "tkpp"
+   ],
+   "lengkap": true
+  },
+  {
+   "nama": "Sekretariat Jenderal",
+   "otk_id": 1,
+   "sumber": {
+    "abk": {
+     "kode": "setjen",
+     "total": {
+      "beban": 3945406.6,
+      "beban_tusi": 3625753.0,
+      "butuh": 2652,
+      "ada": 2604,
+      "selisih": -48,
+      "eu1": 1.027,
+      "eu2": 91.9
+     },
+     "jml_unit": 16
+    },
+    "mofin": {
+     "kode": "Setjen",
+     "skor_total": 83
+    },
+    "pelwen": {
+     "kode": "Setjen",
+     "jml_jabatan": 8,
+     "jml_butir": 111
+    },
+    "tkpp": {
+     "kode": "Setjen"
+    }
+   },
+   "kunci": "sekretariat jenderal",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen",
+    "tkpp"
+   ],
+   "lengkap": true
+  },
+  {
+   "nama": "Direktorat Jenderal Strategi Ekonomi dan Fiskal",
+   "otk_id": 2,
+   "sumber": {
+    "abk": {
+     "kode": "djsef",
+     "total": {
+      "beban": 868295.6,
+      "beban_tusi": 817499.2,
+      "butuh": 582,
+      "ada": 479,
+      "selisih": -103,
+      "eu1": 1.228,
+      "eu2": 94.1
+     },
+     "jml_unit": 7
+    },
+    "mofin": {
+     "kode": "DJSEF",
+     "skor_total": 79
+    },
+    "pelwen": {
+     "kode": "DJSEF",
+     "jml_jabatan": 8,
+     "jml_butir": 12
+    }
+   },
+   "kunci": "direktorat jenderal strategi ekonomi fiskal",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen"
+   ],
+   "lengkap": false
+  },
+  {
+   "nama": "Inspektorat Jenderal",
+   "otk_id": 11,
+   "sumber": {
+    "abk": {
+     "kode": "itjen",
+     "total": {
+      "beban": 1184901.4,
+      "beban_tusi": 1055265.1,
+      "butuh": 807,
+      "ada": 677,
+      "selisih": -130,
+      "eu1": 1.186,
+      "eu2": 89.1
+     },
+     "jml_unit": 9
+    },
+    "mofin": {
+     "kode": "ITJEN",
+     "skor_total": 85
+    },
+    "pelwen": {
+     "kode": "Itjen",
+     "jml_jabatan": 1,
+     "jml_butir": 1
+    }
+   },
+   "kunci": "inspektorat jenderal",
+   "ada": [
+    "abk",
+    "mofin",
+    "pelwen"
+   ],
+   "lengkap": false
+  },
+  {
+   "nama": "Badan Teknologi, Informasi, dan Intelijen Keuangan",
+   "otk_id": 12,
+   "sumber": {
+    "abk": {
+     "kode": "batii",
+     "total": {
+      "beban": 425275.9,
+      "beban_tusi": 400907.4,
+      "butuh": 286,
+      "ada": 252,
+      "selisih": -34,
+      "eu1": 1.143,
+      "eu2": 94.3
+     },
+     "jml_unit": 4
+    },
+    "pelwen": {
+     "kode": "BTIIK",
+     "jml_jabatan": 1,
+     "jml_butir": 4
+    }
+   },
+   "kunci": "badan teknologi informasi intelijen keuangan",
+   "ada": [
+    "abk",
+    "pelwen"
+   ],
+   "lengkap": false
+  },
+  {
+   "nama": "Direktorat Jenderal Stabilitas dan Pengembangan Sektor Keuangan",
+   "otk_id": 10,
+   "sumber": {
+    "abk": {
+     "kode": "djspsk",
+     "total": {
+      "beban": 254917.9,
+      "beban_tusi": 234064.4,
+      "butuh": 173,
+      "ada": 167,
+      "selisih": -6,
+      "eu1": 1.034,
+      "eu2": 91.8
+     },
+     "jml_unit": 1
+    },
+    "pelwen": {
+     "kode": "DJSPSK",
+     "jml_jabatan": 6,
+     "jml_butir": 8
+    }
+   },
+   "kunci": "direktorat jenderal stabilitas pengembangan sektor keuangan",
+   "ada": [
+    "abk",
+    "pelwen"
+   ],
+   "lengkap": false
+  },
+  {
+   "nama": "Lembaga National Single Window",
+   "otk_id": null,
+   "sumber": {
+    "mofin": {
+     "kode": "LNSW",
+     "skor_total": 84
+    },
+    "tkpp": {
+     "kode": "LNSW"
+    }
+   },
+   "kunci": "lembaga national single window",
+   "ada": [
+    "mofin",
+    "tkpp"
+   ],
+   "lengkap": false
+  }
+ ]
+};  /* peta unit Eselon I lintas modul; ditanam di semua build */
 let TK=null;   /* Tata Kelola (TKPP, publik). LOKAL inline; REMOTE null -> muat via gerbang saat login; INTERNAL dari data/tkpp.json */
 /* ===== Proses Bisnis: embed mulus (sidebar Probis disembunyikan, menu kita yang mengendalikan) ===== */
 const PBV='1717813';
@@ -899,10 +1421,12 @@ function curMod(){return VIEW2MOD[state.view]||'beranda';}
 /* fitur akses: FEATURES = 'all' atau array view-id yang diizinkan */
 function featOK(v){return FEATURES==='all'||(Array.isArray(FEATURES)&&FEATURES.indexOf(v)>=0);}
 function canMod(mid){if(mid==='beranda')return true;const m=MODULES.find(x=>x.id===mid);return !!(m&&m.groups.some(g=>g.items.some(it=>featOK(it.v))));}
-function canView(v){if(v==='beranda')return true;if(v==='usermgmt')return ADMIN;if(featOK(v))return true;const m=VIEW2MOD[v];if(m&&m!==v)return canMod(m);return false;}
+function canView(v){if(v==='beranda')return true;if(v==='usermgmt'||v==='statistik')return ADMIN;
+  if(v==='profil'||v==='profilunit')return true;if(featOK(v))return true;const m=VIEW2MOD[v];if(m&&m!==v)return canMod(m);return false;}
 function firstView(mid){if(mid==='beranda')return'beranda';const m=MODULES.find(x=>x.id===mid);if(m)for(const g of m.groups)for(const it of g.items)if(featOK(it.v))return it.v;return'beranda';}
 let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlTab:'ue1',pwUnit:null,pwJab:null,pwTema:null,pwJab2:null,pwQ:'',pwFilUnit:'',pwFilJenis:'',view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   timSort:{k:'skor',d:-1},pegSort:{k:'jml_tim',d:-1},timQ:'',timUE1:'',timStat:'',timAktif:'',pegQ:'',pegUE1:'',avQ:'',avUE1:'',avStat:'',skill:null,skillStat:'',insCat:'',
+  profUnit:null,
   urjabQ:'',urjabEs1:'',urjabEs2:'',urjabEs3:'',urjabEs4:'',urjabJab:null,urjabLoading:false,urjabErr:false,
   urjabAnUE1:'',urjabInsSev:'',urjabInsCat:'',urjabCmpA:'',urjabCmpB:'',urjabCmpUE1A:'',urjabCmpUE1B:'',otkCmpA:'',otkCmpB:'',otkCmpUE1A:'',otkCmpUE1B:'',
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
@@ -944,13 +1468,15 @@ function renderNav(){
   if(DATAMODE!=='files'){
     h+='<div class="navtree" style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px">';
     h+=`<div class="nvit" style="padding-left:12px" data-act="changepw">Ganti Password</div>`;
+    h+=`<div class="nvit ${(state.view==='profil'||state.view==='profilunit')?'on':''}" style="padding-left:12px" data-act="nav" data-view="profil">Profil Eselon I</div>`;
     if(ADMIN)h+=`<div class="nvit ${state.view==='usermgmt'?'on':''}" style="padding-left:12px" data-act="nav" data-view="usermgmt">Manajemen User</div>`;
+    if(ADMIN)h+=`<div class="nvit ${state.view==='statistik'?'on':''}" style="padding-left:12px" data-act="nav" data-view="statistik">Statistik Pemanfaatan</div>`;
     h+='</div>';
   }
   document.getElementById('nav').innerHTML=h;}
 const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
   struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
-  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I',
+  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I',
   tk:'Beranda',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   mofin:'Beranda MOFIN',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Beranda Pelimpahan Wewenang',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
 
@@ -4028,6 +4554,8 @@ function cmdkIndex(){
     gs.forEach(g=>g.items.forEach(i=>out.push({v:i.v,lab:i.lab,mod:m.lab,grp:g.grp||'',icn:m.icn})));
   });
   if(typeof ADMIN!=='undefined'&&ADMIN)out.push({v:'usermgmt',lab:'Manajemen User',mod:'Akun',grp:'',icn:'home'});
+    out.push({v:'statistik',lab:'Statistik Pemanfaatan',mod:'Akun',grp:'',icn:'home'});
+  out.push({v:'profil',lab:'Profil Eselon I',mod:'Beranda',grp:'',icn:'home'});
   return out;}
 function cmdkRender(q){
   q=(q||'').toLowerCase().trim();
@@ -4139,6 +4667,207 @@ function navPager(){
   return `<div style="display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)">${btn(prev,-1)}${btn(next,1)}</div>`;
 }
 let _lastView=null;let _hist=[];let _navBack=false;
+/* ==================== PROFIL ESELON I (terpadu lintas modul) ====================
+   Satu halaman per Eselon I yang menyatukan OTK + ABK + MOFIN + PELWEN + TKPP.
+
+   KENAPA ESELON I, BUKAN "UNIT" APA SAJA: survei data (peta_unit.py) membuktikan
+   ABK/MOFIN/PELWEN/TKPP HANYA punya data setingkat Eselon I, sedangkan OTK punya
+   1.504 unit. Irisan terendah yg dimiliki SEMUA sumber = Eselon I.
+
+   ATURAN PALING PENTING DI HALAMAN INI: kalau sebuah modul tidak punya data untuk
+   unit ini, tulis "belum ada data" TERANG-TERANGAN. JANGAN tampilkan 0 atau kartu
+   kosong. Skor 0 akan dibaca pimpinan sbg "kinerjanya buruk", padahal kenyataannya
+   "unitnya belum diukur" - salah baca semacam itu jauh lebih berbahaya daripada
+   tampilan yang kurang lengkap. */
+function _petaUnit(){ return (PETA&&PETA.unit)||[]; }
+function _otkAnak(id){                       /* hitung keturunan per level di OTK */
+  const out={2:0,3:0,4:0}; if(!OTK||!OTK.unit||id==null)return out;
+  const anak={}; OTK.unit.forEach(function(u){ (anak[u.parent]=anak[u.parent]||[]).push(u); });
+  (function turun(pid){ (anak[pid]||[]).forEach(function(u){
+      if(out[u.level]!=null)out[u.level]++; turun(u.id); }); })(id);
+  return out;
+}
+function _blmAda(judul,alasan){
+  return '<div class="card" style="opacity:.75"><h3>'+esc(judul)+'</h3>'+
+    '<div class="empty" style="padding:18px 0">Belum ada data untuk unit ini.'+
+    (alasan?'<br><span class="mini">'+esc(alasan)+'</span>':'')+'</div></div>';
+}
+function _zonaEu1(v){                        /* PMK 175/238: zona wajar EU-1 0,75-1,25 */
+  if(v==null)return {t:'-',k:''};
+  if(v<0.75)return {t:'di bawah zona wajar',k:'gold'};
+  if(v>1.25)return {t:'di atas zona wajar',k:'alert'};
+  return {t:'dalam zona wajar',k:'good'};
+}
+function vProfil(){
+  const U=_petaUnit();
+  if(!U.length)return '<div class="empty">Peta unit belum tersedia. Jalankan <b>peta_unit.py</b> lalu build ulang.</div>';
+  let h='<div class="card"><h3>Profil Eselon I</h3><p class="sub">Satu halaman per unit yang menyatukan struktur, beban kerja, kapabilitas, mandat, dan layanan publik. '+
+        'Titik yang kosong berarti modul itu belum punya data untuk unit tersebut, bukan nilainya nol.</p></div>';
+  h+='<div class="bento">';
+  U.forEach(function(u){
+    const s=u.sumber||{}, ada=u.ada||[];
+    const kode=(s.abk||s.mofin||s.pelwen||{}).kode||'';
+    h+='<div class="card" data-act="profpick" data-k="'+esc(u.kunci)+'" style="cursor:pointer">'+
+       '<div class="mini" style="font-weight:700;color:var(--brand)">'+esc(String(kode).toUpperCase())+'</div>'+
+       '<div style="font-weight:700;margin:4px 0 8px">'+esc(u.nama)+'</div>'+
+       '<div class="mini">'+['abk','mofin','pelwen','tkpp'].map(function(k){
+          const on=ada.indexOf(k)>=0;
+          return '<span style="display:inline-block;margin-right:6px;opacity:'+(on?1:.35)+'">'+
+                 (on?'&#9679;':'&#9675;')+' '+k.toUpperCase()+'</span>';}).join('')+'</div>'+
+       (ada.length<4?'<div class="mini" style="margin-top:6px;color:var(--muted)">'+(4-ada.length)+' modul belum berdata</div>':'')+
+       '</div>';
+  });
+  h+='</div>';
+  return h;
+}
+function vProfilUnit(){
+  const U=_petaUnit().filter(function(x){return x.kunci===state.profUnit;})[0];
+  if(!U)return (state.profUnit=null,vProfil());
+  const s=U.sumber||{};
+  const kode=(s.abk||s.mofin||s.pelwen||{}).kode||'';
+  let h='<div class="card"><div class="mini" style="font-weight:700;color:var(--brand)">'+esc(String(kode).toUpperCase())+'</div>'+
+        '<h2 style="margin:2px 0 0">'+esc(U.nama)+'</h2>'+
+        '<p class="sub">Profil terpadu lintas modul. Setiap bagian menyebutkan sumbernya.</p></div>';
+
+  /* ---- Struktur (OTK) ---- */
+  if(U.otk_id!=null&&OTK&&OTK.unit){
+    const a=_otkAnak(U.otk_id);
+    h+='<div class="card"><h3>Struktur Organisasi <span class="mini">sumber: OTK</span></h3><div class="kpis">'+
+       kpiBox('Unit Eselon II',a[2],'di bawah unit ini','')+
+       kpiBox('Unit Eselon III',a[3],'','')+
+       kpiBox('Unit Eselon IV',a[4],'','')+
+       '</div></div>';
+  } else h+=_blmAda('Struktur Organisasi','Unit ini tidak terdaftar sebagai Eselon I di data OTK.');
+
+  /* ---- Beban kerja (ABK) ---- */
+  if(s.abk&&ABK&&ABK.eselon1){
+    const e=ABK.eselon1.filter(function(x){return x.kode===s.abk.kode;})[0];
+    if(e&&e.total){
+      const t=e.total, z=_zonaEu1(t.eu1);
+      h+='<div class="card"><h3>Beban Kerja <span class="mini">sumber: ABK '+esc(e.tahun||'')+'</span></h3><div class="kpis">'+
+         kpiBox('Pegawai ada',(t.ada||0).toLocaleString('id-ID'),'','')+
+         kpiBox('Kebutuhan (ABK)',(t.butuh||0).toLocaleString('id-ID'),'','')+
+         kpiBox('Selisih',(t.selisih>0?'+':'')+(t.selisih||0).toLocaleString('id-ID'),t.selisih<0?'kurang pegawai':'lebih pegawai',t.selisih<0?'alert':'good')+
+         kpiBox('EU-1',(t.eu1!=null?t.eu1.toFixed(3):'-'),z.t+' (PMK 175: 0,75-1,25)',z.k)+
+         '</div><div class="mini" style="margin-top:8px">Terdiri atas '+((e.units||[]).length)+' unit Eselon II yang terukur.</div></div>';
+    } else h+=_blmAda('Beban Kerja','Kode unit ada di peta, tetapi rinciannya tidak ditemukan di abk.json.');
+  } else h+=_blmAda('Beban Kerja','Unit ini belum masuk cakupan pengukuran ABK.');
+
+  /* ---- Kapabilitas (MOFIN) ---- */
+  if(s.mofin&&MOFIN&&MOFIN.units){
+    const m=MOFIN.units.filter(function(x){return x.kode===s.mofin.kode;})[0];
+    if(m){
+      const dim=m.skor_dimensi||{};
+      const nama=Object.keys(dim);
+      h+='<div class="card"><h3>Kapabilitas Kelembagaan <span class="mini">sumber: MOFIN</span></h3><div class="kpis">'+
+         kpiBox('Skor total',(m.skor_total!=null?m.skor_total.toFixed(2):'-'),'skala 0-100',
+                (m.skor_total>=80?'good':m.skor_total>=60?'':'alert'))+'</div>';
+      if(nama.length)h+=_tkCols(nama.map(function(k){return {lab:k.slice(0,11),parts:[{name:k,v:+dim[k],c:'var(--cat-2)'}]};}),{h:230,max:100});
+      h+='</div>';
+    } else h+=_blmAda('Kapabilitas Kelembagaan','Kode ada di peta tetapi tidak ditemukan di mofin.json.');
+  } else h+=_blmAda('Kapabilitas Kelembagaan','Unit ini belum diukur dalam survei MOFIN.');
+
+  /* ---- Mandat (PELWEN) ---- */
+  if(s.pelwen){
+    h+='<div class="card"><h3>Pelimpahan Wewenang <span class="mini">sumber: PELWEN (KMK 167/2025)</span></h3><div class="kpis">'+
+       kpiBox('Jabatan penerima',s.pelwen.jml_jabatan!=null?s.pelwen.jml_jabatan:'-','','')+
+       kpiBox('Butir kewenangan',s.pelwen.jml_butir!=null?s.pelwen.jml_butir:'-','','')+
+       '</div></div>';
+  } else h+=_blmAda('Pelimpahan Wewenang','Unit ini tidak muncul dalam KMK 167/2025.');
+
+  /* ---- Layanan publik & integritas (TKPP) ---- */
+  if(s.tkpp&&TK){
+    const k=s.tkpp.kode;
+    const zi=((TK.integritas||{}).per_ue1_predikat||{})[k]||null;
+    const pel=((TK.pelayanan_publik||{}).per_ue1||{})[k];
+    const omb=((TK.ombudsman||{}).per_ue1||{})[k];
+    const ino=((TK.inovasi||{}).per_ue1||{})[k];
+    h+='<div class="card"><h3>Integritas &amp; Layanan Publik <span class="mini">sumber: TKPP</span></h3><div class="kpis">'+
+       kpiBox('Unit WBK',zi?(zi.WBK||0):'-','predikat Zona Integritas','')+
+       kpiBox('Unit WBBM',zi?(zi.WBBM||0):'-','','')+
+       kpiBox('Unit dinilai pelayanan',pel!=null?pel:'-','','')+
+       kpiBox('Inovasi',ino!=null?ino:'-','','')+
+       (omb!=null?kpiBox('Penilaian Ombudsman',omb,'',''):'')+
+       '</div></div>';
+  } else h+=_blmAda('Integritas & Layanan Publik','Unit ini belum tercakup dalam data TKPP.');
+
+  h+='<div class="foot">Bagian yang bertanda "belum ada data" berarti modul tersebut memang belum mengukur unit ini. '+
+     'Itu bukan nilai nol dan tidak boleh dibaca sebagai kinerja buruk.</div>';
+  return h;
+}
+
+/* ================== STATISTIK PEMANFAATAN (khusus admin) ==================
+   Menjawab pertanyaan yang tidak bisa dijawab fitur mana pun: SIAPA yang benar-benar
+   memakai dashboard ini, modul apa yang dibuka, dan akun mana yang belum pernah masuk.
+   Sumber: sheet 'Log' lewat aksi 'statistik' di Code.gs (sudah diagregasi di server). */
+let STAT=null,STATERR='',STATLOAD=false;
+async function muatStatistik(){
+  if(STAT||STATLOAD)return; STATLOAD=true; STATERR='';
+  try{const j=await api('statistik');
+    if(j&&j.ok)STAT=j; else STATERR=(j&&j.err)||'tidak dikenali gerbang';
+  }catch(e){STATERR=String(e).slice(0,120);}
+  STATLOAD=false; render();
+}
+function vStatistik(){
+  if(!ADMIN)return '<div class="empty">Halaman ini hanya untuk admin.</div>';
+  if(!REMOTE)return '<div class="empty">Statistik pemanfaatan hanya ada di versi daring.<br>'+
+    '<span class="mini">Berkas lokal tidak mencatat apa pun - tidak ada gerbang Apps Script di baliknya.</span></div>';
+  if(STATERR)return '<div class="empty">Gagal memuat statistik: '+esc(STATERR)+'<br>'+
+    '<span class="mini">Pastikan <b>Code.gs</b> sudah versi terbaru (punya aksi <b>statistik</b>) lalu <b>Deploy ulang</b>.</span></div>';
+  if(!STAT)return (muatStatistik(),skelMemuat('Memuat statistik pemanfaatan...'));
+  if(STAT.kosong)return '<div class="empty">Belum ada satu pun aktivitas tercatat.<br>'+
+    '<span class="mini">Log mulai terisi setelah ada yang login pada versi daring.</span></div>';
+
+  const P=STAT.pengguna||[],M=STAT.menu||[],H=STAT.harian||[],B=STAT.belum||[];
+  const aktif=P.length,belum=B.length,total=aktif+belum;
+  const persen=total?Math.round(aktif/total*100):0;
+
+  let h='<div class="kpis">'+
+    kpiBox('Akun pernah login',aktif+' / '+total,persen+'% dari akun terdaftar',persen>=50?'good':'')+
+    kpiBox('Login 7 hari terakhir',STAT.loginPekanIni||0,'jumlah sesi masuk','')+
+    kpiBox('Belum pernah login',belum,belum?'perlu ditindaklanjuti':'semua sudah aktif',belum?'alert':'good')+
+    kpiBox('Peristiwa tercatat',(STAT.totalBaris||0).toLocaleString('id-ID'),'sejak pencatatan menyala','')+
+    '</div>';
+
+  if(H.length>1){
+    const akhir=H.slice(-30);
+    h+='<div class="card"><h3>Aktivitas Harian</h3>'+
+       '<p class="sub">Jumlah peristiwa (login + buka menu) per hari, 30 hari terakhir.</p>'+
+       _tkCols(akhir.map(function(d){return {lab:d.tgl.slice(5),parts:[{name:'peristiwa',v:d.n,c:'var(--cat-1)'}]};}),{h:220})+
+       '</div>';
+  }
+
+  h+='<div class="grid2">';
+  h+='<div class="card"><h3>Menu Paling Sering Dibuka</h3>'+
+     '<p class="sub">Menu yang tidak pernah muncul di sini praktis tidak dipakai.</p>'+
+     '<div class="tblw"><table><thead><tr><th data-sort>Menu</th><th data-sort>Dibuka</th></tr></thead><tbody>'+
+     M.slice(0,20).map(function(x){return '<tr><td>'+esc(VT[x.menu]||x.menu)+'</td><td>'+x.n+'</td></tr>';}).join('')+
+     '</tbody></table></div></div>';
+
+  h+='<div class="card"><h3>Pengguna Teraktif</h3>'+
+     '<p class="sub">Diurut dari jumlah sesi masuk terbanyak.</p>'+
+     '<div class="tblw"><table><thead><tr><th data-sort>Username</th><th data-sort>UE1</th><th data-sort>Login</th><th data-sort>Buka menu</th><th data-sort>Terakhir</th></tr></thead><tbody>'+
+     P.slice(0,60).map(function(x){return '<tr><td>'+esc(x.u)+'</td><td>'+esc(x.ue1||'-')+'</td><td>'+x.login+'</td><td>'+x.buka+'</td><td>'+esc(x.terakhir)+'</td></tr>';}).join('')+
+     '</tbody></table></div></div>';
+  h+='</div>';
+
+  if(belum){
+    h+='<div class="card"><h3>Akun Belum Pernah Login ('+belum+')</h3>'+
+       '<p class="sub">Dua tindak lanjut sekaligus: dorong pemakaian, dan tinjau ulang akun yang memang tidak diperlukan.</p>'+
+       '<div class="tblw"><table><thead><tr><th data-sort>Username</th><th data-sort>Nama</th><th data-sort>UE1</th></tr></thead><tbody>'+
+       B.map(function(x){return '<tr><td>'+esc(x.u)+'</td><td>'+esc(x.nama||'-')+'</td><td>'+esc(x.ue1||'-')+'</td></tr>';}).join('')+
+       '</tbody></table></div></div>';
+  }
+  h+='<div class="foot">Yang dicatat hanya waktu, username, UE1, dan id menu. '+
+     'Tidak ada NIP, isi data, maupun kata kunci pencarian.</div>';
+  return h;
+}
+function kpiBox(lab,val,note,kelas){
+  return '<div class="kpi '+(kelas||'')+'"><div class="lab">'+esc(lab)+'</div>'+
+         '<div class="val">'+esc(String(val))+'</div>'+
+         (note?'<div class="note">'+esc(note)+'</div>':'')+'</div>';
+}
+
 // Skeleton pengganti teks "Memuat...". Meniru kerangka KPI + kartu tabel supaya saat data tiba
 // tata letaknya tidak melompat. Teksnya tetap ada di bawah agar pengguna tahu apa yg ditunggu.
 function skelMemuat(txt,baris){
@@ -4169,9 +4898,10 @@ function render(){
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();if(!_sv)window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,statistik:vStatistik,profil:vProfil,profilunit:vProfilUnit,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   viewEl.innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
+  jejak(state.view);
   vtipPrepare(viewEl);vtipHide();
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
@@ -4990,6 +5720,7 @@ else if(a==='moftltab'){state.mofDrill=null;state.mofTlTab=el.dataset.tab;render
 else if(a==='mofdrill'){state.mofDrill={view:state.view,unit:el.dataset.unit||'',dim:el.dataset.dim||'',status:el.dataset.status||''};render();var _n=document.getElementById('mofdrill');if(_n)_n.scrollIntoView({behavior:'smooth',block:'nearest'});}
 else if(a==='mofdrillclose'){state.mofDrill=null;render();}
 else if(a==='pwunit'){state.pwUnit=el.dataset.key;state.pwJab=null;state.view='pelunit';render();}
+else if(a==='profpick'){state.profUnit=el.dataset.k;state.view='profilunit';render();window.scrollTo({top:0});}
 else if(a==='pwjab'){state.pwJab=+el.dataset.jab;render();window.scrollTo({top:0});}
 else if(a==='pwunitback'){state.pwUnit=null;state.pwJab=null;render();}
 else if(a==='pwjabback'){state.pwJab=null;render();window.scrollTo({top:0});}
@@ -5085,6 +5816,34 @@ async function api(action,params){
     const r=await fetch(APPS_URL,{method:'POST',body:JSON.stringify(body)});return await r.json();}
   return apiLocal(action,params||{});
 }
+/* ============ Telemetri pemanfaatan (pasangan _jejak/_statistik di Code.gs) ============
+   Yang dikirim HANYA id menu. Tidak ada isi data, tidak ada kata kunci pencarian, tidak ada NIP.
+   Dikirim BERKELOMPOK (bukan per klik) supaya tidak membebani kuota Apps Script & jaringan.
+   Seluruhnya dibungkus try dan hanya jalan di mode remote: kalau gerbang belum mendukung
+   aksi 'jejak', dashboard TETAP normal - pencatatan gagal diam-diam, bukan bikin error. */
+let _jjBuf=[], _jjT=null;
+const _JJ_JEDA=90000, _JJ_MAKS=40;
+function jejak(menu){
+  if(!REMOTE||!TOKEN||!menu)return;
+  if(_jjBuf[_jjBuf.length-1]===menu)return;      // abaikan render berulang di menu yg sama
+  _jjBuf.push(menu);
+  if(_jjBuf.length>=_JJ_MAKS)kirimJejak();
+  else if(!_jjT)_jjT=setTimeout(kirimJejak,_JJ_JEDA);
+}
+function kirimJejak(){
+  clearTimeout(_jjT);_jjT=null;
+  if(!_jjBuf.length||!REMOTE||!TOKEN)return;
+  const kirim=_jjBuf.splice(0,60);
+  try{api('jejak',{menu:kirim});}catch(e){}
+}
+/* Saat tab ditutup/disembunyikan, fetch biasa sering keburu dibatalkan browser.
+   sendBeacon dirancang justru untuk kasus ini. */
+addEventListener('pagehide',function(){
+  if(!_jjBuf.length||!REMOTE||!TOKEN)return;
+  try{navigator.sendBeacon(APPS_URL,JSON.stringify({action:'jejak',token:TOKEN,menu:_jjBuf.splice(0,60)}));}catch(e){}
+});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')kirimJejak();});
+
 function _scopeOf(a){return a.role==='all'?{type:'all'}:a.role==='ue1'?{type:'ue1',ue1:a.ue1}:{type:'ue2',ue1:a.ue1,ue2:a.ue2};}
 function apiLocal(action,p){
   if(action==='login'){const a=ACCOUNTS.find(x=>x.u===p.u&&x.p===p.p);if(!a)return{ok:false};
