@@ -106,7 +106,21 @@ body{font-family:var(--font-ui);letter-spacing:-.1px;
   color:var(--ink);background:var(--bg);font-size:var(--fs-base)}
 svg{display:block}
 ::selection{background:rgba(20,103,192,.18)}
-a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+/* Daftar ini SENGAJA memuat [data-act] & [tabindex]. Sebelumnya cuma a/button/input/select,
+   sehingga elemen aksi berupa <div data-act> tidak pernah punya cincin fokus sama sekali
+   walau sudah dibuat fokusabel - pengguna keyboard tahu bisa berpindah tapi tak tahu ke mana. */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
+[data-act]:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+/* Di bilah atas & sidebar gelap, outline biru merek nyaris tak terlihat -> pakai putih. */
+.appbar :focus-visible{outline-color:#fff}
+/* Baris tabel yg bisa diklik: outline saja mudah terpotong sel tetangga, jadi ditambah
+   latar lembut supaya posisi fokus jelas terbaca. */
+tr[data-act]:focus-visible,td[data-act]:focus-visible{outline:2px solid var(--brand);outline-offset:-2px;background:var(--brand-l)}
+/* Lewati ke konten: dgn nav belasan item + tabel ratusan baris, tanpa ini pengguna
+   keyboard harus menekan Tab puluhan kali tiap ganti halaman. Tersembunyi sampai difokus. */
+.skiplink{position:fixed;left:-999px;top:8px;z-index:200;background:var(--brand);color:#fff;
+  padding:var(--sp-5) var(--sp-7);border-radius:var(--rad-sm);font-weight:700;text-decoration:none}
+.skiplink:focus{left:8px}
 *::-webkit-scrollbar{width:11px;height:11px}
 *::-webkit-scrollbar-thumb{background:#c4d0df;border-radius:var(--rad-sm);border:3px solid transparent;background-clip:content-box}
 *::-webkit-scrollbar-thumb:hover{background:#a7b6ca;background-clip:content-box}
@@ -611,6 +625,7 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 </style>
 </head>
 <body>
+<a class="skiplink" href="#view">Lewati ke konten</a>
 <div id="nprog"><div id="nprogBar"></div></div>
 <div class="login-wrap" id="loginOverlay">
   <div class="login-card">
@@ -1508,7 +1523,7 @@ function renderNav(){
     if(ADMIN)h+=`<div class="nvit ${state.view==='statistik'?'on':''}" style="padding-left:12px" data-act="nav" data-view="statistik">Statistik Pemanfaatan</div>`;
     h+='</div>';
   }
-  document.getElementById('nav').innerHTML=h;}
+  document.getElementById('nav').innerHTML=h;a11yPrepare(document.getElementById('nav'));}
 const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
   struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I',
@@ -4949,6 +4964,37 @@ function kpiBox(lab,val,note,kelas){
 
 // Skeleton pengganti teks "Memuat...". Meniru kerangka KPI + kartu tabel supaya saat data tiba
 // tata letaknya tidak melompat. Teksnya tetap ada di bawah agar pengguna tahu apa yg ditunggu.
+/* ==================== AKSESIBILITAS KEYBOARD ====================
+   MASALAH: hampir semua aksi dibuat sbg <div data-act="..."> biasa. Div BUKAN elemen
+   fokusabel, jadi tombol Tab melewatinya. Terukur 20 Jul 2026: dari 19 elemen bisa-klik
+   di satu view, cuma 1 yang terjangkau keyboard (95% mustahil dipakai tanpa mouse).
+   Aturan :focus-visible sebenarnya sudah ada, tapi tidak pernah aktif krn elemennya
+   tidak pernah menerima fokus.
+
+   PENDEKATAN: terpusat, bukan menambal ratusan titik. Semua elemen ber-data-act dibuat
+   fokusabel setiap selesai render, lalu Enter/Spasi disambungkan ke JALUR KLIK YANG SAMA
+   (el.click()) supaya tidak ada logika ganda yang bisa berbeda perilaku. */
+const _A11Y_NATIF={A:1,BUTTON:1,SELECT:1,INPUT:1,TEXTAREA:1};
+function a11yPrepare(root){
+  try{
+    (root||document).querySelectorAll('[data-act]').forEach(function(e){
+      if(_A11Y_NATIF[e.tagName]||e.hasAttribute('tabindex'))return;
+      e.tabIndex=0;
+      /* role=button HANYA utk elemen generik. Pd <tr>/<td> role itu merusak semantik
+         tabel bagi pembaca layar, jadi di sana cukup dibuat fokusabel saja. */
+      if(e.tagName==='DIV'||e.tagName==='SPAN')e.setAttribute('role','button');
+    });
+  }catch(err){}
+}
+document.addEventListener('keydown',function(ev){
+  if(ev.key!=='Enter'&&ev.key!==' '&&ev.key!=='Spacebar')return;
+  const t=ev.target; if(!t||!t.closest)return;
+  if(_A11Y_NATIF[t.tagName])return;               // biarkan perilaku bawaan tombol/tautan
+  const e=t.closest('[data-act]'); if(!e)return;
+  ev.preventDefault();                            // Spasi jangan menggulir halaman
+  e.click();                                      // lewat jalur yang sama persis dgn mouse
+});
+
 function skelMemuat(txt,baris){
   baris=baris||6;
   let h='<div class="kpis" style="margin-bottom:16px">'+Array(4).fill('<div class="skel sk-kpi"></div>').join('')+'</div>';
@@ -4981,7 +5027,7 @@ function render(){
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   viewEl.innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   jejak(state.view);
-  vtipPrepare(viewEl);vtipHide();
+  vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
 /* ==================== MODUL MOFIN ==================== */
