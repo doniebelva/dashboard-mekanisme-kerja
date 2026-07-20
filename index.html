@@ -230,10 +230,17 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 .profcard .pnama{font-family:var(--font-display);font-weight:700;font-size:var(--fs-md);
   line-height:1.35;margin:var(--sp-6) 0 var(--sp-5);color:var(--ink)}
 /* margin-top:auto -> blok modul selalu menempel ke dasar, jadi tinggi kartu terlihat rata */
-.profcard .pmods{margin-top:auto;display:flex;flex-wrap:wrap;gap:4px}
-.pchip{font-size:var(--fs-micro);font-weight:600;padding:2px var(--sp-4);border-radius:var(--rad-pill);
-  border:1px solid var(--line);color:var(--muted);background:var(--surface-2)}
-.pchip.on{border-color:transparent;background:var(--brand-l);color:var(--brand-d)}
+/* Kartu menampilkan ANGKA, bukan status pipa data. Pimpinan tidak peduli modul mana yang
+   punya data; yang dicari jumlah pegawai, EU-1, skor, WBK. Ketersediaan modul turun jadi
+   catatan kecil di dasar kartu. Nilai yg tak ada ditulis "—" (em dash) BUKAN 0. */
+.pstats{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-6);margin:var(--sp-6) 0 var(--sp-5)}
+.pstat .pl{font-size:var(--fs-micro);color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.pstat .pv{font-family:var(--font-display);font-weight:800;font-size:var(--fs-h);line-height:1.15;
+  color:var(--brand-d);font-variant-numeric:tabular-nums;margin-top:1px}
+.pstat .pv.good{color:var(--green)}.pstat .pv.alert{color:var(--red)}.pstat .pv.gold{color:var(--gold2)}
+.pstat .pv.kosong{color:var(--muted);font-weight:600}
+.pstat .pk{font-size:var(--fs-micro);color:var(--muted);line-height:1.3}
+.profcard .pmods{margin-top:auto}
 .pbar{height:4px;border-radius:2px;background:var(--track);margin-top:var(--sp-5);overflow:hidden}
 .pbar>i{display:block;height:100%;background:var(--brand);border-radius:2px}
 .profcard .pnote{font-size:var(--fs-micro);color:var(--muted);margin-top:var(--sp-4)}
@@ -1472,6 +1479,9 @@ function renderNav(){
     if(!groups.length){
       const fv=firstView(m.id);
       h+=`<div class="nvm ${curV===fv?'cur':''}" data-act="navmod" data-mod="${m.id}"><span class="nvi">${svgIcon(m.icn)}</span><span class="nvl">${m.lab}</span></div>`;
+      /* Profil Eselon I nempel di bawah Beranda: dia pintu masuk lintas modul, bukan
+         menu pengaturan. Sebelumnya keliru ditaruh di blok utilitas bawah dekat Ganti Password. */
+      if(m.id==='beranda')h+=`<div class="nvit ${(state.view==='profil'||state.view==='profilunit')?'on':''}" style="padding-left:34px" data-act="nav" data-view="profil">Profil Eselon I</div>`;
       return;
     }
     const modOpen=!!state.navOpen[m.id]||curM===m.id;
@@ -1494,7 +1504,6 @@ function renderNav(){
   if(DATAMODE!=='files'){
     h+='<div class="navtree" style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px">';
     h+=`<div class="nvit" style="padding-left:12px" data-act="changepw">Ganti Password</div>`;
-    h+=`<div class="nvit ${(state.view==='profil'||state.view==='profilunit')?'on':''}" style="padding-left:12px" data-act="nav" data-view="profil">Profil Eselon I</div>`;
     if(ADMIN)h+=`<div class="nvit ${state.view==='usermgmt'?'on':''}" style="padding-left:12px" data-act="nav" data-view="usermgmt">Manajemen User</div>`;
     if(ADMIN)h+=`<div class="nvit ${state.view==='statistik'?'on':''}" style="padding-left:12px" data-act="nav" data-view="statistik">Statistik Pemanfaatan</div>`;
     h+='</div>';
@@ -4724,6 +4733,36 @@ function _zonaEu1(v){                        /* PMK 175/238: zona wajar EU-1 0,7
   if(v>1.25)return {t:'di atas zona wajar',k:'alert'};
   return {t:'dalam zona wajar',k:'good'};
 }
+/* Ambil angka kunci tiap unit utk kartu ringkas. Nilai yang TIDAK ADA dikembalikan null,
+   bukan 0 - supaya kartu bisa menulis "—" dan tidak terbaca sebagai kinerja nol. */
+function _profRingkas(u){
+  const s=u.sumber||{}, out={pegawai:null,eu1:null,zona:'',zonaK:'',skor:null,zi:null};
+  try{
+    if(s.abk&&ABK&&ABK.eselon1){
+      const e=ABK.eselon1.filter(function(x){return x.kode===s.abk.kode;})[0];
+      if(e&&e.total){
+        if(e.total.ada!=null)out.pegawai=(e.total.ada).toLocaleString('id-ID');
+        if(e.total.eu1!=null){const z=_zonaEu1(e.total.eu1);
+          out.eu1=e.total.eu1.toFixed(2).replace('.',','); out.zona=z.t.replace('zona wajar','zona'); out.zonaK=z.k;}
+      }
+    }
+    if(s.mofin&&MOFIN&&MOFIN.units){
+      const m=MOFIN.units.filter(function(x){return x.kode===s.mofin.kode;})[0];
+      if(m&&m.skor_total!=null)out.skor=m.skor_total.toFixed(1).replace('.',',');
+    }
+    if(s.tkpp&&TK){
+      const zi=((TK.integritas||{}).per_ue1_predikat||{})[s.tkpp.kode];
+      if(zi)out.zi=(zi.WBK||0)+' / '+(zi.WBBM||0);
+    }
+  }catch(e){}
+  return out;
+}
+function _pstat(lab,val,ket,kelas){
+  const kosong=(val==null||val==='');
+  return '<div class="pstat"><div class="pl">'+esc(lab)+'</div>'+
+    '<div class="pv '+(kosong?'kosong':(kelas||''))+'">'+(kosong?'&mdash;':esc(String(val)))+'</div>'+
+    '<div class="pk">'+esc(kosong?'belum ada data':(ket||''))+'</div></div>';
+}
 function vProfil(){
   const U=_petaUnit();
   if(!U.length)return '<div class="empty">Peta unit belum tersedia. Jalankan <b>peta_unit.py</b> lalu build ulang.</div>';
@@ -4741,13 +4780,20 @@ function vProfil(){
     const s=u.sumber||{}, ada=u.ada||[];
     const kode=(s.abk||s.mofin||s.pelwen||s.tkpp||{}).kode||'-';
     const n=ada.length, pct=Math.round(n/MOD.length*100);
+    const r=_profRingkas(u);
+    const kurang=MOD.filter(function(k){return ada.indexOf(k)<0;}).map(function(k){return k.toUpperCase();});
     h+='<div class="profcard" data-act="profpick" data-k="'+esc(u.kunci)+'" title="'+esc(u.nama)+'">'+
        '<span class="pkode">'+esc(String(kode).toUpperCase())+'</span>'+
        '<div class="pnama">'+esc(u.nama)+'</div>'+
-       '<div class="pmods">'+MOD.map(function(k){
-          return '<span class="pchip'+(ada.indexOf(k)>=0?' on':'')+'">'+k.toUpperCase()+'</span>';}).join('')+'</div>'+
-       '<div class="pbar"><i style="width:'+pct+'%"></i></div>'+
-       '<div class="pnote">'+(n===MOD.length?'Data lengkap':(MOD.length-n)+' modul belum berdata')+'</div>'+
+       '<div class="pstats">'+
+         _pstat('Pegawai',r.pegawai,r.pegawai!=null?'ABK':'')+
+         _pstat('EU-1',r.eu1,r.zona,r.zonaK)+
+         _pstat('Skor MOFIN',r.skor,r.skor!=null?'dari 100':'')+
+         _pstat('WBK / WBBM',r.zi,r.zi!=null?'unit berpredikat':'')+
+       '</div>'+
+       '<div class="pmods"><div class="pbar"><i style="width:'+pct+'%"></i></div>'+
+       '<div class="pnote">'+(n===MOD.length?'Data lengkap dari 4 modul'
+          :'Belum ada data: '+esc(kurang.join(', ')))+'</div></div>'+
        '</div>';
   });
   h+='</div>';
