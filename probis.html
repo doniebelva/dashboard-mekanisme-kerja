@@ -1306,6 +1306,16 @@ mergeLiveLayanan();
 .pb-embed .main{margin-left:0!important;width:100%!important;height:auto!important;min-height:0!important;overflow:visible!important}
 .pb-embed .wrap{max-width:none!important;padding-left:0!important;padding-right:0!important;padding-top:0!important}
 html.pb-embed,.pb-embed body{background:transparent!important;height:auto!important;min-height:0!important;overflow:visible!important}
+/* PERBAIKAN MODAL DI MODE EMBED.
+   Di dalam iframe yang tingginya dibuat = seluruh isinya (ribuan px) dgn scrolling="no",
+   `position:fixed` & satuan `vh` mengacu ke viewport IFRAME, bukan ke layar pengguna.
+   Akibatnya modal dipusatkan di tengah ~4.300px -> nongol jauh di bawah layar, sehingga
+   klik terasa "tidak bereaksi" padahal modalnya terbuka & datanya sudah dirender.
+   Solusi: jadikan absolute lalu tempatkan pada pita yang SEDANG dilihat pengguna
+   (dihitung skrip di bawah; kalau gagal, jatuh ke posisi titik klik). */
+.pb-embed #modalBg{position:absolute!important;left:0!important;right:0!important;bottom:auto!important;
+  top:var(--pb-mtop,0px)!important;height:var(--pb-mh,600px)!important}
+.pb-embed #modalBg .modal{max-height:calc(var(--pb-mh,600px) - 56px)!important}
 </style>
 <script id="pbEmbedShim">
 (function(){
@@ -1318,7 +1328,48 @@ html.pb-embed,.pb-embed body{background:transparent!important;height:auto!import
   if((location.hash||'').indexOf('embed')>=0)embed();
   window.addEventListener('message',function(e){var d=e&&e.data||{};if(d.pbEmbed)embed();if(d.pbTheme)theme(d.pbTheme);if(d.pbPanel){goto(d.pbPanel);bump();}});
   window.addEventListener('resize',bump);
-  function init(){try{var mo=new MutationObserver(bump);mo.observe(document.body,{childList:true,subtree:true,attributes:true});}catch(_){ }try{parent.postMessage({pbReady:true},'*');}catch(_){ }bump();}
+
+  /* ---- Penempatan modal (lihat catatan di pbEmbedCss) ---- */
+  var lastY=0;
+  document.addEventListener('click',function(e){lastY=e.clientY||0;},true);
+  function pitaTampak(){
+    /* Jalur utama: sama-origin, jadi kita bisa membaca posisi gulir induk & tinggi layar
+       sebenarnya, lalu memusatkan modal tepat di pita yang sedang dilihat pengguna. */
+    try{
+      var fr=parent.document.getElementById('pbFrame');
+      var r=fr.getBoundingClientRect();
+      var atasIframeDiDok=r.top+parent.scrollY;          /* posisi iframe di dokumen induk */
+      /* Pita = IRISAN antara layar induk dan kotak iframe. Kalau pengguna belum menggulir
+         melewati atas iframe, sebagian layar dipakai header/konten di atasnya, jadi tinggi
+         pita harus dikurangi sebanyak itu - kalau tidak, modal meleset ke bawah layar. */
+      var delta=parent.scrollY-atasIframeDiDok;
+      var top=Math.max(0,delta);
+      var h=parent.innerHeight-Math.max(0,-delta);
+      var sisa=document.documentElement.scrollHeight-top;
+      h=Math.max(220,Math.min(h,sisa));
+      return {top:Math.min(top,Math.max(0,document.documentElement.scrollHeight-120)),h:h};
+    }catch(_){
+      /* Cadangan (beda origin / iframe tak ketemu): tambatkan ke titik klik, yang menurut
+         definisi sedang berada di layar pengguna. */
+      return {top:Math.max(0,lastY-60),h:600};
+    }
+  }
+  function taruhModal(){
+    var bg=document.getElementById('modalBg');
+    if(!bg||!bg.classList.contains('show'))return;
+    var p=pitaTampak();
+    var s=document.documentElement.style;
+    s.setProperty('--pb-mtop',p.top+'px');
+    s.setProperty('--pb-mh',p.h+'px');
+  }
+  function pantauModal(){
+    var bg=document.getElementById('modalBg');if(!bg)return;
+    try{new MutationObserver(taruhModal).observe(bg,{attributes:true,attributeFilter:['class']});}catch(_){ }
+    /* ikut menyesuaikan kalau pengguna menggulir/mengubah ukuran saat modal terbuka */
+    try{parent.addEventListener('scroll',taruhModal,{passive:true});
+        parent.addEventListener('resize',taruhModal);}catch(_){ }
+  }
+  function init(){try{var mo=new MutationObserver(bump);mo.observe(document.body,{childList:true,subtree:true,attributes:true});}catch(_){ }try{parent.postMessage({pbReady:true},'*');}catch(_){ }pantauModal();bump();}
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 </script>
