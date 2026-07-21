@@ -30,7 +30,7 @@
 :root{
   /* -- merek -- */
   --brand:#1467c0;--brand-d:#0f5aa8;--brand-l:#e8f1fc;--brand-l2:#d6e7fa;
-  --gold:#f0a93f;--gold2:#e8951a;
+  --gold:#f0a93f;--gold2:#e8951a;--gold-l:rgba(232,149,26,.10);
 
   /* -- status -- */
   --green:var(--st-good);--amber:var(--st-warn);--red:var(--st-critical);--blue:#1467c0;--slate:#7b8794;--vio:#7c3aed;
@@ -118,6 +118,17 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
 tr[data-act]:focus-visible,td[data-act]:focus-visible{outline:2px solid var(--brand);outline-offset:-2px;background:var(--brand-l)}
 /* Lewati ke konten: dgn nav belasan item + tabel ratusan baris, tanpa ini pengguna
    keyboard harus menekan Tab puluhan kali tiap ganti halaman. Tersembunyi sampai difokus. */
+/* Penanda kesegaran data di puncak tiap view. Netral & tipis supaya tidak bersaing dgn KPI;
+   varian .warn utk data yang kondisinya perlu perhatian (mis. ABK pra-penataan). */
+.freshbar{display:inline-flex;align-items:center;gap:6px;margin-bottom:var(--sp-6);
+  font-size:var(--fs-mini);color:var(--muted);background:var(--surface-2);
+  border:1px solid var(--line);padding:4px var(--sp-6);border-radius:var(--rad-pill)}
+.freshbar b{color:var(--ink);font-weight:700}
+/* Teks warn pakai --ink (bukan gold) supaya lolos kontras di latar terang; nuansa "perhatian"
+   tetap tersampaikan lewat latar & garis gold. Teks gold di atas terang gagal WCAG AA. */
+.freshbar.warn{background:var(--gold-l);border-color:var(--gold2);color:var(--ink)}
+.freshbar.warn b{color:var(--ink)}
+.freshbar.warn svg{color:var(--gold2)}
 .skiplink{position:fixed;left:-999px;top:8px;z-index:200;background:var(--brand);color:#fff;
   padding:var(--sp-5) var(--sp-7);border-radius:var(--rad-sm);font-weight:700;text-decoration:none}
 .skiplink:focus{left:8px}
@@ -1255,7 +1266,7 @@ const PETA={
 };  /* peta unit Eselon I lintas modul; ditanam di semua build */
 let TK=null;   /* Tata Kelola (TKPP, publik). LOKAL inline; REMOTE null -> muat via gerbang saat login; INTERNAL dari data/tkpp.json */
 /* ===== Proses Bisnis: embed mulus (sidebar Probis disembunyikan, menu kita yang mengendalikan) ===== */
-const PBV='1717757';
+const PBV='1718663';
 const PB_LBL={exec:'Dashboard Pimpinan',ringkasan:'Ringkasan',tree:'Tree Diagram',heatmap:'Heatmap Unit',tematik:'Analisis Tematik',jaringan:'Jaringan Unit',profil:'Profil Domain',spbe:'SPBE & Maturitas',gap:'Gap & Whitespace',layanan:'Layanan',aplikasi:'Aplikasi',monitoring:'Monitoring',katalog:'Proses Bisnis',validasi:'Validasi Probis',level:'Validasi Level',perubahan:'Perubahan'};
 function pbPost(msg){const f=document.getElementById('pbFrame');try{if(f&&f.contentWindow)f.contentWindow.postMessage(msg,'*');}catch(e){}}
 function _curTheme(){return document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';}
@@ -1466,6 +1477,75 @@ MODULES.forEach(m=>{MODDEF[m.id]=(m.groups[0]&&m.groups[0].items[0]&&m.groups[0]
   m.groups.forEach(g=>g.items.forEach(it=>VIEW2MOD[it.v]=m.id));});
 VIEW2MOD['tema']='otk';   // Penelusuran Tematik: rumah tetap di Struktur (juga ada pintasan di menu Jabatan)
 function curMod(){return VIEW2MOD[state.view]||'beranda';}
+
+/* ====================== KESEGARAN DATA ("Data per ...") ======================
+   Ditampilkan di puncak SETIAP view (kecuali Probis yg jalan di iframe). Satu titik
+   pasang di render(), tidak menyentuh 81 fungsi view.
+
+   ATURAN KEJUJURAN (permintaan Donny "sesuai kondisi datanya"): JANGAN mengarang tanggal.
+   - Ada tahun data nyata  -> "Data per <tahun>"
+   - Berjangkar regulasi    -> "Dasar: <regulasi>"
+   - Hanya punya sumber     -> "Sumber: <berkas/kompilasi>"
+   Modul yg benar-benar tak punya sinyal tanggal TIDAK dipaksa memakai "Data per".
+   Label diambil dari meta masing-masing dataset, bukan ditulis tangan, supaya ikut
+   berubah kalau datanya diperbarui. */
+/* CATATAN: variabel data (ABK/TK/PW/MOFIN/URJAB/OTK) dideklarasi `let`, jadi BUKAN properti
+   window - harus dirujuk polos (bare), bukan `window.X`. Sempat keliru & bikin semua label kosong. */
+const _JF_VIEWS={jf:1,jfprofil:1,jffungsi:1,jabkomposisi:1,jfmap:1};
+function _freshInfo(mid){
+  try{
+    var v=state.view;
+    // View JF bernaung di modul 'urjab' -> harus dicek DULU sebelum cabang urjab umum.
+    if(_JF_VIEWS[v]) return {t:'Dasar terkini: PMK 78/2025', d:'JF Keuangan Negara'};
+    if(v==='profil'||v==='profilunit')
+      return {t:'Ringkasan lintas modul', d:'tiap bagian menyebut sumbernya sendiri'};
+
+    if(mid==='abk'&&typeof ABK==='object'&&ABK&&ABK.meta){
+      var th=(ABK.eselon1&&ABK.eselon1[0]&&ABK.eselon1[0].tahun)||'2024';
+      return {t:'Data per '+th, d:'kondisi sebelum penataan PMK 124/2024', k:'warn'};
+    }
+    if(mid==='layanan'&&typeof TK==='object'&&TK&&TK.integritas){          // TKPP
+      var yrs=TK.integritas.per_tahun_predikat?Object.keys(TK.integritas.per_tahun_predikat)
+             :(TK.integritas.per_tahun?Object.keys(TK.integritas.per_tahun):[]);
+      var mx=yrs.length?Math.max.apply(0,yrs.map(Number)):null;
+      return mx?{t:'Data s.d. '+mx, d:'sumber SLDK Bagian TKPP'}:null;
+    }
+    if(mid==='takelola'&&typeof PW==='object'&&PW&&PW.meta)                 // PELWEN
+      return {t:'Dasar: KMK 167/2025', d:'Pelimpahan Wewenang'};
+    if(mid==='kapabilitas'&&typeof MOFIN==='object'&&MOFIN&&MOFIN.meta)     // tak ada tahun eksplisit
+      return {t:'Sumber: Survei MOFIN', d:'kapabilitas kelembagaan Kemenkeu'};
+    if(mid==='urjab'&&typeof URJAB==='object'&&URJAB&&URJAB.meta){
+      var jf=(URJAB.meta.jumlah_file||0);
+      return {t:'Kompilasi uraian jabatan', d:jf?('dari '+jf+' dokumen unit'):''};
+    }
+    if(mid==='otk'&&typeof OTK==='object'&&OTK&&OTK.meta){
+      var tu=OTK.meta.total_unit||0;
+      return {t:'Struktur organisasi berjalan', d:tu?(tu.toLocaleString('id-ID')+' unit terpetakan'):''};
+    }
+    if(mid==='mk'&&typeof DATA==='object'&&DATA&&DATA.summary){   // Mekanisme Kerja (data tim/pegawai)
+      var s=DATA.summary, th=s.tahun||'', ol=_tglIndo(s.tanggal_olah);
+      return {t:th?('Data per '+th):'Data operasional tim', d:ol?('diolah '+ol):''};
+    }
+    if(mid==='katalog')                                          // taksonomi keahlian (referensi)
+      return {t:'Referensi taksonomi keahlian', d:'katalog kompetensi Kemenkeu'};
+  }catch(e){}
+  return null;
+}
+/* "2026-06-21" -> "21 Jun 2026". Kalau format tak dikenal, kembalikan apa adanya (jangan mengarang). */
+function _tglIndo(s){
+  if(!s)return '';
+  var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s)); if(!m)return String(s);
+  var bl=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  return (+m[3])+' '+bl[(+m[2])-1]+' '+m[1];
+}
+function freshBar(){
+  if(state.view.indexOf('pb_')===0)return '';       // Probis: iframe, ditangani terpisah
+  var f=_freshInfo(curMod());
+  if(!f)return '';
+  return '<div class="freshbar'+(f.k==='warn'?' warn':'')+'">'+
+    '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'+
+    '<span><b>'+esc(f.t)+'</b>'+(f.d?' &middot; '+esc(f.d):'')+'</span></div>';
+}
 /* fitur akses: FEATURES = 'all' atau array view-id yang diizinkan */
 function featOK(v){return FEATURES==='all'||(Array.isArray(FEATURES)&&FEATURES.indexOf(v)>=0);}
 function canMod(mid){if(mid==='beranda')return true;const m=MODULES.find(x=>x.id===mid);return !!(m&&m.groups.some(g=>g.items.some(it=>featOK(it.v))));}
@@ -2684,7 +2764,7 @@ function vJf(){
   h+=`<div class="kpis">
     <div class="kpi"><div class="lab">JF sebelum konsolidasi</div><div class="val">${M.jml_jf_lama||23}</div><div class="note">binaan Kementerian Keuangan</div></div>
     <div class="kpi good"><div class="lab">JF Keuangan Negara</div><div class="val">${M.jml_jf_kn||4}</div><div class="note">hasil konsolidasi</div></div>
-    <div class="kpi gold"><div class="lab">Batas penyesuaian nomenklatur</div><div class="val" style="font-size:var(--fs-xl)">7 Agu 2025</div><div class="note">bagi instansi pengguna</div></div>
+    <div class="kpi"><div class="lab">Batas penyesuaian nomenklatur</div><div class="val" style="font-size:var(--fs-xl)">7 Agu 2025</div><div class="note">telah terlewati &middot; masa penyesuaian berakhir</div></div>
     <div class="kpi"><div class="lab">Jenjang</div><div class="val">3 + 4</div><div class="note">keterampilan + keahlian</div></div></div>`;
   h+=`<h2 class="sec">Empat Jabatan Fungsional di Bidang Keuangan Negara</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">`;
@@ -5025,7 +5105,7 @@ function render(){
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,statistik:vStatistik,profil:vProfil,profilunit:vProfilUnit,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
-  viewEl.innerHTML=(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
+  viewEl.innerHTML=freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   jejak(state.view);
   vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
