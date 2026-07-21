@@ -1471,7 +1471,7 @@ const MODULES=[
    {grp:'',items:[{v:'katalog',lab:'Kompetensi'},{v:'pb_katalog',lab:'Proses Bisnis'},{v:'pb_layanan',lab:'Layanan'},{v:'pb_aplikasi',lab:'Aplikasi'}]},
  ]},
 ];
-const VIEW2MOD={beranda:'beranda',urjabdetail:'urjab',otkdetail:'otk',otkvdetail:'otk',skill:'mk',unit1:'mk',unit2:'mk',team:'mk',emp:'mk',jfprofil:'urjab'};
+const VIEW2MOD={beranda:'beranda',urjabdetail:'urjab',otkdetail:'otk',otkvdetail:'otk',skill:'mk',unit1:'mk',unit2:'mk',team:'mk',emp:'mk',jfprofil:'urjab',abkunit:'abk'};
 const MODDEF={};
 MODULES.forEach(m=>{MODDEF[m.id]=(m.groups[0]&&m.groups[0].items[0]&&m.groups[0].items[0].v)||m.id;
   m.groups.forEach(g=>g.items.forEach(it=>VIEW2MOD[it.v]=m.id));});
