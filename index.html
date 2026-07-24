@@ -142,6 +142,13 @@ tr[data-act]:focus-visible,td[data-act]:focus-visible{outline:2px solid var(--br
 .remote-frame{width:100%;height:calc(100vh - 235px);min-height:300px;border:1px solid var(--line);
   border-radius:var(--rad-sm);background:var(--surface-2);display:block}
 .remote-note{font-size:var(--fs-mini);color:var(--muted);line-height:1.5}
+.remote-tabs{display:inline-flex;gap:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--rad-sm);padding:3px}
+.remote-tab{border:none;background:transparent;font-size:var(--fs-sm);font-weight:700;color:var(--muted);padding:5px 15px;border-radius:var(--rad-xs);cursor:pointer;transition:all var(--t-fast) ease}
+.remote-tab.on{background:var(--brand);color:#fff}
+.remote-tab:not(.on):hover{color:var(--brand)}
+.remote-actions{display:flex;align-items:center;gap:var(--sp-5)}
+.remote-ghost{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:var(--fs-sm);font-weight:700;padding:6px var(--sp-6);border-radius:var(--rad-sm);cursor:pointer}
+.remote-ghost:hover{border-color:var(--brand);color:var(--brand)}
 .print-only{display:none}   /* hanya tampil saat @media print (kop dokumen resmi) */
 .skiplink{position:fixed;left:-999px;top:8px;z-index:200;background:var(--brand);color:#fff;
   padding:var(--sp-5) var(--sp-7);border-radius:var(--rad-sm);font-weight:700;text-decoration:none}
@@ -183,6 +190,8 @@ tr[data-act]:focus-visible,td[data-act]:focus-visible{outline:2px solid var(--br
 .appbar .fresh{font-size:var(--fs-mini);font-weight:600;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);padding:var(--sp-2) var(--sp-5);border-radius:var(--rad-pill);white-space:nowrap}
 .appbar .fresh:empty{display:none}
 
+/* transition:margin dihapus: bikin sidebar sesaat menimpa konten saat berpindah cepat dari Unit
+   Remote (margin nyangkut mid-animasi). Collapse jadi instan - lebih pasti, tanpa overlap. */
 .main{flex:1;min-width:0;margin-left:248px;margin-top:58px;display:flex;flex-direction:column;transition:margin .18s;min-height:calc(100vh - 58px)}
 .main.wide{margin-left:60px}
 .subbar{background:var(--side);padding:11px 26px;display:flex;align-items:center;gap:var(--sp-7);position:sticky;top:58px;z-index:8;
@@ -1615,7 +1624,7 @@ function canView(v){if(v==='beranda')return true;if(v==='usermgmt'||v==='statist
 function firstView(mid){if(mid==='beranda')return'beranda';const m=MODULES.find(x=>x.id===mid);if(m)for(const g of m.groups)for(const it of g.items)if(featOK(it.v))return it.v;return'beranda';}
 let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlTab:'ue1',pwUnit:null,pwJab:null,pwTema:null,pwJab2:null,pwQ:'',pwFilUnit:'',pwFilJenis:'',view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   timSort:{k:'skor',d:-1},pegSort:{k:'jml_tim',d:-1},timQ:'',timUE1:'',timStat:'',timAktif:'',pegQ:'',pegUE1:'',avQ:'',avUE1:'',avStat:'',skill:null,skillStat:'',insCat:'',
-  profUnit:null,
+  profUnit:null,remotePage:'dashboard',
   urjabQ:'',urjabEs1:'',urjabEs2:'',urjabEs3:'',urjabEs4:'',urjabJab:null,urjabLoading:false,urjabErr:false,
   urjabAnUE1:'',urjabInsSev:'',urjabInsCat:'',urjabCmpA:'',urjabCmpB:'',urjabCmpUE1A:'',urjabCmpUE1B:'',otkCmpA:'',otkCmpB:'',otkCmpUE1A:'',otkCmpUE1B:'',
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
@@ -4864,18 +4873,24 @@ let _lastView=null;let _hist=[];let _navBack=false;
    sendiri; (2) app luar TERISOLASI browser -> tak bisa membaca token/data dashboard kita;
    (3) kalau app memblokir framing / gagal muat, bilah cadangan "Buka di tab baru" tetap ada.
    URL disimpan sbg konstanta supaya mudah diganti. */
-const UNIT_REMOTE_URL='https://uk3tsp.vercel.app/dashboard';
+const UNIT_REMOTE_BASE='https://uk3tsp.vercel.app';
+const UNIT_REMOTE_PAGES=[{k:'dashboard',lab:'Dashboard'},{k:'simulasi',lab:'Simulasi'}];
 function vUnitRemote(){
-  const u=UNIT_REMOTE_URL;
+  const pg=state.remotePage||'dashboard';
+  const url=UNIT_REMOTE_BASE+'/'+pg;
+  const tabs=UNIT_REMOTE_PAGES.map(function(p){
+    return '<button class="remote-tab'+(p.k===pg?' on':'')+'" data-act="remotetab" data-page="'+esc(p.k)+'">'+esc(p.lab)+'</button>';}).join('');
   return '<div class="remote-wrap">'+
     '<div class="remote-bar">'+
-      '<span class="remote-lbl">Aplikasi eksternal &middot; '+esc(u.replace(/^https?:\/\//,'').split('/')[0])+'</span>'+
-      '<a class="remote-open" href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">Buka di tab baru '+
-      '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M14 5h5v5M19 5l-8 8M12 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6"/></svg></a>'+
+      '<div class="remote-tabs">'+tabs+'</div>'+
+      '<div class="remote-actions">'+
+        '<a class="remote-open" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Buka di tab baru '+
+        '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M14 5h5v5M19 5l-8 8M12 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6"/></svg></a>'+
+      '</div>'+
     '</div>'+
-    '<iframe class="remote-frame" src="'+esc(u)+'" title="Unit Remote" '+
+    '<iframe class="remote-frame" src="'+esc(url)+'" title="Unit Remote" '+
       'referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write; fullscreen"></iframe>'+
-    '<div class="remote-note">Jika halaman tidak tampil, aplikasi mungkin memerlukan login tersendiri atau memblokir penyematan. Gunakan tombol <b>Buka di tab baru</b> di atas.</div>'+
+    '<div class="remote-note">Aplikasi eksternal '+esc(UNIT_REMOTE_BASE.replace(/^https?:\/\//,''))+'. Jika halaman tidak tampil, aplikasi mungkin memerlukan login tersendiri atau memblokir penyematan. Gunakan <b>Buka di tab baru</b>.</div>'+
   '</div>';
 }
 
@@ -6008,6 +6023,7 @@ else if(a==='mofdrill'){state.mofDrill={view:state.view,unit:el.dataset.unit||''
 else if(a==='mofdrillclose'){state.mofDrill=null;render();}
 else if(a==='pwunit'){state.pwUnit=el.dataset.key;state.pwJab=null;state.view='pelunit';render();}
 else if(a==='profpick'){state.profUnit=el.dataset.k;state.view='profilunit';render();window.scrollTo({top:0});}
+else if(a==='remotetab'){state.remotePage=el.dataset.page;render();}
 else if(a==='pwjab'){state.pwJab=+el.dataset.jab;render();window.scrollTo({top:0});}
 else if(a==='pwunitback'){state.pwUnit=null;state.pwJab=null;render();}
 else if(a==='pwjabback'){state.pwJab=null;render();window.scrollTo({top:0});}
