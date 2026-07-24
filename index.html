@@ -574,6 +574,15 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
   font-weight:700;color:var(--muted);padding:6px 16px;border-radius:var(--rad-xs);transition:all var(--t-fast) ease}
 .pgtab.on{background:var(--brand);color:#fff}
 .pgtab:not(.on):hover{color:var(--brand)}
+/* Subjudul fungsi menu (in-context) + halaman Panduan Penggunaan */
+.menudesc{font-size:var(--fs-sm);color:var(--muted);margin:-2px 0 var(--sp-6);line-height:1.45;max-width:840px}
+.pnd-list{display:flex;flex-direction:column;gap:2px}
+.pnd-row{display:flex;gap:14px;align-items:baseline;padding:7px 9px;border-radius:var(--rad-xs);cursor:pointer;transition:background var(--t-fast) ease}
+.pnd-row:hover{background:var(--surface-2)}
+.pnd-lab{font-weight:700;color:var(--brand);min-width:220px;flex:none;font-size:var(--fs-sm)}
+.pnd-desc{flex:1;color:var(--muted);font-size:var(--fs-sm);line-height:1.45}
+.pnd-ic{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border-radius:var(--rad-sm);background:var(--side);color:var(--brand);flex:none}
+@media(max-width:620px){.pnd-row{flex-direction:column;gap:2px}.pnd-lab{min-width:0}}
 /* Tombol cari menu (jalur ekspres command palette) di puncak sidebar. */
 .navsearch{width:100%;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);
   background:var(--surface-2);border:1px solid var(--line);border-radius:var(--rad-sm);
@@ -1534,14 +1543,14 @@ const MODULES=[
  ]},
  {id:'otk',icn:'otk',lab:'Struktur Organisasi',groups:[
    {grp:'',items:[{v:'otkremote',lab:'Unit Remote'}]},
-   {grp:'Jelajah',items:[{v:'otk',lab:'Pohon Organisasi'},{v:'tema',lab:'Penelusuran Tematik'},{v:'jfmap',lab:'Peta Pengelola JF'},{v:'otkcompare',lab:'Komparasi Struktur'}]},
+   {grp:'Analisis Struktur Organisasi',items:[{v:'otk',lab:'Pohon Organisasi'},{v:'tema',lab:'Penelusuran Tematik'},{v:'otkcompare',lab:'Komparasi Struktur'}]},
    {grp:'Profil & Diagnostik',items:[{v:'otkanalisis',lab:'Komposisi & Rentang Kendali'},{v:'otkhealth',lab:'Kesehatan Struktur'},{v:'otkoverlap',lab:'Tumpang Tindih Tugas & Fungsi'},{v:'otkkaitan',lab:'Keterkaitan Antar Modul'}]},
    {grp:'Penataan & Rekomendasi',items:[{v:'otkeval',lab:'Evaluasi Organisasi'},{v:'otkorg',lab:'Indeks Kesehatan Organisasi'},{v:'otkindeks',lab:'Usulan Penataan'},{v:'otkshare',lab:'Peluang Share Service'}]},
  ]},
  {id:'urjab',icn:'urjab',lab:'Analisis Jabatan',groups:[
    {grp:'Ikhtisar',items:[{v:'jabkomposisi',lab:'Komposisi Jabatan per Eselon I'}]},
-   {grp:'Jabatan Struktural',items:[{v:'urjab',lab:'Repositori Jabatan'},{v:'tema',lab:'Penelusuran Tematik'},{v:'urjabanalisis',lab:'Analisis Jabatan'},{v:'urjabinsight',lab:'Insight Jabatan'},{v:'urjabcompare',lab:'Komparasi Jabatan'},{v:'urjabredun',lab:'Replikasi Jabatan'}]},
-   {grp:'Jabatan Fungsional',items:[{v:'jf',lab:'Peta JF Keuangan Negara'},{v:'jffungsi',lab:'Fungsionalisasi (Delayering)'}]},
+   {grp:'Jabatan Struktural',items:[{v:'urjab',lab:'Repositori Jabatan'},{v:'tema',lab:'Penelusuran Tematik'},{v:'urjabanalisis',lab:'Analisis Jabatan'},{v:'urjabkaitan',lab:'Keterkaitan Fungsi & Tugas'},{v:'urjabinsight',lab:'Insight Jabatan'},{v:'urjabcompare',lab:'Komparasi Jabatan'},{v:'urjabredun',lab:'Replikasi Jabatan'}]},
+   {grp:'Jabatan Fungsional',items:[{v:'jf',lab:'Peta JF Keuangan Negara'},{v:'jfmap',lab:'Peta Pengelola JF'},{v:'jffungsi',lab:'Fungsionalisasi (Delayering)'}]},
  ]},
  {id:'abk',icn:'abk',lab:'Analisis Beban Kerja',groups:[
    {grp:'Penyajian',items:[{v:'abk',lab:'Metode As Is'}]},
@@ -1614,6 +1623,31 @@ const DOMDESC={
   organisasi:'Analitik struktur, jabatan, beban kerja, dan kapabilitas organisasi.',
   sdm:'Analitik siklus SDM Hire-to-Retire, dari perencanaan sampai pemberhentian. Modul disiapkan bertahap sesuai kesiapan data dari SI-OSDM.',
   tatakelola:'Tata kelola, integritas, dan mutu layanan publik.'
+};
+/* Satu kalimat lugas per MENU (view). Dipakai dua tempat: halaman Panduan Penggunaan
+   dan subjudul in-context di atas tiap view. Ditulis berbasis "apa yang bisa dijawab". */
+const MENUKET={
+  beranda:'Ringkasan lintas modul sebagai halaman awal.',
+  profil:'Profil ringkas tiap unit Eselon I lintas modul.',profilunit:'Profil ringkas tiap unit Eselon I lintas modul.',
+  panduan:'Peta seluruh modul dan menu beserta fungsinya.',
+  // Proses Bisnis
+  pb_exec:'Ikhtisar proses bisnis untuk pimpinan.',pb_ringkasan:'Ringkasan peta proses bisnis Kemenkeu.',pb_tree:'Diagram pohon domain sampai sub-proses.',pb_heatmap:'Peta panas proses bisnis per unit.',pb_tematik:'Telaah proses bisnis menurut tema.',pb_jaringan:'Jaringan keterkaitan antar unit dalam proses bisnis.',pb_profil:'Profil satu domain proses bisnis.',pb_spbe:'Tingkat maturitas SPBE tiap proses.',pb_gap:'Celah dan area belum tergarap (whitespace) proses bisnis.',pb_monitoring:'Pemantauan kelengkapan dan kualitas data proses bisnis.',pb_validasi:'Validasi konsistensi peta proses bisnis.',pb_level:'Validasi penjenjangan level proses.',pb_katalog:'Katalog proses bisnis.',pb_layanan:'Katalog layanan.',pb_aplikasi:'Katalog aplikasi pendukung.',
+  // Struktur Organisasi
+  otkremote:'Buka aplikasi Unit Remote (UKDR) di dalam dashboard.',otk:'Telusuri struktur organisasi dari Eselon I sampai IV.',tema:'Cari satu istilah di seluruh tugas/fungsi unit dan uraian jabatan.',otkcompare:'Bandingkan tugas dan fungsi dua unit berdampingan.',otkanalisis:'Komposisi jenjang eselon dan rentang kendali tiap unit.',otkhealth:'Deteksi rentang kendali lebar dan lapisan berlebih.',otkoverlap:'Irisan tugas dan fungsi antar unit sebagai kandidat konsolidasi.',otkkaitan:'Adopsi mekanisme kerja dibanding beban formal tiap unit.',otkeval:'Kandidat penggabungan, peleburan, dan delayering unit.',otkorg:'Skor kesehatan organisasi per unit dari beberapa dimensi.',otkindeks:'Usulan penataan unit berdasar indeks kesehatan.',otkshare:'Fungsi pendukung yang berpeluang jadi layanan bersama.',
+  // Analisis Jabatan
+  jabkomposisi:'Sebaran jabatan struktural, fungsional, dan pelaksana per Eselon I.',urjab:'Cari dan buka uraian jabatan (ANJAB) resmi tiap jabatan.',urjabanalisis:'Komposisi jenjang, rentang kendali, dan kerincian uraian tugas.',urjabkaitan:'Cakupan fungsi PMK OTK yang didukung rincian uraian tugas.',urjabinsight:'Temuan otomatis: rentang kendali, kemiripan tugas, kelengkapan data.',urjabcompare:'Bandingkan uraian dua jabatan berdampingan.',urjabredun:'Jabatan dengan uraian tugas nyaris identik antar unit.',jf:'Peta jabatan fungsional pengelola keuangan negara.',jfmap:'Unit yang menangani dan membina jabatan fungsional.',jffungsi:'Peluang pengalihan jabatan struktural ke fungsional (delayering).',
+  // Analisis Beban Kerja
+  abk:'Beban kerja dan kebutuhan pegawai per unit (kondisi saat ini).',abkkalibrasi:'Kalibrasi hasil ABK terhadap norma dan ambang PMK.',abknorma:'Norma waktu tiap tugas sebagai dasar hitung beban.',abkstruktur:'Peta beban per pegawai vs kesesuaian tugas dan fungsi.',abkpareto:'Produk atau kegiatan penyumbang beban terbesar (Pareto).',abksimulasi:'Simulasi redistribusi pegawai dan dampak efisiensinya.',
+  // Mekanisme Kerja
+  ringkasan:'Ikhtisar adopsi mekanisme kerja untuk pimpinan.',analisis:'Kinerja penyelesaian penugasan tim dan ketepatan waktu.',insight:'Temuan otomatis dan rekomendasi tindak lanjut.',timanalitik:'Kuadran kinerja tim: penyelesaian vs ketepatan.',kategoritim:'Pengelompokan tim menurut kategori kerja.',people:'Analitik pegawai: keahlian, ketersediaan, dan beban.',heatmap:'Peta panas adopsi mekanisme kerja antar unit.',beban:'Sebaran beban penugasan pada tim dan pegawai.',struktur:'Telusuri unit beserta tim kerja di dalamnya.',tim:'Jelajahi seluruh tim kerja dan detailnya.',pegawai:'Jelajahi pegawai dan keanggotaan timnya.',keahlian:'Cari pegawai menurut keahlian (expert locator).',avail:'Perkiraan ketersediaan pegawai dari beban kerjanya.',
+  // Kompetensi
+  katalog:'Referensi kompetensi jabatan.',
+  // Kapabilitas (MOFIN)
+  mofin:'Skor kapabilitas kelembagaan (MOFIN) per unit dan dimensi.',mofheatmap:'Peta panas skor kapabilitas antar unit.',mofprofil:'Profil kapabilitas satu unit.',moftl:'Status tindak lanjut rekomendasi kapabilitas.',mofkuadran:'Kuadran kelemahan vs respons tindak lanjut.',mofgap:'Prioritas tindak lanjut dari kesenjangan kapabilitas.',
+  // Pelimpahan Wewenang
+  pelwen:'Ikhtisar pelimpahan wewenang/mandat (KMK 167/2025).',pelunit:'Butir pelimpahan wewenang per unit Eselon I.',pellintas:'Pelimpahan wewenang lintas unit dan tema.',pelcari:'Cari butir kewenangan yang dilimpahkan.',pelanalisis:'Pola dan analitik pendelegasian wewenang.',pelinsight:'Keterkaitan mandat dengan modul lain dan temuannya.',peltentang:'Tentang data pelimpahan wewenang.',
+  // Tata Kelola & Layanan
+  tk:'Ikhtisar tata kelola dan mutu layanan publik.',tkintegritas:'Capaian Zona Integritas (WBK/WBBM) tiap unit.',tkmonev:'Pemantauan keberlanjutan predikat Zona Integritas.',tkkegagalan:'Riwayat kegagalan meraih predikat.',tkgeo:'Sebaran geografis capaian tata kelola.',tkkepuasan:'Kepuasan pengguna layanan dari survei.',tkpelayanan:'Penilaian pelayanan publik (EUPP).',tkombudsman:'Kepatuhan standar pelayanan (Ombudsman).',tksarpras:'Layanan ramah kelompok rentan.',tkinovasi:'Inovasi pelayanan tiap unit.',tkinovator:'Tokoh inovator di balik inovasi.',tkkantor:'Kantor terbaik dan champion office.',tkdiagintegritas:'Diagnosa faktor pendorong integritas.',tkkuadran:'Kuadran tata kelola: kinerja vs konsistensi.',tkpanutan:'Unit unggul lintas program tata kelola.',tkindeks:'Indeks komposit tata kelola per unit.'
 };
 /* Rencana modul domain SDM -> ditampilkan sbg kartu "segera" di hub, memberi arah tanpa mengklaim jadi. */
 /* Rancangan modul domain SDM = LENSA ANALITIK siklus SI-OSDM "Hire to Retire".
@@ -1728,14 +1762,14 @@ function freshBar(){
 function featOK(v){return FEATURES==='all'||(Array.isArray(FEATURES)&&FEATURES.indexOf(v)>=0);}
 function canMod(mid){if(mid==='beranda')return true;const m=MODULES.find(x=>x.id===mid);return !!(m&&m.groups.some(g=>g.items.some(it=>featOK(it.v))));}
 function canView(v){if(v==='beranda')return true;if(v==='usermgmt'||v==='statistik')return ADMIN;
-  if(v==='profil'||v==='profilunit')return true;
+  if(v==='profil'||v==='profilunit'||v==='panduan')return true;
   if(v&&v.indexOf('hub_')===0)return true;if(featOK(v))return true;const m=VIEW2MOD[v];if(m&&m!==v)return canMod(m);return false;}
 function firstView(mid){if(mid==='beranda')return'beranda';const m=MODULES.find(x=>x.id===mid);if(m)for(const g of m.groups)for(const it of g.items)if(featOK(it.v))return it.v;return'beranda';}
 let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlTab:'ue1',pwUnit:null,pwJab:null,pwTema:null,pwJab2:null,pwQ:'',pwFilUnit:'',pwFilJenis:'',view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
   timSort:{k:'skor',d:-1},pegSort:{k:'jml_tim',d:-1},timQ:'',timUE1:'',timStat:'',timAktif:'',pegQ:'',pegUE1:'',avQ:'',avUE1:'',avStat:'',skill:null,skillStat:'',insCat:'',
   profUnit:null,remotePage:'dashboard',domainOverride:null,
   urjabQ:'',urjabEs1:'',urjabEs2:'',urjabEs3:'',urjabEs4:'',urjabJab:null,urjabLoading:false,urjabErr:false,
-  urjabAnUE1:'',urjabInsSev:'',urjabInsCat:'',urjabCmpA:'',urjabCmpB:'',urjabCmpUE1A:'',urjabCmpUE1B:'',otkCmpA:'',otkCmpB:'',otkCmpUE1A:'',otkCmpUE1B:'',
+  urjabAnUE1:'',urjabKaitUE1:'',urjabInsSev:'',urjabInsCat:'',urjabCmpA:'',urjabCmpB:'',urjabCmpUE1A:'',urjabCmpUE1B:'',otkCmpA:'',otkCmpB:'',otkCmpUE1A:'',otkCmpUE1B:'',
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
   otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',jfFx:'',jfOpen:{},
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
@@ -1761,9 +1795,9 @@ function _renderMod(m,curV,curM){
     if(g.grp){
       const gkey=m.id+'/'+gi, gOpen=!!state.navOpen[gkey]||g.items.some(i=>i.v===curV);
       h+=`<div class="nvg" data-act="navgrp" data-key="${gkey}"><span class="nvl">${g.grp}</span><span class="nvx">${gOpen?'▾':'▸'}</span></div>`;
-      if(gOpen){h+='<div class="nvitems">';g.items.forEach(i=>{h+=`<div class="nvit ${curV===i.v?'on':''}" data-act="nav" data-view="${i.v}">${i.lab}</div>`;});h+='</div>';}
+      if(gOpen){h+='<div class="nvitems">';g.items.forEach(i=>{h+=`<div class="nvit ${curV===i.v?'on':''}" data-act="nav" data-view="${i.v}"${MENUKET[i.v]?` title="${esc(MENUKET[i.v])}"`:''}>${i.lab}</div>`;});h+='</div>';}
     }else{
-      h+='<div class="nvitems ng">';g.items.forEach(i=>{h+=`<div class="nvit ${curV===i.v?'on':''}" data-act="nav" data-view="${i.v}">${i.lab}</div>`;});h+='</div>';
+      h+='<div class="nvitems ng">';g.items.forEach(i=>{h+=`<div class="nvit ${curV===i.v?'on':''}" data-act="nav" data-view="${i.v}"${MENUKET[i.v]?` title="${esc(MENUKET[i.v])}"`:''}>${i.lab}</div>`;});h+='</div>';
     }
   });
   h+='</div>';
@@ -1808,8 +1842,8 @@ function renderNav(){
   }
   document.getElementById('nav').innerHTML=h;a11yPrepare(document.getElementById('nav'));}
 const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
-  struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
-  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I',
+  struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
+  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Penggunaan',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I',
   tk:'Beranda',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   mofin:'Beranda MOFIN',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Beranda Pelimpahan Wewenang',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
 
@@ -2309,6 +2343,72 @@ function _tugasHasil(tugas,hasil){
     (beda?`<div class="mini" style="margin-top:7px;color:var(--gold2)">Jumlah uraian tugas dan hasil kerja tidak sama; baris tanpa pasangan ditandai "-" dan perlu penyelarasan sumber.</div>`:'')+
     `</div>`;
 }
+/* Indeks jabatan URJAB menurut unit terdalamnya (nama level lvl4/lvl3/lvl2 ternormalisasi).
+   Dipakai aplikasi (b) & (c) untuk menarik uraian tugas milik sebuah unit OTK. Tak di-cache
+   karena URJAB dimuat asinkron; ~1.400 entri, murah dihitung ulang per render. */
+function urjabUnitIndex(){
+  const m={};
+  ((typeof URJAB!=='undefined'&&URJAB&&URJAB.jabatan)||[]).forEach(j=>{
+    const deep=[j.lvl4,j.lvl3,j.lvl2].filter(Boolean)[0];if(!deep)return;
+    const k=_nzName(deep);(m[k]=m[k]||[]).push(j);});
+  return m;
+}
+/* Aplikasi (b): di DETAIL UNIT OTK, tiap fungsi unit -> uraian tugas jabatan pendukungnya
+   (ditarik dari jabatan URJAB di unit itu), plus fungsi tanpa tugas (celah) & tugas tak terpetakan. */
+function vUnitFungsiTugas(n){
+  const fungsi=(n.fungsi||[]).filter(f=>String(f).trim());
+  if(!fungsi.length)return '';   // Eselon IV / unit tanpa fungsi di PMK OTK
+  if(typeof URJAB==='undefined'||!URJAB)
+    return `<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Keterkaitan Fungsi ke Rincian Tugas (URJAB)</h2><div class="mini">Buka modul <span class="link" data-act="nav" data-view="urjab">Analisis Jabatan</span> lebih dulu untuk memuat data uraian jabatan, lalu buka kembali unit ini.</div></div>`;
+  const jabs=urjabUnitIndex()[_nzName(n.nama)]||[];
+  const tugas=[];jabs.forEach(j=>(j.uraian_tugas||[]).forEach(t=>{if(String(t).trim())tugas.push({t:t,jab:j.jabatan});}));
+  if(!tugas.length)
+    return `<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Keterkaitan Fungsi ke Rincian Tugas (URJAB)</h2><div class="mini">Belum ada uraian tugas jabatan yang tertaut ke unit ini pada repositori uraian jabatan.</div></div>`;
+  const pair=pairTugasFungsi(fungsi,tugas.map(x=>x.t));
+  const covered=pair.perF.filter(x=>x.tasks.length).length;
+  let h=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Keterkaitan Fungsi ke Rincian Tugas <span class="mini">(dari ${jabs.length} jabatan di unit ini)</span></h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px"><span class="pill ${covered===fungsi.length?'on':'warn'}">${covered}/${fungsi.length} fungsi didukung tugas</span><span class="pill neu">${tugas.length} uraian tugas</span>${pair.orphans.length?`<span class="pill warn">${pair.orphans.length} tugas tak terpetakan ke fungsi</span>`:''}</div>`;
+  h+=fungsi.map((f,i)=>{const ts=pair.perF[i].tasks;
+    return `<div style="margin-bottom:9px;padding-left:10px;border-left:3px solid ${ts.length?'var(--brand)':'var(--st-warn)'}">
+      <div style="font-weight:600;font-size:var(--fs-md)">${esc(f)} ${ts.length?`<span class="mini">(${ts.length} tugas)</span>`:'<span class="pill warn">belum ada tugas pendukung</span>'}</div>
+      ${ts.length?`<ul class="mini" style="margin:4px 0 0;padding-left:16px;line-height:1.55">${ts.slice(0,6).map(x=>`<li>${esc(tugas[x.i].t)} <span style="color:var(--muted)">&middot; ${esc(tugas[x.i].jab)}</span></li>`).join('')}${ts.length>6?`<li style="color:var(--muted);list-style:none">... dan ${ts.length-6} tugas lain</li>`:''}</ul>`:''}
+    </div>`;}).join('');
+  h+=`<div class="mini" style="margin-top:7px;color:var(--muted)">${FT_NOTE}</div>`;
+  return h+`</div>`;
+}
+/* Aplikasi (c): VIEW KHUSUS "Keterkaitan Fungsi & Tugas" - matriks cakupan lintas unit.
+   Untuk tiap unit Kantor Pusat (Eselon II/III ber-fungsi), berapa fungsi yang sudah didukung
+   uraian tugas jabatan. Celah terbesar diletakkan di atas. Unit tanpa tugas tertaut dilewati
+   (bukan dihitung 0 palsu, sesuai aturan lintas modul). */
+function vUrjabKaitan(){
+  if(state.urjabErr)return '<div class="empty">Gagal memuat data uraian jabatan. Buka menu ini lagi.</div>';
+  if(!URJAB||state.urjabLoading)return skelMemuat('Memuat data uraian jabatan (sekitar 7 MB)...');
+  if(typeof OTK==='undefined'||!OTK||!OTK.unit)return '<div class="empty">Data struktur organisasi (PMK OTK) belum tersedia. Buka modul Struktur Organisasi lebih dulu.</div>';
+  const uidx=urjabUnitIndex();const u1=state.urjabKaitUE1||'';
+  const cand=OTK.unit.filter(n=>!n.nonunit&&n.fungsi&&n.fungsi.length&&(n.level===2||n.level===3));
+  const ue1s=[...new Set(cand.map(n=>(es1Of(n)||{}).nama).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
+  let rows=[];
+  cand.forEach(n=>{const e1=(es1Of(n)||{}).nama||'';if(u1&&e1!==u1)return;
+    const jabs=uidx[_nzName(n.nama)]||[];const tugas=[];jabs.forEach(j=>(j.uraian_tugas||[]).forEach(t=>{if(String(t).trim())tugas.push(t);}));
+    if(!tugas.length)return;
+    const pair=pairTugasFungsi(n.fungsi,tugas);const covered=pair.perF.filter(x=>x.tasks.length).length;
+    rows.push({id:n.id,nama:n.nama,e1:e1,nF:n.fungsi.length,cov:covered,orph:pair.orphans.length,nJab:jabs.length,pct:covered/n.fungsi.length});});
+  const totF=rows.reduce((s,r)=>s+r.nF,0),totCov=rows.reduce((s,r)=>s+r.cov,0),totOrph=rows.reduce((s,r)=>s+r.orph,0);
+  const gapUnits=rows.filter(r=>r.cov<r.nF).length;
+  rows.sort((a,b)=>a.pct-b.pct||b.nF-a.nF);
+  let h=`<div class="note-box">Menautkan <b>fungsi unit di PMK OTK</b> (modul Struktur Organisasi) ke <b>rincian uraian tugas jabatan</b> (modul Analisis Jabatan). Untuk tiap unit dihitung berapa fungsi yang sudah didukung uraian tugas jabatan di unit tersebut. Cakupan terbatas pada Kantor Pusat Eselon II dan III yang memiliki rumusan fungsi di PMK OTK; Eselon IV tidak memiliki fungsi di PMK OTK sehingga tidak disertakan. ${FT_NOTE}</div>
+  <div class="toolbar"><select class="flt" id="urjabKaitUE1"><option value="">Semua Eselon I</option>${ue1s.map(x=>`<option value="${esc(x)}" ${u1===x?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="mini">${fmt(rows.length)} unit</span></div>
+  <div class="kpis">
+    <div class="kpi"><div class="lab">Unit dianalisis</div><div class="val">${fmt(rows.length)}</div></div>
+    <div class="kpi good"><div class="lab">Fungsi didukung tugas</div><div class="val">${totF?Math.round(100*totCov/totF):0}%</div><div class="note">${fmt(totCov)} dari ${fmt(totF)} fungsi</div></div>
+    <div class="kpi ${gapUnits?'alert':''}"><div class="lab">Unit dengan celah</div><div class="val">${fmt(gapUnits)}</div><div class="note">ada fungsi tanpa tugas pendukung</div></div>
+    <div class="kpi gold"><div class="lab">Tugas Tak Terpetakan</div><div class="val">${fmt(totOrph)}</div><div class="note">belum terkait ke fungsi mana pun</div></div></div>
+  <div class="card"><h2 class="sec" style="margin-top:0">Cakupan Fungsi ke Tugas per Unit <span class="mini">(celah terbesar di atas; klik unit untuk rincian)</span></h2><div class="tblw"><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Fungsi</th><th class="num-c">Didukung</th><th style="min-width:120px">Cakupan</th><th class="num-c" title="Uraian tugas jabatan yang belum bisa dikaitkan ke fungsi mana pun (kemiripan di bawah ambang)">Tugas tak terpetakan</th></tr></thead><tbody>`;
+  h+=rows.slice(0,400).map(r=>{const p=Math.round(100*r.pct);const col=p>=80?'var(--st-ok)':p>=50?'var(--st-warn)':'var(--st-critical)';
+    return `<tr><td class="link" data-act="otkopen" data-id="${r.id}">${esc(r.nama)}</td><td class="mini">${esc(r.e1)}</td><td class="num-c">${r.nF}</td><td class="num-c">${r.cov}</td><td><div style="display:flex;align-items:center;gap:6px"><div class="track" style="flex:1"><div class="fill" style="width:${p}%;background:${col}"></div></div><span class="mini">${p}%</span></div></td><td class="num-c">${r.orph||'<span class="mini">-</span>'}</td></tr>`;}).join('')||'<tr><td colspan="6" class="mini">Belum ada unit dengan uraian tugas tertaut pada filter ini.</td></tr>';
+  h+=`</tbody></table></div>${rows.length>400?`<div class="mini" style="padding:8px">Menampilkan 400 dari ${fmt(rows.length)} unit.</div>`:''}</div>`;
+  return h;
+}
 function vUrjabDetail(){
   if(!URJAB)return '<div class="empty">-</div>';
   const j=(URJAB.jabatan||[])[state.urjabJab];
@@ -2325,7 +2425,7 @@ function vUrjabDetail(){
     <div class="mini" style="margin-top:5px">Sumber: ${esc(j.sumber)}</div></div>`;
   h+=sec('Ikhtisar Jabatan',j.ikhtisar);
   h+=sec('Tujuan Jabatan',j.tujuan);
-  h+=lst('Cluster Tusi',j.cluster_tusi);
+  h+=vJabKeterkaitan(j)||lst('Cluster Tusi',j.cluster_tusi);
   h+=_tugasHasil(j.uraian_tugas,j.hasil_kerja);
   h+=lst('Wewenang',j.wewenang);
   h+=lst('Tanggung Jawab',j.tanggung_jawab);
@@ -2339,6 +2439,83 @@ function uAvg(a){return a.length?a.reduce((s,x)=>s+x,0)/a.length:0;}
 const U_STOP={dan:1,'di':1,ke:1,dari:1,yang:1,untuk:1,pada:1,dengan:1,atau:1,dalam:1,serta:1,atas:1,oleh:1,sebagai:1,kepada:1,secara:1,guna:1,agar:1,bagi:1,para:1,antara:1,melalui:1,terhadap:1,dll:1,dsb:1,yaitu:1};
 function uTok(s){const o={};String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).forEach(w=>{if(w.length>3&&!U_STOP[w])o[w]=1;});return o;}
 function uJac(a,b){const ka=Object.keys(a),kb=Object.keys(b);if(!ka.length||!kb.length)return 0;let i=0;ka.forEach(x=>{if(b[x])i++;});return i/(ka.length+kb.length-i);}
+
+/* ===== MESIN KETERKAITAN FUNGSI (OTK) <-> RINCIAN TUGAS (URJAB) =====
+   Menyambungkan tiga lapis yang selama ini terpisah:
+     Fungsi unit di PMK OTK  ->  Cluster Tusi (URJAB)  ->  Rincian Uraian Tugas (URJAB).
+   Fungsi dan cluster tusi adalah pernyataan tingkat FUNGSI; uraian tugas adalah rincian
+   PELAKSANAAN. Ketiganya ditulis oleh sumber/waktu berbeda, sehingga hampir tidak pernah
+   sama persis kata demi kata.
+   TEKNIK PENCOCOKAN (fuzzy): indeks kemiripan Jaccard atas irisan kata kunci. Tiap teks
+   dipecah jadi token kata >3 huruf tanpa kata sambung (lihat uTok), lalu dihitung
+   |irisan kata| / |gabungan kata|. Nilai >= ambang dianggap TERKAIT. Bersifat INDIKATIF
+   dan perlu verifikasi manusia; bukan pemetaan resmi.
+   Ambang dipisah karena dua jenis pasangan punya tingkat kemiripan berbeda:
+   fungsi<->cluster (sama-sama level fungsi) lebih tinggi daripada fungsi<->uraian tugas. */
+const FT_THR_FUNGSI=0.28;   // OTK fungsi  <-> URJAB cluster_tusi  (dua-duanya level fungsi)
+const FT_THR_TUGAS=0.14;    // fungsi/cluster <-> uraian tugas       (fungsi vs rincian, lebih longgar)
+const FT_NOTE='Keterkaitan dihitung otomatis dengan pencocokan kemiripan kata (indeks Jaccard atas kata kunci lebih dari 3 huruf, tanpa kata sambung). Bersifat indikatif dan perlu verifikasi, bukan pemetaan resmi.';
+function _nzName(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
+/* Indeks unit OTK ber-fungsi, dikunci menurut nama ternormalisasi (gabung Pusat + Vertikal + BLU). */
+function otkNameIndex(){
+  const idx={};
+  const add=u=>{if(!u||u.nonunit||!(u.fungsi&&u.fungsi.length))return;const k=_nzName(u.nama);if(k&&!idx[k])idx[k]=u;};
+  if(typeof OTK!=='undefined'&&OTK&&OTK.unit)OTK.unit.forEach(add);
+  if(typeof OTKVERT!=='undefined'&&OTKVERT)Object.keys(OTKVERT).forEach(d=>((OTKVERT[d]||{}).unit||[]).forEach(add));
+  if(typeof OTKBLU!=='undefined'&&OTKBLU)['blu','noneselon'].forEach(g=>Object.keys(OTKBLU[g]||{}).forEach(k=>((OTKBLU[g][k]||{}).unit||[]).forEach(add)));
+  return idx;
+}
+/* Unit OTK untuk sebuah jabatan URJAB: sambung lewat NAMA (bukan kode) di level terdalam
+   yang cocok. PMK OTK tidak memuat fungsi pada Eselon IV, jadi lapis OTK dilewati di situ. */
+function otkUnitForJab(j,idx){
+  idx=idx||otkNameIndex();
+  const cands=[j.lvl4,j.lvl3,j.lvl2].filter(Boolean);
+  for(let i=0;i<cands.length;i++){const u=idx[_nzName(cands[i])];if(u)return u;}
+  return null;
+}
+/* Pasangkan tiap uraian tugas ke fungsi/cluster yang paling mirip (arah: tugas -> fungsi induk). */
+function pairTugasFungsi(fungsi,tugas,thr){
+  fungsi=fungsi||[];tugas=tugas||[];thr=thr==null?FT_THR_TUGAS:thr;
+  const ft=fungsi.map(uTok),tt=tugas.map(uTok);
+  const perF=fungsi.map(f=>({fungsi:f,tasks:[]}));
+  const hit=tugas.map(()=>false);
+  tt.forEach((tk,ti)=>{let bi=-1,bs=0;ft.forEach((fk,fi)=>{const s=uJac(fk,tk);if(s>bs){bs=s;bi=fi;}});if(bi>=0&&bs>=thr){perF[bi].tasks.push({i:ti,sim:bs});hit[ti]=true;}});
+  const orphans=[];tugas.forEach((t,i)=>{if(!hit[i])orphans.push(i);});
+  return {perF,orphans};
+}
+/* Cocokkan tiap cluster_tusi (URJAB) ke fungsi OTK terbaik; memvalidasi klaim "cluster ~ fungsi PMK". */
+function matchClusterToFungsi(cluster,fungsi,thr){
+  cluster=cluster||[];fungsi=fungsi||[];thr=thr==null?FT_THR_FUNGSI:thr;
+  const ct=cluster.map(uTok),ft=fungsi.map(uTok);
+  return cluster.map((c,ci)=>{let bi=-1,bs=0;ft.forEach((fk,fi)=>{const s=uJac(ct[ci],fk);if(s>bs){bs=s;bi=fi;}});return(bi>=0&&bs>=thr)?{fungsi:fungsi[bi],idx:bi,sim:bs}:null;});
+}
+function _simPill(sim){const p=Math.round(sim*100);const c=sim>=0.5?'on':sim>=0.3?'warn':'neu';return `<span class="pill ${c}" title="Kemiripan kata ${p}%">${p}%</span>`;}
+/* Kartu keterkaitan untuk DETAIL JABATAN (aplikasi a):
+   cluster tusi (fungsi jabatan) disandingkan ke fungsi organisasi PMK OTK, dan tiap
+   uraian tugas ditautkan ke cluster/fungsi induknya. Menjawab: dari fungsi organisasi
+   sampai ke rincian tugas jabatan. Kembalikan '' bila jabatan tak punya cluster tusi. */
+function vJabKeterkaitan(j){
+  const cluster=(j.cluster_tusi||[]).filter(c=>String(c).trim());
+  const tugas=(j.uraian_tugas||[]);
+  if(!cluster.length)return '';
+  const es4=j.eselon===4;
+  const otkU=es4?null:otkUnitForJab(j);
+  const otkF=(otkU&&otkU.fungsi)||[];
+  const cMatch=otkF.length?matchClusterToFungsi(cluster,otkF):cluster.map(()=>null);
+  const nMatched=cMatch.filter(Boolean).length;
+  const pair=pairTugasFungsi(cluster,tugas);
+  let h=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Fungsi Jabatan &amp; Keterkaitan <span class="mini">(${cluster.length} fungsi &middot; ${tugas.length} uraian tugas)</span></h2>`;
+  if(otkU)h+=`<div class="mini" style="margin-bottom:8px">Fungsi jabatan disandingkan dengan fungsi organisasi pada unit <span class="link" data-act="otkopen" data-id="${otkU.id}">${esc(otkU.nama)}</span> (PMK OTK): <b>${nMatched}</b> dari ${cluster.length} fungsi menemukan padanan.</div>`;
+  else if(es4)h+=`<div class="mini" style="margin-bottom:8px">PMK OTK tidak memuat rumusan fungsi pada jenjang Eselon IV, sehingga penyandingan ke fungsi organisasi dilewati. Cluster tusi tetap ditautkan ke rincian uraian tugas.</div>`;
+  else h+=`<div class="mini" style="margin-bottom:8px">Fungsi organisasi (PMK OTK) untuk unit jabatan ini belum tertaut otomatis; cluster tusi tetap ditautkan ke rincian uraian tugas.</div>`;
+  h+=`<div class="tblw"><table><thead><tr><th style="width:50%">Cluster Tusi (Fungsi Jabatan)</th><th>Padanan Fungsi Organisasi (PMK OTK)</th><th class="num-c">Uraian tugas</th></tr></thead><tbody>`;
+  cluster.forEach((c,i)=>{const m=cMatch[i];const nt=pair.perF[i].tasks.length;
+    h+=`<tr><td>${esc(c)}</td><td class="mini">${m?esc(m.fungsi)+' '+_simPill(m.sim):'<span class="pill neu">tak ada padanan</span>'}</td><td class="num-c">${nt||'<span class="mini">-</span>'}</td></tr>`;});
+  h+=`</tbody></table></div>`;
+  if(pair.orphans.length)h+=`<div class="mini" style="margin-top:7px;color:var(--gold2)">${pair.orphans.length} uraian tugas belum terhubung ke cluster tusi mana pun (kemiripan di bawah ambang); lihat tabel Uraian Tugas &amp; Hasil Kerja di bawah.</div>`;
+  h+=`<div class="mini" style="margin-top:7px;color:var(--muted)">${FT_NOTE}</div>`;
+  return h+`</div>`;
+}
 /* Insight & Rekomendasi komparasi SUBSTANSI (item-level). Untuk struktur yang SAMA (nama unit sama)
    di unit berbeda: tusi idealnya setara -> evaluasi selisih agar bobot struktur disamakan/standar. */
 function cmpInsight(ia,ib,satuan,nameA,nameB,dispA,dispB){
@@ -2378,7 +2555,7 @@ const U_ESCOL={1:'#0f5aa8',2:'var(--brand)',3:'#5b9bd5',4:'#a9cdef',0:'var(--lin
 function vUrjabAnalisis(){
   if(state.urjabErr)return '<div class="empty">Gagal memuat data uraian jabatan. Buka menu ini lagi.</div>';
   if(!URJAB||state.urjabLoading)return skelMemuat('Memuat data uraian jabatan (sekitar 7 MB)...');
-  const full=URJAB.jabatan||[];const idxOf=new Map(full.map((j,i)=>[j,i]));
+  const full=URJAB.jabatan||[];
   const all=SCOPE.type==='all'?full:full.filter(j=>j.ue1===SCOPE.ue1);const units=[...new Set(all.map(j=>j.unit_kode))].sort();
   const u=state.urjabAnUE1;const list=u?all.filter(j=>j.unit_kode===u):all;
   const tot=list.length;
@@ -2392,7 +2569,7 @@ function vUrjabAnalisis(){
   const sp2=Object.entries(s2).map(([k,v])=>({nm:k.split('||').slice(1).join(' / '),n:Object.keys(v).length}));
   const sp3=Object.entries(s3).map(([k,v])=>({nm:k.split('||').slice(1).join(' / '),n:Object.keys(v).length}));
   const widest=sp2.concat(sp3).sort((a,b)=>b.n-a.n).slice(0,8);
-  const over=list.map(j=>({j,n:(j.uraian_tugas||[]).length,a:avgEs[j.eselon]||0})).filter(o=>o.a&&o.n>1.3*o.a).sort((a,b)=>(b.n-b.a)-(a.n-a.a)).slice(0,10);
+  const canAbk=(typeof canMod==='function'&&canMod('abk'));
   const GEN=/^penugasan lain/i;const cl={};list.forEach(j=>(j.cluster_tusi||[]).forEach(c=>{const key=String(c).trim();if(!key||GEN.test(key))return;cl[key]=(cl[key]||0)+1;}));
   const topcl=Object.entries(cl).sort((a,b)=>b[1]-a[1]).slice(0,12);
   let h=`<div class="toolbar"><select class="flt" id="urjabAnUE1"><option value="">Semua Eselon I</option>${units.map(x=>`<option value="${esc(x)}" ${u===x?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="mini">${fmt(tot)} jabatan ${u?'di '+esc(u):'(13 unit Eselon I)'}</span></div>
@@ -2405,12 +2582,12 @@ function vUrjabAnalisis(){
     <div class="card"><h2 class="sec" style="margin-top:0">Komposisi Jenjang Eselon</h2>
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div>${donut(dparts,160,{big:fmt(tot),small:'JABATAN'})}</div>
       <div style="flex:1;min-width:170px">${[1,2,3,4,0].filter(e=>ce[e]).map(e=>`<div class="bar-row"><div class="name">${ES_LBL[e]||'Fungsional/Pelaksana'}</div><div class="track"><div class="fill" style="width:${Math.round(100*ce[e]/Math.max(1,tot))}%;background:${U_ESCOL[e]}"></div></div><div class="num">${ce[e]}</div></div>`).join('')}</div></div></div>
-    <div class="card"><h2 class="sec" style="margin-top:0">Rata-rata Butir Uraian Tugas per Eselon</h2>${[1,2,3,4].map(e=>bar(ES_LBL[e],avgEs[e],maxAvg,'gold',avgEs[e].toFixed(1))).join('')}<div class="mini" style="margin-top:6px">Beban diukur dari jumlah butir uraian tugas (bukan bobot kerja riil).</div></div></div>`;
+    <div class="card"><h2 class="sec" style="margin-top:0">Rata-rata Butir Uraian Tugas per Eselon</h2>${[1,2,3,4].map(e=>bar(ES_LBL[e],avgEs[e],maxAvg,'gold',avgEs[e].toFixed(1))).join('')}<div class="mini" style="margin-top:6px">Angka ini mencerminkan <b>kerincian dan cakupan</b> penulisan uraian tugas, <b>bukan beban kerja</b>. Beban kerja diukur dari volume kegiatan &times; norma waktu di modul Analisis Beban Kerja.</div></div></div>`;
   if(!u){const cu={};all.forEach(j=>cu[j.unit_kode]=(cu[j.unit_kode]||0)+1);const mx=Math.max.apply(null,Object.values(cu));
     h+=`<div class="card"><h2 class="sec" style="margin-top:0">Jumlah Jabatan per Unit Eselon I</h2>${Object.entries(cu).sort((a,b)=>b[1]-a[1]).map(([k,v])=>bar(k,v,mx,'',fmt(v))).join('')}</div>`;}
   h+=`<div class="grid2">
     <div class="card"><h2 class="sec" style="margin-top:0">Rentang Kendali Terlebar</h2><div class="tblw"><table><thead><tr><th>Unit</th><th class="num-c">Unit langsung</th></tr></thead><tbody>${widest.length?widest.map(x=>`<tr><td class="mini">${esc(x.nm)}</td><td class="num-c">${x.n}</td></tr>`).join(''):'<tr><td class="mini">-</td><td class="num-c">-</td></tr>'}</tbody></table></div></div>
-    <div class="card"><h2 class="sec" style="margin-top:0">Jabatan Beban Tugas Tertinggi</h2><div class="tblw"><table><thead><tr><th>Jabatan</th><th>Unit</th><th class="num-c">Butir</th><th class="num-c">Rata2 ES</th></tr></thead><tbody>${over.map(o=>`<tr><td class="link" data-act="urjabopen" data-idx="${idxOf.get(o.j)}">${esc(o.j.jabatan)}</td><td class="mini">${esc(o.j.unit_kode)}</td><td class="num-c">${o.n}</td><td class="num-c mini">${o.a.toFixed(0)}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+    <div class="card"><h2 class="sec" style="margin-top:0">Membaca Jumlah Butir Tugas</h2><div class="mini" style="line-height:1.65">Banyaknya butir uraian tugas <b>tidak mencerminkan tingginya beban kerja</b>. Jumlah butir dipengaruhi oleh <b>seberapa rinci</b> penyusun ANJAB memecah tugas dan oleh <b>luas cakupan</b> tanggung jawab jabatan, bukan oleh volume pekerjaan. Beban kerja yang sesungguhnya dihitung dari <b>volume kegiatan &times; norma waktu</b> pada modul Analisis Beban Kerja (ABK), sesuai PMK 175/238.</div>${canAbk?`<div style="margin-top:10px"><span class="tag link" style="background:var(--brand-l);color:var(--brand-d);font-weight:700;cursor:pointer" data-act="nav" data-view="abk">Buka modul Analisis Beban Kerja &rsaquo;</span></div>`:'<div class="mini" style="margin-top:10px;color:var(--muted)">Modul Analisis Beban Kerja menyajikan beban kerja aktual per unit.</div>'}</div></div>`;
   if(topcl.length)h+=`<div class="card"><h2 class="sec" style="margin-top:0">Taksonomi Fungsi (Cluster Tusi Terbanyak)</h2><div style="display:flex;flex-wrap:wrap;gap:7px">${topcl.map(c=>`<span class="tag" title="${esc(c[0])}">${esc(c[0].length>54?c[0].slice(0,54)+'&hellip;':c[0])} <b>${c[1]}</b></span>`).join('')}</div><div class="mini" style="margin-top:6px">Entri generik "Penugasan lainnya" dikecualikan.</div></div>`;
   return h;
 }
@@ -2421,10 +2598,10 @@ function vUrjabInsight(){
   if(!URJAB||state.urjabLoading)return skelMemuat('Menganalisis uraian jabatan...');
   const full=URJAB.jabatan||[];const idxOf=new Map(full.map((j,i)=>[j,i]));
   const all=SCOPE.type==='all'?full:full.filter(j=>j.ue1===SCOPE.ue1);
-  const tBy={1:[],2:[],3:[],4:[]};all.forEach(j=>{if(tBy[j.eselon])tBy[j.eselon].push((j.uraian_tugas||[]).length);});
-  const avg={};[1,2,3,4].forEach(e=>avg[e]=uAvg(tBy[e]));
   const F=[];
-  all.forEach(j=>{const n=(j.uraian_tugas||[]).length;const a=avg[j.eselon];if(a&&n>=40&&n>1.5*a)F.push({sev:(n>2*a&&n>=60)?'tinggi':'sedang',cat:'Beban',unit:j.unit_kode,idx:idxOf.get(j),t:'Beban tugas tinggi: '+j.jabatan,d:n+' butir uraian tugas, jauh di atas rata-rata '+ES_LBL[j.eselon]+' (sekitar '+a.toFixed(0)+'). Pertimbangkan redistribusi tugas atau penajaman fungsi.'});});
+  /* CATATAN: temuan "beban tugas tinggi" (jumlah butir > rata-rata) sengaja DIHILANGKAN.
+     Banyaknya butir uraian tugas mencerminkan kerincian/cakupan penulisan, bukan beban kerja
+     (volume x norma waktu). Beban kerja aktual ada di modul Analisis Beban Kerja (ABK). */
   const s2={},s3={};
   all.forEach(j=>{if(j.lvl2&&j.lvl3){const k=j.unit_kode+'||'+j.lvl2;(s2[k]=s2[k]||{})[j.lvl3]=1;}if(j.lvl3&&j.lvl4){const k=j.unit_kode+'||'+j.lvl2+'||'+j.lvl3;(s3[k]=s3[k]||{})[j.lvl4]=1;}});
   Object.entries(s2).forEach(([k,v])=>{const n=Object.keys(v).length;if(n>=7)F.push({sev:'sedang',cat:'Struktur',unit:k.split('||')[0],t:'Rentang kendali lebar (Eselon II)',d:k.split('||').slice(1).join(' / ')+' membawahi '+n+' unit Eselon III. Tinjau penyederhanaan atau pengelompokan fungsi.'});});
@@ -2501,10 +2678,46 @@ function pbBerandaFetch(){
 /* Tab halaman Beranda: Beranda + Profil Eselon I jadi satu rumah lintas domain
    (Profil bukan lagi sub-menu sidebar). Dipakai di vBeranda, vProfil, vProfilUnit. */
 function _berandaTabs(active){
-  const T=[{v:'beranda',lab:'Beranda'},{v:'profil',lab:'Profil Eselon I'}];
+  const T=[{v:'beranda',lab:'Beranda'},{v:'profil',lab:'Profil Eselon I'},{v:'panduan',lab:'Panduan'}];
   return '<div class="pgtabs">'+T.map(function(t){
     return '<button class="pgtab'+((t.v===active||(t.v==='profil'&&active==='profilunit'))?' on':'')+'" data-act="nav" data-view="'+t.v+'">'+esc(t.lab)+'</button>';
   }).join('')+'</div>';
+}
+/* Subjudul fungsi menu (in-context), tepat di bawah judul tiap view. Sumber = MENUKET.
+   Disembunyikan utk halaman ikhtisar/hub/detail/iframe yg tak butuh keterangan menu. */
+function menuDescBar(){
+  var v=state.view;
+  if(v==='beranda'||v==='profil'||v==='profilunit'||v==='panduan'||v.indexOf('hub_')===0||v.indexOf('pb_')===0||v==='otkremote')return '';
+  var d=MENUKET[v];
+  return d?'<div class="menudesc">'+esc(d)+'</div>':'';
+}
+function _pndRow(v,lab,desc){
+  return '<div class="pnd-row" data-act="nav" data-view="'+v+'"><span class="pnd-lab">'+esc(lab)+'</span><span class="pnd-desc">'+esc(desc||'')+'</span></div>';
+}
+/* Halaman PANDUAN PENGGUNAAN (tab Beranda). Dibangkitkan OTOMATIS dari registry MODULES,
+   jadi selalu sinkron dengan menu asli. Hanya menampilkan menu yang bisa diakses pengguna. */
+function vPanduan(){
+  var h=_berandaTabs('panduan');
+  h+='<div class="note-box">Halaman ini merangkum seluruh modul dan menu beserta fungsinya, supaya mudah menemukan analisis yang Anda cari. Klik nama menu untuk langsung membukanya. Daftar menyesuaikan hak akses Anda.</div>';
+  h+='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Umum</h2><div class="pnd-list">';
+  h+=_pndRow('beranda','Beranda',MENUKET.beranda);
+  if(canView('profil'))h+=_pndRow('profil','Profil Eselon I',MENUKET.profil);
+  h+='</div></div>';
+  DOMAINS.forEach(function(d){
+    var mods=MODULES.filter(function(m){return m.id!=='beranda'&&domOf(m.id)===d.k&&canMod(m.id);});
+    if(!mods.length)return;
+    h+='<h2 class="sec" style="margin:20px 0 9px">'+esc(d.lab)+' <span class="mini" style="font-weight:400">&middot; '+esc(DOMDESC[d.k]||'')+'</span></h2>';
+    mods.forEach(function(m){
+      var seen={},rows='';
+      (m.groups||[]).forEach(function(g){g.items.forEach(function(it){
+        if(!featOK(it.v)||seen[it.v])return;seen[it.v]=1;
+        rows+=_pndRow(it.v,it.lab,MENUKET[it.v]);
+      });});
+      if(!rows)return;
+      h+='<div class="card" style="margin-bottom:12px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:9px"><span class="pnd-ic">'+svgIcon(m.icn)+'</span><div><div style="font-weight:800;color:var(--brand-d);font-size:var(--fs-md)">'+esc(m.lab)+'</div><div class="mini">'+esc(MODKET[m.id]||'')+'</div></div></div><div class="pnd-list">'+rows+'</div></div>';
+    });
+  });
+  return h;
 }
 function vBeranda(){
   const s=(DATA&&DATA.summary)||{};
@@ -2719,6 +2932,7 @@ function vOtkDetail(){
   ${(BAGAN[n.id]&&state.otkShowBagan)?`<div class="card" style="margin-bottom:12px;text-align:center"><img src="otk_bagan/${BAGAN[n.id]}" alt="Bagan ${esc(n.nama)}" style="max-width:100%;border:1px solid var(--line);border-radius:8px"></div>`:''}`;
   if(n.tugas)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Tugas</h2><div style="font-size:var(--fs-base);line-height:1.6">${esc(n.tugas)}</div></div>`;
   if(n.fungsi&&n.fungsi.length)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Fungsi <span class="mini">(${n.fungsi.length})</span></h2><ol style="margin:0;padding-left:20px;font-size:var(--fs-base);line-height:1.6">${n.fungsi.map(f=>`<li style="margin-bottom:5px">${esc(f)}</li>`).join('')}</ol></div>`;
+  h+=vUnitFungsiTugas(n);
   h+=pwPanelOtk(n);
   h+=profil360(n);
   if(kids.length)h+=`<div class="card"><h2 class="sec" style="margin-top:0">Unit di Bawahnya <span class="mini">(${kids.length})</span></h2><div style="display:flex;flex-wrap:wrap;gap:7px">${kids.map(c=>`<span class="tag link" data-act="otkopen" data-id="${c.id}">${esc(c.nama)}</span>`).join('')}</div></div>`;
@@ -3436,22 +3650,33 @@ function vAbkDiag(){
   const e=abkEs1();if(!e)return '<div class="card"><div class="empty">Belum ada data.</div></div>';
   const us=e.units;
   // kuadran: x=EU.1 (efisiensi), y=EU.2 (efektivitas/fokus tusi)
-  const W=760,H=380,P=46;
+  // Padding asimetris: pita ATAS utk label kuadran atas + penanda acuan (titik menggerombol
+  // di atas krn EU.2 kebanyakan tinggi), pita BAWAH & KIRI utk judul sumbu -> tak tumpuk titik.
+  const W=760,H=404,PL=54,PR=18,PT=58,PB=52;
   const xs=us.map(u=>u.eu1),ys=us.map(u=>u.eu2);
   const x0=Math.min(0.7,Math.min.apply(null,xs)-0.03),x1=Math.max(1.3,Math.max.apply(null,xs)+0.03);
-  const y0=Math.min(78,Math.min.apply(null,ys)-2),y1=100.5;
+  const y0=Math.min(78,Math.min.apply(null,ys)-2),y1=101;
   const cx=1.0, cy=90;  // garis acuan
-  const px=v=>P+(v-x0)/(x1-x0)*(W-2*P), py=v=>H-P-(v-y0)/(y1-y0)*(H-2*P);
+  const px=v=>PL+(v-x0)/(x1-x0)*(W-PL-PR), py=v=>H-PB-(v-y0)/(y1-y0)*(H-PT-PB);
+  const midY=(PT+H-PB)/2;
+  const qbg=(x,y,t,anch)=>{const w=t.length*5.4+10;const bx=anch==='end'?x-w+4:x-4;return `<rect x="${bx.toFixed(1)}" y="${(y-11).toFixed(1)}" width="${w.toFixed(1)}" height="15" rx="4" fill="var(--side)" opacity="0.82"/>`;};
   let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%;background:var(--side);border-radius:10px">`;
-  svg+=`<line x1="${px(cx)}" y1="${P-8}" x2="${px(cx)}" y2="${H-P}" stroke="var(--line)" stroke-dasharray="4 4"/><line x1="${P}" y1="${py(cy)}" x2="${W-P}" y2="${py(cy)}" stroke="var(--line)" stroke-dasharray="4 4"/>`;
-  svg+=`<text x="${W-P}" y="${H-P+22}" font-size="11" fill="var(--muted)" text-anchor="end">Beban per pegawai makin berat &rarr;</text><text x="${P-8}" y="${P-14}" font-size="11" fill="var(--muted)">&uarr; Makin sesuai tugas dan fungsi</text>`;
-  svg+=`<text x="${px(cx)+6}" y="${P-2}" font-size="10" fill="var(--muted)">EU.1 = 1,0</text><text x="${P+2}" y="${py(cy)-4}" font-size="10" fill="var(--muted)">EU.2 = 90%</text>`;
-  // label kuadran (bahasa lugas)
-  svg+=`<text x="${W-P-4}" y="${P+10}" font-size="10" font-weight="700" fill="var(--st-good)" text-anchor="end">Berat, sesuai tugas dan fungsi</text>`;
-  svg+=`<text x="${P+4}" y="${P+10}" font-size="10" font-weight="700" fill="var(--cat-1)">Ringan, sesuai tugas dan fungsi</text>`;
-  svg+=`<text x="${W-P-4}" y="${H-P-6}" font-size="10" font-weight="700" fill="var(--st-critical)" text-anchor="end">Berat, banyak tugas tambahan</text>`;
-  svg+=`<text x="${P+4}" y="${H-P-6}" font-size="10" font-weight="700" fill="var(--muted)">Ringan, banyak tugas tambahan</text>`;
+  // garis acuan
+  svg+=`<line x1="${px(cx)}" y1="${PT-6}" x2="${px(cx)}" y2="${H-PB}" stroke="var(--line)" stroke-dasharray="4 4"/><line x1="${PL}" y1="${py(cy)}" x2="${W-PR}" y2="${py(cy)}" stroke="var(--line)" stroke-dasharray="4 4"/>`;
+  // judul sumbu (di margin, tak menyentuh area titik) - sumbu Y diputar tegak
+  svg+=`<text x="${W-PR}" y="${H-13}" font-size="11" fill="var(--muted)" text-anchor="end">Beban per pegawai makin berat &rarr;</text>`;
+  svg+=`<text transform="translate(15,${midY.toFixed(1)}) rotate(-90)" font-size="11" fill="var(--muted)" text-anchor="middle">Makin sesuai tugas dan fungsi &rarr;</text>`;
+  // penanda garis acuan: EU.1 di pita atas (tengah), EU.2 di tepi kiri pada garisnya
+  svg+=`<text x="${px(cx)}" y="${PT-30}" font-size="10" fill="var(--muted)" text-anchor="middle">EU.1 = 1,0</text>`;
+  svg+=`<text x="${PL+3}" y="${py(cy)-4}" font-size="10" fill="var(--muted)">EU.2 = 90%</text>`;
+  // label kuadran ATAS di pita atas (di atas semua titik)
+  svg+=`<text x="${PL}" y="${PT-14}" font-size="10" font-weight="700" fill="var(--cat-1)">Ringan, sesuai tugas dan fungsi</text>`;
+  svg+=`<text x="${W-PR}" y="${PT-14}" font-size="10" font-weight="700" fill="var(--st-good)" text-anchor="end">Berat, sesuai tugas dan fungsi</text>`;
+  // titik dulu
   us.forEach(u=>{const zc=abkZona(u.eu1);svg+=`<g style="cursor:pointer" data-act="abkunit" data-k="${u.kode}"><circle cx="${px(u.eu1).toFixed(1)}" cy="${py(u.eu2).toFixed(1)}" r="6" fill="${zc.bg}" stroke="${zc.c}" stroke-width="1.6"/><title>${esc(u.nama)}: EU.1 ${(+u.eu1).toFixed(2)}, EU.2 ${(+u.eu2).toFixed(1)}%</title></g>`;});
+  // label kuadran BAWAH di dalam plot (area kosong) + latar tipis supaya kebaca bila ada titik
+  svg+=qbg(PL,H-PB-7,'Ringan, banyak tugas tambahan','start')+`<text x="${PL}" y="${H-PB-7}" font-size="10" font-weight="700" fill="var(--muted)">Ringan, banyak tugas tambahan</text>`;
+  svg+=qbg(W-PR,H-PB-7,'Berat, banyak tugas tambahan','end')+`<text x="${W-PR}" y="${H-PB-7}" font-size="10" font-weight="700" fill="var(--st-critical)" text-anchor="end">Berat, banyak tugas tambahan</text>`;
   svg+='</svg>';
   // klasifikasi
   const grp={tf:[],lf:[],tm:[],lm:[]};
@@ -4989,8 +5214,8 @@ function renderCrumb(){
   const c=[];const v=state.view;
   const bk=_hist.length?`<a data-act="navback" title="Kembali ke menu sebelumnya" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;font-weight:700;color:var(--brand)">&lsaquo; Kembali</a> <span style="color:var(--line);margin:0 4px">|</span> `:'';
   if(v.indexOf('pb_')===0){var _mid=VIEW2MOD[v]||'probis';var _ml=(MODULES.find(function(m){return m.id===_mid;})||{}).lab||'Proses Bisnis';document.getElementById('crumb').innerHTML=bk+'<span>'+esc(_ml)+' &rsaquo; '+esc(PB_LBL[v.slice(3)]||'')+'</span>';return;}
-  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
-    beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi',jfmap:'Peta Unit Pengelola JF',jf:'Peta JF Keuangan Negara',jffungsi:'Fungsionalisasi (Delayering)',jabkomposisi:'Komposisi Jabatan per Eselon I'}[v];
+  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analitik',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Struktur',tim:'Tim',pegawai:'Pegawai',keahlian:'Keahlian',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
+    beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi',jfmap:'Peta Unit Pengelola JF',jf:'Peta JF Keuangan Negara',jffungsi:'Fungsionalisasi (Delayering)',jabkomposisi:'Komposisi Jabatan per Eselon I',panduan:'Panduan Penggunaan'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
     if(v==='urjabdetail'){c.push(`<a data-act="nav" data-view="urjab">Repositori Uraian Jabatan</a>`);c.push('&rsaquo;');c.push(`<span>${esc(((URJAB&&URJAB.jabatan[state.urjabJab])||{}).jabatan||'Detail')}</span>`);}
@@ -5411,10 +5636,10 @@ function render(){
   const viewEl=document.getElementById('view');const footEl=document.getElementById('foot');
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();if(!_sv)window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
-  const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,statistik:vStatistik,profil:vProfil,profilunit:vProfilUnit,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
+  const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabkaitan:vUrjabKaitan,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,statistik:vStatistik,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
-  viewEl.innerHTML=freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
+  viewEl.innerHTML=menuDescBar()+freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   if(state.view==='otkremote')setTimeout(remoteFit,0);
   jejak(state.view);
   vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);
@@ -6136,6 +6361,7 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('urjabEs3'))q('urjabEs3').onchange=e=>{state.urjabEs3=e.target.value;state.urjabEs4='';render();};
   if(q('urjabEs4'))q('urjabEs4').onchange=e=>{state.urjabEs4=e.target.value;render();};
   if(q('urjabAnUE1'))q('urjabAnUE1').onchange=e=>{state.urjabAnUE1=e.target.value;render();};
+  if(q('urjabKaitUE1'))q('urjabKaitUE1').onchange=e=>{state.urjabKaitUE1=e.target.value;render();};
   if(q('urjabInsSev'))q('urjabInsSev').onchange=e=>{state.urjabInsSev=e.target.value;render();};
   if(q('urjabInsCat'))q('urjabInsCat').onchange=e=>{state.urjabInsCat=e.target.value;render();};
   if(q('urjabCmpA'))q('urjabCmpA').onchange=e=>{state.urjabCmpA=e.target.value;render();};
