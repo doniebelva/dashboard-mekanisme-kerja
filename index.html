@@ -141,17 +141,13 @@ tr[data-act]:focus-visible,td[data-act]:focus-visible{outline:2px solid var(--br
    kita sentuh) tetap dlm mode sempit = sidebar internalnya SEMBUNYI, lalu di-ZOOM via transform
    scale agar memenuhi ruang. App mengira dirinya sempit; pengguna melihatnya lebar. Ukuran nyata
    diatur remoteFit() (JS) krn butuh hitung skala dari lebar wadah. */
-.remote-fitwrap{margin:0 auto;overflow:hidden;border:1px solid var(--line);border-radius:var(--rad-sm);background:var(--surface-2)}
-.remote-frame{border:0;display:block;transform-origin:0 0}
-.remote-note{text-align:center}
-.remote-note{font-size:var(--fs-mini);color:var(--muted);line-height:1.5}
+.remote-fitwrap{margin:0 auto;min-height:320px;overflow:hidden;border:1px solid var(--line);border-radius:var(--rad-sm);background:var(--surface-2)}
+.remote-frame{border:0;display:block}
 .remote-tabs{display:inline-flex;gap:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--rad-sm);padding:3px}
 .remote-tab{border:none;background:transparent;font-size:var(--fs-sm);font-weight:700;color:var(--muted);padding:5px 15px;border-radius:var(--rad-xs);cursor:pointer;transition:all var(--t-fast) ease}
 .remote-tab.on{background:var(--brand);color:#fff}
 .remote-tab:not(.on):hover{color:var(--brand)}
 .remote-actions{display:flex;align-items:center;gap:var(--sp-5)}
-.remote-ghost{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:var(--fs-sm);font-weight:700;padding:6px var(--sp-6);border-radius:var(--rad-sm);cursor:pointer}
-.remote-ghost:hover{border-color:var(--brand);color:var(--brand)}
 .print-only{display:none}   /* hanya tampil saat @media print (kop dokumen resmi) */
 .skiplink{position:fixed;left:-999px;top:8px;z-index:200;background:var(--brand);color:#fff;
   padding:var(--sp-5) var(--sp-7);border-radius:var(--rad-sm);font-weight:700;text-decoration:none}
@@ -4893,29 +4889,29 @@ function vUnitRemote(){
     '</div>'+
     '<div class="remote-fitwrap"><iframe class="remote-frame" src="'+esc(url)+'" title="Unit Remote" '+
       'referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write; fullscreen"></iframe></div>'+
-    '<div class="remote-note">Aplikasi eksternal '+esc(UNIT_REMOTE_BASE.replace(/^https?:\/\//,''))+'. Jika halaman tidak tampil, aplikasi mungkin memerlukan login tersendiri atau memblokir penyematan. Gunakan <b>Buka di tab baru</b>.</div>'+
   '</div>';
 }
 
-/* PANGKAS-KIRI (tanpa zoom, teks 1:1): iframe dirender LEBIH LEBAR dari ruang sebesar lebar
-   sidebar UKDR (~300px) lalu digeser kiri sehingga sidebarnya terpotong keluar bingkai. UKDR
-   tetap mode lebar (bukan di-zoom), pengguna melihat konten penuh tanpa sidebar ganda.
-   Kalau ruang sempit (<700px) UKDR sudah menyembunyikan sidebarnya sendiri -> tanpa pangkas. */
-var REMOTE_SIDEBAR_W=256;   /* lebar sidebar UKDR (300 kelebihan: huruf awal konten ikut terpangkas); setel bila perlu */
+/* PANGKAS (tanpa zoom, teks 1:1): app UKDR beda origin -> tak bisa kita sentuh DOM/CSS-nya.
+   Trik: iframe dirender LEBIH BESAR dari bingkai (di kiri sebesar sidebar, di atas sebesar
+   header), lalu digeser kiri+atas sehingga sidebar & header UKDR terpotong keluar bingkai
+   (wadah overflow:hidden). UKDR tetap 1:1, pengguna melihat konten murni tanpa chrome ganda.
+   Sidebar cuma dipangkas di mode lebar (di sempit UKDR sembunyikan sendiri); header SELALU.
+   DUA angka yang bisa disetel bila potongan meleset:
+     REMOTE_SIDEBAR_W - sisa sidebar terlihat (naikkan) / konten kiri terpotong (turunkan)
+     REMOTE_HEADER_H  - sisa header terlihat (naikkan) / konten atas terpotong (turunkan) */
+var REMOTE_SIDEBAR_W=256;
+var REMOTE_HEADER_H=66;
 function remoteFit(){
   var w=document.querySelector('.remote-fitwrap'),f=document.querySelector('.remote-frame');
   if(!w||!f)return;
   var ruang=(w.parentElement.clientWidth||740)-18;  /* buffer: scrollbar bisa muncul SETELAH fit dihitung */
   var visH=Math.max(320,window.innerHeight-235);
-  f.style.transform='';
-  if(ruang>=700){                                   /* mode lebar: pangkas sidebar UKDR */
-    w.style.width=ruang+'px'; w.style.height=visH+'px';
-    f.style.width=(ruang+REMOTE_SIDEBAR_W)+'px'; f.style.height=visH+'px';
-    f.style.marginLeft=(-REMOTE_SIDEBAR_W)+'px';
-  }else{                                            /* mode sempit: UKDR sembunyikan sidebarnya sendiri */
-    w.style.width=ruang+'px'; w.style.height=visH+'px';
-    f.style.width=ruang+'px'; f.style.height=visH+'px'; f.style.marginLeft='0';
-  }
+  var cropL=(ruang>=700)?REMOTE_SIDEBAR_W:0;        /* sidebar hanya di mode lebar */
+  var cropT=REMOTE_HEADER_H;                        /* header selalu dipangkas */
+  w.style.width=ruang+'px'; w.style.height=visH+'px';
+  f.style.width=(ruang+cropL)+'px'; f.style.height=(visH+cropT)+'px';
+  f.style.marginLeft=(-cropL)+'px'; f.style.marginTop=(-cropT)+'px';
 }
 addEventListener('resize',function(){if(state.view==='otkremote')remoteFit();});
 
