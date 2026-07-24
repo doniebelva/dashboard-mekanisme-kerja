@@ -583,6 +583,21 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 .pnd-desc{flex:1;color:var(--muted);font-size:var(--fs-sm);line-height:1.45}
 .pnd-ic{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border-radius:var(--rad-sm);background:var(--side);color:var(--brand);flex:none}
 @media(max-width:620px){.pnd-row{flex-direction:column;gap:2px}.pnd-lab{min-width:0}}
+/* Endpoint rantai Fungsi->Tugas->Beban: callout beban kerja aktual unit (dari ABK) */
+.abk-cal{margin:2px 0 11px;padding:11px 13px;background:var(--side);border:1px solid var(--line);border-radius:10px}
+.abk-cal.muted{color:var(--muted);font-size:var(--fs-sm);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.abk-cal-h{font-weight:700;color:var(--brand-d);font-size:var(--fs-sm);margin-bottom:9px}
+.abk-cal-g{display:flex;gap:20px;flex-wrap:wrap}
+.abk-stat .v{font-size:var(--fs-lg);font-weight:800;color:var(--brand-d);line-height:1.1}
+.abk-stat .v .u{font-size:var(--fs-mini);font-weight:600;color:var(--muted)}
+.abk-stat .l{font-size:var(--fs-mini);color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:700;margin-top:3px}
+/* Kokpit Prioritas di Beranda: kartu sinyal lintas modul */
+.kok-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:10px}
+.kok-card{background:var(--side);border:1px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer;transition:box-shadow var(--t-fast) ease,transform var(--t-fast) ease}
+.kok-card:hover{box-shadow:0 4px 14px rgba(8,30,70,.10);transform:translateY(-1px)}
+.kok-num{font-size:var(--fs-num);font-weight:800;line-height:1}
+.kok-lab{font-weight:700;color:var(--ink);font-size:var(--fs-sm);margin-top:5px}
+.kok-desc{font-size:var(--fs-mini);color:var(--muted);margin-top:3px;line-height:1.4}
 /* Tombol cari menu (jalur ekspres command palette) di puncak sidebar. */
 .navsearch{width:100%;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);
   background:var(--surface-2);border:1px solid var(--line);border-radius:var(--rad-sm);
@@ -2371,6 +2386,7 @@ function vUnitFungsiTugas(n){
   const covered=pair.perF.filter(x=>x.tasks.length).length;
   let h=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Keterkaitan Fungsi ke Rincian Tugas <span class="mini">(dari ${jabs.length} jabatan di unit ini)</span></h2>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px"><span class="pill ${covered===fungsi.length?'on':'warn'}">${covered}/${fungsi.length} fungsi didukung tugas</span><span class="pill neu">${tugas.length} uraian tugas</span>${pair.orphans.length?`<span class="pill warn">${pair.orphans.length} tugas tak terpetakan ke fungsi</span>`:''}</div>`;
+  h+=_abkBebanCallout(n.nama,jabs.length);
   h+=fungsi.map((f,i)=>{const ts=pair.perF[i].tasks;
     return `<div style="margin-bottom:9px;padding-left:10px;border-left:3px solid ${ts.length?'var(--brand)':'var(--st-warn)'}">
       <div style="font-weight:600;font-size:var(--fs-md)">${esc(f)} ${ts.length?`<span class="mini">(${ts.length} tugas)</span>`:'<span class="pill warn">belum ada tugas pendukung</span>'}</div>
@@ -2390,25 +2406,32 @@ function vUrjabKaitan(){
   const uidx=urjabUnitIndex();const u1=state.urjabKaitUE1||'';
   const cand=OTK.unit.filter(n=>!n.nonunit&&n.fungsi&&n.fungsi.length&&(n.level===2||n.level===3));
   const ue1s=[...new Set(cand.map(n=>(es1Of(n)||{}).nama).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
+  const canAbk=(typeof canMod!=='function')||canMod('abk');
+  const abkOn=canAbk&&(typeof ABK!=='undefined')&&!!ABK;   // kolom beban kerja aktif bila ABK sudah dimuat
   let rows=[];
   cand.forEach(n=>{const e1=(es1Of(n)||{}).nama||'';if(u1&&e1!==u1)return;
     const jabs=uidx[_nzName(n.nama)]||[];const tugas=[];jabs.forEach(j=>(j.uraian_tugas||[]).forEach(t=>{if(String(t).trim())tugas.push(t);}));
     if(!tugas.length)return;
     const pair=pairTugasFungsi(n.fungsi,tugas);const covered=pair.perF.filter(x=>x.tasks.length).length;
-    rows.push({id:n.id,nama:n.nama,e1:e1,nF:n.fungsi.length,cov:covered,orph:pair.orphans.length,nJab:jabs.length,pct:covered/n.fungsi.length});});
+    const row={id:n.id,nama:n.nama,e1:e1,nF:n.fungsi.length,cov:covered,orph:pair.orphans.length,nJab:jabs.length,pct:covered/n.fungsi.length,beban:null,sel:null,eu1:null};
+    if(abkOn){const fa=abkFind(n.nama);if(fa){row.beban=fa.u.beban;row.sel=fa.u.selisih;row.eu1=fa.u.eu1;}}
+    rows.push(row);});
   const totF=rows.reduce((s,r)=>s+r.nF,0),totCov=rows.reduce((s,r)=>s+r.cov,0),totOrph=rows.reduce((s,r)=>s+r.orph,0);
   const gapUnits=rows.filter(r=>r.cov<r.nF).length;
+  const abkMatched=rows.filter(r=>r.eu1!=null).length;
+  const totKurang=rows.reduce((s,r)=>s+(r.sel<0?-r.sel:0),0);   // selisih=ada-butuh; negatif = kurang orang
   rows.sort((a,b)=>a.pct-b.pct||b.nF-a.nF);
-  let h=`<div class="note-box">Menautkan <b>fungsi unit di PMK OTK</b> (modul Struktur Organisasi) ke <b>rincian uraian tugas jabatan</b> (modul Analisis Jabatan). Untuk tiap unit dihitung berapa fungsi yang sudah didukung uraian tugas jabatan di unit tersebut. Cakupan terbatas pada Kantor Pusat Eselon II dan III yang memiliki rumusan fungsi di PMK OTK; Eselon IV tidak memiliki fungsi di PMK OTK sehingga tidak disertakan. <b>Catatan membaca "tugas tak terpetakan":</b> angkanya wajar tinggi karena fungsi bersifat umum sementara uraian tugas sangat rinci, sehingga banyak tugas tidak mencapai ambang kemiripan. Perlakukan sebagai daftar untuk telaah manual, bukan indikasi data buruk. ${FT_NOTE}</div>
-  <div class="toolbar"><select class="flt" id="urjabKaitUE1"><option value="">Semua Eselon I</option>${ue1s.map(x=>`<option value="${esc(x)}" ${u1===x?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="mini">${fmt(rows.length)} unit</span></div>
+  let h=`<div class="note-box">Menautkan <b>fungsi unit di PMK OTK</b> (modul Struktur Organisasi) ke <b>rincian uraian tugas jabatan</b> (modul Analisis Jabatan). Untuk tiap unit dihitung berapa fungsi yang sudah didukung uraian tugas jabatan di unit tersebut. Cakupan terbatas pada Kantor Pusat Eselon II dan III yang memiliki rumusan fungsi di PMK OTK; Eselon IV tidak memiliki fungsi di PMK OTK sehingga tidak disertakan. <b>Catatan membaca "tugas tak terpetakan":</b> angkanya wajar tinggi karena fungsi bersifat umum sementara uraian tugas sangat rinci, sehingga banyak tugas tidak mencapai ambang kemiripan. Perlakukan sebagai daftar untuk telaah manual, bukan indikasi data buruk.${abkOn?' <b>Kolom beban kerja</b> (ABK 2024) menyandingkan cakupan fungsi dengan beban aktual dan kecukupan pegawai tiap unit, sehingga terlihat unit yang fungsinya berat namun kurang orang.':''} ${FT_NOTE}</div>
+  <div class="toolbar"><select class="flt" id="urjabKaitUE1"><option value="">Semua Eselon I</option>${ue1s.map(x=>`<option value="${esc(x)}" ${u1===x?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="mini">${fmt(rows.length)} unit</span>${canAbk?(abkOn?`<span class="mini" style="color:var(--st-good)">&#10003; Beban kerja (ABK 2024) aktif &middot; ${fmt(abkMatched)} unit tertaut</span>`:`<span class="tag link" data-act="loadabk" title="Muat data Analisis Beban Kerja untuk menambah kolom beban dan kecukupan pegawai">Muat kolom beban kerja (ABK) &rsaquo;</span>`):''}</div>
   <div class="kpis">
     <div class="kpi"><div class="lab">Unit dianalisis</div><div class="val">${fmt(rows.length)}</div></div>
     <div class="kpi good"><div class="lab">Fungsi didukung tugas</div><div class="val">${totF?Math.round(100*totCov/totF):0}%</div><div class="note">${fmt(totCov)} dari ${fmt(totF)} fungsi</div></div>
     <div class="kpi ${gapUnits?'alert':''}"><div class="lab">Unit dengan celah</div><div class="val">${fmt(gapUnits)}</div><div class="note">ada fungsi tanpa tugas pendukung</div></div>
-    <div class="kpi"><div class="lab">Tugas Tak Terpetakan</div><div class="val">${fmt(totOrph)}</div><div class="note">untuk telaah manual, bukan data buruk</div></div></div>
-  <div class="card"><h2 class="sec" style="margin-top:0">Cakupan Fungsi ke Tugas per Unit <span class="mini">(celah terbesar di atas; klik unit untuk rincian)</span></h2><div class="tblw"><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Fungsi</th><th class="num-c">Didukung</th><th style="min-width:120px">Cakupan</th><th class="num-c" title="Uraian tugas jabatan yang belum bisa dikaitkan ke fungsi mana pun (kemiripan di bawah ambang)">Tugas tak terpetakan</th></tr></thead><tbody>`;
-  h+=rows.slice(0,400).map(r=>{const p=Math.round(100*r.pct);const col=p>=80?'var(--st-ok)':p>=50?'var(--st-warn)':'var(--st-critical)';
-    return `<tr><td class="link" data-act="otkopen" data-id="${r.id}">${esc(r.nama)}</td><td class="mini">${esc(r.e1)}</td><td class="num-c">${r.nF}</td><td class="num-c">${r.cov}</td><td><div style="display:flex;align-items:center;gap:6px"><div class="track" style="flex:1"><div class="fill" style="width:${p}%;background:${col}"></div></div><span class="mini">${p}%</span></div></td><td class="num-c">${r.orph||'<span class="mini">-</span>'}</td></tr>`;}).join('')||'<tr><td colspan="6" class="mini">Belum ada unit dengan uraian tugas tertaut pada filter ini.</td></tr>';
+    ${abkOn?`<div class="kpi ${totKurang>0?'alert':''}"><div class="lab">Kekurangan Pegawai</div><div class="val">${fmt(totKurang)}</div><div class="note">akumulasi selisih butuh &gt; ada (ABK 2024)</div></div>`:`<div class="kpi"><div class="lab">Tugas Tak Terpetakan</div><div class="val">${fmt(totOrph)}</div><div class="note">untuk telaah manual, bukan data buruk</div></div>`}</div>
+  <div class="card"><h2 class="sec" style="margin-top:0">Cakupan Fungsi ke Tugas per Unit <span class="mini">(celah terbesar di atas; klik unit untuk rincian)</span></h2><div class="tblw"><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Fungsi</th><th class="num-c">Didukung</th><th style="min-width:120px">Cakupan</th><th class="num-c" title="Uraian tugas jabatan yang belum bisa dikaitkan ke fungsi mana pun (kemiripan di bawah ambang)">Tugas tak terpetakan</th>${abkOn?'<th class="num-c" title="Beban kerja unit, jam/tahun (ABK 2024)">Beban (jam/th)</th><th class="num-c" title="Selisih pegawai (ketersediaan dikurangi kebutuhan); angka negatif berarti kurang orang">Selisih pegawai</th><th class="num-c" title="Efisiensi EU.1; zona wajar 0,75 sampai 1,25">EU.1</th>':''}</tr></thead><tbody>`;
+  h+=rows.slice(0,400).map(r=>{const p=Math.round(100*r.pct);const col=p>=80?'var(--st-good)':p>=50?'var(--st-warn)':'var(--st-critical)';
+    const abkCells=abkOn?(r.eu1!=null?`<td class="num-c">${fmt(Math.round(r.beban))}</td><td class="num-c" style="color:${r.sel<0?'var(--st-critical)':r.sel>0?'var(--st-good)':'var(--muted)'};font-weight:${r.sel<0?'700':'400'}">${r.sel>0?'+'+fmt(r.sel):fmt(r.sel)}</td><td class="num-c">${(+r.eu1).toFixed(2)}</td>`:'<td class="num-c mini">-</td><td class="num-c mini">-</td><td class="num-c mini">-</td>'):'';
+    return `<tr><td class="link" data-act="otkopen" data-id="${r.id}">${esc(r.nama)}</td><td class="mini">${esc(r.e1)}</td><td class="num-c">${r.nF}</td><td class="num-c">${r.cov}</td><td><div style="display:flex;align-items:center;gap:6px"><div class="track" style="flex:1"><div class="fill" style="width:${p}%;background:${col}"></div></div><span class="mini">${p}%</span></div></td><td class="num-c">${r.orph||'<span class="mini">-</span>'}</td>${abkCells}</tr>`;}).join('')||`<tr><td colspan="${abkOn?9:6}" class="mini">Belum ada unit dengan uraian tugas tertaut pada filter ini.</td></tr>`;
   h+=`</tbody></table></div>${rows.length>400?`<div class="mini" style="padding:8px">Menampilkan 400 dari ${fmt(rows.length)} unit.</div>`:''}</div>`;
   return h;
 }
@@ -2493,6 +2516,29 @@ function matchClusterToFungsi(cluster,fungsi,thr){
   return cluster.map((c,ci)=>{let bi=-1,bs=0;ft.forEach((fk,fi)=>{const s=uJac(ct[ci],fk);if(s>bs){bs=s;bi=fi;}});return(bi>=0&&bs>=thr)?{fungsi:fungsi[bi],idx:bi,sim:bs}:null;});
 }
 function _simPill(sim){const p=Math.round(sim*100);const c=sim>=0.5?'on':sim>=0.3?'warn':'neu';return `<span class="pill ${c}" title="Kemiripan kata ${p}%">${p}%</span>`;}
+/* ENDPOINT rantai Fungsi -> Tugas -> BEBAN. Beban kerja aktual unit dari ABK (join by nama).
+   ABK sensitif & dimuat malas: bila belum dimuat & user berhak -> tombol muat; tanpa akses -> kosong.
+   ABK bersifat per UNIT (bukan per fungsi); hal itu dinyatakan eksplisit supaya tak menyesatkan. */
+function _abkStat(val,unit,lab){return '<div class="abk-stat"><div class="v">'+val+(unit?' <span class="u">'+esc(unit)+'</span>':'')+'</div><div class="l">'+esc(lab)+'</div></div>';}
+function _abkBebanCallout(nama,njab){
+  var showAbk=(typeof canMod!=='function')||canMod('abk');
+  if(!showAbk)return '';
+  if(typeof ABK==='undefined'||!ABK)
+    return '<div class="abk-cal muted"><span>Beban kerja aktual unit ini tersedia dari Analisis Beban Kerja.</span><span class="tag link" data-act="loadabk">Muat beban kerja (ABK) &rsaquo;</span></div>';
+  var fa=abkFind(nama);
+  if(!fa)return '<div class="abk-cal muted">Beban kerja aktual unit ini belum ada di data ABK 2024 (kemungkinan beda nomenklatur pasca penataan PMK 124/2024).</div>';
+  var u=fa.u,z=abkZona(u.eu1),sel=u.selisih;   // selisih = ada - butuh; negatif = kurang orang
+  var selTxt=sel<0?('kurang '+fmt(-sel)):(sel>0?('lebih '+fmt(sel)):'pas'),selCol=sel<0?'var(--st-critical)':(sel>0?'var(--st-good)':'var(--muted)');
+  return '<div class="abk-cal"><div class="abk-cal-h">Beban kerja aktual unit ini <span class="mini" style="font-weight:400">(ABK 2024, PMK 175/238)</span></div>'+
+    '<div class="abk-cal-g">'+
+    _abkStat(fmt(Math.round(u.beban)),'jam/tahun','Beban kerja')+
+    _abkStat(fmt(u.butuh),'pegawai','Kebutuhan')+
+    _abkStat(fmt(u.ada),'pegawai','Tersedia')+
+    _abkStat('<span style="color:'+selCol+'">'+esc(selTxt)+'</span>','','Selisih pegawai')+
+    _abkStat((+u.eu1).toFixed(2),z.t,'Efisiensi (EU.1)')+
+    '</div>'+
+    '<div class="mini" style="margin-top:7px">Beban dihitung dari volume kegiatan &times; norma waktu, bersifat per unit (bukan per fungsi). Inilah ukuran beban sesungguhnya untuk mengemban '+fmt(njab||u.jml_jabatan||0)+' jabatan di unit ini. <span class="tag link" data-act="abkunit" data-k="'+u.kode+'">Buka rincian di modul Beban Kerja &rsaquo;</span></div></div>';
+}
 /* Kartu keterkaitan untuk DETAIL JABATAN (aplikasi a):
    cluster tusi (fungsi jabatan) disandingkan ke fungsi organisasi PMK OTK, dan tiap
    uraian tugas ditautkan ke cluster/fungsi induknya. Menjawab: dari fungsi organisasi
@@ -2722,6 +2768,11 @@ function vPanduan(){
   });
   return h;
 }
+/* Kartu sinyal Kokpit Prioritas. sev: crit/warn/ok/info -> warna aksen; act = atribut data-act. */
+function _kokCard(sev,num,lab,desc,act){
+  const col=sev==='crit'?'var(--st-critical)':sev==='warn'?'var(--st-warn)':sev==='ok'?'var(--st-good)':'var(--brand)';
+  return `<div class="kok-card" ${act||''} style="border-left:4px solid ${col}"><div class="kok-num" style="color:${col}">${num}</div><div class="kok-lab">${esc(lab)}</div><div class="kok-desc">${esc(desc)}</div></div>`;
+}
 function vBeranda(){
   const s=(DATA&&DATA.summary)||{};
   const scopeLab=SCOPE.type==='all'?'Kementerian Keuangan':(SCOPE.ue2||SCOPE.ue1||'unit Anda');
@@ -2732,6 +2783,15 @@ function vBeranda(){
   pbBerandaFetch();const pbN=window._pbBtotal;
   const pbTxt=(typeof pbN==='number'?fmt(pbN):(pbN===null?'-':'...'));
   const noF=OTK.unit.filter(n=>!n.nonunit&&(!oset||oset.has(n.id))&&n.level>=1&&n.level<=2&&(!n.fungsi||!n.fungsi.length)).length;
+  // ---- Sinyal Kokpit Prioritas (lintas modul; hanya yang datanya sudah ada di memori) ----
+  let wideSpan=0;OTK.unit.forEach(n=>{if(n.nonunit||(oset&&!oset.has(n.id)))return;if((n.level===2||n.level===3)&&otkKids(n.id).length>=7)wideSpan++;});
+  const abkAcc=(typeof canMod!=='function')||canMod('abk');
+  const abkReady=abkAcc&&(typeof ABK!=='undefined')&&!!ABK;
+  let abkShortUnits=0,abkShortPeople=0;
+  if(abkReady)ABK.eselon1.forEach(e=>e.units.forEach(u=>{if(u.selisih<0){abkShortUnits++;abkShortPeople+=-u.selisih;}}));
+  const canOtk=(typeof canMod!=='function')||canMod('otk');
+  const canMk=(typeof canMod!=='function')||canMod('mk');
+  const canUrj=(typeof canMod!=='function')||canMod('urjab');
   const ad=s.adopsi_pct||0;const ecol={1:'#0f5aa8',2:'var(--brand)',3:'#5b9bd5',4:'#a9cdef'};
   const dparts=[1,2,3,4].filter(l=>oc[l]).map(l=>({v:oc[l],c:ecol[l]}));
   const allScope=SCOPE.type==='all';
@@ -2770,11 +2830,16 @@ function vBeranda(){
   h+=`<div class="stat" style="grid-column:span 8"><div class="slab" style="margin:0 0 2px">Peringkat ${allScope?'Eselon I':esc(scopeLab)} menurut Jumlah Unit di Bawahnya</div>
     <div class="mini" style="margin:0 0 9px">Banyaknya unit organisasi (Eselon II/III/IV) di dalam struktur tiap ${allScope?'Eselon I':'unit'}, tidak termasuk unit induknya.</div>
     <div style="overflow-y:auto;max-height:290px"><table><thead><tr><th style="width:26px">#</th><th>Unit</th><th>Proporsi</th><th class="num-c">Jumlah Unit</th></tr></thead><tbody>${bstat.map((x,i)=>`<tr style="cursor:pointer" data-act="otkpick" data-u="${esc(x.n.nama)}"><td class="mini">${i+1}</td><td>${esc(x.n.nama)}</td><td style="min-width:150px"><div style="height:9px;background:var(--track);border-radius:5px"><div style="width:${Math.max(3,Math.round(100*x.tot/bmax))}%;height:100%;background:var(--brand);border-radius:5px"></div></div></td><td class="num-c"><b>${fmt(x.tot)}</b></td></tr>`).join('')}</tbody></table></div></div>`;
-  // Strip perhatian (span 12)
-  h+=`<div class="stat" style="grid-column:span 12;display:flex;gap:24px;align-items:center;flex-wrap:wrap"><div class="slab" style="margin:0">Perlu perhatian</div>
-    <div data-act="nav" data-view="insight" style="cursor:pointer"><b style="font-size:var(--fs-num);color:var(--st-critical)">${fmt((s.task&&s.task.overdue)||0)}</b> <span class="mini">penugasan overdue</span></div>
-    <div data-act="mod" data-mod="otk" style="cursor:pointer"><b style="font-size:var(--fs-num);color:var(--st-warn)">${fmt(noF)}</b> <span class="mini">unit Eselon I-II tanpa fungsi</span></div>
-    <div data-act="mod" data-mod="probis" style="cursor:pointer"><b style="font-size:var(--fs-num);color:var(--brand-d)">${pbTxt}</b> <span class="mini">proses bisnis (live)</span></div></div>`;
+  // Kokpit Prioritas (span 12): sinyal lintas modul yang perlu perhatian pimpinan
+  let kok='';
+  if(canMk)kok+=_kokCard('crit',fmt((s.task&&s.task.overdue)||0),'Penugasan overdue','Tenggat terlewat di modul Mekanisme Kerja','data-act="nav" data-view="insight"');
+  if(canOtk)kok+=_kokCard(noF>0?'warn':'ok',fmt(noF),'Unit tanpa rumusan fungsi','Eselon I-II tanpa fungsi di PMK OTK','data-act="mod" data-mod="otk"');
+  if(canOtk)kok+=_kokCard(wideSpan>0?'warn':'ok',fmt(wideSpan),'Rentang kendali lebar','Unit Eselon II/III membawahi 7+ unit langsung','data-act="nav" data-view="otkhealth"');
+  if(abkReady)kok+=_kokCard(abkShortPeople>0?'crit':'ok',fmt(abkShortPeople),'Kekurangan pegawai','Akumulasi butuh melebihi ada (ABK 2024) di '+fmt(abkShortUnits)+' unit','data-act="nav" data-view="abk"');
+  else if(abkAcc)kok+=`<div class="kok-card" data-act="loadabk" style="border-left:4px solid var(--muted)"><div class="kok-num" style="color:var(--muted);font-size:var(--fs-lg)">Muat &rsaquo;</div><div class="kok-lab">Kekurangan pegawai (ABK)</div><div class="kok-desc">Klik untuk memuat data beban kerja lalu tampilkan sinyalnya</div></div>`;
+  h+=`<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 10px">Kokpit Prioritas <span class="mini" style="font-weight:400">- sinyal lintas modul yang perlu perhatian pimpinan</span></div><div class="kok-grid">${kok}</div>`;
+  if(canUrj)h+=`<div class="mini" style="margin-top:11px">Telusuri kecukupan sumber daya per fungsi: <span class="tag link" data-act="nav" data-view="urjabkaitan">Keterkaitan Fungsi &amp; Tugas (Fungsi &rarr; Tugas &rarr; Beban) &rsaquo;</span></div>`;
+  h+=`</div>`;
   h+=`</div>`;
   return h;
 }
