@@ -665,6 +665,10 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
    panjang berhenti TEPAT di bawah footer sehingga baris terakhir terkubur & tak bisa diklik
    (ditemukan smoke test 20 Jul 2026: baris di y 735-796 sedangkan footer mulai y 755). */
 .tblw{overflow:auto;max-height:calc(72vh - 48px)}
+/* Tabel Uraian Tugas & Hasil Kerja disandingkan: rata ATAS supaya tugas & hasilnya sejajar. */
+.th-pair td{vertical-align:top;line-height:1.55;font-size:var(--fs-md)}
+.th-pair td+td{border-left:1px solid var(--line)}
+.th-pair thead th{vertical-align:bottom}
 .tblw table{width:100%}
 /* sortir generik: tiap th bisa diklik kecuali yang sudah punya handler modul (th.srt) */
 .tblw th{cursor:pointer;user-select:none;white-space:nowrap}
@@ -2285,6 +2289,26 @@ function vUrjab(){
       <div class="mini" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(j.ikhtisar||'Tanpa ikhtisar.')}</div></div>`;});
   return h+`</div>${rows.length>300?'<div class="mini" style="padding:8px">Menampilkan 300 dari '+fmt(rows.length)+' jabatan. Persempit dengan pencarian atau filter eselon.</div>':''}`;
 }
+/* Uraian Tugas & Hasil Kerja DISANDINGKAN sebaris (No. | Uraian Tugas | Hasil Kerja),
+   supaya "tugas apa -> output apa" langsung terbaca (bukan dua daftar atas-bawah).
+   Dipasangkan menurut urutan; 4% jabatan jumlahnya beda -> sisa tanpa pasangan diberi "-"
+   + catatan penyelarasan. Kalau hanya salah satu yang terisi -> daftar tunggal. */
+function _tugasHasil(tugas,hasil){
+  tugas=tugas||[]; hasil=hasil||[];
+  if(!tugas.length&&!hasil.length)return '';
+  const single=(title,arr)=>`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">${title} <span class="mini">(${arr.length})</span></h2><ol style="margin:0;padding-left:20px;font-size:var(--fs-base);line-height:1.6">${arr.map(x=>`<li style="margin-bottom:5px">${esc(x)}</li>`).join('')}</ol></div>`;
+  if(!hasil.length)return single('Uraian Tugas',tugas);
+  if(!tugas.length)return single('Hasil Kerja',hasil);
+  const n=Math.max(tugas.length,hasil.length), beda=tugas.length!==hasil.length;
+  let rows='';
+  for(let i=0;i<n;i++){
+    rows+=`<tr><td class="num-c">${i+1}</td><td>${tugas[i]!=null?esc(tugas[i]):'<span class="mini">-</span>'}</td><td>${hasil[i]!=null?esc(hasil[i]):'<span class="mini">-</span>'}</td></tr>`;
+  }
+  return `<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Uraian Tugas &amp; Hasil Kerja <span class="mini">(${tugas.length} tugas / ${hasil.length} hasil)</span></h2>`+
+    `<div class="tblw"><table class="th-pair"><thead><tr><th class="num-c" style="width:46px">No.</th><th style="width:50%">Uraian Tugas</th><th>Hasil Kerja</th></tr></thead><tbody>${rows}</tbody></table></div>`+
+    (beda?`<div class="mini" style="margin-top:7px;color:var(--gold2)">Jumlah uraian tugas dan hasil kerja tidak sama; baris tanpa pasangan ditandai "-" dan perlu penyelarasan sumber.</div>`:'')+
+    `</div>`;
+}
 function vUrjabDetail(){
   if(!URJAB)return '<div class="empty">-</div>';
   const j=(URJAB.jabatan||[])[state.urjabJab];
@@ -2302,8 +2326,7 @@ function vUrjabDetail(){
   h+=sec('Ikhtisar Jabatan',j.ikhtisar);
   h+=sec('Tujuan Jabatan',j.tujuan);
   h+=lst('Cluster Tusi',j.cluster_tusi);
-  h+=lst('Uraian Tugas',j.uraian_tugas);
-  h+=lst('Hasil Kerja',j.hasil_kerja);
+  h+=_tugasHasil(j.uraian_tugas,j.hasil_kerja);
   h+=lst('Wewenang',j.wewenang);
   h+=lst('Tanggung Jawab',j.tanggung_jawab);
   h+=lst('Syarat Jabatan',j.syarat);
