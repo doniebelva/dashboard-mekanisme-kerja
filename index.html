@@ -1608,16 +1608,28 @@ const MODKET={
 };
 const DOMDESC={
   organisasi:'Analitik struktur, jabatan, beban kerja, dan kapabilitas organisasi.',
-  sdm:'Analitik sumber daya manusia. Modul disiapkan bertahap sesuai kesiapan data.',
+  sdm:'Analitik siklus SDM Hire-to-Retire, dari perencanaan sampai pemberhentian. Modul disiapkan bertahap sesuai kesiapan data dari SI-OSDM.',
   tatakelola:'Tata kelola, integritas, dan mutu layanan publik.'
 };
 /* Rencana modul domain SDM -> ditampilkan sbg kartu "segera" di hub, memberi arah tanpa mengklaim jadi. */
+/* Rancangan modul domain SDM = LENSA ANALITIK siklus SI-OSDM "Hire to Retire".
+   Dashboard ini adalah lapisan People Analytics (butir 13 kerangka SI-OSDM), bukan sistem
+   transaksinya. Urutan mengikuti daur hidup pegawai: perencanaan -> ... -> pemberhentian.
+   Semua "segera": dibangun begitu SI-OSDM memberi feed datanya. */
 const SDM_PLAN=[
-  {lab:'Profil SDM',ket:'Demografi & komposisi pegawai.'},
-  {lab:'Formasi & Rekrutmen',ket:'Kebutuhan formasi, menyatu dengan ABK.'},
-  {lab:'Kompetensi & Talenta',ket:'Peta kompetensi, ukom, talent pool.'},
+  {lab:'Profil & Administrasi SDM',ket:'Demografi, komposisi, data kepegawaian.'},
+  {lab:'Perencanaan Kebutuhan SDM',ket:'Proyeksi kebutuhan pegawai, menyatu dengan ABK.'},
+  {lab:'Rekrutmen',ket:'Analitik seleksi & pengisian formasi.'},
+  {lab:'Onboarding',ket:'Pemantauan penempatan & masa awal pegawai.'},
+  {lab:'Kompetensi',ket:'Peta kompetensi vs syarat jabatan (gap).'},
+  {lab:'Karier & Talenta',ket:'Talent pool, suksesi, jenjang karier.'},
   {lab:'Kinerja',ket:'Capaian kinerja pegawai & unit.'},
-  {lab:'Pembelajaran',ket:'Learning path & pengembangan.'}
+  {lab:'Pembelajaran',ket:'Learning path & pengembangan kompetensi.'},
+  {lab:'Kompensasi & Manfaat',ket:'Analitik remunerasi & tunjangan.'},
+  {lab:'Penggajian',ket:'Analitik payroll & komponen gaji.'},
+  {lab:'Kehadiran',ket:'Pola kehadiran & disiplin pegawai.'},
+  {lab:'Budaya & Keterlibatan',ket:'Indeks keterlibatan & budaya organisasi.'},
+  {lab:'Pemberhentian',ket:'Attrition, pensiun, dan analisis keluar.'}
 ];
 
 /* ====================== KESEGARAN DATA ("Data per ...") ======================
