@@ -129,6 +129,19 @@ tr[data-act]:focus-visible,td[data-act]:focus-visible{outline:2px solid var(--br
 .freshbar.warn{background:var(--gold-l);border-color:var(--gold2);color:var(--ink)}
 .freshbar.warn b{color:var(--ink)}
 .freshbar.warn svg{color:var(--gold2)}
+/* Unit Remote: aplikasi eksternal dlm iframe. Tinggi tetap (beda origin -> tak bisa auto). */
+.remote-wrap{display:flex;flex-direction:column;gap:var(--sp-5)}
+.remote-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-6);
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--rad-sm);padding:var(--sp-5) var(--sp-7)}
+.remote-lbl{font-size:var(--fs-sm);color:var(--muted);font-weight:600}
+.remote-open{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-sm);font-weight:700;
+  color:#fff;background:var(--brand);padding:6px var(--sp-6);border-radius:var(--rad-sm);text-decoration:none}
+.remote-open:hover{background:var(--brand-d)}
+/* tinggi = viewport dikurangi chrome tetap (~appbar+subbar+bar+note+padding+foot) supaya halaman
+   TIDAK menggulir; app luar menggulir di dalam iframe. min-height agar tetap layak di layar pendek. */
+.remote-frame{width:100%;height:calc(100vh - 235px);min-height:300px;border:1px solid var(--line);
+  border-radius:var(--rad-sm);background:var(--surface-2);display:block}
+.remote-note{font-size:var(--fs-mini);color:var(--muted);line-height:1.5}
 .print-only{display:none}   /* hanya tampil saat @media print (kop dokumen resmi) */
 .skiplink{position:fixed;left:-999px;top:8px;z-index:200;background:var(--brand);color:#fff;
   padding:var(--sp-5) var(--sp-7);border-radius:var(--rad-sm);font-weight:700;text-decoration:none}
@@ -1462,7 +1475,7 @@ const MODULES=[
    {grp:'Validasi & Data',items:[{v:'pb_monitoring',lab:'Monitoring'},{v:'pb_validasi',lab:'Validasi Probis'},{v:'pb_level',lab:'Validasi Level'}]},
  ]},
  {id:'otk',icn:'otk',lab:'Struktur Organisasi',groups:[
-   {grp:'Jelajah',items:[{v:'otk',lab:'Pohon Organisasi'},{v:'tema',lab:'Penelusuran Tematik'},{v:'jfmap',lab:'Peta Pengelola JF'},{v:'otkcompare',lab:'Komparasi Struktur'}]},
+   {grp:'Jelajah',items:[{v:'otk',lab:'Pohon Organisasi'},{v:'tema',lab:'Penelusuran Tematik'},{v:'jfmap',lab:'Peta Pengelola JF'},{v:'otkcompare',lab:'Komparasi Struktur'},{v:'otkremote',lab:'Unit Remote'}]},
    {grp:'Profil & Diagnostik',items:[{v:'otkanalisis',lab:'Komposisi & Rentang Kendali'},{v:'otkhealth',lab:'Kesehatan Struktur'},{v:'otkoverlap',lab:'Tumpang Tindih Tugas & Fungsi'},{v:'otkkaitan',lab:'Keterkaitan Antar Modul'}]},
    {grp:'Penataan & Rekomendasi',items:[{v:'otkeval',lab:'Evaluasi Organisasi'},{v:'otkorg',lab:'Indeks Kesehatan Organisasi'},{v:'otkindeks',lab:'Usulan Penataan'},{v:'otkshare',lab:'Peluang Share Service'}]},
  ]},
@@ -1498,7 +1511,7 @@ const MODULES=[
    {grp:'',items:[{v:'katalog',lab:'Kompetensi'},{v:'pb_katalog',lab:'Proses Bisnis'},{v:'pb_layanan',lab:'Layanan'},{v:'pb_aplikasi',lab:'Aplikasi'}]},
  ]},
 ];
-const VIEW2MOD={beranda:'beranda',urjabdetail:'urjab',otkdetail:'otk',otkvdetail:'otk',skill:'mk',unit1:'mk',unit2:'mk',team:'mk',emp:'mk',jfprofil:'urjab',abkunit:'abk'};
+const VIEW2MOD={beranda:'beranda',urjabdetail:'urjab',otkdetail:'otk',otkvdetail:'otk',skill:'mk',unit1:'mk',unit2:'mk',team:'mk',emp:'mk',jfprofil:'urjab',abkunit:'abk',otkremote:'otk'};
 const MODDEF={};
 MODULES.forEach(m=>{MODDEF[m.id]=(m.groups[0]&&m.groups[0].items[0]&&m.groups[0].items[0].v)||m.id;
   m.groups.forEach(g=>g.items.forEach(it=>VIEW2MOD[it.v]=m.id));});
@@ -1586,7 +1599,7 @@ function isiPrintHead(){
 addEventListener('beforeprint',isiPrintHead);
 
 function freshBar(){
-  if(state.view.indexOf('pb_')===0)return '';       // Probis: iframe, ditangani terpisah
+  if(state.view.indexOf('pb_')===0||state.view==='otkremote')return '';       // Probis: iframe, ditangani terpisah
   var f=_freshInfo(curMod());
   if(!f)return '';
   return '<div class="freshbar'+(f.k==='warn'?' warn':'')+'">'+
@@ -1653,7 +1666,7 @@ function renderNav(){
   document.getElementById('nav').innerHTML=h;a11yPrepare(document.getElementById('nav'));}
 const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analitik',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
   struktur:'Struktur Unit',tim:'Penjelajah Tim',pegawai:'Penjelajah Pegawai',keahlian:'Keahlian (Expert Locator)',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Metode As Is',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
-  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I',
+  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kesehatan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',otkremote:'Unit Remote',profil:'Profil Eselon I',profilunit:'Profil Eselon I',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Komposisi Jabatan per Eselon I',
   tk:'Beranda',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   mofin:'Beranda MOFIN',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Beranda Pelimpahan Wewenang',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
 
@@ -4844,6 +4857,27 @@ function navPager(){
   return `<div style="display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)">${btn(prev,-1)}${btn(next,1)}</div>`;
 }
 let _lastView=null;let _hist=[];let _navBack=false;
+/* ==================== UNIT REMOTE (aplikasi eksternal via iframe) ====================
+   Menanam aplikasi luar https://uk3tsp.vercel.app/dashboard di dalam frame. BEDA ORIGIN,
+   jadi: (1) tak bisa auto-tinggi -> iframe diberi tinggi tetap memenuhi area, app menggulir
+   sendiri; (2) app luar TERISOLASI browser -> tak bisa membaca token/data dashboard kita;
+   (3) kalau app memblokir framing / gagal muat, bilah cadangan "Buka di tab baru" tetap ada.
+   URL disimpan sbg konstanta supaya mudah diganti. */
+const UNIT_REMOTE_URL='https://uk3tsp.vercel.app/dashboard';
+function vUnitRemote(){
+  const u=UNIT_REMOTE_URL;
+  return '<div class="remote-wrap">'+
+    '<div class="remote-bar">'+
+      '<span class="remote-lbl">Aplikasi eksternal &middot; '+esc(u.replace(/^https?:\/\//,'').split('/')[0])+'</span>'+
+      '<a class="remote-open" href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">Buka di tab baru '+
+      '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M14 5h5v5M19 5l-8 8M12 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6"/></svg></a>'+
+    '</div>'+
+    '<iframe class="remote-frame" src="'+esc(u)+'" title="Unit Remote" '+
+      'referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write; fullscreen"></iframe>'+
+    '<div class="remote-note">Jika halaman tidak tampil, aplikasi mungkin memerlukan login tersendiri atau memblokir penyematan. Gunakan tombol <b>Buka di tab baru</b> di atas.</div>'+
+  '</div>';
+}
+
 /* ==================== PROFIL ESELON I (terpadu lintas modul) ====================
    Satu halaman per Eselon I yang menyatukan OTK + ABK + MOFIN + PELWEN + TKPP.
 
@@ -5150,7 +5184,7 @@ function render(){
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();if(!_sv)window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,statistik:vStatistik,profil:vProfil,profilunit:vProfilUnit,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,statistik:vStatistik,profil:vProfil,profilunit:vProfilUnit,otkremote:vUnitRemote,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   viewEl.innerHTML=freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   jejak(state.view);
