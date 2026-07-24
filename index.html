@@ -137,10 +137,13 @@ tr[data-act]:focus-visible,td[data-act]:focus-visible{outline:2px solid var(--br
 .remote-open{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-sm);font-weight:700;
   color:#fff;background:var(--brand);padding:6px var(--sp-6);border-radius:var(--rad-sm);text-decoration:none}
 .remote-open:hover{background:var(--brand-d)}
-/* tinggi = viewport dikurangi chrome tetap (~appbar+subbar+bar+note+padding+foot) supaya halaman
-   TIDAK menggulir; app luar menggulir di dalam iframe. min-height agar tetap layak di layar pendek. */
-.remote-frame{width:100%;height:calc(100vh - 235px);min-height:300px;border:1px solid var(--line);
-  border-radius:var(--rad-sm);background:var(--surface-2);display:block}
+/* TRIK LEBAR-SEMU: iframe dirender di lebar dasar 740px supaya app UKDR (beda origin, tak bisa
+   kita sentuh) tetap dlm mode sempit = sidebar internalnya SEMBUNYI, lalu di-ZOOM via transform
+   scale agar memenuhi ruang. App mengira dirinya sempit; pengguna melihatnya lebar. Ukuran nyata
+   diatur remoteFit() (JS) krn butuh hitung skala dari lebar wadah. */
+.remote-fitwrap{margin:0 auto;overflow:hidden;border:1px solid var(--line);border-radius:var(--rad-sm);background:var(--surface-2)}
+.remote-frame{border:0;display:block;transform-origin:0 0}
+.remote-note{text-align:center}
 .remote-note{font-size:var(--fs-mini);color:var(--muted);line-height:1.5}
 .remote-tabs{display:inline-flex;gap:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--rad-sm);padding:3px}
 .remote-tab{border:none;background:transparent;font-size:var(--fs-sm);font-weight:700;color:var(--muted);padding:5px 15px;border-radius:var(--rad-xs);cursor:pointer;transition:all var(--t-fast) ease}
@@ -4888,11 +4891,33 @@ function vUnitRemote(){
         '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M14 5h5v5M19 5l-8 8M12 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6"/></svg></a>'+
       '</div>'+
     '</div>'+
-    '<iframe class="remote-frame" src="'+esc(url)+'" title="Unit Remote" '+
-      'referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write; fullscreen"></iframe>'+
+    '<div class="remote-fitwrap"><iframe class="remote-frame" src="'+esc(url)+'" title="Unit Remote" '+
+      'referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write; fullscreen"></iframe></div>'+
     '<div class="remote-note">Aplikasi eksternal '+esc(UNIT_REMOTE_BASE.replace(/^https?:\/\//,''))+'. Jika halaman tidak tampil, aplikasi mungkin memerlukan login tersendiri atau memblokir penyematan. Gunakan <b>Buka di tab baru</b>.</div>'+
   '</div>';
 }
+
+/* PANGKAS-KIRI (tanpa zoom, teks 1:1): iframe dirender LEBIH LEBAR dari ruang sebesar lebar
+   sidebar UKDR (~300px) lalu digeser kiri sehingga sidebarnya terpotong keluar bingkai. UKDR
+   tetap mode lebar (bukan di-zoom), pengguna melihat konten penuh tanpa sidebar ganda.
+   Kalau ruang sempit (<700px) UKDR sudah menyembunyikan sidebarnya sendiri -> tanpa pangkas. */
+var REMOTE_SIDEBAR_W=256;   /* lebar sidebar UKDR (300 kelebihan: huruf awal konten ikut terpangkas); setel bila perlu */
+function remoteFit(){
+  var w=document.querySelector('.remote-fitwrap'),f=document.querySelector('.remote-frame');
+  if(!w||!f)return;
+  var ruang=(w.parentElement.clientWidth||740)-18;  /* buffer: scrollbar bisa muncul SETELAH fit dihitung */
+  var visH=Math.max(320,window.innerHeight-235);
+  f.style.transform='';
+  if(ruang>=700){                                   /* mode lebar: pangkas sidebar UKDR */
+    w.style.width=ruang+'px'; w.style.height=visH+'px';
+    f.style.width=(ruang+REMOTE_SIDEBAR_W)+'px'; f.style.height=visH+'px';
+    f.style.marginLeft=(-REMOTE_SIDEBAR_W)+'px';
+  }else{                                            /* mode sempit: UKDR sembunyikan sidebarnya sendiri */
+    w.style.width=ruang+'px'; w.style.height=visH+'px';
+    f.style.width=ruang+'px'; f.style.height=visH+'px'; f.style.marginLeft='0';
+  }
+}
+addEventListener('resize',function(){if(state.view==='otkremote')remoteFit();});
 
 /* ==================== PROFIL ESELON I (terpadu lintas modul) ====================
    Satu halaman per Eselon I yang menyatukan OTK + ABK + MOFIN + PELWEN + TKPP.
@@ -5203,6 +5228,7 @@ function render(){
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,statistik:vStatistik,profil:vProfil,profilunit:vProfilUnit,otkremote:vUnitRemote,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   viewEl.innerHTML=freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
+  if(state.view==='otkremote')setTimeout(remoteFit,0);
   jejak(state.view);
   vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
