@@ -658,7 +658,10 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 .cmdk-list{overflow-y:auto;padding:var(--sp-3)}
 .cmdk-i{display:flex;align-items:center;gap:var(--sp-5);padding:9px 11px;border-radius:var(--rad-sm);cursor:pointer;font-size:var(--fs-md);color:var(--ink-nav)}
 .cmdk-i .ci{width:16px;flex:none;display:inline-flex;align-items:center;color:var(--muted)}
-.cmdk-i .cl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmdk-i .ctx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.cmdk-i .cl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmdk-i .cd{font-size:var(--fs-mini);color:var(--ink-cap);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmdk-i.on .cd{color:var(--brand)}
 .cmdk-i .cm{flex:none;color:var(--ink-cap);font-size:var(--fs-sm);white-space:nowrap;max-width:44%;overflow:hidden;text-overflow:ellipsis}
 .cmdk-i.on{background:var(--brand-l);color:var(--brand-d)}
 .cmdk-i.on .ci{color:var(--brand)}
@@ -2396,13 +2399,13 @@ function vUrjabKaitan(){
   const totF=rows.reduce((s,r)=>s+r.nF,0),totCov=rows.reduce((s,r)=>s+r.cov,0),totOrph=rows.reduce((s,r)=>s+r.orph,0);
   const gapUnits=rows.filter(r=>r.cov<r.nF).length;
   rows.sort((a,b)=>a.pct-b.pct||b.nF-a.nF);
-  let h=`<div class="note-box">Menautkan <b>fungsi unit di PMK OTK</b> (modul Struktur Organisasi) ke <b>rincian uraian tugas jabatan</b> (modul Analisis Jabatan). Untuk tiap unit dihitung berapa fungsi yang sudah didukung uraian tugas jabatan di unit tersebut. Cakupan terbatas pada Kantor Pusat Eselon II dan III yang memiliki rumusan fungsi di PMK OTK; Eselon IV tidak memiliki fungsi di PMK OTK sehingga tidak disertakan. ${FT_NOTE}</div>
+  let h=`<div class="note-box">Menautkan <b>fungsi unit di PMK OTK</b> (modul Struktur Organisasi) ke <b>rincian uraian tugas jabatan</b> (modul Analisis Jabatan). Untuk tiap unit dihitung berapa fungsi yang sudah didukung uraian tugas jabatan di unit tersebut. Cakupan terbatas pada Kantor Pusat Eselon II dan III yang memiliki rumusan fungsi di PMK OTK; Eselon IV tidak memiliki fungsi di PMK OTK sehingga tidak disertakan. <b>Catatan membaca "tugas tak terpetakan":</b> angkanya wajar tinggi karena fungsi bersifat umum sementara uraian tugas sangat rinci, sehingga banyak tugas tidak mencapai ambang kemiripan. Perlakukan sebagai daftar untuk telaah manual, bukan indikasi data buruk. ${FT_NOTE}</div>
   <div class="toolbar"><select class="flt" id="urjabKaitUE1"><option value="">Semua Eselon I</option>${ue1s.map(x=>`<option value="${esc(x)}" ${u1===x?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="mini">${fmt(rows.length)} unit</span></div>
   <div class="kpis">
     <div class="kpi"><div class="lab">Unit dianalisis</div><div class="val">${fmt(rows.length)}</div></div>
     <div class="kpi good"><div class="lab">Fungsi didukung tugas</div><div class="val">${totF?Math.round(100*totCov/totF):0}%</div><div class="note">${fmt(totCov)} dari ${fmt(totF)} fungsi</div></div>
     <div class="kpi ${gapUnits?'alert':''}"><div class="lab">Unit dengan celah</div><div class="val">${fmt(gapUnits)}</div><div class="note">ada fungsi tanpa tugas pendukung</div></div>
-    <div class="kpi gold"><div class="lab">Tugas Tak Terpetakan</div><div class="val">${fmt(totOrph)}</div><div class="note">belum terkait ke fungsi mana pun</div></div></div>
+    <div class="kpi"><div class="lab">Tugas Tak Terpetakan</div><div class="val">${fmt(totOrph)}</div><div class="note">untuk telaah manual, bukan data buruk</div></div></div>
   <div class="card"><h2 class="sec" style="margin-top:0">Cakupan Fungsi ke Tugas per Unit <span class="mini">(celah terbesar di atas; klik unit untuk rincian)</span></h2><div class="tblw"><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Fungsi</th><th class="num-c">Didukung</th><th style="min-width:120px">Cakupan</th><th class="num-c" title="Uraian tugas jabatan yang belum bisa dikaitkan ke fungsi mana pun (kemiripan di bawah ambang)">Tugas tak terpetakan</th></tr></thead><tbody>`;
   h+=rows.slice(0,400).map(r=>{const p=Math.round(100*r.pct);const col=p>=80?'var(--st-ok)':p>=50?'var(--st-warn)':'var(--st-critical)';
     return `<tr><td class="link" data-act="otkopen" data-id="${r.id}">${esc(r.nama)}</td><td class="mini">${esc(r.e1)}</td><td class="num-c">${r.nF}</td><td class="num-c">${r.cov}</td><td><div style="display:flex;align-items:center;gap:6px"><div class="track" style="flex:1"><div class="fill" style="width:${p}%;background:${col}"></div></div><span class="mini">${p}%</span></div></td><td class="num-c">${r.orph||'<span class="mini">-</span>'}</td></tr>`;}).join('')||'<tr><td colspan="6" class="mini">Belum ada unit dengan uraian tugas tertaut pada filter ini.</td></tr>';
@@ -3668,7 +3671,7 @@ function vAbkDiag(){
   svg+=`<text transform="translate(15,${midY.toFixed(1)}) rotate(-90)" font-size="11" fill="var(--muted)" text-anchor="middle">Makin sesuai tugas dan fungsi &rarr;</text>`;
   // penanda garis acuan: EU.1 di pita atas (tengah), EU.2 di tepi kiri pada garisnya
   svg+=`<text x="${px(cx)}" y="${PT-30}" font-size="10" fill="var(--muted)" text-anchor="middle">EU.1 = 1,0</text>`;
-  svg+=`<text x="${PL+3}" y="${py(cy)-4}" font-size="10" fill="var(--muted)">EU.2 = 90%</text>`;
+  svg+=qbg(PL+3,py(cy)-4,'EU.2 = 90%','start')+`<text x="${PL+3}" y="${py(cy)-4}" font-size="10" fill="var(--muted)">EU.2 = 90%</text>`;
   // label kuadran ATAS di pita atas (di atas semua titik)
   svg+=`<text x="${PL}" y="${PT-14}" font-size="10" font-weight="700" fill="var(--cat-1)">Ringan, sesuai tugas dan fungsi</text>`;
   svg+=`<text x="${W-PR}" y="${PT-14}" font-size="10" font-weight="700" fill="var(--st-good)" text-anchor="end">Berat, sesuai tugas dan fungsi</text>`;
@@ -5135,21 +5138,22 @@ function cmdkIndex(){
   MODULES.forEach(m=>{
     if(m.id!=='beranda'&&!canMod(m.id))return;
     const gs=(m.groups||[]).map(g=>({grp:g.grp,items:(g.items||[]).filter(i=>featOK(i.v))})).filter(g=>g.items.length);
-    if(!gs.length){const fv=firstView(m.id);if(fv)out.push({v:fv,lab:m.lab,mod:m.lab,grp:'',icn:m.icn});return;}
-    gs.forEach(g=>g.items.forEach(i=>out.push({v:i.v,lab:i.lab,mod:m.lab,grp:g.grp||'',icn:m.icn})));
+    if(!gs.length){const fv=firstView(m.id);if(fv)out.push({v:fv,lab:m.lab,mod:m.lab,grp:'',icn:m.icn,desc:MENUKET[fv]||''});return;}
+    gs.forEach(g=>g.items.forEach(i=>out.push({v:i.v,lab:i.lab,mod:m.lab,grp:g.grp||'',icn:m.icn,desc:MENUKET[i.v]||''})));
   });
-  if(typeof ADMIN!=='undefined'&&ADMIN)out.push({v:'usermgmt',lab:'Manajemen User',mod:'Akun',grp:'',icn:'home'});
-    out.push({v:'statistik',lab:'Statistik Pemanfaatan',mod:'Akun',grp:'',icn:'home'});
-  out.push({v:'profil',lab:'Profil Eselon I',mod:'Beranda',grp:'',icn:'home'});
+  if(typeof ADMIN!=='undefined'&&ADMIN)out.push({v:'usermgmt',lab:'Manajemen User',mod:'Akun',grp:'',icn:'home',desc:'Kelola akun dan hak akses pengguna.'});
+    out.push({v:'statistik',lab:'Statistik Pemanfaatan',mod:'Akun',grp:'',icn:'home',desc:'Pantau pemanfaatan dashboard antar pengguna.'});
+  out.push({v:'profil',lab:'Profil Eselon I',mod:'Beranda',grp:'',icn:'home',desc:MENUKET.profil||''});
+  out.push({v:'panduan',lab:'Panduan Penggunaan',mod:'Beranda',grp:'',icn:'home',desc:MENUKET.panduan||''});
   return out;}
 function cmdkRender(q){
   q=(q||'').toLowerCase().trim();
   const toks=q.split(/\s+/).filter(Boolean);
-  _cmdkHits=_cmdkIdx.filter(e=>{const hay=(e.lab+' '+e.mod+' '+e.grp).toLowerCase();return toks.every(t=>hay.indexOf(t)>=0);}).slice(0,60);
+  _cmdkHits=_cmdkIdx.filter(e=>{const hay=(e.lab+' '+e.mod+' '+e.grp+' '+(e.desc||'')).toLowerCase();return toks.every(t=>hay.indexOf(t)>=0);}).slice(0,60);
   if(_cmdkSel>=_cmdkHits.length)_cmdkSel=Math.max(0,_cmdkHits.length-1);
   const L=document.getElementById('cmdkList');
   if(!_cmdkHits.length){L.innerHTML='<div class="cmdk-empty">Tidak ada menu yang cocok.</div>';return;}
-  L.innerHTML=_cmdkHits.map((e,i)=>`<div class="cmdk-i ${i===_cmdkSel?'on':''}" data-act="cmdkgo" data-i="${i}"><span class="ci">${svgIcon(e.icn,15)}</span><span class="cl">${esc(e.lab)}</span><span class="cm">${esc(e.mod)}${e.grp?' &middot; '+esc(e.grp):''}</span></div>`).join('');
+  L.innerHTML=_cmdkHits.map((e,i)=>`<div class="cmdk-i ${i===_cmdkSel?'on':''}" data-act="cmdkgo" data-i="${i}"><span class="ci">${svgIcon(e.icn,15)}</span><span class="ctx"><span class="cl">${esc(e.lab)}</span>${e.desc?`<span class="cd">${esc(e.desc)}</span>`:''}</span><span class="cm">${esc(e.mod)}${e.grp?' &middot; '+esc(e.grp):''}</span></div>`).join('');
   const on=L.querySelector('.cmdk-i.on');if(on&&on.scrollIntoView)on.scrollIntoView({block:'nearest'});}
 function cmdkOpen(){
   if(document.getElementById('loginOverlay')&&document.getElementById('loginOverlay').style.display!=='none')return;
