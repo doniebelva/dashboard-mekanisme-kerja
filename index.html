@@ -3786,6 +3786,13 @@ function vOtkOrg(){
 }
 
 /* ===== Usulan Penataan (dibedakan per jenis intervensi: struktur/URJAB/proses-SOP/share service) ===== */
+/* Pola rekomendasi keputusan (KONSEP_OSDM 5.2): dasar data -> tindakan -> penanggung jawab -> status.
+   Dipakai bersama oleh Usulan Penataan (vOtkIndeks) & Peluang Share Service (vOtkShare). */
+const PJ_KOORD='Biro Organisasi dan Ketatalaksanaan';
+function pjLabel(e1){return `${esc(e1||'-')} &amp; ${PJ_KOORD}`;}
+const STATUS_USULAN='<span class="pill neu" title="Status berubah menjadi Ditindaklanjuti/Dipantau saat data tindak lanjut tersedia">Usulan</span>';
+/* Ikon dokumen Word (SVG inline, aman CSP): lembar biru Word + huruf W. Dipakai pada tombol ekspor. */
+const WORD_ICON='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" style="flex-shrink:0"><path d="M13.6 2H6.6A1.6 1.6 0 0 0 5 3.6v16.8A1.6 1.6 0 0 0 6.6 22h10.8a1.6 1.6 0 0 0 1.6-1.6V7.2L13.6 2z" fill="#2B579A" stroke="rgba(255,255,255,.35)" stroke-width=".5"/><path d="M13.6 2l5.4 5.2h-5.4V2z" fill="#1B3F6E"/><path d="M8.1 12.2l1.3 4.5 1.7-3.1 1.7 3.1 1.3-4.5" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function vOtkIndeks(){
   const set=otkScopeSet();const inS=n=>!set||set.has(n.id);
   const es3Of=n=>otkKids(n.id).filter(c=>c.level===3).length;
@@ -3805,36 +3812,37 @@ function vOtkIndeks(){
   const sop=es2.filter(n=>(ovC[n.id]||0)>0).map(n=>({n,v:ovC[n.id],p:partC[n.id]||[],es1:(es1Of(n)||{}).nama||''})).sort((a,b)=>b.v-a.v);
   const sek=es2.filter(isSek);
   const tab=state.pnTab||'struktur';
+  const pj=pjLabel, stPill=STATUS_USULAN;
   const tb=(id,l,n)=>`<span class="segb ${tab===id?'on':''}" data-act="pntab" data-t="${id}">${l} (${fmt(n)})</span>`;
   const es1opts=[...new Set(OTK.unit.filter(n=>!n.nonunit&&n.level===2).map(n=>(es1Of(n)||{}).nama).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
   const ue1Sel=(SCOPE.type==='all')?`<select class="flt" id="idxUE1" style="margin-left:auto"><option value="">Semua Eselon I</option>${es1opts.map(x=>`<option value="${esc(x)}" ${state.idxUE1===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`:'';
   const hdr=(t,n)=>`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">${t} <span class="mini">(${fmt(n)})</span></h2>${ue1Sel}</div>`;
   const chips=(arr,withEs1)=>{if(!arr||!arr.length)return '<span class="mini">-</span>';const a=arr.slice().sort((x,y)=>y.sim-x.sim);
     return a.slice(0,6).map(p=>`<span class="tag link" data-act="otkopen" data-id="${p.id}" style="margin:1px" title="${esc(p.nm)} &middot; ${Math.round(p.sim*100)}%">${esc(p.nm.length>36?p.nm.slice(0,36)+'…':p.nm)}${withEs1&&p.es1?' <span class="mini">('+esc(p.es1)+')</span>':''}</span>`).join(' ')+(a.length>6?` <span class="mini">+${a.length-6} lagi</span>`:'');};
-  let h=`<div class="toolbar"><span class="seg">${tb('struktur','Struktur · Delayering',delayering.length)}${tb('urjab','Uraian Jabatan & Wewenang',urjab.length)}${tb('sop','Proses Bisnis & SOP',sop.length)}</span><span class="tag link" data-act="exportkajian" style="margin-left:auto;cursor:pointer;font-weight:700">&#8595; Ekspor Kajian (Word)</span></div>
+  let h=`<div class="toolbar"><span class="seg">${tb('struktur','Struktur · Delayering',delayering.length)}${tb('urjab','Uraian Jabatan & Wewenang',urjab.length)}${tb('sop','Proses Bisnis & SOP',sop.length)}</span><span class="tag link" data-act="exportkajian" title="Unduh kajian penataan sebagai dokumen Microsoft Word (.doc)" style="margin-left:auto;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:7px;background:var(--brand-l2);color:var(--ink);border:1px solid var(--brand);padding:6px 12px;border-radius:8px">${WORD_ICON}Ekspor Kajian (Word)</span></div>
   <div class="kpis">
     <div class="kpi"><div class="lab">Struktur (Delayering)</div><div class="val">${fmt(delayering.length)}</div><div class="note">ES II belum delayering</div></div>
     <div class="kpi"><div class="lab">Uraian Jabatan & Wewenang</div><div class="val">${fmt(urjab.length)}</div><div class="note">irisan fungsi selevel</div></div>
     <div class="kpi"><div class="lab">Proses Bisnis & SOP</div><div class="val">${fmt(sop.length)}</div><div class="note">irisan lintas Eselon I</div></div>
     <div class="kpi gold"><div class="lab">Share Service</div><div class="val">${fmt(sek.length)}</div><div class="note">sekretariat &middot; menu tersendiri</div></div></div>
-  <div class="note-box">Penataan dibedakan menurut <b>jenis intervensi</b>, tidak dicampur dalam satu skor: <b>(1) Struktur</b> = delayering (alihkan Eselon III ke jabatan fungsional) untuk unit dengan 4 atau lebih sub-unit Eselon III (unit dengan 1 sampai 3 Eselon III dianggap sudah sesuai kebutuhan organisasi); <b>(2) Uraian Jabatan & Wewenang</b> = identifikasi ulang tugas dan wewenang saat fungsi beririsan antar unit selevel; <b>(3) Proses Bisnis & SOP</b> = harmonisasi dan simplifikasi proses saat fungsi beririsan lintas Eselon I (telaah lanjut di modul Proses Bisnis); <b>(4) Share Service</b> = menu Peluang Share Service. <b>Unit yang sudah delayering tidak masuk kategori Struktur</b>; rekomendasinya adopsi Mekanisme Kerja (menu Kesehatan Struktur). Peringkat tiap kategori memakai hitungan nyata (jumlah Eselon III atau jumlah irisan), bukan skor gabungan.</div>`;
+  <div class="note-box">Penataan dibedakan menurut <b>jenis intervensi</b>, tidak dicampur dalam satu skor: <b>(1) Struktur</b> = delayering (alihkan Eselon III ke jabatan fungsional) untuk unit dengan 4 atau lebih sub-unit Eselon III (unit dengan 1 sampai 3 Eselon III dianggap sudah sesuai kebutuhan organisasi); <b>(2) Uraian Jabatan & Wewenang</b> = identifikasi ulang tugas dan wewenang saat fungsi beririsan antar unit selevel; <b>(3) Proses Bisnis & SOP</b> = harmonisasi dan simplifikasi proses saat fungsi beririsan lintas Eselon I (telaah lanjut di modul Proses Bisnis); <b>(4) Share Service</b> = menu Peluang Share Service. <b>Unit yang sudah delayering tidak masuk kategori Struktur</b>; rekomendasinya adopsi Mekanisme Kerja (menu Kesehatan Struktur). Peringkat tiap kategori memakai hitungan nyata (jumlah Eselon III atau jumlah irisan), bukan skor gabungan. Tiap usulan disusun sebagai <b>rekomendasi keputusan</b> berpola: <b>dasar data &rarr; tindakan &rarr; penanggung jawab &rarr; status tindak lanjut</b>, agar dapat ditindaklanjuti dan dipantau.</div>`;
   if(tab==='struktur'){
     h+=`<div class="card">${hdr('Usul Delayering',delayering.length)}
       <div class="mini" style="margin-bottom:8px">Kandidat = Eselon II dengan 4 atau lebih sub-unit Eselon III; unit dengan 1 sampai 3 Eselon III dianggap sudah sesuai kebutuhan organisasi. Diurut dari jumlah Eselon III terbanyak.</div>
-      <div class="tblw"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th class="num-c">Sub-unit ES III</th><th class="num-c">Total Eselon</th><th>Usulan</th></tr></thead><tbody>`;
-    h+=delayering.slice(0,120).map(x=>`<tr><td class="link" data-act="otkopen" data-id="${x.n.id}">${esc(x.n.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${x.v}</td><td class="num-c">${fmt(x.tot)}</td><td class="mini">Delayering: alihkan Eselon III ke jabatan fungsional, sisakan unit koordinasi (PMP) dan Tata Usaha.</td></tr>`).join('')||'<tr><td colspan="5" class="mini">Tidak ada.</td></tr>';
+      <div class="tblw"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th class="num-c">Sub-unit ES III</th><th class="num-c">Total Eselon</th><th>Tindakan &amp; Penanggung Jawab</th><th>Status</th></tr></thead><tbody>`;
+    h+=delayering.slice(0,120).map(x=>`<tr><td class="link" data-act="otkopen" data-id="${x.n.id}">${esc(x.n.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${x.v}</td><td class="num-c">${fmt(x.tot)}</td><td class="mini"><b>Delayering:</b> alihkan Eselon III ke jabatan fungsional; terapkan cara kerja tim/matriks (Mekanisme Kerja); sisakan unit koordinasi (PMP) dan Tata Usaha.<div class="mini" style="color:var(--muted);margin-top:3px">PJ: ${pj(x.es1)}</div></td><td>${stPill}</td></tr>`).join('')||'<tr><td colspan="6" class="mini">Tidak ada.</td></tr>';
     h+=`</tbody></table></div>${delayering.length>120?'<div class="mini" style="margin-top:8px">Menampilkan 120 dari '+fmt(delayering.length)+'.</div>':''}</div>`;
   }else if(tab==='urjab'){
     h+=`<div class="card">${hdr('Identifikasi Ulang Uraian Jabatan & Wewenang',urjab.length)}
       <div class="mini" style="margin-bottom:8px">Unit dengan fungsi beririsan substantif terhadap unit selevel (induk sama). Kolom "Beririsan dengan" menunjukkan unit pasangannya. Rincian pasangan ada di menu Tumpang Tindih Tugas & Fungsi.</div>
-      <div class="tblw"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th class="num-c">Irisan</th><th>Beririsan dengan (unit selevel)</th><th>Usulan</th></tr></thead><tbody>`;
-    h+=urjab.slice(0,120).map(x=>`<tr><td class="link" data-act="otkopen" data-id="${x.n.id}">${esc(x.n.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${x.v}</td><td class="mini">${chips(x.p,false)}</td><td class="mini">Identifikasi ulang uraian tugas dan wewenang agar batas kewenangan jelas dan tidak tumpang tindih.</td></tr>`).join('')||'<tr><td colspan="5" class="mini">Tidak ada.</td></tr>';
+      <div class="tblw"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th class="num-c">Irisan</th><th>Beririsan dengan (unit selevel)</th><th>Tindakan &amp; Penanggung Jawab</th><th>Status</th></tr></thead><tbody>`;
+    h+=urjab.slice(0,120).map(x=>`<tr><td class="link" data-act="otkopen" data-id="${x.n.id}">${esc(x.n.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${x.v}</td><td class="mini">${chips(x.p,false)}</td><td class="mini"><b>Identifikasi ulang</b> uraian tugas dan wewenang agar batas kewenangan tegas dan tidak tumpang tindih.<div class="mini" style="color:var(--muted);margin-top:3px">PJ: ${pj(x.es1)}</div></td><td>${stPill}</td></tr>`).join('')||'<tr><td colspan="6" class="mini">Tidak ada.</td></tr>';
     h+=`</tbody></table></div></div>`;
   }else{
     h+=`<div class="card">${hdr('Perbaikan Proses Bisnis & Simplifikasi SOP',sop.length)}
       <div class="mini" style="margin-bottom:8px">Unit dengan fungsi beririsan substantif lintas Eselon I (potensi proses atau SOP terduplikasi antar Direktorat Jenderal). Kolom "Beririsan dengan" menunjukkan unit di Eselon I lain. Telaah lanjut di modul Proses Bisnis.</div>
-      <div class="tblw"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th class="num-c">Irisan</th><th>Beririsan dengan (lintas Eselon I)</th><th>Usulan</th></tr></thead><tbody>`;
-    h+=sop.slice(0,120).map(x=>`<tr><td class="link" data-act="otkopen" data-id="${x.n.id}">${esc(x.n.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${x.v}</td><td class="mini">${chips(x.p,true)}</td><td class="mini">Harmonisasi dan simplifikasi proses bisnis/SOP lintas unit; pertimbangkan proses bersama.</td></tr>`).join('')||'<tr><td colspan="5" class="mini">Tidak ada.</td></tr>';
+      <div class="tblw"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th class="num-c">Irisan</th><th>Beririsan dengan (lintas Eselon I)</th><th>Tindakan &amp; Penanggung Jawab</th><th>Status</th></tr></thead><tbody>`;
+    h+=sop.slice(0,120).map(x=>`<tr><td class="link" data-act="otkopen" data-id="${x.n.id}">${esc(x.n.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${x.v}</td><td class="mini">${chips(x.p,true)}</td><td class="mini"><b>Harmonisasi &amp; simplifikasi</b> proses bisnis/SOP lintas unit; telaah proses bersama di modul Proses Bisnis.<div class="mini" style="color:var(--muted);margin-top:3px">PJ: ${pj(x.es1)}</div></td><td>${stPill}</td></tr>`).join('')||'<tr><td colspan="6" class="mini">Tidak ada.</td></tr>';
     h+=`</tbody></table></div></div>`;
   }
   return h;
@@ -3867,10 +3875,15 @@ function vOtkShare(){
     <div class="kpi"><div class="lab">Unit Sekretariat</div><div class="val">${fmt(sek.length)}</div><div class="note">fungsi pendukung seragam</div></div>
     <div class="kpi gold"><div class="lab">Pilar layanan</div><div class="val">${fmt(rows.filter(r=>r.n>0).length)}</div><div class="note">teridentifikasi dari tusi</div></div>
     <div class="kpi" style="border-left:3px solid var(--brand)"><div class="lab">Kandidat share service kuat</div><div class="val">${fmt(strong)}</div><div class="note">ada di mayoritas sekretariat</div></div></div>
-  <div class="note-box">Sekretariat di tiap Eselon I menjalankan fungsi pendukung yang sebagian besar sama (SDM, keuangan, perencanaan, hukum, umum, dan lain-lain). Pilar yang berulang di banyak sekretariat adalah kandidat <b>share service</b> (layanan bersama lintas unit) ketimbang direplikasi di tiap unit. Pilar diturunkan dari tugas dan fungsi tiap sekretariat. Ini usulan awal untuk dikaji, bukan keputusan final.</div>
+  <div class="note-box">Sekretariat di tiap Eselon I menjalankan fungsi pendukung yang sebagian besar sama (SDM, keuangan, perencanaan, hukum, umum, dan lain-lain). Pilar yang berulang di banyak sekretariat adalah kandidat <b>share service</b> (layanan bersama lintas unit) ketimbang direplikasi di tiap unit. Pilar diturunkan dari tugas dan fungsi tiap sekretariat. Ini usulan awal untuk dikaji, bukan keputusan final. Tiap baris disusun berpola <b>dasar data &rarr; tindakan &rarr; penanggung jawab &rarr; status</b>, seperti pada menu Usulan Penataan.</div>
   <div class="card"><h2 class="sec" style="margin-top:0">Pilar Layanan Kandidat Share Service</h2>
-    <div class="tblw"><table><thead><tr><th>Pilar Layanan</th><th class="num-c">Sekretariat yang Menjalankan</th><th>Usulan</th></tr></thead><tbody>`;
-  h+=rows.map(r=>`<tr><td>${esc(r.pilar)}</td><td class="num-c">${r.n} / ${sek.length}</td><td><span class="pill ${r.rec.indexOf('Kuat')>=0?'on':(r.rec==='Pertimbangkan'?'warn':'neu')}">${esc(r.rec)}</span></td></tr>`).join('')||'<tr><td colspan="3" class="mini">Tidak ada sekretariat pada cakupan ini.</td></tr>';
+    <div class="tblw"><table><thead><tr><th>Pilar Layanan</th><th class="num-c">Sekretariat yang Menjalankan</th><th>Penilaian</th><th>Tindakan &amp; Penanggung Jawab</th><th>Status</th></tr></thead><tbody>`;
+  const aksi=r=>r.rec.indexOf('Kuat')>=0
+    ? `<b>Rancang layanan bersama:</b> satukan penyelenggaraan pilar ini lintas Eselon I (kajian model, tingkat layanan, dan peralihan pegawai).`
+    : (r.rec==='Pertimbangkan'
+      ? `<b>Kaji kelayakan:</b> bandingkan cakupan dan volume layanan antar sekretariat sebelum diputuskan menjadi layanan bersama.`
+      : `<b>Pertahankan di unit:</b> pilar bersifat khas unit; cukup bakukan rumusan tugas agar setara antar sekretariat.`);
+  h+=rows.map(r=>`<tr><td>${esc(r.pilar)}</td><td class="num-c">${r.n} / ${sek.length}</td><td><span class="pill ${r.rec.indexOf('Kuat')>=0?'on':(r.rec==='Pertimbangkan'?'warn':'neu')}">${esc(r.rec)}</span></td><td class="mini">${aksi(r)}<div class="mini" style="color:var(--muted);margin-top:3px">PJ: ${pjLabel('Sekretariat Jenderal')}</div></td><td>${STATUS_USULAN}</td></tr>`).join('')||'<tr><td colspan="5" class="mini">Tidak ada sekretariat pada cakupan ini.</td></tr>';
   h+=`</tbody></table></div></div>
   <div class="card" style="margin-top:12px"><h2 class="sec" style="margin-top:0">Sekretariat yang Tercakup <span class="mini">(${sek.length})</span></h2>
     <div class="mini" style="margin-bottom:8px">Klik untuk membuka detail unit.</div>
@@ -7498,7 +7511,7 @@ function exportKajian(){
   function tbl(head,rows){var h='<table border="1" cellspacing="0" cellpadding="5" style="border-collapse:collapse;width:100%;font-size:10pt"><tr>'+head.map(function(x){return '<th style="background:#1467c0;color:#fff;text-align:left">'+esc(x)+'</th>';}).join('')+'</tr>';h+=rows.map(function(r){return '<tr>'+r.map(function(c,i){return '<td'+(i>=2&&typeof c==='number'?' align="right"':'')+'>'+esc(String(c))+'</td>';}).join('')+'</tr>';}).join('')+'</table>';return h;}
   var H='';
   H+='<h1 style="color:#0f3d6e">KAJIAN PENATAAN ORGANISASI</h1>';
-  H+='<p><b>Lingkup:</b> '+esc(lingkup)+'<br><b>Tanggal:</b> '+tgl+'<br><i>Dihasilkan otomatis dari Dashboard Pengelolaan Organisasi, Biro Organisasi dan Ketatalaksanaan. Bersifat penyaring/usulan awal untuk ditelaah, bukan keputusan final.</i></p>';
+  H+='<p><b>Lingkup:</b> '+esc(lingkup)+'<br><b>Tanggal:</b> '+tgl+'<br><i>Dihasilkan otomatis dari Dashboard Pengelolaan Organisasi, Biro Organisasi dan Ketatalaksanaan. Bersifat penyaring/usulan awal untuk ditelaah, bukan keputusan final. Tiap usulan disusun berpola dasar data, tindakan, penanggung jawab, dan status tindak lanjut.</i></p>';
   H+='<h2 style="color:#1467c0">A. Ringkasan</h2><ul>'+
     '<li>Usul delayering (Eselon II dengan 4 atau lebih sub-unit Eselon III): <b>'+delayering.length+'</b> unit.</li>'+
     '<li>Sudah delayering: <b>'+delayered.length+'</b> unit; di antaranya <b>'+delayNoTeam.length+'</b> belum memiliki tim kerja (prioritas aktivasi cara kerja matriks/Mekanisme Kerja).</li>'+
@@ -7507,17 +7520,21 @@ function exportKajian(){
     '<li>Sekretariat kandidat share service: <b>'+sek.length+'</b> unit.</li></ul>';
   H+='<h2 style="color:#1467c0">B. Penyederhanaan Struktur (Delayering)</h2>';
   H+='<p>Unit Eselon II berikut memiliki 4 atau lebih sub-unit Eselon III sehingga menjadi kandidat penyederhanaan struktur dengan mengalihkan sebagian Eselon III ke jabatan fungsional. Unit dengan 1 sampai 3 Eselon III dianggap sudah sesuai kebutuhan organisasi.</p>';
-  H+=tbl(['Unit Eselon II','Eselon I','Sub-unit ES III','Total Eselon'],delayering.slice(0,80).map(function(x){return [x.n.nama,x.e1,x.v,x.tot];}));
+  H+=tbl(['Unit Eselon II','Eselon I','Sub-unit ES III','Total Eselon','Tindakan','Penanggung Jawab','Status'],delayering.slice(0,80).map(function(x){return [x.n.nama,x.e1,x.v,x.tot,'Delayering: alihkan Eselon III ke jabatan fungsional; terapkan cara kerja tim/matriks; sisakan unit koordinasi (PMP) dan Tata Usaha.',(x.e1||'-')+' & '+PJ_KOORD,'Usulan'];}));
   H+='<p><i>Catatan: unit yang sudah delayering tidak masuk daftar ini; rekomendasinya mengaktifkan cara kerja tim/matriks (Mekanisme Kerja), terutama '+delayNoTeam.length+' unit yang belum memiliki tim kerja.</i></p>';
   H+='<h2 style="color:#1467c0">C. Penegasan Uraian Jabatan dan Wewenang</h2>';
   H+='<p>Unit dengan fungsi beririsan substantif terhadap unit selevel (induk sama). Diusulkan identifikasi ulang uraian tugas dan wewenang agar batas kewenangan jelas.</p>';
-  H+=tbl(['Unit Eselon II','Eselon I','Irisan','Beririsan dengan'],urjab.slice(0,60).map(function(x){return [x.n.nama,x.e1,x.v,Array.from(new Set(x.p)).slice(0,6).join('; ')];}));
+  H+=tbl(['Unit Eselon II','Eselon I','Irisan','Beririsan dengan','Tindakan','Penanggung Jawab','Status'],urjab.slice(0,60).map(function(x){return [x.n.nama,x.e1,x.v,Array.from(new Set(x.p)).slice(0,6).join('; '),'Identifikasi ulang uraian tugas dan wewenang agar batas kewenangan tegas dan tidak tumpang tindih.',(x.e1||'-')+' & '+PJ_KOORD,'Usulan'];}));
   H+='<h2 style="color:#1467c0">D. Harmonisasi Proses Bisnis dan SOP</h2>';
   H+='<p>Unit dengan fungsi beririsan substantif lintas Eselon I (potensi proses atau SOP terduplikasi antar Direktorat Jenderal). Diusulkan harmonisasi dan simplifikasi proses; telaah lanjut di modul Proses Bisnis.</p>';
-  H+=tbl(['Unit Eselon II','Eselon I','Irisan','Beririsan dengan (lintas Eselon I)'],sop.slice(0,60).map(function(x){return [x.n.nama,x.e1,x.v,Array.from(new Set(x.p)).slice(0,6).join('; ')];}));
+  H+=tbl(['Unit Eselon II','Eselon I','Irisan','Beririsan dengan (lintas Eselon I)','Tindakan','Penanggung Jawab','Status'],sop.slice(0,60).map(function(x){return [x.n.nama,x.e1,x.v,Array.from(new Set(x.p)).slice(0,6).join('; '),'Harmonisasi dan simplifikasi proses bisnis/SOP lintas unit; telaah proses bersama di modul Proses Bisnis.',(x.e1||'-')+' & '+PJ_KOORD,'Usulan'];}));
   H+='<h2 style="color:#1467c0">E. Peluang Share Service Fungsi Pendukung</h2>';
   H+='<p>Pilar layanan yang berulang di banyak sekretariat ('+sek.length+' unit) menjadi kandidat layanan bersama (share service) ketimbang direplikasi di tiap Eselon I.</p>';
-  H+=tbl(['Pilar Layanan','Sekretariat yang Menjalankan','Usulan'],pil.map(function(p){return [p.k,p.c+' / '+sek.length,p.rec];}));
+  H+=tbl(['Pilar Layanan','Sekretariat yang Menjalankan','Penilaian','Tindakan','Penanggung Jawab','Status'],pil.map(function(p){
+    var aksi=p.rec.indexOf('Kuat')>=0?'Rancang layanan bersama: satukan penyelenggaraan pilar ini lintas Eselon I (kajian model, tingkat layanan, dan peralihan pegawai).'
+      :(p.rec==='Pertimbangkan'?'Kaji kelayakan: bandingkan cakupan dan volume layanan antar sekretariat sebelum diputuskan menjadi layanan bersama.'
+      :'Pertahankan di unit: pilar bersifat khas unit; cukup bakukan rumusan tugas agar setara antar sekretariat.');
+    return [p.k,p.c+' / '+sek.length,p.rec,aksi,'Sekretariat Jenderal & '+PJ_KOORD,'Usulan'];}));
   H+='<h2 style="color:#1467c0">F. Catatan Metodologi</h2>';
   H+='<p style="font-size:10pt">Irisan fungsi dihitung dari kemiripan kata tugas dan fungsi (indeks Jaccard) pada data OTK resmi (RPMK, mengacu Perpres 158 Tahun 2024). Delayering diukur dari jumlah sub-unit Eselon III menurut jenis unit. Kemiripan tinggi tidak selalu duplikasi; unit yang dibedakan objek/nomor (mis. Inspektorat I sampai V) bukan duplikasi. Seluruh usulan bersifat indikatif untuk ditindaklanjuti dengan telaah kebijakan dan acuan norma (PermenPAN-RB).</p>';
   var doc='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Aptos,Calibri,Arial,sans-serif;font-size:11pt;color:#222}h1{font-size:18pt}h2{font-size:13pt;margin-top:18px}table{margin:8px 0}td,th{border:1px solid #9bb}</style></head><body>'+H+'</body></html>';
