@@ -796,7 +796,7 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
   <div class="hero">
     <div class="hero-left">
       <h1 class="hero-title">OSDM Analytics Dashboard</h1>
-      <p class="hero-tag">Platform analitik terintegrasi untuk <b>proses bisnis</b>, <b>struktur organisasi</b>, <b>jabatan</b>, <b>beban kerja</b>, <b>tata kelola</b>, <b>layanan publik</b>, dan <b>kapabilitas organisasi</b> Kementerian Keuangan.</p>
+      <p class="hero-tag">Platform analitik terintegrasi untuk pengelolaan <b>organisasi</b> dan <b>sumber daya manusia</b> Kementerian Keuangan: proses bisnis, struktur organisasi, jabatan, beban kerja, kapabilitas kelembagaan, tata kelola, dan layanan publik.</p>
       <div class="hero-form">
         <h3>Masuk</h3>
         <div class="login-sub">Gunakan akun Kemenkeu Anda.</div>
@@ -1631,11 +1631,11 @@ const MODULES=[
  {id:'kapabilitas',icn:'kelembagaan',lab:'Kapabilitas Kelembagaan',groups:[
    {grp:'MOFIN',items:[{v:'mofin',lab:'Skor Kapabilitas'},{v:'mofheatmap',lab:'Heatmap Skor Organisasi'},{v:'mofprofil',lab:'Profil Unit'},{v:'moftl',lab:'Status Tindak Lanjut'},{v:'mofkuadran',lab:'Kuadran Kelemahan \u00d7 Respons'},{v:'mofgap',lab:'Prioritas Tindak Lanjut'}]},
  ]},
- {id:'katalog',icn:'katalog',lab:'Katalog',groups:[
-   {grp:'',items:[{v:'katalog',lab:'Kompetensi'},{v:'pb_katalog',lab:'Proses Bisnis'},{v:'pb_layanan',lab:'Layanan'},{v:'pb_aplikasi',lab:'Aplikasi'}]},
- ]},
  {id:'unitremote',icn:'remote',lab:'Unit Remote',groups:[
    {grp:'',items:[{v:'otkremote',lab:'Unit Remote'}]},
+ ]},
+ {id:'katalog',icn:'katalog',lab:'Katalog',groups:[
+   {grp:'',items:[{v:'katalog',lab:'Kompetensi'},{v:'pb_katalog',lab:'Proses Bisnis'},{v:'pb_layanan',lab:'Layanan'},{v:'pb_aplikasi',lab:'Aplikasi'}]},
  ]},
 ];
 const VIEW2MOD={beranda:'beranda',urjabdetail:'urjab',otkdetail:'otk',otkvdetail:'otk',skill:'mk',unit1:'mk',unit2:'mk',team:'mk',emp:'mk',jfprofil:'urjab',abkunit:'abk'};
@@ -7300,10 +7300,10 @@ document.getElementById('lpass').addEventListener('keydown',e=>{if(e.key==='Ente
   try{
     function icn(id){var m=MODULES.find(function(x){return x.id===id;});return m?svgIcon(m.icn,22):'';}
     var F=[
-      {i:icn('otk'),t:'Struktur & Jabatan',d:'Peta organisasi, uraian jabatan, dan jabatan fungsional Kementerian Keuangan.'},
-      {i:icn('probis'),t:'Proses Bisnis dan ABK',d:'Pemetaan proses bisnis serta analisis beban kerja dan kebutuhan pegawai per unit sesuai pedoman PMK.'},
-      {i:icn('takelola'),t:'Tata Kelola & Layanan',d:'Integritas (Zona Integritas), kepuasan layanan, dan pelimpahan wewenang.'},
-      {i:icn('kapabilitas'),t:'Analitik Lintas Modul',d:'Profil Eselon I terpadu dan kapabilitas kelembagaan organisasi.'}
+      {i:icn('otk'),t:'Organisasi & Jabatan',d:'Peta struktur organisasi, uraian jabatan, dan jabatan fungsional Kementerian Keuangan.'},
+      {i:icn('probis'),t:'Proses Bisnis & Beban Kerja',d:'Pemetaan proses bisnis serta analisis beban kerja dan kebutuhan pegawai per unit sesuai pedoman PMK.'},
+      {i:icn('mk'),t:'Sumber Daya Manusia',d:'Analitik pegawai, keahlian, dan mekanisme kerja. Modul siklus SDM disiapkan bertahap mengikuti kesiapan data.'},
+      {i:icn('takelola'),t:'Tata Kelola dan Layanan Publik',d:'Integritas, layanan publik, pelimpahan wewenang, kapabilitas kelembagaan, dan profil Eselon I terpadu.'}
     ];
     el.innerHTML=F.map(function(f){return '<div class="feat"><span class="feat-i">'+f.i+'</span>'+
       '<div><div class="feat-t">'+esc(f.t)+'</div><div class="feat-d">'+esc(f.d)+'</div></div></div>';}).join('');
