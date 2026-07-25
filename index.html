@@ -5383,22 +5383,32 @@ function cmdkIndex(){
   MODULES.forEach(m=>{
     if(m.id!=='beranda'&&!canMod(m.id))return;
     const gs=(m.groups||[]).map(g=>({grp:g.grp,items:(g.items||[]).filter(i=>featOK(i.v))})).filter(g=>g.items.length);
-    if(!gs.length){const fv=firstView(m.id);if(fv)out.push({v:fv,lab:m.lab,mod:m.lab,grp:'',icn:m.icn,desc:MENUKET[fv]||''});return;}
-    gs.forEach(g=>g.items.forEach(i=>out.push({v:i.v,lab:i.lab,mod:m.lab,grp:g.grp||'',icn:m.icn,desc:MENUKET[i.v]||''})));
+    if(!gs.length){const fv=firstView(m.id);if(fv)out.push({v:fv,lab:m.lab,mod:m.lab,grp:'',icn:m.icn,desc:MENUKET[fv]||'',tabs:MENUTAB[fv]||null});return;}
+    gs.forEach(g=>g.items.forEach(i=>out.push({v:i.v,lab:i.lab,mod:m.lab,grp:g.grp||'',icn:m.icn,desc:MENUKET[i.v]||'',tabs:MENUTAB[i.v]||null})));
   });
   if(typeof ADMIN!=='undefined'&&ADMIN)out.push({v:'usermgmt',lab:'Manajemen User',mod:'Akun',grp:'',icn:'home',desc:'Kelola akun dan hak akses pengguna.'});
     out.push({v:'statistik',lab:'Statistik Pemanfaatan',mod:'Akun',grp:'',icn:'home',desc:'Pantau pemanfaatan dashboard antar pengguna.'});
-  out.push({v:'profil',lab:'Profil Eselon I',mod:'Beranda',grp:'',icn:'home',desc:MENUKET.profil||''});
-  out.push({v:'panduan',lab:'Panduan Navigasi',mod:'Beranda',grp:'',icn:'home',desc:MENUKET.panduan||''});
+  out.push({v:'profil',lab:'Profil Eselon I',mod:'Beranda',grp:'',icn:'home',desc:MENUKET.profil||'',tabs:MENUTAB.profil||null});
+  out.push({v:'panduan',lab:'Panduan Navigasi',mod:'Beranda',grp:'',icn:'home',desc:MENUKET.panduan||'',tabs:MENUTAB.panduan||null});
   return out;}
 function cmdkRender(q){
   q=(q||'').toLowerCase().trim();
   const toks=q.split(/\s+/).filter(Boolean);
-  _cmdkHits=_cmdkIdx.filter(e=>{const hay=(e.lab+' '+e.mod+' '+e.grp+' '+(e.desc||'')).toLowerCase();return toks.every(t=>hay.indexOf(t)>=0);}).slice(0,60);
+  /* Haystack ikut memuat NAMA TAB (MENUTAB): sejumlah menu lama kini jadi tab di dalam menu
+     induk (mis. "Kategori Tim" -> tab di Tim Analytic). Tanpa ini, pengguna yang hafal nama
+     lama akan buntu di Ctrl+K padahal fiturnya masih ada. */
+  _cmdkHits=_cmdkIdx.filter(e=>{const hay=(e.lab+' '+e.mod+' '+e.grp+' '+(e.desc||'')+' '+((e.tabs||[]).join(' '))).toLowerCase();return toks.every(t=>hay.indexOf(t)>=0);}).slice(0,60);
+  /* Kalau kecocokan datang dari nama tab (bukan nama menu), tampilkan tab itu sebagai petunjuk. */
+  _cmdkHits.forEach(e=>{e._tabHint='';
+    if(!toks.length||!e.tabs)return;
+    const namaCocok=toks.every(t=>(e.lab+' '+e.mod+' '+e.grp+' '+(e.desc||'')).toLowerCase().indexOf(t)>=0);
+    if(namaCocok)return;
+    const tab=e.tabs.find(tb=>toks.every(t=>tb.toLowerCase().indexOf(t)>=0));
+    if(tab)e._tabHint=tab;});
   if(_cmdkSel>=_cmdkHits.length)_cmdkSel=Math.max(0,_cmdkHits.length-1);
   const L=document.getElementById('cmdkList');
   if(!_cmdkHits.length){L.innerHTML='<div class="cmdk-empty">Tidak ada menu yang cocok.</div>';return;}
-  L.innerHTML=_cmdkHits.map((e,i)=>`<div class="cmdk-i ${i===_cmdkSel?'on':''}" data-act="cmdkgo" data-i="${i}"><span class="ci">${svgIcon(e.icn,15)}</span><span class="ctx"><span class="cl">${esc(e.lab)}</span>${e.desc?`<span class="cd">${esc(e.desc)}</span>`:''}</span><span class="cm">${esc(e.mod)}${e.grp?' &middot; '+esc(e.grp):''}</span></div>`).join('');
+  L.innerHTML=_cmdkHits.map((e,i)=>`<div class="cmdk-i ${i===_cmdkSel?'on':''}" data-act="cmdkgo" data-i="${i}"><span class="ci">${svgIcon(e.icn,15)}</span><span class="ctx"><span class="cl">${esc(e.lab)}${e._tabHint?` <span style="font-weight:400;opacity:.75">&rsaquo; tab ${esc(e._tabHint)}</span>`:''}</span>${e.desc?`<span class="cd">${esc(e.desc)}</span>`:''}</span><span class="cm">${esc(e.mod)}${e.grp?' &middot; '+esc(e.grp):''}</span></div>`).join('');
   const on=L.querySelector('.cmdk-i.on');if(on&&on.scrollIntoView)on.scrollIntoView({block:'nearest'});}
 function cmdkOpen(){
   if(document.getElementById('loginOverlay')&&document.getElementById('loginOverlay').style.display!=='none')return;
@@ -5406,7 +5416,21 @@ function cmdkOpen(){
   document.getElementById('cmdk').classList.add('show');
   const q=document.getElementById('cmdkQ');q.value='';cmdkRender('');setTimeout(()=>q.focus(),0);}
 function cmdkClose(){document.getElementById('cmdk').classList.remove('show');}
-function cmdkGo(i){const e=_cmdkHits[i];if(!e)return;cmdkClose();state.view=e.v;render();}
+/* Buka tab tertentu pada sebuah view. Dipakai saat hasil Ctrl+K cocok lewat NAMA TAB,
+   supaya pengguna langsung mendarat di tab yang dicari, bukan di tab pertama. */
+var _tabReq=false;   /* true bila tab dipilih SENGAJA (mis. dari Ctrl+K) -> render jangan mereset */
+function bukaTab(v,idx){
+  if(idx==null||idx<0)return;
+  _tabReq=true;
+  if(v==='pb_exec')state.pbDashTab=idx===1?'ringkasan':'exec';
+  else if(v==='timanalitik')state.timAnTab=idx===1?'kategori':'tim';
+  else if(v==='beban')state.bebanTab=idx===1?'heatmap':'beban';
+  else if(v==='pegawai')state.pegView=idx===1?'avail':'profil';
+  else if(v==='otkremote')state.remotePage=idx===1?'simulasi':'dashboard';
+}
+function cmdkGo(i){const e=_cmdkHits[i];if(!e)return;cmdkClose();
+  if(e._tabHint&&e.tabs)bukaTab(e.v,e.tabs.indexOf(e._tabHint));
+  state.view=e.v;render();}
 /* ===== Sortir tabel generik =====
    Bekerja lewat DOM pada tabel apa pun di dalam .tw, jadi tabel BARU otomatis ikut
    tanpa mengubah kode view. Dilewati: th.srt (punya handler modul sendiri) & table.hm (heatmap). */
@@ -5909,7 +5933,9 @@ function render(){
   if(state.view==='jabkomposisi'&&!ABK&&!state.abkLoading)ensureAbk();
   renderNav();
   const isPb=state.view.indexOf('pb_')===0;
-  if(state.view==='pb_exec'&&_prev!=='pb_exec')state.pbDashTab='exec';   // masuk fresh -> default tab Dashboard Pimpinan
+  // masuk fresh -> default tab Dashboard; KECUALI tabnya memang diminta (mis. hasil Ctrl+K "Mapping")
+  if(state.view==='pb_exec'&&_prev!=='pb_exec'&&!_tabReq)state.pbDashTab='exec';
+  _tabReq=false;
   let pbPanel=isPb?state.view.slice(3):null;
   if(state.view==='pb_exec')pbPanel=state.pbDashTab||'exec';             // tab Dashboard/Mapping -> panel exec/ringkasan
   document.getElementById('vtitle').textContent=isPb?(state.view==='pb_exec'?'Dashboard':(PB_LBL[pbPanel]||'Proses Bisnis')):(state.view==='otkvdetail'?('Detail Unit ('+({vertikal:'Instansi Vertikal',blu:'BLU',noneselon:'Non Eselon'}[state.otkMode]||'Instansi Vertikal')+')'):(VT[state.view]||''));
