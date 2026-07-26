@@ -5636,6 +5636,9 @@ function vUnitRemote(){
   const url=UNIT_REMOTE_BASE+'/'+pg;
   const tabs=UNIT_REMOTE_PAGES.map(function(p){
     return '<button class="remote-tab'+(p.k===pg?' on':'')+'" data-act="remotetab" data-page="'+esc(p.k)+'">'+esc(p.lab)+'</button>';}).join('');
+  /* Iframe TIDAK di sini: dirender persisten oleh remoteHost() di luar #view, supaya
+     render() ulang (loader latar, navigasi) tidak menghancurkan+memuat ulang app eksternal.
+     Reload di tengah fetch = "Failed to fetch" di app UKDR. View ini hanya bilah tab. */
   return '<div class="remote-wrap">'+
     '<div class="remote-bar">'+
       '<div class="remote-tabs">'+tabs+'</div>'+
@@ -5644,9 +5647,34 @@ function vUnitRemote(){
         '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><path d="M14 5h5v5M19 5l-8 8M12 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6"/></svg></a>'+
       '</div>'+
     '</div>'+
-    '<div class="remote-fitwrap"><iframe class="remote-frame" src="'+esc(url)+'" title="Unit Remote" '+
-      'referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write; fullscreen"></iframe></div>'+
   '</div>';
+}
+/* Host iframe PERSISTEN (pola pbHost Probis): dibuat SEKALI, ditaruh setelah #view,
+   ditampilkan/disembunyikan via display. src hanya diganti saat halaman (tab) berubah.
+   Manfaat: (1) pindah menu lalu kembali = instan, tanpa muat ulang app; (2) render()
+   ulang dari loader latar tidak lagi memutus fetch Supabase di dalam app UKDR. */
+function remoteHost(show){
+  const v=document.getElementById('view');if(!v||!v.parentNode)return;
+  let w=document.getElementById('urHost');
+  if(show){
+    const pg=state.remotePage||'dashboard';
+    const url=UNIT_REMOTE_BASE+'/'+pg;
+    if(!w){
+      w=document.createElement('div');w.id='urHost';w.className='remote-fitwrap';w.style.margin='10px 0 0';
+      const f=document.createElement('iframe');
+      f.className='remote-frame';f.id='urFrame';f.title='Unit Remote';
+      f.setAttribute('referrerpolicy','no-referrer');
+      f.setAttribute('allow','clipboard-read; clipboard-write; fullscreen');
+      f.setAttribute('data-page',pg);f.src=url;
+      w.appendChild(f);
+      v.parentNode.insertBefore(w,v.nextSibling);
+    }else{
+      const f=document.getElementById('urFrame');
+      if(f&&f.getAttribute('data-page')!==pg){f.setAttribute('data-page',pg);f.src=url;}
+    }
+    w.style.display='';
+    setTimeout(remoteFit,0);
+  }else if(w){w.style.display='none';}
 }
 
 /* PANGKAS (tanpa zoom, teks 1:1): app UKDR beda origin -> tak bisa kita sentuh DOM/CSS-nya.
@@ -5662,7 +5690,9 @@ var REMOTE_HEADER_H=66;
 function remoteFit(){
   var w=document.querySelector('.remote-fitwrap'),f=document.querySelector('.remote-frame');
   if(!w||!f)return;
-  var ruang=(w.parentElement.clientWidth||740)-18;  /* buffer: scrollbar bisa muncul SETELAH fit dihitung */
+  /* host kini persisten di LUAR #view -> lebar diambil dari #view agar geometri sama spt semula */
+  var vv=document.getElementById('view');
+  var ruang=((vv&&vv.clientWidth)||w.parentElement.clientWidth||740)-18;  /* buffer: scrollbar bisa muncul SETELAH fit dihitung */
   var visH=Math.max(320,window.innerHeight-235);
   var cropL=(ruang>=700)?REMOTE_SIDEBAR_W:0;        /* sidebar hanya di mode lebar */
   var cropT=REMOTE_HEADER_H;                        /* header selalu dipangkas */
@@ -6169,7 +6199,7 @@ function render(){
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,statistik:vStatistik,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   viewEl.innerHTML=menuDescBar()+freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
-  if(state.view==='otkremote')setTimeout(remoteFit,0);
+  remoteHost(state.view==='otkremote');
   jejak(state.view);
   vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
@@ -7564,14 +7594,10 @@ async function doLogin(){
   if(!prof){done();errEl.textContent='Username atau password salah.';return;}
   tahap('Memuat struktur organisasi...');
   try{await ensureOtkRemote();}catch(e){done();errEl.textContent='Gagal memuat data struktur. Coba muat ulang.';return;}
-  tahap('Memuat jabatan fungsional...');
-  try{await ensureJfRemote();}catch(e){}
-  tahap('Memuat tata kelola & layanan publik...');
-  try{await ensureTkRemote();}catch(e){}
-  tahap('Memuat kapabilitas kelembagaan...');
-  try{await ensureMofinRemote();}catch(e){}
-  tahap('Memuat pelimpahan wewenang...');
-  try{await ensurePwRemote();}catch(e){}
+  /* JF/TK/MOFIN/PELWEN TIDAK ditunggu di sini (dulu 4 panggilan BERURUTAN ~3 dtk/panggilan +
+     ~2,3 MB -> login terasa gagal/menggantung). Beranda tidak membutuhkannya dan seluruh
+     view modulnya sudah defensif ("belum dimuat"). Dimuat PARALEL di latar belakang
+     setelah dashboard terbuka; tiap yang selesai menyegarkan tampilan. */
   done();errEl.textContent='';
   document.getElementById('whoName').textContent=prof.nama;document.getElementById('whoName').title=prof.nama;
   document.getElementById('whoSub').textContent=prof.sub;document.getElementById('whoSub').title=prof.sub;
@@ -7579,6 +7605,11 @@ async function doLogin(){
   state.view='beranda';state.ue1=null;state.ue2=null;state.expanded={};state.otkExp={};_hist=[];_lastView=null;
   document.getElementById('loginOverlay').style.display='none';
   setFooters();render();
+  /* muat modul lain paralel di latar; tiap yang tiba menyegarkan view (aman: iframe Unit
+     Remote kini persisten via remoteHost, tidak ikut dibuat ulang oleh render()). */
+  [ensureJfRemote,ensureTkRemote,ensureMofinRemote,ensurePwRemote].forEach(function(fn){
+    try{fn().then(function(){try{render();}catch(e){}}).catch(function(){});}catch(e){}
+  });
   if(ME&&ME.must_change)openChangePw(true);
 }
 document.getElementById('lbtn').onclick=doLogin;
