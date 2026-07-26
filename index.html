@@ -750,6 +750,8 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
    panjang berhenti TEPAT di bawah footer sehingga baris terakhir terkubur & tak bisa diklik
    (ditemukan smoke test 20 Jul 2026: baris di y 735-796 sedangkan footer mulai y 755). */
 .tblw{overflow:auto;max-height:calc(72vh - 48px)}
+.tblw thead th{position:sticky;top:0;z-index:2;background:var(--card,var(--side))}
+[data-act][tabindex="0"]:focus-visible{outline:2px solid var(--brand);outline-offset:1px;border-radius:6px}
 /* Tabel Uraian Tugas & Hasil Kerja disandingkan: rata ATAS supaya tugas & hasilnya sejajar. */
 .th-pair td{vertical-align:top;line-height:1.55;font-size:var(--fs-md)}
 .th-pair td+td{border-left:1px solid var(--line)}
@@ -908,10 +910,36 @@ async function ensureCore(){
   OTK=a[0];BAGAN=a[1];OTKVERT=a[2];OTKBLU=a[3];BLUXREF=a[4];XREF=a[5];OVERLAP=a[6];REDUN=a[7];FULL=a[8];DATA=a[8];USERS=a[9];if(a[10]&&a[10].jfkn)JF=a[10];if(a[11]&&a[11].integritas)TK=a[11];if(a[12]&&a[12].detail)PW=a[12];if(a[13]&&a[13].units)MOFIN=a[13];
 }
 /* Mode remote (gerbang Apps Script): muat bundel data struktur OTK setelah login (token wajib). */
+/* ===== Cache lokal bundel STRUKTUR (IndexedDB) =====
+   Bundel OTK (1,9 MB) = penyumbang terbesar waktu login. Isinya data STRUKTURAL non-sensitif
+   (turunan regulasi/PMK, tanpa NIP/pegawai) -> aman di-cache di browser. Pola stale-while-
+   revalidate: login berikutnya langsung pakai cache (dashboard siap seketika), lalu versi
+   terbaru diambil di latar, menggantikan cache & tampilan. Data sensitif (pegawai/ABK/URJAB/
+   akun) TIDAK PERNAH di-cache di sini. */
+const OTKB_CACHE_KEY='osdm_otkb_v1';
+function idbOpen(){return new Promise(function(res,rej){var r=indexedDB.open('osdm_cache',1);
+  r.onupgradeneeded=function(){r.result.createObjectStore('kv');};
+  r.onsuccess=function(){res(r.result);};r.onerror=function(){rej(r.error);};});}
+function idbGet(k){return idbOpen().then(function(db){return new Promise(function(res){
+  var t=db.transaction('kv','readonly').objectStore('kv').get(k);
+  t.onsuccess=function(){res(t.result);db.close();};t.onerror=function(){res(null);db.close();};});}).catch(function(){return null;});}
+function idbSet(k,v){return idbOpen().then(function(db){return new Promise(function(res){
+  var t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);
+  t.oncomplete=function(){res(true);db.close();};t.onerror=function(){res(false);db.close();};});}).catch(function(){return false;});}
+function _otkbApply(j){if(j&&j.otk){OTK=j.otk;BAGAN=j.bagan;OTKVERT=j.otkvert;OTKBLU=j.otkblu;BLUXREF=j.bluxref;XREF=j.xref;OVERLAP=j.overlap;REDUN=j.redun;}}
 async function ensureOtkRemote(){
   if(OTK||!REMOTE)return;
+  let c=null;try{c=await idbGet(OTKB_CACHE_KEY);}catch(e){}
+  if(c&&c.otk){
+    _otkbApply(c);                                   /* login lanjut seketika dari cache */
+    api('otk',{}).then(function(j){                  /* revalidasi di latar */
+      if(j&&j.otk){idbSet(OTKB_CACHE_KEY,j);_otkbApply(j);try{render();}catch(e){}}
+    }).catch(function(){});
+    return;
+  }
   const j=await api('otk',{});
-  if(j&&j.otk){OTK=j.otk;BAGAN=j.bagan;OTKVERT=j.otkvert;OTKBLU=j.otkblu;BLUXREF=j.bluxref;XREF=j.xref;OVERLAP=j.overlap;REDUN=j.redun;}
+  _otkbApply(j);
+  if(j&&j.otk)try{idbSet(OTKB_CACHE_KEY,j);}catch(e){}
 }
 /* JF (Jabatan Fungsional, publik) - dimuat lewat gerbang saat login (mode remote). Kegagalan tidak menghalangi login. */
 async function ensureJfRemote(){
@@ -3002,6 +3030,12 @@ function _kokpitPrioritas(){
   if(typeof URJAB==='undefined'||!URJAB||!URJAB.jabatan)return [];
   if(typeof ABK==='undefined'||!ABK)return [];
   if(typeof OTK==='undefined'||!OTK||!OTK.unit)return [];
+  /* MEMO: pemasangan teks fungsi x tugas lintas unit ~230-290 ms; tanpa cache, Beranda
+     membayar biaya ini pada SETIAP render (termasuk 4 render dari loader latar pasca-login).
+     Kunci cache = referensi dataset + scope; dataset diganti utuh saat dimuat ulang. */
+  const _ck=(SCOPE.type||'')+'|'+(SCOPE.ue1||'')+'|'+(SCOPE.ue2||'');
+  const _mc=_kokpitPrioritas._c;
+  if(_mc&&_mc.u===URJAB&&_mc.a===ABK&&_mc.o===OTK&&_mc.k===_ck)return _mc.res;
   const uidx=urjabUnitIndex();
   let cand=OTK.unit.filter(n=>!n.nonunit&&n.fungsi&&n.fungsi.length&&(n.level===2||n.level===3));
   if(SCOPE.type!=='all')cand=cand.filter(n=>(es1Of(n)||{}).nama===SCOPE.ue1);
@@ -3015,7 +3049,9 @@ function _kokpitPrioritas(){
     if(gap>0&&sel!=null&&sel<0)out.push({id:n.id,nama:n.nama,e1:(es1Of(n)||{}).nama||'',gap:gap,nF:n.fungsi.length,kurang:-sel,eu1:fa.u.eu1});
   });
   out.sort((a,b)=>b.kurang-a.kurang||b.gap-a.gap);
-  return out.slice(0,6);
+  const res=out.slice(0,6);
+  _kokpitPrioritas._c={u:URJAB,a:ABK,o:OTK,k:_ck,res:res};
+  return res;
 }
 /* Kartu sinyal Kokpit Prioritas. sev: crit/warn/ok/info -> warna aksen; act = atribut data-act. */
 function _kokCard(sev,num,lab,desc,act){
@@ -3678,7 +3714,7 @@ function vJabKomposisi(){
     return '<div class="note-box">Komposisi jabatan memerlukan data beban kerja (ABK) yang belum tersedia untuk akun ini. Silakan buka <a class="link" data-act="nav" data-view="urjab">Repositori Jabatan (Struktural)</a>.</div>';
   }
   const mode=state.jkView||'bezetting';
-  const COL={struktural:'#3b6ea5',fungsional:'#2e9e6b',pelaksana:'#9aa4b2'};
+  const COL={struktural:'var(--cat-1)',fungsional:'var(--st-good)',pelaksana:'var(--muted)'};   /* token, bukan hex mentah */
   const LBL={struktural:'Struktural',fungsional:'Fungsional',pelaksana:'Pelaksana'};
   const rows=(((ABK&&ABK.eselon1)||[]).map(es=>{
     const c={struktural:0,fungsional:0,pelaksana:0};
@@ -3814,6 +3850,19 @@ function vOtkOrg(){
 const PJ_KOORD='Biro Organisasi dan Ketatalaksanaan';
 function pjLabel(e1){return `${esc(e1||'-')} &amp; ${PJ_KOORD}`;}
 const STATUS_USULAN='<span class="pill neu" title="Status berubah menjadi Ditindaklanjuti/Dipantau saat data tindak lanjut tersedia">Usulan</span>';
+/* Pilar layanan pendukung sekretariat: SATU sumber utk vOtkShare & exportKajian (dulu dobel & sempat beda isi). */
+const SHARE_PILAR=[
+  {k:'SDM & Kepegawaian',kw:['sumber daya manusia','kepegawaian','jabatan fungsional']},
+  {k:'Perencanaan & Anggaran',kw:['rencana strategis','rencana kerja','anggaran','perencanaan']},
+  {k:'Keuangan & Perbendaharaan',kw:['keuangan','perbendaharaan','akuntansi']},
+  {k:'Organisasi & Tata Laksana',kw:['organisasi','ketatalaksanaan','tata laksana']},
+  {k:'Kinerja & Manajemen Risiko',kw:['kinerja','risiko']},
+  {k:'Hukum & Peraturan',kw:['peraturan','hukum','advokasi']},
+  {k:'Kerja Sama',kw:['kerja sama']},
+  {k:'Komunikasi & Hubungan Kelembagaan',kw:['komunikasi','layanan informasi','hubungan kelembagaan','kehumasan','hubungan masyarakat']},
+  {k:'Kepatuhan Internal',kw:['kepatuhan internal','pengendalian']},
+  {k:'Umum, Rumah Tangga & BMN',kw:['rumah tangga','barang milik negara','perlengkapan','kesejahteraan','tata usaha']}
+];
 /* Ikon dokumen Word (SVG inline, aman CSP): lembar biru Word + huruf W. Dipakai pada tombol ekspor. */
 const WORD_ICON='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" style="flex-shrink:0"><path d="M13.6 2H6.6A1.6 1.6 0 0 0 5 3.6v16.8A1.6 1.6 0 0 0 6.6 22h10.8a1.6 1.6 0 0 0 1.6-1.6V7.2L13.6 2z" fill="#2B579A" stroke="rgba(255,255,255,.35)" stroke-width=".5"/><path d="M13.6 2l5.4 5.2h-5.4V2z" fill="#1B3F6E"/><path d="M8.1 12.2l1.3 4.5 1.7-3.1 1.7 3.1 1.3-4.5" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function vOtkIndeks(){
@@ -3875,18 +3924,7 @@ function vOtkIndeks(){
 function vOtkShare(){
   const set=otkScopeSet();const inS=n=>!set||set.has(n.id);
   const sek=OTK.unit.filter(n=>!n.nonunit&&inS(n)&&n.level===2&&/^sekretariat /.test(n.nama.toLowerCase()));
-  const PILAR=[
-    {k:'SDM & Kepegawaian',kw:['sumber daya manusia','kepegawaian','jabatan fungsional']},
-    {k:'Perencanaan & Anggaran',kw:['rencana strategis','rencana kerja','anggaran','perencanaan']},
-    {k:'Keuangan & Perbendaharaan',kw:['keuangan','perbendaharaan','akuntansi']},
-    {k:'Organisasi & Tata Laksana',kw:['organisasi','ketatalaksanaan','tata laksana']},
-    {k:'Kinerja & Manajemen Risiko',kw:['kinerja','risiko']},
-    {k:'Hukum & Peraturan',kw:['peraturan','hukum','advokasi']},
-    {k:'Kerja Sama',kw:['kerja sama']},
-    {k:'Komunikasi & Hubungan Kelembagaan',kw:['komunikasi','layanan informasi','hubungan kelembagaan','kehumasan','hubungan masyarakat']},
-    {k:'Kepatuhan Internal',kw:['kepatuhan internal','pengendalian']},
-    {k:'Umum, Rumah Tangga & BMN',kw:['rumah tangga','barang milik negara','perlengkapan','kesejahteraan','tata usaha']}
-  ];
+  const PILAR=SHARE_PILAR;
   const txt=s=>((s.tugas||'')+' '+(s.fungsi||[]).join(' ')).toLowerCase();
   const sekTxt=sek.map(s=>txt(s));
   const thr=Math.max(2,Math.ceil(sek.length*0.6));
@@ -4000,7 +4038,7 @@ function _abkTree(units){
   const W=820,H=Math.max(220,Math.min(440,120+arr.length*10));
   const items=arr.map(u=>({k:u.kode,v:u.beban})).sort((a,b)=>b.v-a.v);const out=[];_tmLayout(items,0,0,W,H,out);
   const by={};units.forEach(u=>by[u.kode]=u);
-  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%">`;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${Math.round(W*1.1)}px;display:block">`;
   out.forEach(b=>{const u=by[b.k];if(!u)return;const zc=abkZona(u.eu1);
     s+=`<g style="cursor:pointer" data-act="abkunit" data-k="${u.kode}"><rect x="${b.x+1}" y="${b.y+1}" width="${Math.max(0,b.w-2)}" height="${Math.max(0,b.h-2)}" rx="3" fill="${zc.bg}" stroke="${zc.c}" stroke-width="1.3"/>`;
     if(b.w>78&&b.h>30){const lab=u.nama.length>Math.floor(b.w/7)?u.nama.slice(0,Math.floor(b.w/7)-1)+'…':u.nama;
@@ -4023,7 +4061,7 @@ function vAbkDiag(){
   const px=v=>PL+(v-x0)/(x1-x0)*(W-PL-PR), py=v=>H-PB-(v-y0)/(y1-y0)*(H-PT-PB);
   const midY=(PT+H-PB)/2;
   const qbg=(x,y,t,anch)=>{const w=t.length*5.4+10;const bx=anch==='end'?x-w+4:x-4;return `<rect x="${bx.toFixed(1)}" y="${(y-11).toFixed(1)}" width="${w.toFixed(1)}" height="15" rx="4" fill="var(--side)" opacity="0.82"/>`;};
-  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%;background:var(--side);border-radius:10px">`;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${Math.round(W*1.1)}px;display:block;background:var(--side);border-radius:10px">`;
   // garis acuan
   svg+=`<line x1="${px(cx)}" y1="${PT-6}" x2="${px(cx)}" y2="${H-PB}" stroke="var(--line)" stroke-dasharray="4 4"/><line x1="${PL}" y1="${py(cy)}" x2="${W-PR}" y2="${py(cy)}" stroke="var(--line)" stroke-dasharray="4 4"/>`;
   // judul sumbu (di margin, tak menyentuh area titik) - sumbu Y diputar tegak
@@ -4352,7 +4390,7 @@ function _bvsQuad(units){
   const maxE3=Math.max(4,...units.map(u=>u.es3))+1;
   const eu=units.map(u=>u.eu1),y0=Math.min(0.7,Math.min.apply(null,eu)-0.05),y1=Math.max(1.3,Math.max.apply(null,eu)+0.05);
   const px=v=>P+(v/maxE3)*(W-2*P), py=v=>H-P-((v-y0)/(y1-y0))*(H-2*P), cx=4, cy=1.0;
-  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%;background:var(--side);border-radius:10px">`;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${Math.round(W*1.1)}px;display:block;background:var(--side);border-radius:10px">`;
   s+=`<line x1="${px(cx).toFixed(1)}" y1="${P-8}" x2="${px(cx).toFixed(1)}" y2="${H-P}" stroke="var(--line)" stroke-dasharray="4 4"/><line x1="${P}" y1="${py(cy).toFixed(1)}" x2="${W-P}" y2="${py(cy).toFixed(1)}" stroke="var(--line)" stroke-dasharray="4 4"/>`;
   s+=`<text x="${W-P}" y="${H-P+24}" font-size="11" fill="var(--muted)" text-anchor="end">Jumlah Eselon III (struktur makin gemuk) &rarr;</text><text x="${P-10}" y="${P-16}" font-size="11" fill="var(--muted)">&uarr; Efisiensi beban (EU.1)</text>`;
   s+=`<text x="${(px(cx)+5).toFixed(1)}" y="${P-3}" font-size="10" fill="var(--muted)">4 ES III</text><text x="${P+2}" y="${(py(cy)-4).toFixed(1)}" font-size="10" fill="var(--muted)">EU.1 = 1,0</text>`;
@@ -4788,7 +4826,7 @@ function _temaTree(items, sel, act){ act=act||'temagrp';
   if(!items.length)return '';
   var W=780,H=Math.max(180,Math.min(420,60+items.length*16)), max=Math.max.apply(null,items.map(function(i){return i.v;}).concat([1]));
   var sorted=items.slice().sort(function(a,b){return b.v-a.v;}), out=[]; _tmLayout(sorted,0,0,W,H,out);
-  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:100%">';
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+Math.round(W*1.1)+'px;display:block">';
   out.forEach(function(b){
     var t=b.v/max, on=sel===b.k, dark=t>0.45;
     s+='<g style="cursor:pointer" data-act="'+act+'" data-g="'+esc(b.k)+'">';
@@ -5057,7 +5095,7 @@ function _tkCols(cats,opt){opt=opt||{};const W=opt.w||900,H=opt.h||280,padL=8,pa
     c.parts.forEach(p=>{const hh=(base-padT)*p.v/max;y-=hh;if(p.v>0)bars+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${hh.toFixed(1)}" fill="${p.c}" rx="2" stroke="var(--surface)" stroke-width="2"><title>${esc(c.lab)} ${esc(p.name)}: ${p.v}</title></rect>`;});
     const tot=c.parts.reduce((s,p)=>s+p.v,0);if(tot>0)bars+=`<text x="${cx.toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${tot}</text>`;
     axis+=`<text x="${cx.toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="11" font-weight="${hlt?'800':'400'}" fill="${hlt?'var(--brand)':'var(--muted)'}">${esc(c.lab)}</text>`;});
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><line x1="${padL}" y1="${base}" x2="${W-padR}" y2="${base}" stroke="var(--line)"/>${bars}${axis}</svg>`;}
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${Math.round(W*1.1)}px;display:block"><line x1="${padL}" y1="${base}" x2="${W-padR}" y2="${base}" stroke="var(--line)"/>${bars}${axis}</svg>`;}
 /* garis multi-seri, mengisi lebar kanvas: series=[{name,color,pts:{year:val}}] */
 function _tkLine(series,years,opt){opt=opt||{};const W=opt.w||900,H=opt.h||300,pl=40,pr=16,pt=16,pb=26;
   const vals=[];series.forEach(s=>years.forEach(y=>{const v=s.pts[y];if(v!=null)vals.push(v);}));
@@ -5068,7 +5106,7 @@ function _tkLine(series,years,opt){opt=opt||{};const W=opt.w||900,H=opt.h||300,p
   let xax='';years.forEach((y,i)=>{if(years.length<=10||i%2===0||i===years.length-1)xax+=`<text x="${X(i).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${y}</text>`;});
   let lines='';series.forEach(s=>{let d='',first=true,dots='';years.forEach((y,i)=>{const v=s.pts[y];if(v==null)return;const x=X(i),yy=Y(v);d+=(first?'M':'L')+x.toFixed(1)+','+yy.toFixed(1);first=false;dots+=`<circle cx="${x.toFixed(1)}" cy="${yy.toFixed(1)}" r="${s.wide?3.2:2.4}" fill="${s.color}"><title>${esc(s.name)} ${y}: ${v}</title></circle>`;});
     lines+=`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.wide?3:2}"${s.dash?' stroke-dasharray="5 3"':''} stroke-linejoin="round"/>${dots}`;});
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${opt.bands||''}${mark}${grid}${lines}${xax}</svg>`;}
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${Math.round(W*1.1)}px;display:block">${opt.bands||''}${mark}${grid}${lines}${xax}</svg>`;}
 
 /* sparkline mikro utk kartu KPI. */
 function _spark(vals,col){col=col||'var(--brand)';var a=(vals||[]).filter(function(v){return v!=null;});
@@ -5402,7 +5440,7 @@ function _tkScatter(pts,opt){opt=opt||{};const W=opt.w||900,H=opt.h||430,pl=52,p
   g+=`<text x="${pl+2}" y="${pt+12}" font-size="10" fill="var(--muted)">${esc(opt.qTL||'')}</text><text x="${W-pr-2}" y="${pt+12}" text-anchor="end" font-size="10" font-weight="700" fill="#3d6a99">${esc(opt.qTR||'')}</text><text x="${pl+2}" y="${pt+ih-4}" font-size="10" fill="var(--muted)">${esc(opt.qBL||'')}</text><text x="${W-pr-2}" y="${pt+ih-4}" text-anchor="end" font-size="10" fill="var(--muted)">${esc(opt.qBR||'')}</text>`;
   g+=`<text x="${pl+iw/2}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(opt.xlab||'')}</text><text x="16" y="${pt+ih/2}" text-anchor="middle" font-size="11" fill="var(--muted)" transform="rotate(-90 16 ${(pt+ih/2).toFixed(1)})">${esc(opt.ylab||'')}</text>`;
   let dots='';pts.forEach(p=>{const x=X(p.x),y=Y(p.y);dots+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="${p.color||'var(--cat-1)'}" opacity="0.9"><title>${esc(p.label)}</title></circle><text x="${(x+9).toFixed(1)}" y="${(y+4).toFixed(1)}" font-size="10" font-weight="600" fill="var(--ink)">${esc(p.label)}</text>`;});
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block"><rect x="${pl}" y="${pt}" width="${iw}" height="${ih}" fill="none" stroke="var(--line)"/>${g}${dots}</svg>`;}
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${Math.round(W*1.1)}px;display:block"><rect x="${pl}" y="${pt}" width="${iw}" height="${ih}" fill="none" stroke="var(--line)"/>${g}${dots}</svg>`;}
 
 function vTkDiagIntegritas(){const g=tkGuard();if(g)return g;const D=TK.diag_konversi,f=tkF();
   const F=D.funnel,pool=F.converted+F.wbk_only;
@@ -5648,6 +5686,17 @@ function navPager(){
   return `<div style="display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)">${btn(prev,-1)}${btn(next,1)}</div>`;
 }
 let _lastView=null;let _hist=[];let _navBack=false;
+/* Aksesibilitas keyboard: beri tabindex pada elemen aksi klikabel di dalam #view supaya
+   terjangkau Tab; pemicu Enter/Spasi ada di delegasi keydown global. TR/TD tidak diberi
+   role=button agar semantik tabel tetap utuh. Dipanggil di akhir render(). */
+function a11yActs(){
+  const root=document.getElementById('view');if(!root)return;
+  root.querySelectorAll('.link[data-act],.tag[data-act],.segb[data-act],.kok-card[data-act],tr[data-act]').forEach(el=>{
+    if(!el.hasAttribute('tabindex'))el.setAttribute('tabindex','0');
+    const tg=el.tagName;
+    if(tg!=='TR'&&tg!=='TD'&&!el.hasAttribute('role'))el.setAttribute('role','button');
+  });
+}
 /* ==================== KATALOG DATA (tata kelola data, konsep OSDM 5.4) ====================
    Naik kelas dari penanda "Data per ..." per halaman menjadi satu meja informasi: seluruh
    dataset dashboard, menopang modul apa, jalur akses, kapan dimuat, status muat SESI INI
@@ -6290,7 +6339,7 @@ function render(){
   remoteHost(state.view==='otkremote');
   jejak(state.view);
   vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);
-  setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
+  setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();a11yActs();
 }
 /* ==================== MODUL MOFIN ==================== */
 function mofUnits(){return (MOFIN&&MOFIN.units)||[];}
@@ -6551,7 +6600,7 @@ function mofScatter(cells,xt){var W=1040,H=460,mL=56,mR=22,mT=20,mB=48;
   g+='<text x="'+(xR-6)+'" y="'+(yT+14)+'" font-size="10" fill="var(--brand)" font-weight="800" text-anchor="end">TERJAGA</text>';
   cells.forEach(function(c){var q=mofQuad(c.x,c.y,xt),r=4+Math.min(6,c.n/6);
     g+='<g data-act="mofdrill" data-unit="'+c.unit+'" data-dim="'+c.dim+'" style="cursor:pointer"><circle cx="'+px(c.x).toFixed(1)+'" cy="'+py(c.y).toFixed(1)+'" r="'+r.toFixed(1)+'" fill="'+MOF_QCOL[q]+'" fill-opacity="0.72" stroke="#fff" stroke-width="1"><title>'+esc(c.unit)+' / '+esc(c.dim)+' · skor '+c.x.toFixed(1)+' · indeks TL '+Math.round(c.y)+' · '+c.n+' rekomendasi</title></circle></g>';});
-  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block">'+g+'</svg>';}
+  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" style="width:100%;max-width:'+Math.round(W*1.1)+'px;height:auto;display:block">'+g+'</svg>';}
 
 function vMofinKuadran(){
   if(!MOFIN)return '<div class="empty">Data MOFIN belum dimuat.</div>';
@@ -7057,6 +7106,13 @@ function bindInputs(){const q=id=>document.getElementById(id);
 function rerenderKeep(fn,fid){const el=document.getElementById(fid);const pos=el?el.selectionStart:null;
   document.getElementById('view').innerHTML=fn();bindInputs();const n=document.getElementById(fid);if(n){n.focus();if(pos!=null)n.setSelectionRange(pos,pos);}}
 
+/* Aksesibilitas: elemen aksi (data-act) yang diberi tabindex oleh a11yActs bisa dipicu Enter/Spasi. */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ')return;
+  const tg=(e.target&&e.target.tagName||'').toLowerCase();
+  if(tg==='input'||tg==='select'||tg==='textarea'||tg==='button'||tg==='a')return;
+  const el=e.target&&e.target.closest?e.target.closest('[data-act][tabindex]'):null;
+  if(!el)return;e.preventDefault();el.click();});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const a=el.dataset.act;
   if(a==='navback'){if(_hist.length){_navBack=true;state.view=_hist.pop();render();}return;}
   if(a==='nav'){const tv=el.dataset.view;if(!canView(tv)){return;}state.domainOverride=null;state.view=tv;render();if(window.innerWidth<=760){document.getElementById('sidebar').classList.remove('open');document.getElementById('backdrop').classList.remove('show');}}
@@ -7618,7 +7674,7 @@ function exportKajian(){
   var sop=es2.filter(function(n){return (ovC[n.id]||0)>0;}).map(function(n){return {n:n,v:ovC[n.id],p:pC[n.id]||[],e1:e1of(n)};}).sort(function(a,b){return b.v-a.v;});
   // share service pillars
   var sek=es2.filter(isSek);
-  var PIL=[['SDM & Kepegawaian',['sumber daya manusia','kepegawaian','jabatan fungsional']],['Perencanaan & Anggaran',['rencana strategis','rencana kerja','anggaran','perencanaan']],['Keuangan & Perbendaharaan',['keuangan','perbendaharaan','akuntansi']],['Organisasi & Tata Laksana',['organisasi','ketatalaksanaan','tata laksana']],['Kinerja & Manajemen Risiko',['kinerja','risiko']],['Hukum & Peraturan',['peraturan','hukum','advokasi']],['Kerja Sama',['kerja sama']],['Komunikasi & Hubungan Kelembagaan',['komunikasi','layanan informasi','hubungan kelembagaan','kehumasan']],['Kepatuhan Internal',['kepatuhan internal','pengendalian']],['Umum, Rumah Tangga & BMN',['rumah tangga','barang milik negara','perlengkapan','kesejahteraan','tata usaha']]];
+  var PIL=SHARE_PILAR.map(function(p){return [p.k,p.kw];});
   var sekTxt=sek.map(function(s){return ((s.tugas||'')+' '+(s.fungsi||[]).join(' ')).toLowerCase();});
   var thr=Math.max(2,Math.ceil(sek.length*0.6));
   var pil=PIL.map(function(p){var c=sekTxt.filter(function(t){return p[1].some(function(k){return t.indexOf(k)>=0;});}).length;return {k:p[0],c:c,rec:c>=thr?'Kuat untuk share service':(c>=2?'Pertimbangkan':'Spesifik unit')};}).sort(function(a,b){return b.c-a.c;});
