@@ -4720,7 +4720,9 @@ function _temaBars(items, sel, act){ act=act||'temagrp';
   if(!items.length)return '';
   var max=Math.max.apply(null, items.map(function(i){return i.v;}).concat([1]));
   var rowH=30, padL=185, padR=46, w=780, top=6, bw=w-padL-padR, h=top*2+items.length*rowH;
-  var s='<svg viewBox="0 0 '+w+' '+h+'" width="100%" style="max-width:100%">';
+  /* max-width dibatasi ~lebar desain viewBox: tanpa ini, di kartu lebar SVG di-zoom ~2x
+     sehingga font label ikut membesar (bukan ukuran font sesungguhnya yang salah). */
+  var s='<svg viewBox="0 0 '+w+' '+h+'" width="100%" style="max-width:820px;display:block">';
   items.forEach(function(it,i){
     var y=top+i*rowH, bl=Math.max(3,Math.round(it.v/max*bw)), on=sel===it.k;
     var lab=it.k.length>30?it.k.slice(0,29)+'…':it.k;
