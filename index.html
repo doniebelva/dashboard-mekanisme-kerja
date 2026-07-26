@@ -3607,6 +3607,21 @@ function vJfProfil(){
   h+=`<div class="card"><h2 class="sec" style="margin-top:0">Dasar Hukum</h2><ul class="mini" style="margin:0;padding-left:18px">${(M.dasar_hukum||[]).map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>`;
   return h;
 }
+/* Porsi pegawai FUNGSIONAL riil sebuah unit dari ABK (bezetting per jabatan, klasifikasi jabKlas).
+   Pencocokan via nama unit (abkFind). null = ABK belum dimuat / unit tak ditemukan. Memo per-ABK. */
+function jfAbkShare(nama){
+  if(typeof ABK==='undefined'||!ABK||!ABK.eselon1)return null;
+  if(jfAbkShare._ref!==ABK){jfAbkShare._ref=ABK;jfAbkShare._c={};}
+  const k=abkNorm(nama);
+  if(k in jfAbkShare._c)return jfAbkShare._c[k];
+  const hit=abkFind(nama);let out=null;
+  if(hit&&hit.u&&(hit.u.jabatan||[]).length){
+    let f=0,tot=0;
+    hit.u.jabatan.forEach(j=>{const a=j.ada||0;tot+=a;if(jabKlas(j.jab)==='fungsional')f+=a;});
+    if(tot>0)out={f:f/tot,fn:f,tot:tot};
+  }
+  jfAbkShare._c[k]=out;return out;
+}
 function vJfFungsi(){
   if(typeof OTK==='undefined'||!OTK||!OTK.unit)return '<div class="empty">Data struktur organisasi belum dimuat.</div>';
   const set=otkScopeSet();const inS=n=>!set||set.has(n.id);
@@ -3616,27 +3631,32 @@ function vJfFungsi(){
   const es2all=OTK.unit.filter(n=>!n.nonunit&&inS(n)&&n.level===2);
   const es2=es2all.filter(fU);
   const delayered=es2.filter(n=>es3Of(n)<=1);
-  const rows=delayered.map(n=>{const e1=es1Of(n)||{};const t=unitTeams(n);return {n,es1:e1.nama||'',jfs:(P[e1.unit_key]||[]),tim:t.tim,covered:t.covered};});
+  const abkOn=(typeof ABK!=='undefined')&&!!ABK&&!!ABK.eselon1;
+  const rows=delayered.map(n=>{const e1=es1Of(n)||{};const t=unitTeams(n);return {n,es1:e1.nama||'',jfs:(P[e1.unit_key]||[]),tim:t.tim,covered:t.covered,fs:abkOn?jfAbkShare(n.nama):null};});
   const withJf=rows.filter(r=>r.jfs.length).length;
   const noTeam=rows.filter(r=>r.covered&&r.tim===0).length;
+  const fsRows=rows.filter(r=>r.fs);
+  const fsAvg=fsRows.length?(fsRows.reduce((s,r)=>s+r.fs.f,0)/fsRows.length):null;
   const es1opts=[...new Set(es2all.map(n=>(es1Of(n)||{}).nama).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
   const ue1Sel=(SCOPE.type==='all')?`<select class="flt" id="jfFungUE1"><option value="">Semua Eselon I</option>${es1opts.map(x=>`<option value="${esc(x)}" ${state.jfFungUE1===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`:'';
   const seg=(v,l)=>`<span class="segb ${(state.jfFungF||'')===v?'on':''}" data-act="jffungf" data-f="${v}">${l}</span>`;
   let vis=rows.slice();
   if(state.jfFungF==='noteam')vis=vis.filter(r=>r.covered&&r.tim===0);
   vis.sort((a,b)=>{const ar=(a.covered&&a.tim===0)?0:1,br=(b.covered&&b.tim===0)?0:1;return ar-br||a.es1.localeCompare(b.es1,'id')||a.n.nama.localeCompare(b.n.nama,'id');});
-  let h=`<div class="note-box">Delayering memangkas lapisan struktural (Eselon III) dan mengalihkan fungsinya ke <b>jabatan fungsional</b>. Halaman ini menautkan tiap unit Eselon II yang sudah delayering ke <b>rumpun JF Keuangan Negara</b> yang menjadi muara pengalihan (diturunkan dari JF pengguna pada Eselon I unit tersebut), sekaligus status <b>tim kerja (Mekanisme Kerja)</b>-nya. Pemetaan unit ke JF bersifat indikatif pada tingkat Eselon I; pendalaman per jabatan menyusul saat data pemangku JF internal tersedia.</div>`;
+  let h=`<div class="note-box">Delayering memangkas lapisan struktural (Eselon III) dan mengalihkan fungsinya ke <b>jabatan fungsional</b>. Halaman ini menautkan tiap unit Eselon II yang sudah delayering ke <b>rumpun JF Keuangan Negara</b> yang menjadi muara pengalihan (diturunkan dari JF pengguna pada Eselon I unit tersebut), sekaligus status <b>tim kerja (Mekanisme Kerja)</b>-nya. Pemetaan unit ke JF bersifat indikatif pada tingkat Eselon I; pendalaman per jabatan menyusul saat data pemangku JF internal tersedia. Kolom <b>Fungsional (ABK)</b> = porsi pegawai berjabatan fungsional dari bezetting ABK 2024 (nomenklatur pra-konsolidasi), dicocokkan lewat nama unit; tanda "&mdash;" berarti unit tidak terdata/tercocokkan, bukan nol.</div>`;
   h+=`<div class="kpis">
     <div class="kpi good"><div class="lab">Unit sudah delayering</div><div class="val">${fmt(delayered.length)}</div><div class="note">Eselon II dalam cakupan</div></div>
     <div class="kpi"><div class="lab">Terpetakan ke JF KN</div><div class="val">${fmt(withJf)}</div><div class="note">punya rumpun JF pengguna</div></div>
-    <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Belum ada tim kerja</div><div class="val">${fmt(noTeam)}</div><div class="note">prioritas aktivasi matriks</div></div></div>`;
-  h+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">Unit Delayering &rarr; Rumpun JF Tujuan <span class="mini">(${vis.length})</span></h2>
+    <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Belum ada tim kerja</div><div class="val">${fmt(noTeam)}</div><div class="note">prioritas aktivasi matriks</div></div>
+    <div class="kpi gold"><div class="lab">Rata-rata fungsional (ABK)</div><div class="val">${fsAvg==null?'&mdash;':Math.round(fsAvg*100)+'%'}</div><div class="note">${abkOn?('bezetting 2024 · '+fmt(fsRows.length)+' unit terdata'):'muat data ABK untuk mengisi'}</div></div></div>`;
+  h+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">Unit Delayering &rarr; Rumpun JF Tujuan <span class="mini">(${vis.length})</span></h2>${abkOn?'':'<span class="tag link" data-act="loadabk" style="cursor:pointer">Muat data ABK &rsaquo;</span>'}
     <span style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="seg">${seg('','Semua')}${seg('noteam','Belum ada tim')}</span>${ue1Sel}</span></div>
-    <div class="tblw"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th>Rumpun JF Tujuan</th><th class="num-c">Tim Kerja (MK)</th><th>Rekomendasi</th></tr></thead><tbody>`;
+    <div class="tblw"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th>Rumpun JF Tujuan</th><th class="num-c">Tim Kerja (MK)</th><th class="num-c">Fungsional (ABK)</th><th>Rekomendasi</th></tr></thead><tbody>`;
   h+=vis.map(r=>{const tcell=!r.covered?'<span class="mini">-</span>':(r.tim===0?'<span class="pill off">0 tim</span>':'<b>'+fmt(r.tim)+'</b>');
     const jfcell=r.jfs.length?r.jfs.map(k=>`<span class="pill neu link" data-act="jfopen" data-k="${k}" style="cursor:pointer">${esc(jfKNName(k))}</span> `).join(''):'<span class="mini">-</span>';
+    const fcell=r.fs?('<b title="'+fmt(r.fs.fn)+' dari '+fmt(r.fs.tot)+' pegawai (bezetting ABK 2024)">'+Math.round(r.fs.f*100)+'%</b>'):'<span class="mini">&mdash;</span>';
     const rek=!r.covered?'Data Mekanisme Kerja belum tersedia untuk Eselon I ini.':(r.tim===0?'<b>Prioritas:</b> aktifkan cara kerja tim/matriks bagi jabatan fungsionalnya.':'Perkuat dan perluas cara kerja tim/matriks yang berjalan.');
-    return `<tr><td class="link" data-act="otkopen" data-id="${r.n.id}">${esc(r.n.nama)}</td><td class="mini">${esc(r.es1)}</td><td>${jfcell}</td><td class="num-c">${tcell}</td><td class="mini">${rek}</td></tr>`;}).join('')||'<tr><td colspan="5" class="mini">Tidak ada pada cakupan ini.</td></tr>';
+    return `<tr><td class="link" data-act="otkopen" data-id="${r.n.id}">${esc(r.n.nama)}</td><td class="mini">${esc(r.es1)}</td><td>${jfcell}</td><td class="num-c">${tcell}</td><td class="num-c">${fcell}</td><td class="mini">${rek}</td></tr>`;}).join('')||'<tr><td colspan="6" class="mini">Tidak ada pada cakupan ini.</td></tr>';
   h+=`</tbody></table></div>
     <div class="mini" style="margin-top:8px;color:var(--muted)">Definisi delayering konsisten dengan modul Struktur Organisasi (Kesehatan Struktur): unit Eselon II dengan paling banyak satu Eselon III. Rumpun JF tujuan diturunkan dari JF pengguna di Eselon I unit; satu unit dapat bermuara ke lebih dari satu rumpun JF.</div></div>`;
   return h;
