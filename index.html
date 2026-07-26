@@ -1898,7 +1898,7 @@ function freshBar(){
 function featOK(v){return FEATURES==='all'||(Array.isArray(FEATURES)&&FEATURES.indexOf(v)>=0);}
 function canMod(mid){if(mid==='beranda')return true;const m=MODULES.find(x=>x.id===mid);return !!(m&&m.groups.some(g=>g.items.some(it=>featOK(it.v))));}
 function canView(v){if(v==='beranda')return true;if(v==='usermgmt'||v==='statistik')return ADMIN;
-  if(v==='profil'||v==='profilunit'||v==='panduan')return true;
+  if(v==='profil'||v==='profilunit'||v==='panduan'||v==='katdata')return true;
   if(v&&v.indexOf('hub_')===0)return true;if(featOK(v))return true;const m=VIEW2MOD[v];if(m&&m!==v)return canMod(m);return false;}
 function firstView(mid){if(mid==='beranda')return'beranda';const m=MODULES.find(x=>x.id===mid);if(m)for(const g of m.groups)for(const it of g.items)if(featOK(it.v))return it.v;return'beranda';}
 let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlTab:'ue1',pwUnit:null,pwJab:null,pwTema:null,pwJab2:null,pwQ:'',pwFilUnit:'',pwFilJenis:'',view:'beranda',ue1:null,ue2:null,teamIdx:null,empId:null,expanded:{},
@@ -1965,17 +1965,20 @@ function renderNav(){
   }
   mods.forEach(m=>{h+=_renderMod(m,curV,curM);});
   h+='</div>';
-  // Modul PENGATURAN (akordeon, berikon) di bawah sidebar
-  if(DATAMODE!=='files'){
-    const setCur=(curV==='usermgmt'||curV==='statistik');
+  // Modul PENGATURAN (akordeon, berikon) di bawah sidebar.
+  // Mode 'files': identitas/kredensial dikelola sistem Kemenkeu -> item akun disembunyikan,
+  // TAPI grup tetap tampil untuk Katalog Data (informasional, bukan kredensial).
+  {
+    const setCur=(curV==='usermgmt'||curV==='statistik'||curV==='katdata');
     const setOpen=!!state.navOpen['pengaturan']||setCur;
     h+='<div class="navtree" style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px">';
     h+=`<div class="nvm ${setCur?'cur':''}" data-act="navgrp" data-key="pengaturan"><span class="nvi">${svgIcon('pengaturan')}</span><span class="nvl">Pengaturan</span><span class="nvx">${setOpen?'▾':'▸'}</span></div>`;
     if(setOpen){
       h+='<div class="nvsub"><div class="nvitems">';
-      h+=`<div class="nvit" data-act="changepw">Ganti Password</div>`;
-      if(ADMIN)h+=`<div class="nvit ${curV==='usermgmt'?'on':''}" data-act="nav" data-view="usermgmt">Manajemen User</div>`;
-      if(ADMIN)h+=`<div class="nvit ${curV==='statistik'?'on':''}" data-act="nav" data-view="statistik">Statistik Pemanfaatan</div>`;
+      h+=`<div class="nvit ${curV==='katdata'?'on':''}" data-act="nav" data-view="katdata">Katalog Data</div>`;
+      if(DATAMODE!=='files')h+=`<div class="nvit" data-act="changepw">Ganti Password</div>`;
+      if(DATAMODE!=='files'&&ADMIN)h+=`<div class="nvit ${curV==='usermgmt'?'on':''}" data-act="nav" data-view="usermgmt">Manajemen User</div>`;
+      if(DATAMODE!=='files'&&ADMIN)h+=`<div class="nvit ${curV==='statistik'?'on':''}" data-act="nav" data-view="statistik">Statistik Pemanfaatan</div>`;
       h+='</div></div>';
     }
     h+='</div>';
@@ -1983,7 +1986,7 @@ function renderNav(){
   document.getElementById('nav').innerHTML=h;a11yPrepare(document.getElementById('nav'));}
 const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analytic',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
   struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
-  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
+  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'Katalog Data',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
   tk:'Ikhtisar Tata Kelola',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   mofin:'Skor Kapabilitas',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Ikhtisar Pelimpahan',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
 
@@ -5585,7 +5588,7 @@ function renderCrumb(){
   const c=[];const v=state.view;
   const bk=_hist.length?`<a data-act="navback" title="Kembali ke menu sebelumnya" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;font-weight:700;color:var(--brand)">&lsaquo; Kembali</a> <span style="color:var(--line);margin:0 4px">|</span> `:'';
   if(v.indexOf('pb_')===0){var _mid=VIEW2MOD[v]||'probis';var _ml=(MODULES.find(function(m){return m.id===_mid;})||{}).lab||'Proses Bisnis';document.getElementById('crumb').innerHTML=bk+'<span>'+esc(_ml)+' &rsaquo; '+esc(PB_LBL[v.slice(3)]||'')+'</span>';return;}
-  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analytic',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
+  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analytic',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',katdata:'Katalog Data',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',
     beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi',jfmap:'Peta Unit Pengelola JF',jf:'Peta JF Keuangan Negara',jffungsi:'Fungsionalisasi (Delayering)',jabkomposisi:'Peta Jabatan',panduan:'Panduan Navigasi'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
@@ -5623,6 +5626,69 @@ function navPager(){
   return `<div style="display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)">${btn(prev,-1)}${btn(next,1)}</div>`;
 }
 let _lastView=null;let _hist=[];let _navBack=false;
+/* ==================== KATALOG DATA (tata kelola data, konsep OSDM 5.4) ====================
+   Naik kelas dari penanda "Data per ..." per halaman menjadi satu meja informasi: seluruh
+   dataset dashboard, menopang modul apa, jalur akses, kapan dimuat, status muat SESI INI
+   (dibaca live dari memori, bukan klaim), posisi data, cara pembaruan, dan pengampunya.
+   Kolom pengampu dipertajam saat registry modul (konsep 5.1) diisi. */
+function vKatData(){
+  const T=()=>{try{var yrs=TK.integritas.per_tahun_predikat?Object.keys(TK.integritas.per_tahun_predikat):(TK.integritas.per_tahun?Object.keys(TK.integritas.per_tahun):[]);var mx=yrs.length?Math.max.apply(0,yrs.map(Number)):null;return mx?('Data s.d. '+mx):'—';}catch(e){return '—';}};
+  const R=[
+    {d:'Struktur Organisasi (bundel OTK)',f:'otk_bundle.json',m:'Struktur Organisasi; irisan & replikasi untuk Analisis Jabatan',a:'Gerbang · saat login',
+     s:()=>!!(typeof OTK==='object'&&OTK&&OTK.unit),p:()=>{var tu=(OTK&&OTK.meta&&OTK.meta.total_unit)||0;return 'Struktur berjalan'+(tu?(' · '+fmt(tu)+' unit'):'');},
+     u:'Rebuild lalu ganti isi file di Drive (File ID tetap)',o:'Biro Organisasi dan Ketatalaksanaan'},
+    {d:'Mekanisme Kerja (tim & pegawai)',f:'dashboard_data.json',m:'Mekanisme Kerja; angka adopsi dipakai lintas modul',a:'Gerbang · saat login · sensitif',
+     s:()=>!!(typeof DATA==='object'&&DATA&&DATA.summary&&(DATA.teams||[]).length),p:()=>{var s=(DATA&&DATA.summary)||{};return s.tanggal_olah?('Diolah '+esc(String(s.tanggal_olah))):'—';},
+     u:'Ganti isi file di Drive (File ID tetap)',o:'Biro Organta · UIC Bagian Strategi Organisasi dan Proses Bisnis'},
+    {d:'Uraian Jabatan (ANJAB)',f:'urjab.json',m:'Analisis Jabatan (Jabatan Struktural)',a:'Gerbang · saat menu dibuka',
+     s:()=>!!(typeof URJAB==='object'&&URJAB&&URJAB.jabatan),p:()=>{var n=(URJAB&&URJAB.jabatan&&URJAB.jabatan.length)||0;return n?('Kompilasi '+fmt(n)+' jabatan · 13 Eselon I'):'Kompilasi dokumen ANJAB resmi';},
+     u:'Ganti isi file di Drive (File ID tetap)',o:'Biro Organisasi dan Ketatalaksanaan'},
+    {d:'Analisis Beban Kerja',f:'abk.json',m:'Analisis Beban Kerja; lensa beban lintas modul',a:'Gerbang · saat menu dibuka · sensitif',
+     s:()=>!!(typeof ABK==='object'&&ABK&&ABK.eselon1),p:()=>'Data 2024 · pra-penataan PMK 124/2024',
+     u:'Olah ulang (proses_abk.py) lalu ganti isi file di Drive',o:'Biro Organisasi dan Ketatalaksanaan'},
+    {d:'Katalog Kompetensi',f:'katalog_keahlian.json',m:'Katalog (referensi keahlian)',a:'Gerbang · saat menu dibuka',
+     s:()=>!!(typeof KATALOG==='object'&&KATALOG),p:()=>'Referensi taksonomi keahlian',
+     u:'Ganti isi file di Drive (File ID tetap)',o:'Biro Organisasi dan Ketatalaksanaan'},
+    {d:'Jabatan Fungsional Keuangan Negara',f:'jafung.json',m:'Analisis Jabatan (grup Jabatan Fungsional)',a:'Gerbang · latar belakang setelah login',
+     s:()=>!!(typeof JF==='object'&&JF&&JF.jfkn),p:()=>'Dasar: PermenPANRB 11/2023 · PMK 132/2023 · PMK 78/2025',
+     u:'build_jf.py lalu ganti isi file di Drive (File ID tetap)',o:'Biro Organisasi dan Ketatalaksanaan'},
+    {d:'Layanan Publik (TKPP)',f:'tkpp.json',m:'Layanan Publik (ZI, kepuasan, EUPP, Ombudsman, inovasi)',a:'Gerbang · latar belakang setelah login',
+     s:()=>!!(typeof TK==='object'&&TK&&TK.integritas),p:T,
+     u:'Pipeline TKPP lalu ganti isi file di Drive',o:'Sumber SLDK Bagian TKPP'},
+    {d:'Kapabilitas Kelembagaan (MOFIN)',f:'mofin.json',m:'Kapabilitas Kelembagaan',a:'Gerbang · latar belakang setelah login',
+     s:()=>!!(typeof MOFIN==='object'&&MOFIN&&MOFIN.units),p:()=>'Sumber: Survei MOFIN',
+     u:'Build MOFIN lalu ganti isi file di Drive',o:'Biro Organisasi dan Ketatalaksanaan'},
+    {d:'Pelimpahan Wewenang (PELWEN)',f:'pelwen.json',m:'Tata Kelola (Pelimpahan Wewenang)',a:'Gerbang · latar belakang setelah login',
+     s:()=>!!(typeof PW==='object'&&PW&&PW.detail),p:()=>'Dasar: KMK 167/2025 · 482 butir kewenangan',
+     u:'build_pelwen.py + build_pelwen_link.py lalu ganti isi file di Drive',o:'Biro Organisasi dan Ketatalaksanaan'},
+    {d:'Proses Bisnis (aplikasi tersemat)',f:'probis.html',m:'Proses Bisnis; katalog probis/layanan/aplikasi',a:'Tersemat · saat menu dibuka',
+     s:null,p:()=>'Lihat penanda data di dalam halamannya',
+     u:'Push ulang probis.html ke hosting',o:'Biro Organisasi dan Ketatalaksanaan'},
+    {d:'Unit Remote (aplikasi eksternal UKDR)',f:'uk3tsp.vercel.app',m:'Unit Remote (klasifikasi keterpencilan kantor)',a:'Eksternal · saat menu dibuka',
+     s:null,p:()=>'Data dikelola aplikasi UKDR',
+     u:'Di luar dashboard · dikelola pengembang UKDR',o:'Pengembang UKDR'},
+  ];
+  const chk=R.filter(r=>r.s), loaded=chk.filter(r=>{try{return r.s();}catch(e){return false;}}).length;
+  const gerbang=R.filter(r=>r.a.indexOf('Gerbang')===0).length;
+  let h=`<div class="note-box">Katalog seluruh sumber data dashboard: apa yang ditopangnya, jalur aksesnya, kapan dimuat, status muat <b>sesi ini</b> (dibaca langsung dari memori aplikasi), posisi datanya, dan cara pembaruannya. "Belum dimuat" pada dataset yang dimuat saat menu dibuka atau di latar belakang adalah perilaku normal, bukan gangguan. Penanda "Data per ..." di tiap halaman tetap berlaku; halaman ini merangkumnya di satu tempat.</div>
+  <div class="kpis">
+    <div class="kpi"><div class="lab">Sumber data</div><div class="val">${R.length}</div><div class="note">dataset & aplikasi</div></div>
+    <div class="kpi good"><div class="lab">Termuat sesi ini</div><div class="val">${loaded} / ${chk.length}</div><div class="note">dari yang dapat diperiksa</div></div>
+    <div class="kpi"><div class="lab">Lewat gerbang</div><div class="val">${gerbang}</div><div class="note">hanya setelah login</div></div>
+    <div class="kpi gold"><div class="lab">Tersemat / eksternal</div><div class="val">${R.length-gerbang}</div><div class="note">aplikasi terpisah</div></div></div>
+  <div class="card"><h2 class="sec" style="margin-top:0">Daftar Sumber Data</h2>
+    <div class="tblw"><table><thead><tr><th>Dataset</th><th>Menopang Modul</th><th>Akses &amp; Muat</th><th>Status Sesi Ini</th><th>Posisi Data</th><th>Pembaruan</th><th>Pengampu</th></tr></thead><tbody>`;
+  h+=R.map(r=>{
+    let st='<span class="mini">&mdash;</span>';
+    if(r.s){let ok=false;try{ok=!!r.s();}catch(e){}st=ok?'<span class="pill on">Termuat</span>':'<span class="pill neu">Belum dimuat</span>';}
+    let pp='—';try{pp=r.p();}catch(e){}
+    return `<tr><td><b>${esc(r.d)}</b><div class="mini" style="color:var(--muted)">${esc(r.f)}</div></td><td class="mini">${esc(r.m)}</td><td class="mini">${esc(r.a)}</td><td>${st}</td><td class="mini">${pp}</td><td class="mini">${esc(r.u)}</td><td class="mini">${esc(r.o)}</td></tr>`;
+  }).join('');
+  h+=`</tbody></table></div>
+  <div class="mini" style="margin-top:9px;color:var(--muted)">Kolom Pengampu akan dipertajam per bagian saat registry modul (konsep OSDM 5.1) diisi. Nilai "&mdash;" berarti tidak berlaku atau belum ada data, bukan nol.</div></div>`;
+  return h;
+}
+
 /* ==================== UNIT REMOTE (aplikasi eksternal via iframe) ====================
    Menanam aplikasi luar https://uk3tsp.vercel.app/dashboard di dalam frame. BEDA ORIGIN,
    jadi: (1) tak bisa auto-tinggi -> iframe diberi tinggi tetap memenuhi area, app menggulir
@@ -6196,7 +6262,7 @@ function render(){
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();if(!_sv)window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabkaitan:vUrjabKaitan,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,statistik:vStatistik,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   viewEl.innerHTML=menuDescBar()+freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   remoteHost(state.view==='otkremote');
