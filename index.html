@@ -1527,6 +1527,23 @@ function curVSet(){
 }
 /* cari unit vertikal/BLU by field id (bukan asumsi id==posisi array) supaya tautan tak nyasar walau data ter-reorder */
 function vById(units,id){if(units){for(var _i=0;_i<units.length;_i++)if(units[_i].id===id)return units[_i];}return units?units[id]:undefined;}
+/* Kedudukan dalam struktur: petakan tiap leluhur ke Eselon I-IV. Pusat: es=level (1-4). Vertikal: es=level+1 (root Instansi Vertikal=ES I). */
+const ESROM=['','I','II','III','IV','V','VI'];
+function esNumOf(nd,mode){return mode==='vertikal'?((nd.level|0)+1):(nd.level|0);}
+function esNameClean(nm,mode){return mode==='vertikal'?String(nm).replace(/^Instansi Vertikal\s+/,''):nm;}
+function kedudukanChain(path,mode){
+  var parts=(path||[]).map(function(p){var es=esNumOf(p,mode);if(!(es>=1&&es<=4))return '';return '<span class="mini" style="font-weight:800;color:var(--brand-d)">ES '+ESROM[es]+'</span> '+esc(esNameClean(p.nama,mode));}).filter(Boolean);
+  return parts.join(' <span class="mini">&rsaquo;</span> ');
+}
+function kedudukanCard(path,mode,curId){
+  var rows=(path||[]).map(function(p){var es=esNumOf(p,mode);if(!(es>=1&&es<=4))return '';
+    var cur=(p.id===curId);var act=mode==='vertikal'?'otkvopen':'otkopen';var nm=esc(esNameClean(p.nama,mode));
+    var label=cur?('<b>'+nm+'</b> <span class="mini">(unit ini)</span>'):('<span class="link" data-act="'+act+'" data-id="'+p.id+'">'+nm+'</span>');
+    return '<div style="display:flex;gap:9px;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--line)"><span class="pill '+(cur?'blue':'neu')+'" style="min-width:78px;text-align:center;flex:none">Eselon '+ESROM[es]+'</span><span style="font-size:var(--fs-base)">'+label+'</span></div>';
+  }).filter(Boolean).join('');
+  if(!rows)return '';
+  return '<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Kedudukan dalam Struktur</h2>'+rows+'</div>';
+}
 function vBluNon(seg){
   const grp=state.otkMode;                       // 'blu' | 'noneselon'
   const ds0=(OTKBLU&&OTKBLU[grp])||{};const keys=Object.keys(ds0);
@@ -3336,10 +3353,11 @@ function vOtkDetail(){
   <div class="card" style="margin-bottom:12px">
     <div style="font-size:var(--fs-h);font-weight:800;color:var(--brand-d)">${esc(n.nama)}</div>
     <div style="margin-top:7px">${otkTag(n.level)}</div>
-    <div class="mini" style="margin-top:7px">${path.map(p=>esc(p.nama)).join(' &rsaquo; ')}</div>
+    <div class="mini" style="margin-top:7px">${kedudukanChain(path,'pusat')}</div>
     ${kids.length?`<div class="mini" style="margin-top:5px">${kids.length} unit langsung &middot; ${fmt(desc)} total eselon di bawahnya</div>`:''}
     ${BAGAN[n.id]?`<div style="margin-top:9px"><span class="tag link" data-act="otkbagan" style="cursor:pointer">${state.otkShowBagan?'&#9660; Sembunyikan bagan resmi':'&#9654; Tampilkan bagan resmi'}</span></div>`:''}</div>
   ${(BAGAN[n.id]&&state.otkShowBagan)?`<div class="card" style="margin-bottom:12px;text-align:center"><img src="otk_bagan/${BAGAN[n.id]}" alt="Bagan ${esc(n.nama)}" style="max-width:100%;border:1px solid var(--line);border-radius:8px"></div>`:''}`;
+  h+=kedudukanCard(path,'pusat',n.id);
   if(n.tugas)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Tugas</h2><div style="font-size:var(--fs-base);line-height:1.6">${esc(n.tugas)}</div></div>`;
   if(n.fungsi&&n.fungsi.length)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Fungsi <span class="mini">(${n.fungsi.length})</span></h2><ol style="margin:0;padding-left:20px;font-size:var(--fs-base);line-height:1.6">${n.fungsi.map(f=>`<li style="margin-bottom:5px">${esc(f)}</li>`).join('')}</ol></div>`;
   h+=vUnitFungsiTugas(n);
@@ -3359,7 +3377,8 @@ function vOtkVDetail(){
   <div class="card" style="margin-bottom:12px">
     <div style="font-size:var(--fs-h);font-weight:800;color:var(--brand-d)">${esc(n.nama)}</div>
     <div style="margin-top:7px"><span class="pill blue">${esc(n.jenis)}</span> <span class="mini">${esc(ds.nama)}</span></div>
-    <div class="mini" style="margin-top:7px">${path.map(p=>esc(p.nama)).join(' &rsaquo; ')}</div></div>`;
+    <div class="mini" style="margin-top:7px">${kedudukanChain(path,'vertikal')}</div></div>`;
+  h+=kedudukanCard(path,'vertikal',n.id);
   if(n.tugas)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Tugas</h2><div style="font-size:var(--fs-base);line-height:1.6">${esc(n.tugas)}</div></div>`;
   if(n.fungsi&&n.fungsi.length)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Fungsi <span class="mini">(${n.fungsi.length})</span></h2><ol style="margin:0;padding-left:20px;font-size:var(--fs-base);line-height:1.6">${n.fungsi.map(f=>`<li style="margin-bottom:5px">${esc(f)}</li>`).join('')}</ol></div>`;
   if(kids.length)h+=`<div class="card"><h2 class="sec" style="margin-top:0">Unit di Bawahnya <span class="mini">(${kids.length})</span></h2><div style="display:flex;flex-wrap:wrap;gap:7px">${kids.map(c=>`<span class="tag link" data-act="otkvopen" data-id="${c.id}">${esc(c.nama)}</span>`).join('')}</div></div>`;
