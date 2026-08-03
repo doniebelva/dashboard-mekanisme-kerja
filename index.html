@@ -340,6 +340,9 @@ h2.sec::before{content:"";width:4px;height:15px;border-radius:var(--rad-xs);back
 .grid2>.card{height:100%}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
 .grid3>.card{height:100%}
+/* anak grid boleh menyusut di bawah min-content isinya; tanpa ini teks nowrap+ellipsis
+   di dalam kartu memaksa kolom grid melebar dan meluapkan halaman (mis. timanalitik). */
+.grid2>*,.grid3>*{min-width:0}
 .bento{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--sp-7)}
 .bgrid{display:grid;gap:13px}
 
@@ -412,15 +415,37 @@ td.num-c,th.num-c{font-variant-numeric:tabular-nums}
 
 /* -- kendali & pesan -- */
 .toolbar{display:flex;gap:9px;align-items:center;margin-bottom:11px;flex-wrap:wrap}
-input.search,select.flt{border:1px solid var(--line);border-radius:var(--rad-sm);padding:7px 11px;font-size:var(--fs-md);background:var(--surface);color:var(--ink)}
+input.search,.flt{border:1px solid var(--line);border-radius:var(--rad-sm);padding:7px 11px;font-size:var(--fs-md);background:var(--surface);color:var(--ink)}
 input.search{width:230px}
-input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(20,103,192,.12)}
+input.search:focus,.flt:focus,.fld:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(20,103,192,.12)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--rad-sm);overflow:hidden;margin-bottom:var(--sp-6)}
 .seg .segb{padding:7px var(--sp-7);font-size:var(--fs-md);font-weight:700;cursor:pointer;color:var(--ink);background:var(--surface)}
 .seg .segb.on{background:var(--brand);color:#fff}
 .seg .segb+.segb{border-left:1px solid var(--line)}
 .note-box{background:linear-gradient(180deg,#f0f6ff,#eaf3fe);border:1px solid var(--brand-l2);border-radius:var(--rad-md);padding:13px var(--sp-8);
   font-size:var(--fs-sm);color:#0f4c92;margin:var(--sp-6) 0;line-height:1.55}
+/* varian ungu utk note-box; pakai color-mix thd --surface supaya ikut mode gelap otomatis
+   (menggantikan inline background:#f6f2fd yang dulu tetap terang di mode gelap). */
+.note-box.vio{background:color-mix(in srgb,var(--vio) 8%,var(--surface));border-color:color-mix(in srgb,var(--vio) 30%,var(--surface));color:var(--ink)}
+/* ===== Lapis pimpinan (execLead): kalimat "jadi apa" + satu fokus + tombol menyelam.
+   Semua token -> ikut mode gelap otomatis. Dipasang di ATAS view, tidak membuang isi analis. */
+.exec-hero{background:linear-gradient(135deg,var(--brand-d),var(--brand) 70%,#2a86db);color:#fff;border-radius:var(--r);padding:20px 22px;box-shadow:var(--sh-md);margin-bottom:16px}
+.exec-hero .lead{font-family:var(--font-display);font-size:var(--fs-h);line-height:1.4;font-weight:700;margin:0 0 4px}
+.exec-hero .sub{font-size:var(--fs-sm);opacity:.92;line-height:1.5}
+.exec-hero .prov{margin-top:11px;font-size:var(--fs-mini);opacity:.82;border-top:1px solid rgba(255,255,255,.22);padding-top:8px}
+.exec-focus{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.exec-focus>*{min-width:0}
+.exec-num{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px;box-shadow:var(--sh-sm)}
+.exec-num.hero{background:var(--brand-l);border-color:var(--brand-l2)}
+.exec-num .n{font-family:var(--font-display);font-size:var(--fs-kpi);font-weight:800;color:var(--brand-d);line-height:1.02;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.exec-num.hero .n{font-size:var(--fs-hero)}
+.exec-num .l{font-size:var(--fs-mini);color:var(--muted);margin-top:7px;font-weight:600;line-height:1.35}
+.exec-drill{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 16px;box-shadow:var(--sh-sm);cursor:pointer;transition:box-shadow var(--t-fast),transform var(--t-fast),border-color var(--t-fast);margin-bottom:16px}
+.exec-drill:hover{border-color:var(--brand-l2);box-shadow:var(--sh-md);transform:translateY(-1px)}
+.exec-drill .t{font-size:var(--fs-md);font-weight:700;color:var(--brand-d)}
+.exec-drill .d{font-size:var(--fs-mini);color:var(--muted);margin-top:2px}
+.exec-drill .arrow{font-size:var(--fs-xl);color:var(--brand);flex:none}
+@media(max-width:640px){.exec-focus{grid-template-columns:1fr 1fr}}
 .legend{display:flex;gap:var(--sp-7);flex-wrap:wrap;font-size:var(--fs-sm);color:var(--muted);margin-top:var(--sp-4)}
 .dot{display:inline-block;width:10px;height:10px;border-radius:var(--rad-xs);margin-right:5px;vertical-align:-1px}
 .gap-row{display:flex;justify-content:space-between;font-size:var(--fs-md);padding:var(--sp-3) 0;border-bottom:1px dashed var(--line)}
@@ -537,6 +562,11 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 [data-theme=dark] *::-webkit-scrollbar-thumb:hover{background:#42546f;background-clip:content-box}
 
 /* ============================ 10. RESPONSIF ============================= */
+/* Zona tablet/desktop-sempit (sidebar 248px masih tampil, ruang isi sempit): cegah luapan
+   halaman. Tabel lebar yang belum dibungkus .tblw dibiarkan menggulir di dalam kartunya,
+   dan kolom tetap bar-row dilonggarkan. Ditempatkan sebelum aturan <=560 agar yang lebih
+   sempit tetap menang di bawahnya. */
+@media(max-width:1000px){.card{overflow-x:auto}.bar-row{grid-template-columns:minmax(90px,150px) 1fr 60px}}
 @media(max-width:900px){.grid2,.grid2.eq{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
 @media(max-width:820px){.bento{grid-template-columns:repeat(2,1fr)}.bento>*{grid-column:span 2!important}}
 @media(max-width:640px){.gt-row{grid-template-columns:120px 1fr}.appfoot .r{display:none}}
@@ -2087,13 +2117,42 @@ function donut(parts,size,center){const tot=parts.reduce((s,p)=>s+p.v,0)||1;cons
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${segs}<circle cx="${cx}" cy="${cy}" r="${r*0.62}" fill="var(--side)"/>${ctr}</svg>`;}
 
 /* ===== Dashboard Pimpinan ===== */
+/* Helper lapis pimpinan. o={lead, sub, prov, focus:[{n,l}...] (elemen[0]=fokus utama),
+   drill:{t,d,view}}. Menghasilkan blok "jadi apa" untuk dipasang di ATAS sebuah view.
+   Tombol menyelam pakai jalur nav standar (data-act="nav"), dihormati canView(). */
+function execLead(o){
+  o=o||{};
+  let h='<div class="exec-hero"><div class="lead">'+(o.lead||'')+'</div>';
+  if(o.sub)h+='<div class="sub">'+o.sub+'</div>';
+  if(o.prov)h+='<div class="prov">'+o.prov+'</div>';
+  h+='</div>';
+  if(o.focus&&o.focus.length){
+    h+='<div class="exec-focus">';
+    o.focus.forEach((f,i)=>{h+='<div class="exec-num'+(i===0?' hero':'')+'"><div class="n">'+f.n+'</div><div class="l">'+f.l+'</div></div>';});
+    h+='</div>';
+  }
+  if(o.drill&&o.drill.view&&(typeof canView!=='function'||canView(o.drill.view))){
+    h+='<div class="exec-drill" data-act="nav" data-view="'+o.drill.view+'"><div><div class="t">'+o.drill.t+'</div>'+(o.drill.d?'<div class="d">'+o.drill.d+'</div>':'')+'</div><span class="arrow">&rarr;</span></div>';
+  }
+  return h;
+}
 function vRingkasan(){
   const s=DATA.summary;const ue1=Object.entries(DATA.ue1).map(([k,v])=>({k,...v})).sort((a,b)=>b.jml_tim-a.jml_tim);
   const maxTim=Math.max(...ue1.map(u=>u.jml_tim));const zero=ue1.filter(u=>u.tim_aktif===0).sort((a,b)=>b.jml_tim-a.jml_tim);
   /* Unduhan SELURUH data Mekanisme Kerja (5 lembar: Tim, Pegawai, Unit ES I, Unit ES II,
      Beban Normal). Berbeda dari "Unduh Excel" di baris judul yang hanya mengambil tabel
      menu yang sedang dibuka, jadi rumahnya di sini supaya tetap terjangkau. */
-  let h=`<div class="note-box" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+  let h=execLead({
+    lead:'Adopsi mekanisme kerja baru bergulir dan belum merata antar unit.',
+    sub:`Baru ${pct(s.adopsi_pct)} tim yang aktif mencatat penugasan; ${zero.length} unit Eselon I bahkan belum mulai sama sekali. Mendorong unit-unit ini menjadi prioritas adopsi.`,
+    prov:`Sumber: submodul penugasan mekanisme kerja &middot; ${fmt(s.total_tim)} tim`,
+    focus:[
+      {n:pct(s.adopsi_pct),l:`tim aktif mencatat penugasan (${fmt(s.tim_aktif)} dari ${fmt(s.total_tim)})`},
+      {n:zero.length,l:'unit Eselon I masih 0% aktif'},
+      {n:s.n_ue1,l:'unit Eselon I terlibat'}
+    ],
+    drill:{t:'Lihat analitik kinerja lengkap',d:'Kuadran tim, ketepatan waktu, dan rekomendasi tindak lanjut',view:'analisis'}
+  })+`<div class="note-box" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
     <span style="flex:1;min-width:240px">Butuh seluruh data modul ini untuk diolah sendiri? Unduhan lengkap berisi lima lembar: Tim, Pegawai, Unit Eselon I, Unit Eselon II, dan Beban Normal.</span>
     <span class="tag link" data-act="downloadmk" style="background:var(--brand-l);color:var(--brand-d);font-weight:700;cursor:pointer">Unduh seluruh data Mekanisme Kerja &rsaquo;</span></div>
   <div class="kpis">
@@ -2102,7 +2161,6 @@ function vRingkasan(){
     <div class="kpi gold"><div class="lab">Pegawai dalam Tim</div><div class="val">${fmt(s.pegawai_dalam_tim)}</div><div class="note">dari ${fmt(s.total_pegawai)} pegawai</div></div>
     <div class="kpi alert"><div class="lab">Keterlambatan Task</div><div class="val">${pct(s.telat_pct)}</div><div class="note">${fmt(s.task.telat)}/${fmt(s.task.telat+s.task.selesai_tepat)} task selesai</div></div>
     <div class="kpi"><div class="lab">UE1 Terlibat</div><div class="val">${s.n_ue1}</div><div class="note">unit eselon I</div></div></div>
-  <div class="note-box"><b>Sorotan pimpinan:</b> baru <b>${pct(s.adopsi_pct)}</b> tim yang benar-benar berkegiatan di submodul penugasan. Mendorong seluruh UE1 ke tingkat keaktifan tertinggi menjadi prioritas adopsi.</div>
   <h2 class="sec">Adopsi per Unit Eselon I &middot; klik untuk menelusuri</h2>
   <div class="grid2"><div class="card"><h3>Jumlah tim &amp; tingkat keaktifan</h3><div class="cap">Batang = jumlah tim (warna per kategori); angka = % tim aktif (hijau &ge;40, kuning &ge;10, merah &lt;10). Klik untuk menelusuri.</div>`;
   const catUe1={};DATA.teams.forEach(t=>{const k=t.ue1;(catUe1[k]=catUe1[k]||{'Squad':0,'Non-Squad':0,'Tim Lainnya':0})[timKategori(t)]++;});
@@ -3161,7 +3219,25 @@ function vBeranda(){
     [fmt(s.total_tim||0),'Tim Kerja','mk','var(--cat-2)',chipBg('var(--cat-2)'),'data-act="mod" data-mod="mk"'],
     [fmt(s.total_pegawai||0),'Pegawai dalam Tim','mk','var(--cat-5)',chipBg('var(--cat-5)'),'data-act="mod" data-mod="mk"'],
   ];
-  let h=_berandaTabs('beranda')+`<div style="margin-bottom:14px"><div style="font-size:var(--fs-h);font-weight:800;color:var(--brand-d)">Dashboard Pengelolaan Organisasi</div><div class="mini" style="margin-top:3px">Lingkup ${esc(scopeLab)} &middot; diolah ${esc(s.tanggal_olah||'')}</div></div>
+  const maxd=[1,2,3,4].filter(l=>oc[l]>0).pop()||0;
+  const overdue=(s.task&&s.task.overdue)||0;
+  // Sintesis lintas modul: rangkai sinyal terkuat yang datanya SUDAH ADA (jangan mengarang).
+  const _synth=[];
+  if(canMk&&overdue)_synth.push(`${fmt(overdue)} penugasan lewat tenggat`);
+  if(canOtk&&noF)_synth.push(`${fmt(noF)} unit belum punya rumusan fungsi lengkap`);
+  if(abkReady&&abkShortPeople)_synth.push(`kekurangan ${fmt(abkShortPeople)} pegawai menurut ABK`);
+  if(canMk&&ad&&ad<50)_synth.push(`adopsi mekanisme kerja baru ${pct(ad)}`);
+  const _synthSub=_synth.length?`Perhatian utama: ${_synth.slice(0,3).join(', ')}. Rincian pada Kokpit Prioritas di bawah.`:'Sinyal lintas modul yang perlu perhatian dirangkum pada Kokpit Prioritas di bawah.';
+  let h=_berandaTabs('beranda')+execLead({
+    lead:`Potret pengelolaan organisasi ${esc(scopeLab)}.`,
+    sub:_synthSub,
+    prov:`Lingkup ${esc(scopeLab)} &middot; diolah ${esc(s.tanggal_olah||'-')}`,
+    focus:[
+      {n:fmt(otkN),l:`unit organisasi dikelola dalam ${maxd} jenjang`},
+      {n:pct(ad),l:'tim aktif mencatat penugasan (Mekanisme Kerja)'},
+      {n:fmt(noF),l:'unit Eselon I-II tanpa rumusan fungsi'}
+    ]
+  })+`
   <div class="bento">`;
   kpis.forEach(k=>{h+=`<div class="stat" style="grid-column:span 2;display:flex;align-items:center;gap:12px;cursor:pointer" ${k[5]}>
     <div style="width:44px;height:44px;border-radius:12px;background:${k[4]};color:${k[3]};display:flex;align-items:center;justify-content:center;flex-shrink:0">${svgIcon(k[2],22)}</div>
@@ -3404,7 +3480,19 @@ function vOtkAnalisis(){
   const noF=units.filter(n=>n.level<=2&&(!n.fungsi||!n.fungsi.length)).length;
   const tot=units.length;const maxd=units.length?Math.max.apply(null,units.map(n=>n.level)):0;
   const es1names=otkKids(0).map(n=>n.nama);
-  let h=`<div class="toolbar">`;
+  const pctES4=tot?Math.round(100*(ce[4]||0)/tot):0;
+  const avgSpan=span2.length?uAvg(span2).toFixed(1):'-';
+  let h=execLead({
+    lead:'Struktur cenderung tinggi dan bertumpu di jenjang bawah.',
+    sub:`${pctES4}% unit berada di Eselon IV dan satu Eselon II rata-rata membawahi ${avgSpan} unit. Pola tinggi-ramping seperti ini menjadi bahan utama kajian penyederhanaan birokrasi (delayering).`,
+    prov:`Sumber: struktur organisasi berjalan &middot; ${fmt(tot)} unit`,
+    focus:[
+      {n:pctES4+'%',l:`unit berada di Eselon IV (${fmt(ce[4]||0)} dari ${fmt(tot)})`},
+      {n:avgSpan,l:'rata-rata rentang kendali Eselon II'},
+      widest.length?{n:widest[0].k,l:`unit langsung di ${esc(widest[0].n.nama)} (rentang terlebar)`}:{n:maxd,l:'tingkat kedalaman jenjang'}
+    ],
+    drill:{t:'Lihat kesehatan struktur lebih dalam',d:'Deteksi rentang kendali lebar dan lapisan berlebih per unit',view:'otkhealth'}
+  })+`<div class="toolbar">`;
   if(SCOPE.type==='all')h+=`<select class="flt" id="otkAnUE1"><option value="">Semua Eselon I</option>${es1names.map(x=>`<option value="${esc(x)}" ${state.otkAnUE1===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
   h+=`<span class="mini">${fmt(tot)} unit</span></div>
   <div class="kpis">
@@ -7050,7 +7138,7 @@ function vPelAnalisis(){
       +'<div style="flex:1">'+pwStack(dord.map(function(k){return {k:k,v:dd[k]||0};}),t,dcol)+'</div>'
       +'<div class="mini" style="flex:0 0 70px;text-align:right">Es I '+esi+'%</div></div>';});
   h+='<div class="mini" style="margin-top:8px">'+dord.map(function(k){return '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+dcol[k]+';margin:0 3px 0 8px"></span>'+k;}).join('')+'</div>';
-  h+='<div class="note-box" style="margin-top:10px;background:#f0f6ff;color:#274a73"><b>Baca:</b> Sentralistik (wewenang ditahan di Dirjen): <b>'+(sentra.join(', ')||'-')+'</b>. Desentralistik (banyak diturunkan): <b>'+(desentra.join(', ')||'-')+'</b>.</div>';
+  h+='<div class="note-box" style="margin-top:10px"><b>Baca:</b> Sentralistik (wewenang ditahan di Dirjen): <b>'+(sentra.join(', ')||'-')+'</b>. Desentralistik (banyak diturunkan): <b>'+(desentra.join(', ')||'-')+'</b>.</div>';
   h+='</div>';
 
   // 3. PROFIL KARAKTER
@@ -7062,7 +7150,7 @@ function vPelAnalisis(){
   var mxs=Math.max.apply(null,subs.map(function(k){return (S.global_sub||{})[k]||0;}));
   subs.forEach(function(k){h+=bar(k,(S.global_sub||{})[k]||0,mxs,'',(S.global_sub||{})[k]||0);});
   h+='</div>';
-  h+='<div class="note-box" style="margin-top:10px;background:#f6f2fd;color:#4c2f7a"><b>Insight:</b> Mandat yang dilimpahkan didominasi tindakan <b>administratif</b> ('+Math.round(100*(S.global.Administratif||0)/totB)+'%). Wewenang "berat" yang menghasilkan <b>KMK/PMK hanya '+formalN+' butir ('+formalPct+'%)</b>, terpusat di Setjen dan DJP. Artinya sebagian besar yang dilimpahkan adalah eksekusi administratif, bukan pembentukan keputusan/norma.</div>';
+  h+='<div class="note-box vio" style="margin-top:10px"><b>Insight:</b> Mandat yang dilimpahkan didominasi tindakan <b>administratif</b> ('+Math.round(100*(S.global.Administratif||0)/totB)+'%). Wewenang "berat" yang menghasilkan <b>KMK/PMK hanya '+formalN+' butir ('+formalPct+'%)</b>, terpusat di Setjen dan DJP. Artinya sebagian besar yang dilimpahkan adalah eksekusi administratif, bukan pembentukan keputusan/norma.</div>';
 
   // Tabel wewenang formal (KMK/PMK)
   h+='<h2 class="sec">Wewenang Formal (menghasilkan KMK/PMK)</h2><div class="card"><div class="tblw"><table style="width:100%;border-collapse:collapse;font-size:var(--fs-md)"><thead><tr style="text-align:left;border-bottom:2px solid var(--line)"><th style="padding:6px 8px">Unit</th><th style="padding:6px 8px">Sifat</th><th style="padding:6px 8px">Jabatan</th><th style="padding:6px 8px">Materi</th></tr></thead><tbody>';
