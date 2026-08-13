@@ -1750,7 +1750,7 @@ const MODULES=[
  ]},
  {id:'katref',icn:'katalog',lab:'Katalog',groups:[
    {grp:'Produk ABK',items:[{v:'katakt',lab:'Katalog Produk ABK'},{v:'katpeta',lab:'Peta Aktivitas Kantor'}]},
-   {grp:'Jabatan',items:[{v:'katjab',lab:'Katalog Jabatan'}]},
+   {grp:'',items:[{v:'katjab',lab:'Katalog Jabatan'}]},
  ]},
  {id:'unitremote',icn:'remote',lab:'Unit Remote',groups:[
    {grp:'',items:[{v:'otkremote',lab:'Unit Remote'}]},
@@ -4528,6 +4528,31 @@ function vKatJab(){
   h+=`</tbody></table>${rows.length>300?`<div class="mini" style="margin-top:6px">Menampilkan 300 dari ${fmt(rows.length)} - persempit dengan filter/cari.</div>`:''}</div>`;
   return h;
 }
+
+/* Ekspor PENUH utk view berdaftar panjang: Unduh Excel/PDF memakai seluruh data (sesuai filter aktif),
+   bukan tabel layar yang dipenggal 300 baris. Dipanggil _ambilTabelView. */
+const _EXPORT_FULL={
+  katjab:function(){const KJ=ABK&&ABK.katjab;if(!KJ)return null;
+    const q=(state.kjQ||'').toLowerCase().trim();let rows=KJ.jabatan;
+    if(state.kjUE1)rows=rows.filter(x=>x.uk===state.kjUE1);
+    if(state.kjLvl)rows=rows.filter(x=>x.lvl===state.kjLvl);
+    if(q)rows=rows.filter(x=>x.nama.toLowerCase().indexOf(q)>=0||x.kode.toLowerCase().indexOf(q)>=0);
+    const LV=KJ.meta.lvl_order;
+    return [
+      {judul:'Kluster Unit Eselon I x Jenjang',head:['UE1','Unit Eselon I'].concat(LV).concat(['Total']),
+       rows:KJ.klusters.map(k=>[k.uk,k.ue1].concat(LV.map(l=>k[l]||0)).concat([k.total]))},
+      {judul:'Daftar Jabatan',head:['Kode','Nama Jabatan','Jenjang','Unit Eselon I','Kemunculan','Sumber'],
+       rows:rows.map(x=>[x.kode,x.nama,x.lvl,x.ue1,x.n,x.src])}];},
+  katakt:function(){const KT=ABK&&ABK.katalog;if(!KT)return null;
+    const q=(state.kataktQ||'').toLowerCase().trim();let rows=KT.aktivitas;
+    if(state.kataktKlus)rows=rows.filter(x=>x.klus===state.kataktKlus);
+    if(q)rows=rows.filter(x=>x.nama.toLowerCase().indexOf(q)>=0||x.kode.toLowerCase().indexOf(q)>=0);
+    return [
+      {judul:'Kluster Aktivitas',head:['Kode','Kluster','Aktivitas Standar','Total Kandidat','Beban (jam)','Jangkar OTK','Jangkar URJAB'],
+       rows:KT.klusters.map(k=>[k.kode,k.nama,k.n_std,k.n_akt,Math.round(k.beban),k.otk_j!=null?k.otk_j:'-',k.ur_j!=null?k.ur_j:'-'])},
+      {judul:'Katalog Produk ABK',head:['Kode','Nama Aktivitas','Kluster','Unit','UE1','Variasi Tulis','Beban Tusi (jam)','Beban Non-Tusi (jam)'],
+       rows:rows.map(x=>[x.kode,x.nama,x.klus,x.n_unit,x.n_es1,x.n_var,Math.round(x.beban_a),Math.round(x.beban_b)])}];}
+};
 
 /* ===== ABK - BEBAN vs STRUKTUR (silang ABK 2024 x OTK PMK 124) ===== */
 let _BVS=null;
@@ -7609,6 +7634,9 @@ function _xsheet(name,headers,rows){var nm=String(name).replace(/[\\\/?*\[\]:]/g
 /* Ambil semua tabel yang sedang tampil di view -> [{judul, head, rows}].
    Dipakai bersama oleh Unduh Excel dan Unduh PDF supaya isinya persis sama. */
 function _ambilTabelView(){
+  if(typeof _EXPORT_FULL!=='undefined'&&_EXPORT_FULL[state.view]){
+    try{var full=_EXPORT_FULL[state.view]();if(full&&full.length)return full;}catch(e){}
+  }
   var host=document.getElementById('view');if(!host)return [];
   var txt=function(el){return String(el.textContent||'').replace(/\s+/g,' ').trim();};
   var out=[],pakai={};
