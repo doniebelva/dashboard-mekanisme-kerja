@@ -6455,6 +6455,25 @@ function vProfilUnit(){
     } else h+=_blmAda('Beban Kerja','Kode unit ada di peta, tetapi rinciannya tidak ditemukan di abk.json.');
   } else h+=_blmAda('Beban Kerja','Unit ini belum masuk cakupan pengukuran ABK.');
 
+  /* ---- Cuti pegawai (Analitik Cuti, domain SDM) - join by nama, aturan lintas modul ---- */
+  if(typeof CUTI==='object'&&CUTI&&CUTI.unit){
+    const nrmC=function(x){return String(x||'').toLowerCase().replace(/[^a-z ]/g,' ').replace(/ +/g,' ').trim();};
+    const cRows=CUTI.unit.filter(function(r){return nrmC(r.nama)===nrmC(U.nama);});
+    if(cRows.length){
+      const c25=cRows.filter(function(r){return r.tahun===2025;});
+      const peng25=c25.reduce(function(s,r){return s+r.rekaman;},0), hari25=c25.reduce(function(s,r){return s+r.hari;},0);
+      const sakit25=c25.filter(function(r){return r.jenis==='Cuti Sakit';}).reduce(function(s,r){return s+r.hari;},0);
+      const parC=cutiParsial(cRows[0].nama), bezC=cutiBez(cRows[0].nama);
+      const perPeg=(bezC&&!parC&&sakit25)?(sakit25/bezC):null;
+      const dCu=_bisa('cuti')?'data-act="nav" data-view="cutiunit"':'';
+      h+='<div class="card">'+_judulSumber('Cuti Pegawai','HRIS (Analitik Cuti)',dCu,'Buka analitik cuti')+'<div class="kpis">'+
+         kpiBox('Pengajuan cuti 2025',peng25.toLocaleString('id-ID'),'seluruh jenis','',dCu)+
+         kpiBox('Hari cuti 2025',hari25.toLocaleString('id-ID'),'hari kalender','',dCu)+
+         kpiBox('Hari sakit per pegawai',(perPeg!=null?perPeg.toFixed(1).replace('.',','):'-'),(perPeg!=null?'2025, dibagi bezetting ABK 2024':(parC?'data unit ini masih parsial':'belum ada data pembagi')),'',dCu)+
+         '</div>'+(parC?'<div class="mini" style="margin-top:8px">Data cuti unit ini baru sebagian masuk HRIS (aplikasi cutinya belum terintegrasi), jadi angkanya belum menggambarkan kondisi penuh.</div>':'')+'</div>';
+    } else h+=_blmAda('Cuti Pegawai','Nama unit ini tidak ditemukan pada data cuti.');
+  } else h+=_blmAda('Cuti Pegawai','Data cuti sedang dimuat di latar belakang; bagian ini terisi otomatis setelah selesai.');
+
   /* ---- Kapabilitas (MOFIN) ---- */
   if(s.mofin&&MOFIN&&MOFIN.units){
     const m=MOFIN.units.filter(function(x){return x.kode===s.mofin.kode;})[0];
@@ -6679,6 +6698,7 @@ function render(){
   if(state.view==='katpeta'&&!ABK&&!state.abkLoading)ensureAbk();
   if(state.view==='jabkomposisi'&&!ABK&&!state.abkLoading)ensureAbk();
   if(state.view.indexOf('cuti')===0&&!CUTI&&!state.cutiLoading)ensureCuti();
+  if(state.view==='profilunit'&&!CUTI&&!state.cutiLoading&&((typeof canMod!=='function')||canMod('cuti')))ensureCuti();
   renderNav();
   const isPb=state.view.indexOf('pb_')===0;
   // masuk fresh -> default tab Dashboard; KECUALI tabnya memang diminta (mis. hasil Ctrl+K "Mapping")
@@ -6755,8 +6775,16 @@ function vCuti(){
   const T=CUTI.tahunan, thn=cutiThn(), J=CUTI.meta.jenis;
   const totR=cutiSumF(T,'rekaman'), totH=cutiSumF(T,'hari');
   const perJ={};J.forEach(j=>{const r=T.filter(x=>x.jenis===j);perJ[j]={rekaman:cutiSumF(r,'rekaman'),hari:cutiSumF(r,'hari')};});
-  let h='<div class="card"><h2 class="sec" style="margin-top:0">Apa yang Disajikan Modul Ini</h2><p style="margin:0">Analitik Cuti memotret pola pemanfaatan cuti pegawai dari rekaman pengajuan cuti pada HRIS: berapa banyak pengajuan dan hari cuti terpakai, kapan pengajuan menumpuk, unit mana yang intensitasnya paling tinggi, bagaimana sebarannya menurut usia dan gender, serta apa alasan yang mendasarinya. Di atas potret deskriptif itu, modul menyediakan lapis diagnostik (dekomposisi tren dan kategori cuti sakit), prediktif (proyeksi beban berbasis pola musiman), dan preskriptif (kalender kapasitas kehadiran serta simulasi kebijakan potongan tunjangan).</p></div>'+
-    '<div class="note-box"><b>Cakupan data:</b> '+esc(CUTI.meta.cakupan)+'. Periode '+esc(CUTI.meta.periode.mulai)+' s.d. '+esc(CUTI.meta.periode.akhir)+'. Data anonim per pengajuan; durasi dihitung hari kalender.</div>';
+  let h='<div class="card"><h2 class="sec" style="margin-top:0">Apa yang Disajikan Modul Ini</h2><p style="margin:0">Halaman ini membaca seluruh catatan pengajuan cuti pegawai di HRIS, lalu menjawab pertanyaan sehari-hari pengelola SDM: berapa banyak cuti diajukan dan berapa hari terpakai, kapan cuti menumpuk, unit mana yang paling tinggi, siapa yang mengajukan menurut usia dan gender, serta apa alasannya. Dari situ modul melangkah lebih jauh: mencari tahu mengapa polanya begitu (menu Tren dan Kategori Cuti Sakit), memperkirakan beban cuti ke depan (menu Proyeksi), dan membantu mengambil tindakan (Kalender Kapasitas dan Simulasi PMK 221).</p></div>'+
+    '<div class="note-box"><b>Cakupan data:</b> '+esc(CUTI.meta.cakupan)+'. Periode '+esc(CUTI.meta.periode.mulai)+' s.d. '+esc(CUTI.meta.periode.akhir)+'. Data tidak memuat identitas pegawai. Lama cuti dihitung dalam hari kalender, termasuk akhir pekan.</div>';
+  /* sorotan pimpinan: satu kalimat kesimpulan + pintu masuk analisis */
+  const _s20=T.find(x=>x.jenis==='Cuti Sakit'&&x.tahun===2020)||{rekaman:0};
+  const _s25=T.find(x=>x.jenis==='Cuti Sakit'&&x.tahun===2025)||{rekaman:0};
+  const _kali=_s20.rekaman?Math.round(10*_s25.rekaman/_s20.rekaman)/10:null;
+  const _p26=(CUTI.proyeksi&&CUTI.proyeksi['Cuti Sakit'])||{};
+  h+='<div class="card" style="border-left:4px solid var(--brand)"><h2 class="sec" style="margin-top:0">Sorotan</h2>'+
+    '<p style="margin:0 0 10px">Pengajuan cuti sakit tumbuh <b>'+(_kali?String(_kali).replace('.',',')+' kali lipat':'pesat')+'</b> sejak 2020 dan diperkirakan mencapai <b>'+(_p26.estimasiSetahun?fmt(_p26.estimasiSetahun):'-')+'</b> pengajuan pada 2026; pendorong utamanya sakit ringan musiman, bukan penyakit berat. Sementara itu Desember selalu menjadi bulan paling ramai cuti. Dua hal yang perlu diantisipasi pengelola SDM: kapasitas layanan akhir tahun dan musim penyakit di paruh kedua tahun.</p>'+
+    '<div><span class="tag link" data-act="nav" data-view="cutiprediksi">Lihat Proyeksi &rsaquo;</span> <span class="tag link" data-act="nav" data-view="cutipola">Kalender Kapasitas &rsaquo;</span> <span class="tag link" data-act="nav" data-view="cutisakit">Kategori Cuti Sakit &rsaquo;</span></div></div>';
   h+=_katKpi([['Total Pengajuan Cuti',fmt(totR),'seluruh jenis, 2020 s.d. Jun 2026',1],['Total Hari Cuti',fmt(totH),'hari kalender'],
     ['Cuti Tahunan',fmt(perJ['Cuti Tahunan'].rekaman),fmt(perJ['Cuti Tahunan'].hari)+' hari'],
     ['Cuti Sakit',fmt(perJ['Cuti Sakit'].rekaman),fmt(perJ['Cuti Sakit'].hari)+' hari'],
@@ -6770,7 +6798,7 @@ function vCuti(){
     '<div class="mini" style="margin-bottom:4px">Dari sisi jumlah pengajuan ('+fmt(totR)+')</div>'+cutiStack(jpartsR,totR)+
     '<div class="mini" style="margin:12px 0 4px">Dari sisi hari terpakai ('+fmt(totH)+')</div>'+cutiStack(jpartsH,totH)+
     _tkLeg(jpartsR.map(p=>({c:p.c,l:p.name+' ('+cutiPct(p.v,totR)+'% pengajuan · '+cutiPct(perJ[p.name].hari,totH)+'% hari)'})))+
-    '<div class="note-box" style="margin-top:10px">Dua batang ini sengaja disandingkan: cuti besar hanya '+cutiPct(perJ['Cuti Besar'].rekaman,totR)+'% pengajuan tetapi memakan '+cutiPct(perJ['Cuti Besar'].hari,totH)+'% hari karena durasinya sekitar dua bulan per pengajuan, sedangkan cuti tahunan dominan jumlahnya namun pendek durasinya.</div></div>'+
+    '<div class="note-box" style="margin-top:10px">Bandingkan dua batang di atas: cuti besar jarang diajukan (hanya '+cutiPct(perJ['Cuti Besar'].rekaman,totR)+'% dari seluruh pengajuan) tetapi memakan '+cutiPct(perJ['Cuti Besar'].hari,totH)+'% dari seluruh hari cuti, karena sekali cuti besar lamanya sekitar dua bulan. Sebaliknya cuti tahunan sangat banyak jumlahnya tetapi umumnya hanya satu sampai dua hari.</div></div>'+
     '<div class="card"><h2 class="sec" style="margin-top:0">Alasan Cuti Tahunan Terbanyak</h2>'+al.map(a=>bar(a.alasan,a.rekaman,alMax,'',fmt(a.rekaman))).join('')+
     '<div class="mini" style="margin-top:6px">Di luar pengajuan tanpa keterangan alasan ('+cutiPct(cutiSumF(CUTI.alasan.filter(x=>x.jenis==='Cuti Tahunan'&&x.alasan==='Tanpa keterangan'),'rekaman'),perJ['Cuti Tahunan'].rekaman)+'% dari cuti tahunan).</div></div></div>';
   /* tren tahunan per jenis */
@@ -6785,8 +6813,8 @@ function vCuti(){
   const d20=s20.rekaman?(s20.hari/s20.rekaman):0, d25=s25.rekaman?(s25.hari/s25.rekaman):0;
   const sh=CUTI.dow.satuHari, p1=cutiPct(sh.total,sh.dariCutiTahunan), pjs=cutiPct(sh.jumatSenin,sh.total);
   h+='<div class="grid2">';
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Cuti Sakit: Naik karena Frekuensi, Bukan Keparahan</h2><p style="margin:0">Pengajuan cuti sakit naik dari <b>'+fmt(s20.rekaman)+'</b> (2020) menjadi <b>'+fmt(s25.rekaman)+'</b> (2025), tetapi durasi rata-rata per pengajuan justru turun dari <b>'+d20.toFixed(1).replace('.',',')+'</b> menjadi <b>'+d25.toFixed(1).replace('.',',')+' hari</b>. Lonjakan didorong sakit ringan berdurasi pendek. Telusuri di menu Kategori Cuti Sakit.</p></div>';
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Pola Penyambung Libur Terukur Jelas</h2><p style="margin:0"><b>'+p1+'%</b> cuti tahunan berdurasi satu hari, dan <b>'+pjs+'%</b> dari cuti satu hari itu jatuh pada Jumat atau Senin. Pola ini menjadi dasar kalender kapasitas kehadiran di menu Pola Hari &amp; Kalender.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Cuti Sakit: Makin Sering, Bukan Makin Parah</h2><p style="margin:0">Pengajuan cuti sakit naik tiga kali lipat, dari <b>'+fmt(s20.rekaman)+'</b> pada 2020 menjadi <b>'+fmt(s25.rekaman)+'</b> pada 2025. Namun lama sakitnya justru memendek, dari rata-rata <b>'+d20.toFixed(1).replace('.',',')+'</b> menjadi <b>'+d25.toFixed(1).replace('.',',')+' hari</b>. Artinya pegawai bukan makin berat sakitnya, melainkan makin sering sakit ringan seperti flu dan batuk. Rinciannya di menu Kategori Cuti Sakit.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Cuti Satu Hari untuk Menyambung Libur</h2><p style="margin:0">Dari seluruh cuti tahunan, <b>'+p1+'%</b> hanya satu hari, dan lebih dari separuhnya (<b>'+pjs+'%</b>) diambil hari Jumat atau Senin, menempel akhir pekan. Akibatnya kantor cenderung sepi di hari-hari itu. Perkiraan bulan ramai cuti ada di menu Pola Hari &amp; Kalender.</p></div>';
   h+='</div>';
   return h;
 }
@@ -6795,19 +6823,33 @@ function vCutiTren(){
   const g=cutiGuard();if(g)return g;
   const j=state.cutiTrJenis||'Cuti Tahunan', thn=cutiThn();
   let h='<div class="toolbar"><span class="mini">Jenis cuti</span>'+cutiSelJ('cutiTrJenis',j)+'</div>';
-  /* heatmap bulan x tahun */
+  /* heatmap bulan x tahun + deteksi lonjakan tak wajar (realisasi vs kebiasaan musiman) */
   const B=CUTI.bulanan.filter(x=>x.jenis===j);
   const val=(t,b)=>{const r=B.find(x=>x.tahun===t&&x.bulan===b);return r?r.rekaman:null;};
   const mx=Math.max(1,...B.map(x=>x.rekaman));
+  const musJ=CUTI.musiman[j]||[];
+  const ekspektasi=(t,b)=>{ /* perkiraan wajar bulan itu, dari total tahun x pola musiman */
+    if(t<2022)return null; /* 2020-2021 pola pandemi, tidak dinilai */
+    const adaBln=[...new Set(B.filter(x=>x.tahun===t).map(x=>x.bulan))];
+    if(adaBln.indexOf(b)<0)return null;
+    const totT=B.filter(x=>x.tahun===t).reduce((s,x)=>s+x.rekaman,0);
+    const sumMus=adaBln.reduce((s,m)=>s+(musJ[m-1]||0),0)||1;
+    return totT*(musJ[b-1]||0)/sumMus;};
+  const lonjakan=[];
   let hm='<div class="tblw"><table class="hm"><thead><tr><th>Bulan</th>'+thn.map(t=>'<th style="text-align:center">'+t+'</th>').join('')+'</tr></thead><tbody>';
   for(let b=1;b<=12;b++){
     hm+='<tr><td>'+CUTI_BLN[b-1]+'</td>'+thn.map(t=>{
       const v=val(t,b);
       if(v==null)return '<td class="cell" style="background:var(--track);color:var(--muted)">-</td>';
       const tt=v/mx;
-      return '<td class="cell" style="background:'+mofRamp(tt)+';color:'+mofRampInk(tt)+'" title="'+CUTI_BLN[b-1]+' '+t+': '+fmt(v)+' pengajuan">'+fmt(v)+'</td>';}).join('')+'</tr>';}
+      const ex=ekspektasi(t,b);
+      const naik=(ex&&ex>0)?(v/ex):null;
+      const anom=naik!=null&&naik>=1.4&&(v-ex)>=100;
+      if(anom)lonjakan.push({b:b,t:t,v:v,pct:Math.round(100*(naik-1))});
+      return '<td class="cell" style="background:'+mofRamp(tt)+';color:'+mofRampInk(tt)+(anom?';outline:2px solid var(--st-critical);outline-offset:-2px':'')+'" title="'+CUTI_BLN[b-1]+' '+t+': '+fmt(v)+' pengajuan'+(anom?' (sekitar '+Math.round(100*(naik-1))+'% di atas kebiasaan bulan ini)':'')+'">'+fmt(v)+'</td>';}).join('')+'</tr>';}
   hm+='</tbody></table></div>';
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Pengajuan '+esc(j)+' (Bulan x Tahun)</h2>'+hm+'<div class="mini" style="margin-top:6px">Semakin gelap semakin banyak pengajuan. Periode April 2020 s.d. pertengahan 2021 rendah seiring pembatasan masa pandemi; 2026 baru sampai Juni.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Pengajuan '+esc(j)+' (Bulan x Tahun)</h2>'+hm+'<div class="mini" style="margin-top:6px">Semakin gelap semakin banyak pengajuan. Sel berbingkai merah berarti jumlahnya jauh di atas kebiasaan bulan tersebut. Periode April 2020 s.d. pertengahan 2021 rendah karena pembatasan masa pandemi; 2026 baru sampai Juni.</div>'+
+    (lonjakan.length?'<div class="note-box warn" style="margin-top:10px"><b>Lonjakan tak wajar terdeteksi:</b> '+lonjakan.sort((a,b2)=>b2.pct-a.pct).slice(0,5).map(x=>CUTI_BLN[x.b-1]+' '+x.t+' ('+fmt(x.v)+' pengajuan, sekitar '+x.pct+'% di atas kebiasaan)').join('; ')+'. Lonjakan seperti ini layak dicek penyebabnya: wabah penyakit, kebijakan baru, atau perubahan cara input data.</div>':'')+'</div>';
   /* dekomposisi frekuensi vs durasi */
   const T=CUTI.tahunan.filter(x=>x.jenis===j);
   const mxr=Math.max(1,...T.map(x=>x.rekaman));
@@ -6820,8 +6862,8 @@ function vCutiTren(){
   const durOrder=['1','2','3','4-5','6-10','>10'];
   const dparts=durOrder.filter(k=>durTot[k]).map((k,i)=>({v:durTot[k],c:'var(--seq-'+(i+2)+')',name:bmap[k]||'di atas 10 hari'}));
   const durAll=dparts.reduce((s,p)=>s+p.v,0);
-  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Dekomposisi Tren: Frekuensi vs Durasi</h2><div class="tblw"><table><thead><tr><th>Tahun</th><th class="num-c">Pengajuan</th><th></th><th class="num-c">Hari</th><th class="num-c">Rata-rata Hari / Pengajuan</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
-    (j==='Cuti Sakit'?'<div class="note-box" style="margin-top:10px">Bacaan diagnostik: kenaikan pengajuan yang disertai <b>turunnya durasi rata-rata</b> menunjukkan lonjakan berasal dari sakit ringan berdurasi pendek (konsisten dengan pola penyakit akut musiman), bukan memburuknya kondisi berat pegawai.</div>':'')+'</div>'+
+  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Makin Sering atau Makin Lama? (Jumlah vs Durasi)</h2><div class="tblw"><table><thead><tr><th>Tahun</th><th class="num-c">Pengajuan</th><th></th><th class="num-c">Hari</th><th class="num-c">Rata-rata Hari / Pengajuan</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    (j==='Cuti Sakit'?'<div class="note-box" style="margin-top:10px">Cara membacanya: jumlah pengajuan naik, tetapi rata-rata lamanya turun. Itu tanda kenaikan berasal dari sakit ringan yang sebentar (flu, batuk, demam musiman), bukan dari penyakit berat yang bertambah.</div>':'')+'</div>'+
     '<div class="card"><h2 class="sec" style="margin-top:0">Komposisi Durasi '+esc(j)+'</h2>'+cutiStack(dparts,durAll,26)+
     _tkLeg(dparts.map(p=>({c:p.c,l:p.name+' ('+cutiPct(p.v,durAll)+'%)'})))+
     '<div class="note-box" style="margin-top:10px"><b>'+cutiPct(durTot['1']||0,durAll)+'%</b> pengajuan '+esc(j)+' berdurasi satu hari. Warna makin gelap berarti durasi makin panjang (hari kalender per pengajuan).</div></div></div>';
@@ -6845,7 +6887,7 @@ function vCutiUnit(){
   let h='<div class="toolbar"><span class="mini">Jenis</span>'+_katSel('cutiUnitJenis',fj,'Semua Jenis',CUTI.meta.jenis.map(x=>[x,x]))+
     '<span class="mini">Tahun</span>'+_katSel('cutiUnitTahun',ft,'Semua Tahun',thn.map(t=>[String(t),String(t)]))+
     '<div class="seg"><span class="segb '+(mode==='abs'?'on':'')+'" data-act="cutiunitmode" data-k="abs">Absolut</span><span class="segb '+(mode==='norm'?'on':'')+'" data-act="cutiunitmode" data-k="norm">Per 100 Pegawai</span></div></div>';
-  if(mode==='norm'&&!abkOn)h+='<div class="note-box warn">Normalisasi per pegawai membutuhkan data bezetting dari modul ABK. <span class="tag link" data-act="loadabk">Muat data ABK</span></div>';
+  if(mode==='norm'&&!abkOn)h+='<div class="note-box warn">Untuk menghitung per 100 pegawai, modul perlu memuat dulu data jumlah pegawai dari ABK. <span class="tag link" data-act="loadabk">Muat data ABK</span></div>';
   let tb=rows.map(r=>{
     const nrmCell=r.par?'<span class="mini" title="Data cuti unit ini baru sebagian masuk HRIS">belum ada data</span>':(r.norm!=null?fmt(r.norm):(abkOn?'<span class="mini">belum ada data</span>':'-'));
     return '<tr><td>'+esc(r.nm)+(r.par?' <span class="tag" title="Aplikasi cuti unit ini belum terintegrasi HRIS; angka baru sebagian">parsial</span>':'')+'</td>'+
@@ -6855,7 +6897,7 @@ function vCutiUnit(){
       '<td class="num-c">'+(r.bez&&!r.par?fmt(r.bez):'<span class="mini">'+(abkOn?'belum ada data':'-')+'</span>')+'</td>'+
       '<td class="num-c">'+nrmCell+'</td></tr>';}).join('');
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Cuti per Unit Eselon I <span class="mini">('+rows.length+' unit)</span></h2><div class="tblw"><table><thead><tr><th>Unit</th><th class="num-c">Pengajuan</th><th class="num-c">Hari</th><th></th><th class="num-c">Rata Hari/Pengajuan</th><th class="num-c">Bezetting (ABK)</th><th class="num-c">Hari per 100 Pegawai</th></tr></thead><tbody>'+tb+'</tbody></table></div>'+
-    '<div class="mini" style="margin-top:6px">Bezetting diambil dari data ABK 2024 (join nama unit Eselon I). Unit bertanda parsial tidak dinormalisasi agar tidak menyesatkan. Perbandingan antar unit paling adil pada mode Per 100 Pegawai.</div></div>';
+    '<div class="mini" style="margin-top:6px">Jumlah pegawai (bezetting) diambil dari data ABK 2024, dicocokkan lewat nama unit. Mode Per 100 Pegawai adalah cara paling adil membandingkan unit besar dan kecil, karena yang diukur intensitasnya, bukan sekadar banyaknya. Unit bertanda parsial datanya belum lengkap sehingga sengaja tidak ikut dihitung.</div></div>';
   return h;
 }
 
@@ -6906,7 +6948,7 @@ function vCutiPola(){
   let kal=CUTI_BLN.map((b,i)=>{const L=lvl(mus[i]||0);
     return '<td class="cell" style="background:'+L[1]+';color:'+L[2]+'" title="'+b+': indeks '+String(mus[i]).replace('.',',')+' ('+L[0]+')">'+b+'<br><b>'+String((mus[i]||0).toFixed(2)).replace('.',',')+'</b></td>';}).join('');
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Kalender Kapasitas Kehadiran (Preskriptif, Indikatif)</h2><div class="tblw"><table class="hm"><tbody><tr>'+kal+'</tr></tbody></table></div>'+
-    '<p style="margin:10px 0 0">Indeks musiman pengajuan cuti tahunan (basis 2022-2025; 1,00 = rata-rata bulanan). Bulan berindeks tinggi berarti kehadiran cenderung rendah: pertimbangkan tidak menjadwalkan kegiatan besar, dan siapkan pengaturan kapasitas layanan. Efek penyambung libur membuat Jumat dan Senin sekitar libur nasional paling rawan kosong.</p></div>';
+    '<p style="margin:10px 0 0">Cara membaca angkanya: 1,00 berarti bulan biasa; 1,20 berarti sekitar 20% lebih ramai cuti daripada bulan biasa; di bawah 1,00 berarti lebih sepi (dihitung dari kebiasaan 2022-2025). Pada bulan yang ramai cuti, sebaiknya hindari menjadwalkan kegiatan besar dan siapkan petugas cadangan untuk layanan. Hari paling rawan kosong: Jumat dan Senin di sekitar libur nasional.</p></div>';
   return h;
 }
 
@@ -6917,8 +6959,8 @@ function vCutiSakit(){
   K.forEach(r=>{tot[r.kat]=(tot[r.kat]||0)+r.rekaman;});
   const totTanpa=tot['tanpa']||0, totIsi=totAll-totTanpa;
   const thn=[...new Set(K.map(r=>r.tahun))].sort();
-  let h='<div class="note-box"><b>Metode:</b> kategori diturunkan dari teks bebas keterangan alasan memakai kamus kata kunci yang mereplikasi 7 kategori Studi Cuti Sakit 2022-2025, dihitung saat pengolahan data (bukan penilaian manual). '+
-    fmt(totIsi)+' pengajuan terkategorikan; '+fmt(totTanpa)+' ('+cutiPct(totTanpa,totAll)+'%) tanpa keterangan alasan (kolom alasan baru terisi konsisten pada periode belakangan).</div>';
+  let h='<div class="note-box"><b>Bagaimana kategori ini dibuat:</b> pegawai menulis alasan sakit dengan kata-kata bebas, misalnya "demam", "cuci darah", atau "operasi gigi". Sistem membaca tulisan itu lalu mengelompokkannya ke 7 kategori mengikuti Studi Cuti Sakit Biro SDM. Dari seluruh pengajuan, '+
+    fmt(totIsi)+' berhasil dikelompokkan; '+fmt(totTanpa)+' ('+cutiPct(totTanpa,totAll)+'%) tidak bisa karena kolom alasannya kosong (kewajiban mengisi alasan baru berjalan beberapa tahun terakhir).</div>';
   const mxk=Math.max(1,...kats.map(k=>tot[k.kat]||0));
   const kUrut=kats.slice().sort((a,b)=>(tot[b.kat]||0)-(tot[a.kat]||0));
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Komposisi Kategori (Akumulasi 2020 s.d. Jun 2026)</h2>'+
@@ -6929,14 +6971,28 @@ function vCutiSakit(){
     const vals=thn.map(t=>{const r=K.find(x=>x.kat===k.kat&&x.tahun===t);return r?r.rekaman:0;});
     const mx=Math.max(1,...vals);
     return '<tr><td>'+esc(k.label)+'</td>'+vals.map((v,i)=>'<td class="cell" style="background:'+mofRamp(v/mx)+';color:'+mofRampInk(v/mx)+'" title="'+thn[i]+': '+fmt(v)+'">'+fmt(v)+'</td>').join('')+'</tr>';}).join('');
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Kategori per Tahun</h2><div class="tblw"><table class="hm"><thead><tr><th>Kategori</th>'+thn.map(t=>'<th style="text-align:center">'+t+'</th>').join('')+'</tr></thead><tbody>'+tr+'</tbody></table></div><div class="mini" style="margin-top:6px">Warna dinormalkan per baris untuk membaca tren tiap kategori; 2026 baru sampai Juni.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Kategori per Tahun</h2><div class="tblw"><table class="hm"><thead><tr><th>Kategori</th>'+thn.map(t=>'<th style="text-align:center">'+t+'</th>').join('')+'</tr></thead><tbody>'+tr+'</tbody></table></div><div class="mini" style="margin-top:6px">Warna dibandingkan di dalam baris masing-masing: sel paling gelap adalah tahun tertinggi untuk kategori itu. 2026 baru sampai Juni.</div></div>';
   /* kategori x band usia */
   const bands=['20-35','36-49','50+'];
   let bu=kats.map(k=>{
     const vals=bands.map(b=>{const r=CUTI.kategoriUsia.find(x=>x.kat===k.kat&&x.band===b);return r?r.rekaman:0;});
     const tt=vals.reduce((s,x)=>s+x,0)||1;
     return '<tr><td>'+esc(k.label)+'</td>'+vals.map(v=>'<td class="num-c">'+fmt(v)+' <span class="mini">('+cutiPct(v,tt)+'%)</span></td>').join('')+'</tr>';}).join('');
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori x Kelompok Usia</h2><div class="tblw"><table><thead><tr><th>Kategori</th>'+bands.map(b=>'<th class="num-c">'+b+'</th>').join('')+'</tr></thead><tbody>'+bu+'</tbody></table></div><div class="mini" style="margin-top:6px">Konsisten dengan profil risiko studi: reproduksi menumpuk di 20-35, kronis dan prosedur meningkat pada usia 50 ke atas.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori x Kelompok Usia</h2><div class="tblw"><table><thead><tr><th>Kategori</th>'+bands.map(b=>'<th class="num-c">'+b+'</th>').join('')+'</tr></thead><tbody>'+bu+'</tbody></table></div><div class="mini" style="margin-top:6px">Polanya sejalan dengan studi: masalah kehamilan dan reproduksi menumpuk pada usia 20-35, sedangkan penyakit menahun dan operasi meningkat pada usia 50 ke atas.</div></div>';
+  /* kategori per unit: proporsi per baris; sel berjumlah kecil DITAHAN demi privasi */
+  const KU=CUTI.kategoriUnit||[];
+  const unitTot={};KU.forEach(r=>{if(r.kat!=='tanpa')unitTot[r.nama]=(unitTot[r.nama]||0)+r.rekaman;});
+  const unitList=Object.keys(unitTot).filter(u=>unitTot[u]>=50).sort((a,b)=>unitTot[b]-unitTot[a]);
+  const KLBL={akut:'Akut',umum:'Umum',prosedur:'Prosedur',kronis:'Kronis',cedera:'Cedera',reproduksi:'Reproduksi',mental:'Mental'};
+  let ku=unitList.map(u=>{
+    const cells=kUrut.map(k=>{
+      const r=KU.find(x=>x.nama===u&&x.kat===k.kat);const v=r?r.rekaman:0;
+      if(v>0&&v<10)return '<td class="cell" style="background:var(--track);color:var(--muted)" title="Angka ditahan karena jumlahnya kecil (menjaga privasi)">&lt;10</td>';
+      const sh=Math.min(1,(v/unitTot[u])/0.6);
+      return '<td class="cell" style="background:'+mofRamp(sh)+';color:'+mofRampInk(sh)+'" title="'+esc(k.label)+': '+fmt(v)+' pengajuan ('+cutiPct(v,unitTot[u])+'%)">'+cutiPct(v,unitTot[u])+'%</td>';});
+    return '<tr><td class="rh" title="'+esc(u)+'">'+esc(u)+'</td>'+cells.join('')+'</tr>';}).join('');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori per Unit Eselon I</h2><div class="tblw"><table class="hm"><thead><tr><th>Unit</th>'+kUrut.map(k=>'<th style="text-align:center" title="'+esc(k.label)+'">'+(KLBL[k.kat]||k.label)+'</th>').join('')+'</tr></thead><tbody>'+ku+'</tbody></table></div>'+
+    '<div class="mini" style="margin-top:6px">Angka = persen dari pengajuan terkategori pada unit itu (satu baris berjumlah 100%). Bacaan praktisnya: unit dengan proporsi cedera otot tinggi cocok jadi sasaran program ergonomi; proporsi kesehatan mental yang menonjol layak ditindaklanjuti dengan hati-hati dan rahasia. Sel bertanda &lt;10 ditahan demi menjaga privasi; unit dengan total di bawah 50 pengajuan terkategori tidak ditampilkan.</div></div>';
   /* contoh teks per kategori (transparansi) */
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Contoh Teks Alasan Terbanyak per Kategori</h2>'+kats.map(k=>{
     const c=(CUTI.kategoriContoh[k.kat]||[]).slice(0,5);
@@ -6950,7 +7006,7 @@ function vCutiPrediksi(){
   const g=cutiGuard();if(g)return g;
   const j=state.cutiPredJenis||'Cuti Sakit';
   const mus=CUTI.musiman[j]||[], P=CUTI.proyeksi;
-  let h='<div class="note-box"><b>Metode (transparan, tanpa kotak hitam):</b> proyeksi memakai pola musiman historis 2022-2025 (mengecualikan distorsi pandemi 2020-2021). Estimasi setahun 2026 = realisasi Semester I dibagi pangsa historis Semester I. Sifatnya indikatif untuk perencanaan, bukan angka pasti.</div>';
+  let h='<div class="note-box"><b>Cara menghitungnya (sederhana dan bisa diperiksa):</b> kebiasaan tahun 2022-2025 menunjukkan berapa persen cuti setahun yang biasanya jatuh pada Januari sampai Juni. Realisasi Januari-Juni 2026 lalu dibagi persentase kebiasaan itu untuk memperkirakan angka setahun penuh. Tahun 2020-2021 tidak dipakai karena polanya kacau akibat pandemi. Hasilnya perkiraan untuk perencanaan, bukan angka pasti.</div>';
   h+='<div class="toolbar"><span class="mini">Jenis cuti</span>'+cutiSelJ('cutiPredJenis',j)+'</div>';
   const mxm=Math.max(...mus,0.01);
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Indeks Musiman '+esc(j)+' <span class="mini">(1,00 = rata-rata bulanan)</span></h2>'+
@@ -6964,7 +7020,7 @@ function vCutiPrediksi(){
   /* peringatan dini musiman cuti sakit */
   const ms=CUTI.musiman['Cuti Sakit']||[];
   const tinggi=CUTI_BLN.filter((b,i)=>(ms[i]||0)>=1.05);
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Peringatan Dini Musiman (Cuti Sakit)</h2><p style="margin:0">Bulan dengan intensitas cuti sakit historis di atas rata-rata: <b>'+tinggi.join(', ')+'</b>. Periode musim hujan berkaitan dengan naiknya ISPA, influenza, dan diare (rujukan Studi Cuti Sakit). Rekomendasi studi yang relevan: penjadwalan vaksinasi influenza sebelum musim hujan serta protokol masker dan kerja jarak jauh saat risiko tinggi.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Peringatan Dini Musiman (Cuti Sakit)</h2><p style="margin:0">Berdasarkan kebiasaan tahun-tahun sebelumnya, cuti sakit paling ramai pada bulan <b>'+tinggi.join(', ')+'</b>. Musim hujan biasanya diikuti naiknya flu, ISPA, dan diare. Saran dari Studi Cuti Sakit: adakan vaksinasi influenza sebelum musim hujan, dan berlakukan masker atau kerja dari rumah saat risikonya sedang tinggi.</p></div>';
   return h;
 }
 
@@ -6981,14 +7037,14 @@ function vCutiSimulasi(){
     const k3=kena(R,3), kx=kena(R,thr), lind=k3-kx;
     totT+=tt;tot3+=k3;totX+=kx;
     rows+='<tr><td><b>'+t+(t===2026?' (s.d. Juni)':'')+'</b></td><td class="num-c">'+fmt(tt)+'</td><td class="num-c">'+fmt(k3)+'</td><td class="num-c">'+fmt(kx)+'</td><td class="num-c" style="color:var(--st-good);font-weight:700">'+fmt(lind)+'</td></tr>';});
-  let h='<div class="note-box"><b>Konteks kebijakan:</b> PMK 221/PMK.01/2021 menetapkan potongan tunjangan 0% untuk cuti sakit rawat jalan paling lama <b>3 hari kerja</b>, selebihnya dipotong 2,5% per hari. Studi Cuti Sakit 2022-2025 mengusulkan relaksasi menjadi sekurangnya <b>10 hari kerja</b> bagi kondisi kronis pasca perawatan. Simulator ini menghitung berapa pengajuan yang berubah status bila ambang digeser.</div>';
+  let h='<div class="note-box"><b>Aturannya sekarang:</b> pegawai yang cuti sakit rawat jalan tidak dipotong tunjangan untuk <b>3 hari kerja pertama</b>; lewat dari itu tunjangan dipotong 2,5% per hari (PMK 221/PMK.01/2021). Studi Cuti Sakit mengusulkan batas bebas potongan diperpanjang menjadi <b>10 hari kerja</b> untuk pegawai berpenyakit menahun yang butuh pemulihan. Alat ini menghitung: kalau batasnya digeser, berapa banyak pengajuan yang tadinya kena potongan menjadi bebas potongan.</div>';
   h+='<div class="toolbar"><span class="mini">Ambang usulan (hari)</span><input class="flt" type="number" id="cutiSimHari" min="1" max="30" value="'+thr+'" style="width:80px"></div>';
   h+=_katKpi([['Pengajuan Rawat Jalan',fmt(totT),'2020 s.d. Jun 2026',1],
     ['Kena Potongan (Ambang 3 Hari)',fmt(tot3),cutiPct(tot3,totT)+'% dari pengajuan rawat jalan'],
     ['Masih Kena (Ambang '+thr+' Hari)',fmt(totX),cutiPct(totX,totT)+'%'],
     ['Pengajuan Terlindungi',fmt(tot3-totX),'berubah status bila ambang digeser ke '+thr+' hari']]);
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Rincian per Tahun</h2><div class="tblw"><table><thead><tr><th>Tahun</th><th class="num-c">Pengajuan Rawat Jalan</th><th class="num-c">Durasi &gt; 3 Hari</th><th class="num-c">Durasi &gt; '+thr+' Hari</th><th class="num-c">Terlindungi</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
-  h+='<div class="note-box warn"><b>Batasan (wajib dibaca):</b> durasi pada data adalah <b>hari kalender</b>, sedangkan ambang PMK dihitung <b>hari kerja</b>; hasil di atas adalah estimasi indikatif (cenderung sedikit melebihkan pengajuan terdampak). Kelompok yang disimulasikan hanya cuti sakit rawat jalan (termasuk rawat jalan pasca rawat inap). Simulator ini alat bantu analisis kebijakan Biro SDM, bukan penetapan.</div>';
+  h+='<div class="note-box warn"><b>Perlu diingat:</b> data mencatat lama cuti dalam hari kalender (termasuk akhir pekan), sedangkan aturan PMK menghitung hari kerja. Karena itu angka di atas sedikit melebihkan jumlah yang terdampak; perlakukan sebagai perkiraan, bukan angka persis. Yang dihitung hanya cuti sakit rawat jalan (termasuk rawat jalan setelah rawat inap). Alat ini bahan analisis untuk Biro SDM, bukan keputusan.</div>';
   return h;
 }
 
@@ -7002,7 +7058,7 @@ function vCutiTentang(){
     '<tr><td>Dibuang: durasi di atas 366 hari</td><td class="num-c">'+fmt(k.dibuang_durasi_ekstrem||0)+'</td></tr>'+
     '<tr><td><b>Baris dipakai</b></td><td class="num-c"><b>'+fmt(k.baris_dipakai||0)+'</b></td></tr>'+
     '</tbody></table></div></div>';
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Batasan Analisis</h2><p style="margin:0 0 6px">Data bersifat <b>anonim per pengajuan</b> (tanpa identitas pegawai), sehingga analisis utilisasi hak cuti per pegawai, sisa cuti, dan pola berulang individu tidak dimungkinkan. Durasi dihitung <b>hari kalender</b>, bukan hari kerja. Granularitas unit berhenti di <b>Eselon I</b>; rincian UE II, jabatan, dan wilayah belum tersedia pada feeding saat ini.</p><p style="margin:0">'+esc(m.catatan)+'</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Batasan Analisis</h2><p style="margin:0 0 6px">Data <b>tidak memuat identitas pegawai</b>, sehingga hal seperti sisa cuti seseorang atau pegawai yang sering berulang cuti tidak bisa dianalisis. Lama cuti dihitung <b>hari kalender</b>, bukan hari kerja. Rincian unit paling dalam hanya sampai <b>Eselon I</b>; data per kantor, jabatan, atau wilayah belum dikirim.</p><p style="margin:0">'+esc(m.catatan)+'</p></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Pengembangan Berikutnya</h2><p style="margin:0">Prioritas permintaan data ke Biro SDM: (1) identitas pegawai tersamar yang konsisten antar rekaman untuk analisis utilisasi, (2) jenis cuti yang belum tersedia, (3) atribut jabatan dan unit Eselon II. Kajian lengkap: output/Modul Cuti/Kajian_Awal_Modul_Cuti.docx.</p></div>';
   return h;
 }
