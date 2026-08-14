@@ -428,6 +428,12 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 /* -- heatmap -- */
 .hm{border-collapse:separate;border-spacing:3px}
 .hm td,.hm th{border:none;padding:0}
+/* varian rapat: kolom nilai dibagi RATA selebar kartu (tanpa jurang kosong), header lebih tinggi.
+   Lebar kolom label diset inline per tabel (bulan pendek, nama unit panjang). */
+.hm-fit{width:100%;table-layout:fixed}
+.hm-fit .cell{width:auto;min-width:56px}
+.hm-fit thead th{height:34px;vertical-align:middle}
+.hm-fit td:first-child{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:var(--sp-4)}
 .hm .rh{font-weight:600;font-size:var(--fs-sm);padding-right:var(--sp-5);white-space:nowrap;cursor:pointer;max-width:230px;overflow:hidden;text-overflow:ellipsis;transition:all var(--t-fast) ease}
 .hm .rh:hover{color:var(--brand)}
 .hm .ch{font-size:var(--fs-mini);color:var(--muted);text-transform:uppercase;letter-spacing:.3px;text-align:center;padding-bottom:var(--sp-3)}
@@ -6730,6 +6736,7 @@ function render(){
    cakupan Kemenkeu di luar DJP/DJBC. Empat lapis: deskriptif, diagnostik,
    prediktif (pola musiman transparan), preskriptif (kalender kapasitas + simulasi PMK 221). */
 const CUTI_BLN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const CUTI_BLNF=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const CUTI_HR=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
 const CUTI_JCOL={'Cuti Tahunan':'var(--cat-1)','Cuti Sakit':'var(--cat-2)','Cuti Besar':'var(--cat-3)'};
 function cutiGuard(){
@@ -6836,9 +6843,9 @@ function vCutiTren(){
     const sumMus=adaBln.reduce((s,m)=>s+(musJ[m-1]||0),0)||1;
     return totT*(musJ[b-1]||0)/sumMus;};
   const lonjakan=[];
-  let hm='<div class="tblw"><table class="hm"><thead><tr><th>Bulan</th>'+thn.map(t=>'<th style="text-align:center">'+t+'</th>').join('')+'</tr></thead><tbody>';
+  let hm='<div class="tblw"><table class="hm hm-fit"><thead><tr><th style="width:110px;text-align:left">Bulan</th>'+thn.map(t=>'<th style="text-align:center">'+t+'</th>').join('')+'</tr></thead><tbody>';
   for(let b=1;b<=12;b++){
-    hm+='<tr><td>'+CUTI_BLN[b-1]+'</td>'+thn.map(t=>{
+    hm+='<tr><td>'+CUTI_BLNF[b-1]+'</td>'+thn.map(t=>{
       const v=val(t,b);
       if(v==null)return '<td class="cell" style="background:var(--track);color:var(--muted)">-</td>';
       const tt=v/mx;
@@ -6846,10 +6853,10 @@ function vCutiTren(){
       const naik=(ex&&ex>0)?(v/ex):null;
       const anom=naik!=null&&naik>=1.4&&(v-ex)>=100;
       if(anom)lonjakan.push({b:b,t:t,v:v,pct:Math.round(100*(naik-1))});
-      return '<td class="cell" style="background:'+mofRamp(tt)+';color:'+mofRampInk(tt)+(anom?';outline:2px solid var(--st-critical);outline-offset:-2px':'')+'" title="'+CUTI_BLN[b-1]+' '+t+': '+fmt(v)+' pengajuan'+(anom?' (sekitar '+Math.round(100*(naik-1))+'% di atas kebiasaan bulan ini)':'')+'">'+fmt(v)+'</td>';}).join('')+'</tr>';}
+      return '<td class="cell" style="background:'+mofRamp(tt)+';color:'+mofRampInk(tt)+(anom?';outline:2px solid var(--st-critical);outline-offset:-2px':'')+'" title="'+CUTI_BLNF[b-1]+' '+t+': '+fmt(v)+' pengajuan'+(anom?' (sekitar '+Math.round(100*(naik-1))+'% di atas kebiasaan bulan ini)':'')+'">'+fmt(v)+'</td>';}).join('')+'</tr>';}
   hm+='</tbody></table></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Pengajuan '+esc(j)+' (Bulan x Tahun)</h2>'+hm+'<div class="mini" style="margin-top:6px">Semakin gelap semakin banyak pengajuan. Sel berbingkai merah berarti jumlahnya jauh di atas kebiasaan bulan tersebut. Periode April 2020 s.d. pertengahan 2021 rendah karena pembatasan masa pandemi; 2026 baru sampai Juni.</div>'+
-    (lonjakan.length?'<div class="note-box warn" style="margin-top:10px"><b>Lonjakan tak wajar terdeteksi:</b> '+lonjakan.sort((a,b2)=>b2.pct-a.pct).slice(0,5).map(x=>CUTI_BLN[x.b-1]+' '+x.t+' ('+fmt(x.v)+' pengajuan, sekitar '+x.pct+'% di atas kebiasaan)').join('; ')+'. Lonjakan seperti ini layak dicek penyebabnya: wabah penyakit, kebijakan baru, atau perubahan cara input data.</div>':'')+'</div>';
+    (lonjakan.length?'<div class="note-box warn" style="margin-top:10px"><b>Lonjakan tak wajar terdeteksi:</b> '+lonjakan.sort((a,b2)=>b2.pct-a.pct).slice(0,5).map(x=>CUTI_BLNF[x.b-1]+' '+x.t+' ('+fmt(x.v)+' pengajuan, sekitar '+x.pct+'% di atas kebiasaan)').join('; ')+'. Lonjakan seperti ini layak dicek penyebabnya: wabah penyakit, kebijakan baru, atau perubahan cara input data.</div>':'')+'</div>';
   /* dekomposisi frekuensi vs durasi */
   const T=CUTI.tahunan.filter(x=>x.jenis===j);
   const mxr=Math.max(1,...T.map(x=>x.rekaman));
@@ -6945,9 +6952,9 @@ function vCutiPola(){
   /* kalender kapasitas dari indeks musiman cuti tahunan */
   const mus=CUTI.musiman['Cuti Tahunan']||[];
   const lvl=v=>v>=1.15?['Padat','var(--seq-6)','var(--seq-ink-hi)']:v>=1.02?['Di atas rata-rata','var(--seq-4)','var(--seq-ink-hi)']:v>=0.9?['Normal','var(--seq-2)','var(--seq-ink-lo)']:['Longgar','var(--seq-1)','var(--seq-ink-lo)'];
-  let kal=CUTI_BLN.map((b,i)=>{const L=lvl(mus[i]||0);
+  let kal=CUTI_BLNF.map((b,i)=>{const L=lvl(mus[i]||0);
     return '<td class="cell" style="background:'+L[1]+';color:'+L[2]+'" title="'+b+': indeks '+String(mus[i]).replace('.',',')+' ('+L[0]+')">'+b+'<br><b>'+String((mus[i]||0).toFixed(2)).replace('.',',')+'</b></td>';}).join('');
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kalender Kapasitas Kehadiran (Preskriptif, Indikatif)</h2><div class="tblw"><table class="hm"><tbody><tr>'+kal+'</tr></tbody></table></div>'+
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kalender Kapasitas Kehadiran (Preskriptif, Indikatif)</h2><div class="tblw"><table class="hm hm-fit"><tbody><tr>'+kal+'</tr></tbody></table></div>'+
     '<p style="margin:10px 0 0">Cara membaca angkanya: 1,00 berarti bulan biasa; 1,20 berarti sekitar 20% lebih ramai cuti daripada bulan biasa; di bawah 1,00 berarti lebih sepi (dihitung dari kebiasaan 2022-2025). Pada bulan yang ramai cuti, sebaiknya hindari menjadwalkan kegiatan besar dan siapkan petugas cadangan untuk layanan. Hari paling rawan kosong: Jumat dan Senin di sekitar libur nasional.</p></div>';
   return h;
 }
@@ -6971,7 +6978,7 @@ function vCutiSakit(){
     const vals=thn.map(t=>{const r=K.find(x=>x.kat===k.kat&&x.tahun===t);return r?r.rekaman:0;});
     const mx=Math.max(1,...vals);
     return '<tr><td>'+esc(k.label)+'</td>'+vals.map((v,i)=>'<td class="cell" style="background:'+mofRamp(v/mx)+';color:'+mofRampInk(v/mx)+'" title="'+thn[i]+': '+fmt(v)+'">'+fmt(v)+'</td>').join('')+'</tr>';}).join('');
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Kategori per Tahun</h2><div class="tblw"><table class="hm"><thead><tr><th>Kategori</th>'+thn.map(t=>'<th style="text-align:center">'+t+'</th>').join('')+'</tr></thead><tbody>'+tr+'</tbody></table></div><div class="mini" style="margin-top:6px">Warna dibandingkan di dalam baris masing-masing: sel paling gelap adalah tahun tertinggi untuk kategori itu. 2026 baru sampai Juni.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Kategori per Tahun</h2><div class="tblw"><table class="hm hm-fit"><thead><tr><th style="width:250px;text-align:left">Kategori</th>'+thn.map(t=>'<th style="text-align:center">'+t+'</th>').join('')+'</tr></thead><tbody>'+tr+'</tbody></table></div><div class="mini" style="margin-top:6px">Warna dibandingkan di dalam baris masing-masing: sel paling gelap adalah tahun tertinggi untuk kategori itu. 2026 baru sampai Juni.</div></div>';
   /* kategori x band usia */
   const bands=['20-35','36-49','50+'];
   let bu=kats.map(k=>{
@@ -6991,7 +6998,7 @@ function vCutiSakit(){
       const sh=Math.min(1,(v/unitTot[u])/0.6);
       return '<td class="cell" style="background:'+mofRamp(sh)+';color:'+mofRampInk(sh)+'" title="'+esc(k.label)+': '+fmt(v)+' pengajuan ('+cutiPct(v,unitTot[u])+'%)">'+cutiPct(v,unitTot[u])+'%</td>';});
     return '<tr><td class="rh" title="'+esc(u)+'">'+esc(u)+'</td>'+cells.join('')+'</tr>';}).join('');
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori per Unit Eselon I</h2><div class="tblw"><table class="hm"><thead><tr><th>Unit</th>'+kUrut.map(k=>'<th style="text-align:center" title="'+esc(k.label)+'">'+(KLBL[k.kat]||k.label)+'</th>').join('')+'</tr></thead><tbody>'+ku+'</tbody></table></div>'+
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori per Unit Eselon I</h2><div class="tblw"><table class="hm hm-fit"><thead><tr><th style="width:250px;text-align:left">Unit</th>'+kUrut.map(k=>'<th style="text-align:center" title="'+esc(k.label)+'">'+(KLBL[k.kat]||k.label)+'</th>').join('')+'</tr></thead><tbody>'+ku+'</tbody></table></div>'+
     '<div class="mini" style="margin-top:6px">Angka = persen dari pengajuan terkategori pada unit itu (satu baris berjumlah 100%). Bacaan praktisnya: unit dengan proporsi cedera otot tinggi cocok jadi sasaran program ergonomi; proporsi kesehatan mental yang menonjol layak ditindaklanjuti dengan hati-hati dan rahasia. Sel bertanda &lt;10 ditahan demi menjaga privasi; unit dengan total di bawah 50 pengajuan terkategori tidak ditampilkan.</div></div>';
   /* contoh teks per kategori (transparansi) */
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Contoh Teks Alasan Terbanyak per Kategori</h2>'+kats.map(k=>{
@@ -7010,7 +7017,7 @@ function vCutiPrediksi(){
   h+='<div class="toolbar"><span class="mini">Jenis cuti</span>'+cutiSelJ('cutiPredJenis',j)+'</div>';
   const mxm=Math.max(...mus,0.01);
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Indeks Musiman '+esc(j)+' <span class="mini">(1,00 = rata-rata bulanan)</span></h2>'+
-    CUTI_BLN.map((b,i)=>bar(b,mus[i]||0,mxm,'',String((mus[i]||0).toFixed(2)).replace('.',','))).join('')+'</div>';
+    CUTI_BLNF.map((b,i)=>bar(b,mus[i]||0,mxm,'',String((mus[i]||0).toFixed(2)).replace('.',','))).join('')+'</div>';
   /* proyeksi 2026 semua jenis */
   let rows=CUTI.meta.jenis.map(x=>{
     const p=P[x]||{}, r25=CUTI.tahunan.find(y=>y.jenis===x&&y.tahun===2025);
@@ -7019,7 +7026,7 @@ function vCutiPrediksi(){
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Proyeksi Pengajuan Cuti 2026</h2><div class="tblw"><table><thead><tr><th>Jenis</th><th class="num-c">Realisasi s.d. Juni</th><th class="num-c">Pangsa Historis Sem. I</th><th class="num-c">Estimasi Setahun</th><th class="num-c">Realisasi 2025</th><th class="num-c">Perubahan</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   /* peringatan dini musiman cuti sakit */
   const ms=CUTI.musiman['Cuti Sakit']||[];
-  const tinggi=CUTI_BLN.filter((b,i)=>(ms[i]||0)>=1.05);
+  const tinggi=CUTI_BLNF.filter((b,i)=>(ms[i]||0)>=1.05);
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Peringatan Dini Musiman (Cuti Sakit)</h2><p style="margin:0">Berdasarkan kebiasaan tahun-tahun sebelumnya, cuti sakit paling ramai pada bulan <b>'+tinggi.join(', ')+'</b>. Musim hujan biasanya diikuti naiknya flu, ISPA, dan diare. Saran dari Studi Cuti Sakit: adakan vaksinasi influenza sebelum musim hujan, dan berlakukan masker atau kerja dari rumah saat risikonya sedang tinggi.</p></div>';
   return h;
 }
