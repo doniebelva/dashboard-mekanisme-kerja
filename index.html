@@ -917,6 +917,12 @@ async function loadKatref(){if(KATREF)return KATREF;let d=null;if(REMOTE){d=awai
   if(!d||!d.katalog)throw new Error('katref-unavailable');KATREF=d;return KATREF;}
 function ensureKatref(){if(KATREF||state.katrefLoading)return;state.katrefLoading=true;state.katrefErr=false;progStart();
   loadKatref().then(()=>{state.katrefLoading=false;progDone();render();}).catch(()=>{state.katrefLoading=false;progDone();state.katrefErr=true;render();});}
+/* Modul Cuti (domain SDM): agregat cuti pegawai - sensitif, lazy-load via gerbang spt ABK */
+let CUTI=null;const CUTI_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?cuti=1';
+async function loadCuti(){if(CUTI)return CUTI;let d=null;if(REMOTE){d=await api('cuti',{});}else if(CUTI_URL){const r=await fetch(CUTI_URL);d=await r.json();}else{return CUTI;}
+  if(!d||!d.tahunan)throw new Error('cuti-unavailable');CUTI=d;return CUTI;}
+function ensureCuti(){if(CUTI||state.cutiLoading)return;state.cutiLoading=true;state.cutiErr=false;progStart();
+  loadCuti().then(()=>{state.cutiLoading=false;progDone();render();}).catch(()=>{state.cutiLoading=false;progDone();state.cutiErr=true;render();});}
 /* Mode 'files': muat semua data inti (struktural + MK + akun) dari ./data/*.json sebelum login/render. */
 async function ensureCore(){
   if(DATAMODE!=='files'||OTK)return;
@@ -1711,7 +1717,8 @@ const ICONP={
  abk:'<path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M21 20H3"/>',
  katalog:'<rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.2"/>',
  tk:'<path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.2l5-.7z"/><path d="M8.5 21h7"/><path d="M12 17.5V21"/>',
- remote:'<rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8 20.5h8M12 16.5v4"/><path d="M6.5 8.2h5M6.5 11h8"/>'
+ remote:'<rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8 20.5h8M12 16.5v4"/><path d="M6.5 8.2h5M6.5 11h8"/>',
+ cuti:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 9.5h18"/><path d="m9 15.5 2 2 4-4.5"/>'
 };
 function svgIcon(k,s){s=s||17;return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${s>30?1.3:1.6}" stroke-linecap="round" stroke-linejoin="round">${ICONP[k]||''}</svg>`;}
 const MODULES=[
@@ -1739,6 +1746,12 @@ const MODULES=[
    {grp:'',items:[{v:'ringkasan',lab:'Dashboard Pimpinan'}]},
    {grp:'Analitik',items:[{v:'timanalitik',lab:'Tim Analytic'},{v:'people',lab:'People Analytics'},{v:'beban',lab:'Beban Tim & Pegawai'},{v:'analisis',lab:'Analisis Kinerja'},{v:'insight',lab:'Insight & Rekomendasi'}]},
    {grp:'Profil',items:[{v:'struktur',lab:'Profil Unit'},{v:'tim',lab:'Profil Tim'},{v:'pegawai',lab:'Profil Pegawai'},{v:'keahlian',lab:'Expert Locator'}]},
+ ]},
+ {id:'cuti',icn:'cuti',lab:'Analitik Cuti',groups:[
+   {grp:'',items:[{v:'cuti',lab:'Ringkasan'}]},
+   {grp:'Analisis',items:[{v:'cutitren',lab:'Tren & Musiman'},{v:'cutiunit',lab:'Profil Unit Eselon I'},{v:'cutidemografi',lab:'Demografi & Gender'},{v:'cutipola',lab:'Pola Hari & Kalender'},{v:'cutisakit',lab:'Kategori Cuti Sakit'}]},
+   {grp:'Prediktif & Preskriptif',items:[{v:'cutiprediksi',lab:'Proyeksi Beban Cuti'},{v:'cutisimulasi',lab:'Simulasi PMK 221'}]},
+   {grp:'Data',items:[{v:'cutitentang',lab:'Tentang Data'}]},
  ]},
  {id:'takelola',icn:'govern',lab:'Tata Kelola',groups:[
    {grp:'Pelimpahan Wewenang',items:[{v:'pelwen',lab:'Ikhtisar Pelimpahan'},{v:'pelunit',lab:'Per Unit Eselon I'},{v:'pellintas',lab:'Lintas Unit'},{v:'pelcari',lab:'Cari Kewenangan'},{v:'pelanalisis',lab:'Analisis Delegasi'},{v:'pelinsight',lab:'Keterkaitan & Insight'},{v:'peltentang',lab:'Tentang'}]},
@@ -1784,8 +1797,8 @@ const DOMAINS=[
 const MODDOMAIN={
   probis:'organisasi', otk:'organisasi', urjab:'organisasi', abk:'organisasi',
   mk:'organisasi', kapabilitas:'organisasi', katref:'organisasi',
+  cuti:'sdm',   /* modul pertama domain SDM (14 Ago 2026); modul lain menyusul via kontrak modul */
   takelola:'tatakelola', layanan:'tatakelola', katalog:'tatakelola', unitremote:'tatakelola'
-  /* domain 'sdm' sengaja kosong: diisi bertahap (Profil SDM dst) via kontrak modul. */
 };
 function domOf(modId){return MODDOMAIN[modId]||'organisasi';}   /* modul lintas -> default Organisasi */
 function domLab(k){var d=DOMAINS.find(function(x){return x.k===k;});return d?d.lab:k;}
@@ -1805,6 +1818,7 @@ const MODKET={
   layanan:'Zona Integritas, kepuasan layanan, inovasi, kantor terbaik.',
   katalog:'Referensi: kompetensi, proses bisnis, layanan, aplikasi.',
   katref:'Katalog referensi baku ber-kode: Produk ABK, Jabatan, Proses Bisnis, Norma Waktu, Unit & Kantor, Layanan, Aplikasi, Kewenangan.',
+  cuti:'Pola pemanfaatan cuti pegawai: tren, musiman, unit, demografi, kategori sakit, proyeksi, hingga simulasi kebijakan.',
   unitremote:'Aplikasi unit remote (UKDR) tertanam di dalam dashboard.'
 };
 const DOMDESC={
@@ -1828,6 +1842,8 @@ const MENUKET={
   abk:'Beban kerja dan kebutuhan pegawai per unit (kondisi saat ini).',abkkalibrasi:'Kalibrasi hasil ABK terhadap norma dan ambang PMK.',abknorma:'Norma waktu tiap tugas sebagai dasar hitung beban.',abkstruktur:'Peta beban per pegawai vs kesesuaian tugas dan fungsi.',abkpareto:'Produk atau kegiatan penyumbang beban terbesar (Pareto).',abksimulasi:'Simulasi redistribusi pegawai dan dampak efisiensinya.',
   // Mekanisme Kerja
   ringkasan:'Ikhtisar adopsi mekanisme kerja untuk pimpinan.',analisis:'Kinerja penyelesaian penugasan tim dan ketepatan waktu.',insight:'Temuan otomatis dan rekomendasi tindak lanjut.',timanalitik:'Kuadran kinerja tim: penyelesaian vs ketepatan.',kategoritim:'Pengelompokan tim menurut kategori kerja.',people:'Analitik pegawai: keahlian, ketersediaan, dan beban.',heatmap:'Peta panas adopsi mekanisme kerja antar unit.',beban:'Sebaran beban penugasan pada tim dan pegawai.',struktur:'Telusuri unit beserta tim kerja di dalamnya.',tim:'Jelajahi seluruh tim kerja dan detailnya.',pegawai:'Jelajahi pegawai dan keanggotaan timnya.',keahlian:'Cari pegawai menurut keahlian (expert locator).',avail:'Perkiraan ketersediaan pegawai dari beban kerjanya.',
+  // Analitik Cuti (domain SDM)
+  cuti:'Ringkasan pemanfaatan cuti pegawai lintas jenis dan tahun.',cutitren:'Tren bulanan dan pola musiman pengajuan cuti.',cutiunit:'Volume dan intensitas cuti tiap unit Eselon I.',cutidemografi:'Sebaran cuti menurut kelompok usia dan gender.',cutipola:'Pola hari mulai/selesai cuti dan kalender kapasitas kehadiran.',cutisakit:'Kategori alasan cuti sakit hasil pengolahan teks.',cutiprediksi:'Proyeksi beban cuti berbasis pola musiman historis.',cutisimulasi:'Simulasi dampak perubahan ambang potongan tunjangan (PMK 221/PMK.01/2021).',cutitentang:'Sumber, cakupan, kualitas, dan batasan data cuti.',
   // Kompetensi
   katalog:'Referensi kompetensi jabatan.',
   // Kapabilitas (MOFIN)
@@ -1848,6 +1864,7 @@ const MENUOBJ={
   jabkomposisi:'Menilai keseimbangan jabatan struktural dan fungsional.',urjab:'Merujuk uraian jabatan resmi saat menata SDM.',urjabanalisis:'Menilai cakupan dan kerincian uraian tugas jabatan.',urjabkaitan:'Memastikan tiap fungsi organisasi didukung tugas dan sumber daya.',urjabinsight:'Menemukan anomali jabatan untuk ditindaklanjuti.',urjabcompare:'Menilai kemiripan atau perbedaan dua jabatan.',urjabredun:'Menemukan jabatan dengan tugas yang berulang.',jf:'Memetakan jabatan fungsional pengelola keuangan negara.',jfmap:'Mengetahui unit pembina tiap jabatan fungsional.',jffungsi:'Menilai peluang pengalihan struktural ke fungsional.',
   abk:'Mengetahui beban kerja dan kebutuhan pegawai tiap unit.',abkkalibrasi:'Memastikan hasil ABK sesuai norma dan ambang.',abknorma:'Merujuk dasar waktu penghitungan beban kerja.',abkstruktur:'Menilai kesesuaian beban dengan tugas dan fungsi unit.',abkpareto:'Menemukan kegiatan penyumbang beban terbesar.',abksimulasi:'Menguji dampak redistribusi pegawai sebelum diputuskan.',
   ringkasan:'Memantau adopsi mekanisme kerja bagi pimpinan.',analisis:'Menilai kinerja penyelesaian penugasan tim.',insight:'Mendapat rekomendasi tindak lanjut otomatis.',timanalitik:'Memetakan tim berkinerja tinggi dan yang perlu dibantu.',kategoritim:'Memahami komposisi tim menurut jenis kerja.',people:'Menilai keahlian, ketersediaan, dan beban pegawai.',heatmap:'Membandingkan tingkat adopsi antar unit.',beban:'Menemukan tim atau pegawai dengan beban berlebih.',struktur:'Menelusuri unit beserta tim di dalamnya.',tim:'Mendalami detail satu tim kerja.',pegawai:'Mendalami keanggotaan dan kontribusi pegawai.',keahlian:'Menemukan pegawai dengan keahlian tertentu.',avail:'Menilai siapa yang tersedia untuk penugasan baru.',
+  cuti:'Memantau pemanfaatan cuti pegawai secara menyeluruh.',cutitren:'Mengantisipasi lonjakan pengajuan cuti pada periode tertentu.',cutiunit:'Membandingkan intensitas cuti antar unit secara adil.',cutidemografi:'Memahami profil risiko cuti menurut usia dan gender.',cutipola:'Merencanakan kapasitas kehadiran dan jadwal kegiatan besar.',cutisakit:'Memahami penyebab cuti sakit untuk intervensi kesehatan.',cutiprediksi:'Memperkirakan beban cuti mendatang untuk perencanaan.',cutisimulasi:'Menguji dampak usulan revisi kebijakan potongan tunjangan.',cutitentang:'Memahami sumber, cakupan, dan batasan data cuti.',
   katalog:'Merujuk standar kompetensi jabatan.',
   mofin:'Menilai kapabilitas kelembagaan tiap unit.',mofheatmap:'Membandingkan skor kapabilitas antar unit dan dimensi.',mofprofil:'Mendalami kapabilitas satu unit.',moftl:'Memantau tindak lanjut rekomendasi kapabilitas.',mofkuadran:'Memprioritaskan area lemah dengan respons rendah.',mofgap:'Menentukan tindak lanjut kapabilitas yang paling mendesak.',
   pelwen:'Memahami peta pelimpahan wewenang secara ringkas.',pelunit:'Mengetahui wewenang yang dilimpahkan tiap unit.',pellintas:'Melihat pola pelimpahan wewenang lintas unit.',pelcari:'Menemukan butir kewenangan tertentu dengan cepat.',pelanalisis:'Menganalisis pola dan konsentrasi pendelegasian.',pelinsight:'Mengaitkan mandat dengan modul lain untuk temuan.',peltentang:'Memahami sumber dan cakupan data mandat.',
@@ -1935,6 +1952,10 @@ function _freshInfo(mid){
       var s=DATA.summary, th=s.tahun||'', ol=_tglIndo(s.tanggal_olah);
       return {t:th?('Data per '+th):'Data operasional tim', d:ol?('diolah '+ol):''};
     }
+    if(mid==='cuti'&&typeof CUTI==='object'&&CUTI&&CUTI.meta){
+      var ca=(CUTI.meta.periode&&CUTI.meta.periode.akhirLabel)||'';
+      return {t:ca?('Data s.d. '+ca):'Data cuti HRIS', d:'di luar DJP dan DJBC (belum terintegrasi HRIS)', k:'warn'};
+    }
     if(mid==='katalog')                                          // taksonomi keahlian (referensi)
       return {t:'Referensi taksonomi keahlian', d:'katalog kompetensi Kemenkeu'};
   }catch(e){}
@@ -2007,6 +2028,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',jfFx:'',jfOpen:{},
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
   kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',kataktQ:'',kataktKlus:'',katpetaUE1:'',kjQ:'',kjUE1:'',kjLvl:'',kpbQ:'',kpbDom:'',kpbLvl:'',katrefLoading:false,katrefErr:false,nwQ:'',nwKlus:'',kuQ:'',kuUE1:'',kuTipe:'',ksQ:'',ksUE1:'',ksDig:'',kaQ:'',kaUE1:'',kwQ:'',kwUnit:'',kwJenis:'',
+  cutiLoading:false,cutiErr:false,cutiTrJenis:'Cuti Tahunan',cutiUnitJenis:'',cutiUnitTahun:'',cutiUnitMode:'abs',cutiDemoJenis:'Cuti Sakit',cutiPolaJenis:'Cuti Tahunan',cutiPredJenis:'Cuti Sakit',cutiSimHari:10,
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
   simUE1:'',simUnit:'',simTarget:300,simTrR:0,simTrS:0,simTrK:0,
   jfQ:'',jfJenis:'',jfSel:null,jfFungUE1:'',jfFungF:'',jkView:'bezetting'};
@@ -2086,6 +2108,7 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',katakt:'Katalog Produk ABK',katpeta:'Peta Aktivitas Kantor',katjab:'Katalog Jabatan',katpb:'Katalog Proses Bisnis',katnw:'Katalog Norma Waktu',katunit:'Katalog Unit & Kantor',katsvc:'Katalog Layanan',katapp:'Katalog Aplikasi',katwen:'Katalog Kewenangan',
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'List Dataset',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
   tk:'Ikhtisar Tata Kelola',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
+  cuti:'Ringkasan Cuti Pegawai',cutitren:'Tren & Musiman Cuti',cutiunit:'Cuti per Unit Eselon I',cutidemografi:'Demografi & Gender Cuti',cutipola:'Pola Hari & Kalender Kapasitas',cutisakit:'Kategori Cuti Sakit',cutiprediksi:'Proyeksi Beban Cuti',cutisimulasi:'Simulasi Kebijakan PMK 221',cutitentang:'Tentang Data Cuti',
   mofin:'Skor Kapabilitas',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Ikhtisar Pelimpahan',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
 
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
@@ -6051,6 +6074,9 @@ function vKatData(){
     {d:'Analisis Beban Kerja',f:'abk.json',m:'Analisis Beban Kerja; lensa beban lintas modul',a:'Gerbang · saat menu dibuka · sensitif',
      s:()=>!!(typeof ABK==='object'&&ABK&&ABK.eselon1),p:()=>'Data 2024 · pra-penataan PMK 124/2024',
      u:'Olah ulang (proses_abk.py) lalu ganti isi file di Drive',o:'Biro Organisasi dan Ketatalaksanaan'},
+    {d:'Analitik Cuti Pegawai',f:'cuti.json',m:'Analitik Cuti (domain SDM)',a:'Gerbang · saat menu dibuka · sensitif',
+     s:()=>!!(typeof CUTI==='object'&&CUTI&&CUTI.tahunan),p:()=>{var a=(CUTI&&CUTI.meta&&CUTI.meta.periode&&CUTI.meta.periode.akhirLabel)||'';return a?('Data s.d. '+a+' · di luar DJP/DJBC'):'Agregat cuti pegawai (anonim)';},
+     u:'build_cuti.py lalu ganti isi file di Drive (File ID tetap)',o:'Sumber HRIS · Biro Sumber Daya Manusia'},
     {d:'Katalog Kompetensi',f:'katalog_keahlian.json',m:'Katalog (referensi keahlian)',a:'Gerbang · saat menu dibuka',
      s:()=>!!(typeof KATALOG==='object'&&KATALOG),p:()=>'Referensi taksonomi keahlian',
      u:'Ganti isi file di Drive (File ID tetap)',o:'Biro Organisasi dan Ketatalaksanaan'},
@@ -6652,6 +6678,7 @@ function render(){
   if(/^kat(akt|peta|jab|pb|nw|unit|svc|app|wen)$/.test(state.view)&&!KATREF&&!state.katrefLoading)ensureKatref();
   if(state.view==='katpeta'&&!ABK&&!state.abkLoading)ensureAbk();
   if(state.view==='jabkomposisi'&&!ABK&&!state.abkLoading)ensureAbk();
+  if(state.view.indexOf('cuti')===0&&!CUTI&&!state.cutiLoading)ensureCuti();
   renderNav();
   const isPb=state.view.indexOf('pb_')===0;
   // masuk fresh -> default tab Dashboard; KECUALI tabnya memang diminta (mis. hasil Ctrl+K "Mapping")
@@ -6670,6 +6697,7 @@ function render(){
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabkaitan:vUrjabKaitan,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,katakt:vKatAkt,katpeta:vKatPeta,katjab:vKatJab,katpb:vKatPb,katnw:vKatNw,katunit:vKatUnit,katsvc:vKatSvc,katapp:vKatApp,katwen:vKatWen,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
+    cuti:vCuti,cutitren:vCutiTren,cutiunit:vCutiUnit,cutidemografi:vCutiDemografi,cutipola:vCutiPola,cutisakit:vCutiSakit,cutiprediksi:vCutiPrediksi,cutisimulasi:vCutiSimulasi,cutitentang:vCutiTentang,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   viewEl.innerHTML=menuDescBar()+freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   remoteHost(state.view==='otkremote');
@@ -6677,6 +6705,308 @@ function render(){
   vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
+/* ==================== MODUL ANALITIK CUTI (domain SDM) ====================
+   Data: cuti.json (build_cuti.py) - AGREGAT anonim, periode Jan 2020 s.d. Jun 2026,
+   cakupan Kemenkeu di luar DJP/DJBC. Empat lapis: deskriptif, diagnostik,
+   prediktif (pola musiman transparan), preskriptif (kalender kapasitas + simulasi PMK 221). */
+const CUTI_BLN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const CUTI_HR=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+const CUTI_JCOL={'Cuti Tahunan':'var(--cat-1)','Cuti Sakit':'var(--cat-2)','Cuti Besar':'var(--cat-3)'};
+function cutiGuard(){
+  if(state.cutiErr)return '<div class="empty">Gagal memuat data cuti. Buka menu ini sekali lagi.</div>';
+  if(!CUTI)return skelMemuat('Memuat data cuti...');
+  return null;}
+function cutiPct(a,b){return b?String(Math.round(1000*a/b)/10).replace('.',','):'0';}
+function cutiThn(){return [...new Set(CUTI.tahunan.map(r=>r.tahun))].sort();}
+function cutiSumF(rows,f){return rows.reduce((s,r)=>s+(r[f]||0),0);}
+/* Bezetting Eselon I dari ABK (join by NAMA sesuai aturan lintas modul; null = belum ada data) */
+function cutiBez(nama){
+  if(typeof ABK==='undefined'||!ABK||!ABK.eselon1)return null;
+  var nrm=s=>String(s||'').toLowerCase().replace(/[^a-z ]/g,' ').replace(/ +/g,' ').trim();
+  var e=ABK.eselon1.find(x=>nrm(x.nama)===nrm(nama));
+  if(!e)return null;
+  var ada=(e.units||[]).reduce((s,u)=>s+(u.ada||0),0);
+  return ada||null;}
+function cutiParsial(nama){return (CUTI.meta.parsial||[]).indexOf(nama)>=0;}
+/* Select jenis TANPA opsi kosong (dulu keliru menaruh nilai terpilih sbg opsi "semua" -> opsi dobel) */
+function cutiSelJ(id,val){return '<select class="flt" id="'+id+'">'+CUTI.meta.jenis.map(x=>'<option value="'+esc(x)+'"'+(val===x?' selected':'')+'>'+esc(x)+'</option>').join('')+'</select>';}
+function cutiMiniBar(v,max,col){var w=max?Math.max(2,Math.round(100*v/max)):0;
+  return '<div style="background:var(--track);border-radius:var(--rad-xs);height:8px;min-width:60px"><div style="width:'+w+'%;height:8px;border-radius:var(--rad-xs);background:'+(col||'var(--brand)')+'"></div></div>';}
+/* Donut khusus modul cuti: lubang lebih lebar + font tengah ADAPTIF panjang teks
+   (donut() bersama berfont size*0,2 dgn lubang 62% -> teks 5+ karakter meluber ke cincin) */
+function cutiDonut(parts,size,center){
+  const tot=parts.reduce((s,p)=>s+p.v,0)||1,r=size/2-4,cx=size/2,cy=size/2;let a=-Math.PI/2,segs='';
+  parts.forEach(p=>{const ang=2*Math.PI*p.v/tot;const x1=cx+r*Math.cos(a),y1=cy+r*Math.sin(a);a+=ang;const x2=cx+r*Math.cos(a),y2=cy+r*Math.sin(a);const lg=ang>Math.PI?1:0;
+    segs+='<path d="M'+cx+','+cy+' L'+x1.toFixed(1)+','+y1.toFixed(1)+' A'+r+','+r+' 0 '+lg+' 1 '+x2.toFixed(1)+','+y2.toFixed(1)+' Z" fill="'+p.c+'" stroke="var(--surface)" stroke-width="2"/>';});
+  const hr=r*0.72;
+  const fsB=Math.round(Math.min(size*0.16,(2*hr*0.88)/Math.max(1,String(center.big).length*0.6)));
+  return '<svg viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" style="max-width:100%;display:block">'+segs+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+hr.toFixed(1)+'" fill="var(--surface)"/>'+
+    '<text x="'+cx+'" y="'+(cy-2)+'" text-anchor="middle" font-size="'+fsB+'" font-weight="800" fill="var(--brand-d)">'+esc(String(center.big))+'</text>'+
+    '<text x="'+cx+'" y="'+(cy+fsB*0.62).toFixed(0)+'" text-anchor="middle" font-size="11" fill="var(--muted)" letter-spacing="1">'+esc(String(center.small))+'</text></svg>';}
+/* Bar bertumpuk 100%: bentuk yang tepat utk komposisi timpang / ordinal (donut hanya utk 2-4 kategori berimbang) */
+function cutiStack(parts,tot,hpx){var hh=hpx||20;tot=tot||parts.reduce((s,p)=>s+p.v,0)||1;
+  return '<div style="display:flex;height:'+hh+'px;border-radius:var(--rad-xs);overflow:hidden;background:var(--track)">'+parts.map(p=>{
+    if(!p.v)return '';var w=(100*p.v/tot);
+    return '<div title="'+esc(p.name)+': '+fmt(p.v)+' ('+cutiPct(p.v,tot)+'%)" style="width:'+w+'%;background:'+p.c+';box-shadow:2px 0 0 var(--surface)"></div>';}).join('')+'</div>';}
+
+function vCuti(){
+  const g=cutiGuard();if(g)return g;
+  const T=CUTI.tahunan, thn=cutiThn(), J=CUTI.meta.jenis;
+  const totR=cutiSumF(T,'rekaman'), totH=cutiSumF(T,'hari');
+  const perJ={};J.forEach(j=>{const r=T.filter(x=>x.jenis===j);perJ[j]={rekaman:cutiSumF(r,'rekaman'),hari:cutiSumF(r,'hari')};});
+  let h='<div class="card"><h2 class="sec" style="margin-top:0">Apa yang Disajikan Modul Ini</h2><p style="margin:0">Analitik Cuti memotret pola pemanfaatan cuti pegawai dari rekaman pengajuan cuti pada HRIS: berapa banyak pengajuan dan hari cuti terpakai, kapan pengajuan menumpuk, unit mana yang intensitasnya paling tinggi, bagaimana sebarannya menurut usia dan gender, serta apa alasan yang mendasarinya. Di atas potret deskriptif itu, modul menyediakan lapis diagnostik (dekomposisi tren dan kategori cuti sakit), prediktif (proyeksi beban berbasis pola musiman), dan preskriptif (kalender kapasitas kehadiran serta simulasi kebijakan potongan tunjangan).</p></div>'+
+    '<div class="note-box"><b>Cakupan data:</b> '+esc(CUTI.meta.cakupan)+'. Periode '+esc(CUTI.meta.periode.mulai)+' s.d. '+esc(CUTI.meta.periode.akhir)+'. Data anonim per pengajuan; durasi dihitung hari kalender.</div>';
+  h+=_katKpi([['Total Pengajuan Cuti',fmt(totR),'seluruh jenis, 2020 s.d. Jun 2026',1],['Total Hari Cuti',fmt(totH),'hari kalender'],
+    ['Cuti Tahunan',fmt(perJ['Cuti Tahunan'].rekaman),fmt(perJ['Cuti Tahunan'].hari)+' hari'],
+    ['Cuti Sakit',fmt(perJ['Cuti Sakit'].rekaman),fmt(perJ['Cuti Sakit'].hari)+' hari'],
+    ['Cuti Besar',fmt(perJ['Cuti Besar'].rekaman),fmt(perJ['Cuti Besar'].hari)+' hari']]);
+  /* komposisi jenis: bar bertumpuk 100% (komposisinya timpang 88/11/0,5 - donut tak terbaca) */
+  const jpartsR=J.map(x=>({v:perJ[x].rekaman,c:CUTI_JCOL[x],name:x}));
+  const jpartsH=J.map(x=>({v:perJ[x].hari,c:CUTI_JCOL[x],name:x}));
+  const al=CUTI.alasan.filter(x=>x.jenis==='Cuti Tahunan'&&x.alasan!=='Tanpa keterangan').sort((a,b)=>b.rekaman-a.rekaman).slice(0,6);
+  const alMax=al.length?al[0].rekaman:0;
+  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Komposisi Jenis Cuti</h2>'+
+    '<div class="mini" style="margin-bottom:4px">Dari sisi jumlah pengajuan ('+fmt(totR)+')</div>'+cutiStack(jpartsR,totR)+
+    '<div class="mini" style="margin:12px 0 4px">Dari sisi hari terpakai ('+fmt(totH)+')</div>'+cutiStack(jpartsH,totH)+
+    _tkLeg(jpartsR.map(p=>({c:p.c,l:p.name+' ('+cutiPct(p.v,totR)+'% pengajuan · '+cutiPct(perJ[p.name].hari,totH)+'% hari)'})))+
+    '<div class="note-box" style="margin-top:10px">Dua batang ini sengaja disandingkan: cuti besar hanya '+cutiPct(perJ['Cuti Besar'].rekaman,totR)+'% pengajuan tetapi memakan '+cutiPct(perJ['Cuti Besar'].hari,totH)+'% hari karena durasinya sekitar dua bulan per pengajuan, sedangkan cuti tahunan dominan jumlahnya namun pendek durasinya.</div></div>'+
+    '<div class="card"><h2 class="sec" style="margin-top:0">Alasan Cuti Tahunan Terbanyak</h2>'+al.map(a=>bar(a.alasan,a.rekaman,alMax,'',fmt(a.rekaman))).join('')+
+    '<div class="mini" style="margin-top:6px">Di luar pengajuan tanpa keterangan alasan ('+cutiPct(cutiSumF(CUTI.alasan.filter(x=>x.jenis==='Cuti Tahunan'&&x.alasan==='Tanpa keterangan'),'rekaman'),perJ['Cuti Tahunan'].rekaman)+'% dari cuti tahunan).</div></div></div>';
+  /* tren tahunan per jenis */
+  let rows=thn.map(t=>{
+    const c=J.map(j=>{const r=T.find(x=>x.jenis===j&&x.tahun===t);return r?r.rekaman:0;});
+    const tot=c.reduce((s,x)=>s+x,0);
+    return '<tr><td><b>'+t+(t===2026?' (s.d. Juni)':'')+'</b></td>'+c.map(v=>'<td class="num-c">'+fmt(v)+'</td>').join('')+'<td class="num-c"><b>'+fmt(tot)+'</b></td><td>'+cutiMiniBar(tot,Math.max(...thn.map(y=>cutiSumF(T.filter(x=>x.tahun===y),'rekaman'))))+'</td></tr>';}).join('');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Pengajuan Cuti per Tahun</h2><div class="tblw"><table><thead><tr><th>Tahun</th>'+J.map(j=>'<th class="num-c">'+j.replace('Cuti ','')+'</th>').join('')+'<th class="num-c">Total</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  /* temuan utama (dihitung live dari data, bukan teks statis) */
+  const s20=T.find(x=>x.jenis==='Cuti Sakit'&&x.tahun===2020)||{rekaman:0,hari:0};
+  const s25=T.find(x=>x.jenis==='Cuti Sakit'&&x.tahun===2025)||{rekaman:0,hari:0};
+  const d20=s20.rekaman?(s20.hari/s20.rekaman):0, d25=s25.rekaman?(s25.hari/s25.rekaman):0;
+  const sh=CUTI.dow.satuHari, p1=cutiPct(sh.total,sh.dariCutiTahunan), pjs=cutiPct(sh.jumatSenin,sh.total);
+  h+='<div class="grid2">';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Cuti Sakit: Naik karena Frekuensi, Bukan Keparahan</h2><p style="margin:0">Pengajuan cuti sakit naik dari <b>'+fmt(s20.rekaman)+'</b> (2020) menjadi <b>'+fmt(s25.rekaman)+'</b> (2025), tetapi durasi rata-rata per pengajuan justru turun dari <b>'+d20.toFixed(1).replace('.',',')+'</b> menjadi <b>'+d25.toFixed(1).replace('.',',')+' hari</b>. Lonjakan didorong sakit ringan berdurasi pendek. Telusuri di menu Kategori Cuti Sakit.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Pola Penyambung Libur Terukur Jelas</h2><p style="margin:0"><b>'+p1+'%</b> cuti tahunan berdurasi satu hari, dan <b>'+pjs+'%</b> dari cuti satu hari itu jatuh pada Jumat atau Senin. Pola ini menjadi dasar kalender kapasitas kehadiran di menu Pola Hari &amp; Kalender.</p></div>';
+  h+='</div>';
+  return h;
+}
+
+function vCutiTren(){
+  const g=cutiGuard();if(g)return g;
+  const j=state.cutiTrJenis||'Cuti Tahunan', thn=cutiThn();
+  let h='<div class="toolbar"><span class="mini">Jenis cuti</span>'+cutiSelJ('cutiTrJenis',j)+'</div>';
+  /* heatmap bulan x tahun */
+  const B=CUTI.bulanan.filter(x=>x.jenis===j);
+  const val=(t,b)=>{const r=B.find(x=>x.tahun===t&&x.bulan===b);return r?r.rekaman:null;};
+  const mx=Math.max(1,...B.map(x=>x.rekaman));
+  let hm='<div class="tblw"><table class="hm"><thead><tr><th>Bulan</th>'+thn.map(t=>'<th style="text-align:center">'+t+'</th>').join('')+'</tr></thead><tbody>';
+  for(let b=1;b<=12;b++){
+    hm+='<tr><td>'+CUTI_BLN[b-1]+'</td>'+thn.map(t=>{
+      const v=val(t,b);
+      if(v==null)return '<td class="cell" style="background:var(--track);color:var(--muted)">-</td>';
+      const tt=v/mx;
+      return '<td class="cell" style="background:'+mofRamp(tt)+';color:'+mofRampInk(tt)+'" title="'+CUTI_BLN[b-1]+' '+t+': '+fmt(v)+' pengajuan">'+fmt(v)+'</td>';}).join('')+'</tr>';}
+  hm+='</tbody></table></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Pengajuan '+esc(j)+' (Bulan x Tahun)</h2>'+hm+'<div class="mini" style="margin-top:6px">Semakin gelap semakin banyak pengajuan. Periode April 2020 s.d. pertengahan 2021 rendah seiring pembatasan masa pandemi; 2026 baru sampai Juni.</div></div>';
+  /* dekomposisi frekuensi vs durasi */
+  const T=CUTI.tahunan.filter(x=>x.jenis===j);
+  const mxr=Math.max(1,...T.map(x=>x.rekaman));
+  let rows=T.map(r=>{const rata=r.rekaman?(r.hari/r.rekaman):0;
+    return '<tr><td><b>'+r.tahun+(r.tahun===2026?' (s.d. Juni)':'')+'</b></td><td class="num-c">'+fmt(r.rekaman)+'</td><td>'+cutiMiniBar(r.rekaman,mxr,CUTI_JCOL[j])+'</td><td class="num-c">'+fmt(r.hari)+'</td><td class="num-c">'+rata.toFixed(2).replace('.',',')+'</td></tr>';}).join('');
+  /* donut komposisi durasi (ordinal -> ramp sekuensial) */
+  const bmap={'1':'1 hari','2':'2 hari','3':'3 hari','4-5':'4-5 hari','6-10':'6-10 hari'};
+  const durTot={};CUTI.durasi.filter(x=>x.jenis===j).forEach(x=>{
+    const k=bmap[x.bucket]?x.bucket:'>10';durTot[k]=(durTot[k]||0)+x.rekaman;});
+  const durOrder=['1','2','3','4-5','6-10','>10'];
+  const dparts=durOrder.filter(k=>durTot[k]).map((k,i)=>({v:durTot[k],c:'var(--seq-'+(i+2)+')',name:bmap[k]||'di atas 10 hari'}));
+  const durAll=dparts.reduce((s,p)=>s+p.v,0);
+  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Dekomposisi Tren: Frekuensi vs Durasi</h2><div class="tblw"><table><thead><tr><th>Tahun</th><th class="num-c">Pengajuan</th><th></th><th class="num-c">Hari</th><th class="num-c">Rata-rata Hari / Pengajuan</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    (j==='Cuti Sakit'?'<div class="note-box" style="margin-top:10px">Bacaan diagnostik: kenaikan pengajuan yang disertai <b>turunnya durasi rata-rata</b> menunjukkan lonjakan berasal dari sakit ringan berdurasi pendek (konsisten dengan pola penyakit akut musiman), bukan memburuknya kondisi berat pegawai.</div>':'')+'</div>'+
+    '<div class="card"><h2 class="sec" style="margin-top:0">Komposisi Durasi '+esc(j)+'</h2>'+cutiStack(dparts,durAll,26)+
+    _tkLeg(dparts.map(p=>({c:p.c,l:p.name+' ('+cutiPct(p.v,durAll)+'%)'})))+
+    '<div class="note-box" style="margin-top:10px"><b>'+cutiPct(durTot['1']||0,durAll)+'%</b> pengajuan '+esc(j)+' berdurasi satu hari. Warna makin gelap berarti durasi makin panjang (hari kalender per pengajuan).</div></div></div>';
+  return h;
+}
+
+function vCutiUnit(){
+  const g=cutiGuard();if(g)return g;
+  const fj=state.cutiUnitJenis, ft=state.cutiUnitTahun, mode=state.cutiUnitMode||'abs', thn=cutiThn();
+  let U=CUTI.unit;
+  if(fj)U=U.filter(x=>x.jenis===fj);
+  if(ft)U=U.filter(x=>String(x.tahun)===String(ft));
+  const per={};U.forEach(r=>{if(!per[r.nama])per[r.nama]={rekaman:0,hari:0};per[r.nama].rekaman+=r.rekaman;per[r.nama].hari+=r.hari;});
+  const abkOn=(typeof ABK!=='undefined')&&!!ABK&&ABK.eselon1;
+  let rows=Object.keys(per).map(nm=>{
+    const o=per[nm], bez=cutiBez(nm), par=cutiParsial(nm);
+    const norm=(bez&&!par)?Math.round(100*o.hari/bez):null;
+    return {nm,rekaman:o.rekaman,hari:o.hari,rata:o.rekaman?(o.hari/o.rekaman):0,bez,norm,par};});
+  rows.sort((a,b)=>(mode==='norm'?((b.norm||-1)-(a.norm||-1)):(b.hari-a.hari)));
+  const mxh=Math.max(1,...rows.map(r=>r.hari)), mxn=Math.max(1,...rows.map(r=>r.norm||0));
+  let h='<div class="toolbar"><span class="mini">Jenis</span>'+_katSel('cutiUnitJenis',fj,'Semua Jenis',CUTI.meta.jenis.map(x=>[x,x]))+
+    '<span class="mini">Tahun</span>'+_katSel('cutiUnitTahun',ft,'Semua Tahun',thn.map(t=>[String(t),String(t)]))+
+    '<div class="seg"><span class="segb '+(mode==='abs'?'on':'')+'" data-act="cutiunitmode" data-k="abs">Absolut</span><span class="segb '+(mode==='norm'?'on':'')+'" data-act="cutiunitmode" data-k="norm">Per 100 Pegawai</span></div></div>';
+  if(mode==='norm'&&!abkOn)h+='<div class="note-box warn">Normalisasi per pegawai membutuhkan data bezetting dari modul ABK. <span class="tag link" data-act="loadabk">Muat data ABK</span></div>';
+  let tb=rows.map(r=>{
+    const nrmCell=r.par?'<span class="mini" title="Data cuti unit ini baru sebagian masuk HRIS">belum ada data</span>':(r.norm!=null?fmt(r.norm):(abkOn?'<span class="mini">belum ada data</span>':'-'));
+    return '<tr><td>'+esc(r.nm)+(r.par?' <span class="tag" title="Aplikasi cuti unit ini belum terintegrasi HRIS; angka baru sebagian">parsial</span>':'')+'</td>'+
+      '<td class="num-c">'+fmt(r.rekaman)+'</td><td class="num-c">'+fmt(r.hari)+'</td>'+
+      '<td>'+(mode==='norm'?cutiMiniBar(r.norm||0,mxn,'var(--cat-5)'):cutiMiniBar(r.hari,mxh))+'</td>'+
+      '<td class="num-c">'+r.rata.toFixed(2).replace('.',',')+'</td>'+
+      '<td class="num-c">'+(r.bez&&!r.par?fmt(r.bez):'<span class="mini">'+(abkOn?'belum ada data':'-')+'</span>')+'</td>'+
+      '<td class="num-c">'+nrmCell+'</td></tr>';}).join('');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Cuti per Unit Eselon I <span class="mini">('+rows.length+' unit)</span></h2><div class="tblw"><table><thead><tr><th>Unit</th><th class="num-c">Pengajuan</th><th class="num-c">Hari</th><th></th><th class="num-c">Rata Hari/Pengajuan</th><th class="num-c">Bezetting (ABK)</th><th class="num-c">Hari per 100 Pegawai</th></tr></thead><tbody>'+tb+'</tbody></table></div>'+
+    '<div class="mini" style="margin-top:6px">Bezetting diambil dari data ABK 2024 (join nama unit Eselon I). Unit bertanda parsial tidak dinormalisasi agar tidak menyesatkan. Perbandingan antar unit paling adil pada mode Per 100 Pegawai.</div></div>';
+  return h;
+}
+
+function vCutiDemografi(){
+  const g=cutiGuard();if(g)return g;
+  const j=state.cutiDemoJenis||'Cuti Sakit';
+  let h='<div class="toolbar"><span class="mini">Jenis cuti</span>'+cutiSelJ('cutiDemoJenis',j)+'</div>';
+  const U=CUTI.usia.filter(x=>x.jenis===j&&x.bucket!=='Tanpa data').sort((a,b)=>a.bucket.localeCompare(b.bucket));
+  const mxu=Math.max(1,...U.map(x=>x.rekaman));
+  let rows=U.map(u=>'<tr><td><b>'+u.bucket+'</b></td><td class="num-c">'+fmt(u.rekaman)+'</td><td>'+cutiMiniBar(u.rekaman,mxu,CUTI_JCOL[j])+'</td><td class="num-c">'+fmt(u.P)+'</td><td class="num-c">'+fmt(u.W)+'</td><td class="num-c">'+cutiPct(u.W,u.rekaman)+'%</td><td class="num-c">'+(u.rekaman?(u.hari/u.rekaman).toFixed(2).replace('.',','):'-')+'</td></tr>').join('');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Sebaran '+esc(j)+' per Kelompok Usia</h2><div class="tblw"><table><thead><tr><th>Usia</th><th class="num-c">Pengajuan</th><th></th><th class="num-c">Pria</th><th class="num-c">Wanita</th><th class="num-c">% Wanita</th><th class="num-c">Rata Hari/Pengajuan</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="mini" style="margin-top:6px">Usia dicatat pada saat pengajuan cuti, bukan usia pegawai saat ini.</div></div>';
+  const G=CUTI.gender.filter(x=>x.jenis===j);
+  const totP=cutiSumF(G,'P'),totW=cutiSumF(G,'W'),totG=totP+totW;
+  const gparts=[{v:totP,c:'var(--cat-4)',name:'Pria'},{v:totW,c:'var(--cat-7)',name:'Wanita'}];
+  /* satu-satunya donut di modul ini: 2 kategori berimbang = konteks yang memang cocok utk donut */
+  let gr=G.map(r=>{const tt=r.P+r.W;
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">'+
+      '<div class="mini" style="width:84px;flex:none"><b>'+r.tahun+(r.tahun===2026?'*':'')+'</b></div>'+
+      '<div style="flex:1">'+cutiStack([{v:r.P,c:'var(--cat-4)',name:'Pria'},{v:r.W,c:'var(--cat-7)',name:'Wanita'}],tt,15)+'</div>'+
+      '<div class="mini" style="width:56px;flex:none;text-align:right;font-variant-numeric:tabular-nums">'+cutiPct(r.W,tt)+'%</div></div>';}).join('');
+  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Komposisi Gender</h2>'+
+    '<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div style="flex:none">'+cutiDonut(gparts,172,{big:cutiPct(totW,totG)+'%',small:'WANITA'})+'</div>'+
+    '<div style="flex:1;min-width:230px">'+gr+'</div></div>'+
+    _tkLeg(gparts.map(p=>({c:p.c,l:p.name+' ('+fmt(p.v)+' · '+cutiPct(p.v,totG)+'%)'})))+
+    '<div class="mini" style="margin-top:6px">Donut = keseluruhan periode; batang = komposisi per tahun, kolom kanan persentase wanita. Tanda * = 2026 s.d. Juni.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Profil Risiko Menurut Usia</h2><p style="margin:0 0 6px">Rujukan Studi Cuti Sakit 2022-2025 (Biro SDM): usia 20-35 dominan risiko kesehatan reproduksi; usia 36-49 risiko kanker, autoimun, dan hipertensi awal; usia 50 ke atas risiko stroke, jantung, dan gagal ginjal.</p><p class="mini" style="margin:0">Rincian per kategori penyakit tersedia di menu Kategori Cuti Sakit.</p></div></div>';
+  return h;
+}
+
+function vCutiPola(){
+  const g=cutiGuard();if(g)return g;
+  const j=state.cutiPolaJenis||'Cuti Tahunan';
+  const sh=CUTI.dow.satuHari;
+  let h='<div class="toolbar"><span class="mini">Jenis cuti</span>'+cutiSelJ('cutiPolaJenis',j)+'</div>';
+  h+=_katKpi([['Cuti Tahunan 1 Hari',fmt(sh.total),cutiPct(sh.total,sh.dariCutiTahunan)+'% dari seluruh cuti tahunan',1],
+    ['Jatuh Jumat / Senin',fmt(sh.jumatSenin),cutiPct(sh.jumatSenin,sh.total)+'% dari cuti 1 hari'],
+    ['Hari Mulai Terbanyak',CUTI_HR[CUTI.dow.mulai[j].indexOf(Math.max(...CUTI.dow.mulai[j]))],'untuk '+j],
+    ['Hari Selesai Terbanyak',CUTI_HR[CUTI.dow.selesai[j].indexOf(Math.max(...CUTI.dow.selesai[j]))],'untuk '+j]]);
+  const totM=CUTI.dow.mulai[j].reduce((s,x)=>s+x,0)||1, totS=CUTI.dow.selesai[j].reduce((s,x)=>s+x,0)||1;
+  const mxM=Math.max(...CUTI.dow.mulai[j]), mxS=Math.max(...CUTI.dow.selesai[j]);
+  h+='<div class="grid2">';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Hari Mulai Cuti</h2>'+CUTI_HR.map((nm,i)=>bar(nm,CUTI.dow.mulai[j][i],mxM,'',cutiPct(CUTI.dow.mulai[j][i],totM)+'%')).join('')+'</div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Hari Selesai Cuti</h2>'+CUTI_HR.map((nm,i)=>bar(nm,CUTI.dow.selesai[j][i],mxS,'',cutiPct(CUTI.dow.selesai[j][i],totS)+'%')).join('')+'</div>';
+  h+='</div>';
+  /* kalender kapasitas dari indeks musiman cuti tahunan */
+  const mus=CUTI.musiman['Cuti Tahunan']||[];
+  const lvl=v=>v>=1.15?['Padat','var(--seq-6)','var(--seq-ink-hi)']:v>=1.02?['Di atas rata-rata','var(--seq-4)','var(--seq-ink-hi)']:v>=0.9?['Normal','var(--seq-2)','var(--seq-ink-lo)']:['Longgar','var(--seq-1)','var(--seq-ink-lo)'];
+  let kal=CUTI_BLN.map((b,i)=>{const L=lvl(mus[i]||0);
+    return '<td class="cell" style="background:'+L[1]+';color:'+L[2]+'" title="'+b+': indeks '+String(mus[i]).replace('.',',')+' ('+L[0]+')">'+b+'<br><b>'+String((mus[i]||0).toFixed(2)).replace('.',',')+'</b></td>';}).join('');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kalender Kapasitas Kehadiran (Preskriptif, Indikatif)</h2><div class="tblw"><table class="hm"><tbody><tr>'+kal+'</tr></tbody></table></div>'+
+    '<p style="margin:10px 0 0">Indeks musiman pengajuan cuti tahunan (basis 2022-2025; 1,00 = rata-rata bulanan). Bulan berindeks tinggi berarti kehadiran cenderung rendah: pertimbangkan tidak menjadwalkan kegiatan besar, dan siapkan pengaturan kapasitas layanan. Efek penyambung libur membuat Jumat dan Senin sekitar libur nasional paling rawan kosong.</p></div>';
+  return h;
+}
+
+function vCutiSakit(){
+  const g=cutiGuard();if(g)return g;
+  const K=CUTI.kategori, kats=CUTI.meta.katalogKategori.filter(k=>k.kat!=='tanpa');
+  const tot={},totAll=cutiSumF(K,'rekaman');
+  K.forEach(r=>{tot[r.kat]=(tot[r.kat]||0)+r.rekaman;});
+  const totTanpa=tot['tanpa']||0, totIsi=totAll-totTanpa;
+  const thn=[...new Set(K.map(r=>r.tahun))].sort();
+  let h='<div class="note-box"><b>Metode:</b> kategori diturunkan dari teks bebas keterangan alasan memakai kamus kata kunci yang mereplikasi 7 kategori Studi Cuti Sakit 2022-2025, dihitung saat pengolahan data (bukan penilaian manual). '+
+    fmt(totIsi)+' pengajuan terkategorikan; '+fmt(totTanpa)+' ('+cutiPct(totTanpa,totAll)+'%) tanpa keterangan alasan (kolom alasan baru terisi konsisten pada periode belakangan).</div>';
+  const mxk=Math.max(1,...kats.map(k=>tot[k.kat]||0));
+  const kUrut=kats.slice().sort((a,b)=>(tot[b.kat]||0)-(tot[a.kat]||0));
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Komposisi Kategori (Akumulasi 2020 s.d. Jun 2026)</h2>'+
+    kUrut.map(k=>bar(k.label,tot[k.kat]||0,mxk,'',fmt(tot[k.kat]||0)+' ('+cutiPct(tot[k.kat]||0,totIsi)+'%)')).join('')+
+    '<div class="mini" style="margin-top:6px">Persentase dihitung terhadap '+fmt(totIsi)+' pengajuan yang terkategorikan.</div></div>';
+  /* tren kategori x tahun (heat per baris) */
+  let tr=kats.map(k=>{
+    const vals=thn.map(t=>{const r=K.find(x=>x.kat===k.kat&&x.tahun===t);return r?r.rekaman:0;});
+    const mx=Math.max(1,...vals);
+    return '<tr><td>'+esc(k.label)+'</td>'+vals.map((v,i)=>'<td class="cell" style="background:'+mofRamp(v/mx)+';color:'+mofRampInk(v/mx)+'" title="'+thn[i]+': '+fmt(v)+'">'+fmt(v)+'</td>').join('')+'</tr>';}).join('');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Kategori per Tahun</h2><div class="tblw"><table class="hm"><thead><tr><th>Kategori</th>'+thn.map(t=>'<th style="text-align:center">'+t+'</th>').join('')+'</tr></thead><tbody>'+tr+'</tbody></table></div><div class="mini" style="margin-top:6px">Warna dinormalkan per baris untuk membaca tren tiap kategori; 2026 baru sampai Juni.</div></div>';
+  /* kategori x band usia */
+  const bands=['20-35','36-49','50+'];
+  let bu=kats.map(k=>{
+    const vals=bands.map(b=>{const r=CUTI.kategoriUsia.find(x=>x.kat===k.kat&&x.band===b);return r?r.rekaman:0;});
+    const tt=vals.reduce((s,x)=>s+x,0)||1;
+    return '<tr><td>'+esc(k.label)+'</td>'+vals.map(v=>'<td class="num-c">'+fmt(v)+' <span class="mini">('+cutiPct(v,tt)+'%)</span></td>').join('')+'</tr>';}).join('');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori x Kelompok Usia</h2><div class="tblw"><table><thead><tr><th>Kategori</th>'+bands.map(b=>'<th class="num-c">'+b+'</th>').join('')+'</tr></thead><tbody>'+bu+'</tbody></table></div><div class="mini" style="margin-top:6px">Konsisten dengan profil risiko studi: reproduksi menumpuk di 20-35, kronis dan prosedur meningkat pada usia 50 ke atas.</div></div>';
+  /* contoh teks per kategori (transparansi) */
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Contoh Teks Alasan Terbanyak per Kategori</h2>'+kats.map(k=>{
+    const c=(CUTI.kategoriContoh[k.kat]||[]).slice(0,5);
+    if(!c.length)return '';
+    return '<div style="margin-bottom:8px"><span class="mini"><b>'+esc(k.label)+':</b></span> '+c.map(x=>'<span class="tag">'+esc(x.teks)+' ('+fmt(x.n)+')</span>').join(' ')+'</div>';}).join('')+
+    '<div class="mini">Teks apa adanya dari isian pegawai (huruf kecil), ditampilkan untuk transparansi metode klasifikasi.</div></div>';
+  return h;
+}
+
+function vCutiPrediksi(){
+  const g=cutiGuard();if(g)return g;
+  const j=state.cutiPredJenis||'Cuti Sakit';
+  const mus=CUTI.musiman[j]||[], P=CUTI.proyeksi;
+  let h='<div class="note-box"><b>Metode (transparan, tanpa kotak hitam):</b> proyeksi memakai pola musiman historis 2022-2025 (mengecualikan distorsi pandemi 2020-2021). Estimasi setahun 2026 = realisasi Semester I dibagi pangsa historis Semester I. Sifatnya indikatif untuk perencanaan, bukan angka pasti.</div>';
+  h+='<div class="toolbar"><span class="mini">Jenis cuti</span>'+cutiSelJ('cutiPredJenis',j)+'</div>';
+  const mxm=Math.max(...mus,0.01);
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Indeks Musiman '+esc(j)+' <span class="mini">(1,00 = rata-rata bulanan)</span></h2>'+
+    CUTI_BLN.map((b,i)=>bar(b,mus[i]||0,mxm,'',String((mus[i]||0).toFixed(2)).replace('.',','))).join('')+'</div>';
+  /* proyeksi 2026 semua jenis */
+  let rows=CUTI.meta.jenis.map(x=>{
+    const p=P[x]||{}, r25=CUTI.tahunan.find(y=>y.jenis===x&&y.tahun===2025);
+    const d=(p.estimasiSetahun&&r25)?Math.round(1000*(p.estimasiSetahun-r25.rekaman)/r25.rekaman)/10:null;
+    return '<tr'+(x===j?' style="background:var(--brand-l)"':'')+'><td><b>'+x+'</b></td><td class="num-c">'+fmt(p.realisasiH1||0)+'</td><td class="num-c">'+cutiPct(p.pangsaH1*1000,1000)+'%</td><td class="num-c"><b>'+(p.estimasiSetahun?fmt(p.estimasiSetahun):'-')+'</b></td><td class="num-c">'+(r25?fmt(r25.rekaman):'-')+'</td><td class="num-c">'+(d==null?'-':((d>=0?'+':'')+String(d).replace('.',',')+'%'))+'</td></tr>';}).join('');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Proyeksi Pengajuan Cuti 2026</h2><div class="tblw"><table><thead><tr><th>Jenis</th><th class="num-c">Realisasi s.d. Juni</th><th class="num-c">Pangsa Historis Sem. I</th><th class="num-c">Estimasi Setahun</th><th class="num-c">Realisasi 2025</th><th class="num-c">Perubahan</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  /* peringatan dini musiman cuti sakit */
+  const ms=CUTI.musiman['Cuti Sakit']||[];
+  const tinggi=CUTI_BLN.filter((b,i)=>(ms[i]||0)>=1.05);
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Peringatan Dini Musiman (Cuti Sakit)</h2><p style="margin:0">Bulan dengan intensitas cuti sakit historis di atas rata-rata: <b>'+tinggi.join(', ')+'</b>. Periode musim hujan berkaitan dengan naiknya ISPA, influenza, dan diare (rujukan Studi Cuti Sakit). Rekomendasi studi yang relevan: penjadwalan vaksinasi influenza sebelum musim hujan serta protokol masker dan kerja jarak jauh saat risiko tinggi.</p></div>';
+  return h;
+}
+
+function vCutiSimulasi(){
+  const g=cutiGuard();if(g)return g;
+  const thr=Math.max(1,Math.min(30,+state.cutiSimHari||10));
+  const S=CUTI.sakitDurasi.filter(x=>x.grup==='jalan'||x.grup==='jalan_pasca');
+  const thn=[...new Set(S.map(x=>x.tahun))].sort();
+  const kena=(rows,n)=>{let c=0;rows.forEach(r=>{for(let i=n;i<30;i++)c+=r.harian[i];c+=r.lebih30;});return c;};
+  let rows='',totT=0,tot3=0,totX=0;
+  thn.forEach(t=>{
+    const R=S.filter(x=>x.tahun===t);
+    const tt=R.reduce((s,r)=>s+r.harian.reduce((a,b)=>a+b,0)+r.lebih30,0);
+    const k3=kena(R,3), kx=kena(R,thr), lind=k3-kx;
+    totT+=tt;tot3+=k3;totX+=kx;
+    rows+='<tr><td><b>'+t+(t===2026?' (s.d. Juni)':'')+'</b></td><td class="num-c">'+fmt(tt)+'</td><td class="num-c">'+fmt(k3)+'</td><td class="num-c">'+fmt(kx)+'</td><td class="num-c" style="color:var(--st-good);font-weight:700">'+fmt(lind)+'</td></tr>';});
+  let h='<div class="note-box"><b>Konteks kebijakan:</b> PMK 221/PMK.01/2021 menetapkan potongan tunjangan 0% untuk cuti sakit rawat jalan paling lama <b>3 hari kerja</b>, selebihnya dipotong 2,5% per hari. Studi Cuti Sakit 2022-2025 mengusulkan relaksasi menjadi sekurangnya <b>10 hari kerja</b> bagi kondisi kronis pasca perawatan. Simulator ini menghitung berapa pengajuan yang berubah status bila ambang digeser.</div>';
+  h+='<div class="toolbar"><span class="mini">Ambang usulan (hari)</span><input class="flt" type="number" id="cutiSimHari" min="1" max="30" value="'+thr+'" style="width:80px"></div>';
+  h+=_katKpi([['Pengajuan Rawat Jalan',fmt(totT),'2020 s.d. Jun 2026',1],
+    ['Kena Potongan (Ambang 3 Hari)',fmt(tot3),cutiPct(tot3,totT)+'% dari pengajuan rawat jalan'],
+    ['Masih Kena (Ambang '+thr+' Hari)',fmt(totX),cutiPct(totX,totT)+'%'],
+    ['Pengajuan Terlindungi',fmt(tot3-totX),'berubah status bila ambang digeser ke '+thr+' hari']]);
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Rincian per Tahun</h2><div class="tblw"><table><thead><tr><th>Tahun</th><th class="num-c">Pengajuan Rawat Jalan</th><th class="num-c">Durasi &gt; 3 Hari</th><th class="num-c">Durasi &gt; '+thr+' Hari</th><th class="num-c">Terlindungi</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  h+='<div class="note-box warn"><b>Batasan (wajib dibaca):</b> durasi pada data adalah <b>hari kalender</b>, sedangkan ambang PMK dihitung <b>hari kerja</b>; hasil di atas adalah estimasi indikatif (cenderung sedikit melebihkan pengajuan terdampak). Kelompok yang disimulasikan hanya cuti sakit rawat jalan (termasuk rawat jalan pasca rawat inap). Simulator ini alat bantu analisis kebijakan Biro SDM, bukan penetapan.</div>';
+  return h;
+}
+
+function vCutiTentang(){
+  const g=cutiGuard();if(g)return g;
+  const m=CUTI.meta,k=m.kualitas||{};
+  let h='<div class="card"><h2 class="sec" style="margin-top:0">Sumber &amp; Cakupan</h2><p style="margin:0 0 6px"><b>Sumber:</b> '+esc(m.sumber)+', diolah '+esc(m.tanggal_olah)+'. <b>Periode:</b> '+esc(m.periode.mulai)+' s.d. '+esc(m.periode.akhir)+'.</p><p style="margin:0 0 6px"><b>Cakupan:</b> '+esc(m.cakupan)+'.</p><p style="margin:0"><b>Jenis cuti tersedia:</b> '+m.jenis.join(', ')+'. Jenis lain (Cuti Melahirkan, Cuti Karena Alasan Penting, CLTN, Cuti Tahunan Tambahan) belum masuk feeding data.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kualitas Data</h2><div class="tblw"><table><tbody>'+
+    '<tr><td>Baris sumber</td><td class="num-c">'+fmt(k.baris_sumber||0)+'</td></tr>'+
+    '<tr><td>Dibuang: durasi negatif (tanggal tertukar)</td><td class="num-c">'+fmt(k.dibuang_durasi_negatif||0)+'</td></tr>'+
+    '<tr><td>Dibuang: durasi di atas 366 hari</td><td class="num-c">'+fmt(k.dibuang_durasi_ekstrem||0)+'</td></tr>'+
+    '<tr><td><b>Baris dipakai</b></td><td class="num-c"><b>'+fmt(k.baris_dipakai||0)+'</b></td></tr>'+
+    '</tbody></table></div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Batasan Analisis</h2><p style="margin:0 0 6px">Data bersifat <b>anonim per pengajuan</b> (tanpa identitas pegawai), sehingga analisis utilisasi hak cuti per pegawai, sisa cuti, dan pola berulang individu tidak dimungkinkan. Durasi dihitung <b>hari kalender</b>, bukan hari kerja. Granularitas unit berhenti di <b>Eselon I</b>; rincian UE II, jabatan, dan wilayah belum tersedia pada feeding saat ini.</p><p style="margin:0">'+esc(m.catatan)+'</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Pengembangan Berikutnya</h2><p style="margin:0">Prioritas permintaan data ke Biro SDM: (1) identitas pegawai tersamar yang konsisten antar rekaman untuk analisis utilisasi, (2) jenis cuti yang belum tersedia, (3) atribut jabatan dan unit Eselon II. Kajian lengkap: output/Modul Cuti/Kajian_Awal_Modul_Cuti.docx.</p></div>';
+  return h;
+}
+
 /* ==================== MODUL MOFIN ==================== */
 function mofUnits(){return (MOFIN&&MOFIN.units)||[];}
 function mofDims(){return ((MOFIN&&MOFIN.dimensi)||[]).map(d=>d.nama);}
@@ -7424,6 +7754,13 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('normaQ'))q('normaQ').oninput=e=>{state.normaQ=e.target.value;rerenderKeep(vAbkNorma,'normaQ');};
   if(q('normaUE1'))q('normaUE1').onchange=e=>{state.normaUE1=e.target.value;state.normaUE2='';state.normaExp=null;render();};
   if(q('normaUE2'))q('normaUE2').onchange=e=>{state.normaUE2=e.target.value;state.normaExp=null;render();};
+  if(q('cutiTrJenis'))q('cutiTrJenis').onchange=e=>{state.cutiTrJenis=e.target.value;render();};
+  if(q('cutiUnitJenis'))q('cutiUnitJenis').onchange=e=>{state.cutiUnitJenis=e.target.value;render();};
+  if(q('cutiUnitTahun'))q('cutiUnitTahun').onchange=e=>{state.cutiUnitTahun=e.target.value;render();};
+  if(q('cutiDemoJenis'))q('cutiDemoJenis').onchange=e=>{state.cutiDemoJenis=e.target.value;render();};
+  if(q('cutiPolaJenis'))q('cutiPolaJenis').onchange=e=>{state.cutiPolaJenis=e.target.value;render();};
+  if(q('cutiPredJenis'))q('cutiPredJenis').onchange=e=>{state.cutiPredJenis=e.target.value;render();};
+  if(q('cutiSimHari'))q('cutiSimHari').onchange=e=>{state.cutiSimHari=+e.target.value||10;render();};
   if(q('kataktQ'))q('kataktQ').oninput=e=>{state.kataktQ=e.target.value;rerenderKeep(vKatAkt,'kataktQ');};
   if(q('kataktKlus'))q('kataktKlus').onchange=e=>{state.kataktKlus=e.target.value;render();};
   if(q('katpetaUE1'))q('katpetaUE1').onchange=e=>{state.katpetaUE1=e.target.value;render();};
@@ -7553,6 +7890,7 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='abksort'){const k=el.dataset.k;state.abkSort=state.abkSort.k===k?{k,d:-state.abkSort.d}:{k,d:k==='nama'?1:-1};render();}
   else if(a==='abkexport'){try{abkExport();}catch(e){alert('Gagal menyiapkan ekspor: '+e);}}
   else if(a==='loadabk'){ensureAbk();}
+  else if(a==='cutiunitmode'){state.cutiUnitMode=el.dataset.k;render();}
   else if(a==='verifok'||a==='verifno'||a==='verifhapus'){
     verifSet(el.dataset.unit,+el.dataset.idx,a==='verifhapus'?null:(a==='verifok'?'sesuai':'salah'),el.dataset.f);
     render();
