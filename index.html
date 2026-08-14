@@ -911,6 +911,12 @@ async function loadAbk(){if(ABK)return ABK;let d=null;if(REMOTE){d=await api('ab
   if(!d||!d.eselon1)throw new Error('abk-unavailable');ABK=d;return ABK;}
 function ensureAbk(){if(ABK||state.abkLoading)return;state.abkLoading=true;state.abkErr=false;progStart();
   loadAbk().then(()=>{state.abkLoading=false;progDone();render();}).catch(()=>{state.abkLoading=false;progDone();state.abkErr=true;render();});}
+/* Katalog Referensi (8 katalog ber-kode): dipisah dari abk.json -> katref.json (13 Ago 2026) */
+let KATREF=null;const KATREF_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?katref=1';
+async function loadKatref(){if(KATREF)return KATREF;let d=null;if(REMOTE){d=await api('katref',{});}else if(KATREF_URL){const r=await fetch(KATREF_URL);d=await r.json();}else{return KATREF;}
+  if(!d||!d.katalog)throw new Error('katref-unavailable');KATREF=d;return KATREF;}
+function ensureKatref(){if(KATREF||state.katrefLoading)return;state.katrefLoading=true;state.katrefErr=false;progStart();
+  loadKatref().then(()=>{state.katrefLoading=false;progDone();render();}).catch(()=>{state.katrefLoading=false;progDone();state.katrefErr=true;render();});}
 /* Mode 'files': muat semua data inti (struktural + MK + akun) dari ./data/*.json sebelum login/render. */
 async function ensureCore(){
   if(DATAMODE!=='files'||OTK)return;
@@ -1750,7 +1756,7 @@ const MODULES=[
  ]},
  {id:'katref',icn:'katalog',lab:'Katalog',groups:[
    {grp:'Produk ABK',items:[{v:'katakt',lab:'Katalog Produk ABK'},{v:'katpeta',lab:'Peta Aktivitas Kantor'}]},
-   {grp:'',items:[{v:'katjab',lab:'Katalog Jabatan'},{v:'katpb',lab:'Katalog Proses Bisnis'}]},
+   {grp:'',items:[{v:'katjab',lab:'Katalog Jabatan'},{v:'katpb',lab:'Katalog Proses Bisnis'},{v:'katnw',lab:'Katalog Norma Waktu'},{v:'katunit',lab:'Katalog Unit & Kantor'},{v:'katsvc',lab:'Katalog Layanan'},{v:'katapp',lab:'Katalog Aplikasi'},{v:'katwen',lab:'Katalog Kewenangan'}]},
  ]},
  {id:'unitremote',icn:'remote',lab:'Unit Remote',groups:[
    {grp:'',items:[{v:'otkremote',lab:'Unit Remote'}]},
@@ -1798,7 +1804,7 @@ const MODKET={
   takelola:'Pelimpahan wewenang/mandat (KMK 167/2025) lintas unit.',
   layanan:'Zona Integritas, kepuasan layanan, inovasi, kantor terbaik.',
   katalog:'Referensi: kompetensi, proses bisnis, layanan, aplikasi.',
-  katref:'Katalog referensi baku: Produk ABK (kluster, kode, peta kantor) & Jabatan; katalog lain menyusul.',
+  katref:'Katalog referensi baku ber-kode: Produk ABK, Jabatan, Proses Bisnis, Norma Waktu, Unit & Kantor, Layanan, Aplikasi, Kewenangan.',
   unitremote:'Aplikasi unit remote (UKDR) tertanam di dalam dashboard.'
 };
 const DOMDESC={
@@ -2000,7 +2006,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
   otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',jfFx:'',jfOpen:{},
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
-  kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',kataktQ:'',kataktKlus:'',katpetaUE1:'',kjQ:'',kjUE1:'',kjLvl:'',kpbQ:'',kpbDom:'',kpbLvl:'',
+  kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',kataktQ:'',kataktKlus:'',katpetaUE1:'',kjQ:'',kjUE1:'',kjLvl:'',kpbQ:'',kpbDom:'',kpbLvl:'',katrefLoading:false,katrefErr:false,nwQ:'',nwKlus:'',kuQ:'',kuUE1:'',kuTipe:'',ksQ:'',ksUE1:'',ksDig:'',kaQ:'',kaUE1:'',kwQ:'',kwUnit:'',kwJenis:'',
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
   simUE1:'',simUnit:'',simTarget:300,simTrR:0,simTrS:0,simTrK:0,
   jfQ:'',jfJenis:'',jfSel:null,jfFungUE1:'',jfFungF:'',jkView:'bezetting'};
@@ -2077,7 +2083,7 @@ function renderNav(){
   }
   document.getElementById('nav').innerHTML=h;a11yPrepare(document.getElementById('nav'));}
 const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analytic',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
-  struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',katakt:'Katalog Produk ABK',katpeta:'Peta Aktivitas Kantor',katjab:'Katalog Jabatan',katpb:'Katalog Proses Bisnis',
+  struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',katakt:'Katalog Produk ABK',katpeta:'Peta Aktivitas Kantor',katjab:'Katalog Jabatan',katpb:'Katalog Proses Bisnis',katnw:'Katalog Norma Waktu',katunit:'Katalog Unit & Kantor',katsvc:'Katalog Layanan',katapp:'Katalog Aplikasi',katwen:'Katalog Kewenangan',
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'List Dataset',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
   tk:'Ikhtisar Tata Kelola',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   mofin:'Skor Kapabilitas',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Ikhtisar Pelimpahan',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
@@ -4437,9 +4443,8 @@ function vAbkNorma(){
 
 /* ===== KATALOG AKTIVITAS (dari ABK, modul Katalog) ===== */
 function vKatAkt(){
-  if(state.abkErr||!ABK)return vAbk();
-  const KT=ABK.katalog;
-  if(!KT||!KT.aktivitas)return `<div class="note-box">Data Katalog Aktivitas belum tersedia pada abk.json. Jalankan build_katalog.py lalu unggah ulang.</div>`;
+  const _g=_katGuard('katalog','build_katalog.py');if(_g)return _g;
+  const KT=KATREF.katalog;
   const KL={};KT.klusters.forEach(k=>KL[k.kode]=k);
   const q=(state.kataktQ||'').toLowerCase().trim();
   let rows=KT.aktivitas;
@@ -4470,9 +4475,9 @@ function vKatAkt(){
   return h;
 }
 function vKatPeta(){
-  if(state.abkErr||!ABK)return vAbk();
-  const KT=ABK.katalog;
-  if(!KT||!KT.matriks)return `<div class="note-box">Data Katalog Aktivitas belum tersedia pada abk.json. Jalankan build_katalog.py lalu unggah ulang.</div>`;
+  const _g=_katGuard('katalog','build_katalog.py');if(_g)return _g;
+  if(!ABK)return skelMemuat('Memuat data ABK (nama unit)...');
+  const KT=KATREF.katalog;
   const M={};KT.matriks.forEach(r=>M[r.u]=r.k);
   const KODES=KT.klusters.slice().sort((a,b)=>(a.kode==='XXX')-(b.kode==='XXX')||b.beban-a.beban).map(k=>k.kode);
   let h=`<div class="note-box"><b>Peta Aktivitas Kantor</b>: sebaran beban tiap kantor (Eselon II) menurut kluster aktivitas. Sel = % beban kantor pada kluster itu; makin pekat makin dominan. Pola ini memperlihatkan <b>profil kluster kantor</b>: kantor sejenis semestinya berpola serupa - sel kosong pada kluster yang lazim, atau sel pekat di kluster yang tak seharusnya, adalah sinyal anomali input ABK atau beban yang perlu dicek. XXX = belum terklasifikasi.</div>`;
@@ -4496,9 +4501,8 @@ function vKatPeta(){
 
 /* ===== KATALOG JABATAN (katalog #2: struktural + staf ahli + tenaga pengkaji + pelaksana) ===== */
 function vKatJab(){
-  if(state.abkErr||!ABK)return vAbk();
-  const KJ=ABK.katjab;
-  if(!KJ||!KJ.jabatan)return `<div class="note-box">Data Katalog Jabatan belum tersedia pada abk.json. Jalankan build_katalog_jabatan.py lalu unggah ulang.</div>`;
+  const _g=_katGuard('katjab','build_katalog_jabatan.py');if(_g)return _g;
+  const KJ=KATREF.katjab;
   const LVLS=KJ.meta.lvl_order,LN=KJ.meta.level;
   const q=(state.kjQ||'').toLowerCase().trim();
   let rows=KJ.jabatan;
@@ -4531,7 +4535,7 @@ function vKatJab(){
 
 /* ===== KATALOG PROSES BISNIS (katalog #3: level 1-3 + kode pemetaan unit) ===== */
 function _kpbRows(){
-  const KP=ABK.katpb;const q=(state.kpbQ||'').toLowerCase().trim();
+  const KP=KATREF.katpb;const q=(state.kpbQ||'').toLowerCase().trim();
   let rows=KP.rows;
   if(state.kpbDom)rows=rows.filter(x=>x.domain===state.kpbDom);
   if(state.kpbLvl)rows=rows.filter(x=>String(x.lvl)===state.kpbLvl);
@@ -4539,9 +4543,8 @@ function _kpbRows(){
   return rows;
 }
 function vKatPb(){
-  if(state.abkErr||!ABK)return vAbk();
-  const KP=ABK.katpb;
-  if(!KP||!KP.rows)return `<div class="note-box">Data Katalog Proses Bisnis belum tersedia pada abk.json. Jalankan build_katalog_probis.py lalu unggah ulang.</div>`;
+  const _g=_katGuard('katpb','build_katalog_probis.py');if(_g)return _g;
+  const KP=KATREF.katpb;
   const rows=_kpbRows();const LV=KP.meta.level;
   let h=`<div class="note-box"><b>Katalog Proses Bisnis</b> - peta proses level 1-3 ber-kode: <b>Domain</b> (L1) &rarr; <b>Subdomain</b> (L2) &rarr; <b>Grup Proses</b> (L3), memakai penomoran resmi peta probis (kode PB-x.x.x). Kolom <b>Pemetaan Unit</b> = UE1 pengampu, diagregasi dari proses level 4 di bawahnya. Rincian proses L4 ada di modul Proses Bisnis. Status: draft untuk pembahasan.</div>
   <div class="kpis">
@@ -4566,10 +4569,108 @@ function vKatPb(){
   return h;
 }
 
+/* ===== Helper bersama katalog referensi (#4-#8) ===== */
+function _katGuard(sec,skrip){
+  if(state.katrefErr)return '<div class="empty">Gagal memuat katalog referensi. Buka menu ini lagi.</div>';
+  if(!KATREF)return skelMemuat('Memuat katalog referensi...');
+  if(!KATREF[sec])return `<div class="note-box">Data katalog ini belum tersedia pada katref.json. Jalankan ${skrip} lalu unggah ulang.</div>`;
+  return null;
+}
+function _katKpi(list){return '<div class="kpis">'+list.map(k=>`<div class="kpi ${k[3]?'gold':''}"><div class="lab">${k[0]}</div><div class="val">${k[1]}</div>${k[2]?`<div class="note">${k[2]}</div>`:''}</div>`).join('')+'</div>';}
+function _katTbl(judul,n,head,rowsHtml,cap){
+  return `<div class="card"><h2 class="sec" style="margin-top:0">${judul} <span class="mini">(${fmt(n)})</span></h2>
+  <table><thead><tr>${head.map(h=>`<th${/^#/.test(h)?' class="num-c"':''}>${h.replace(/^#/,'')}</th>`).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table>${cap?`<div class="mini" style="margin-top:6px">${cap}</div>`:''}</div>`;
+}
+function _katSel(id,val,all,opts){return `<select class="flt" id="${id}"><option value="">${all}</option>${opts.map(o=>`<option value="${esc(String(o[0]))}"${val===String(o[0])?' selected':''}>${esc(String(o[1]))}</option>`).join('')}</select>`;}
+function _katCari(id,val,ph){return `<input class="search" id="${id}" placeholder="${ph}" value="${esc(val||'')}" style="max-width:270px">`;}
+function _fRows(rows,q,keys){if(!q)return rows;q=q.toLowerCase();return rows.filter(r=>keys.some(k=>String(r[k]||'').toLowerCase().indexOf(q)>=0));}
+
+/* ===== #4 KATALOG NORMA WAKTU ===== */
+function _nwRows(){const K=KATREF.katnw;let r=K.rows;
+  if(state.nwKlus)r=r.filter(x=>x.klus===state.nwKlus);
+  return _fRows(r,(state.nwQ||'').trim(),['kode','nama']);}
+function vKatNw(){
+  const g=_katGuard('katnw','build_katalog_norma.py');if(g)return g;
+  const K=KATREF.katnw,rows=_nwRows();
+  let h=`<div class="note-box"><b>Katalog Norma Waktu</b> - norma baku per tahapan (menit), calon referensi input ABK di sistem transaksional. Norma ideal = <b>modus</b> antar unit utk tahapan sama (dipakai &ge;${K.meta.min_unit} unit); rentang = min-max terpantau. Nama tahapan dinetralkan dari sebutan unit. Status: draft untuk pembahasan.</div>`;
+  h+=_katKpi([['Tahapan Baku Berkode',fmt(K.stats.total),'',1],['Kluster',fmt(K.stats.n_klus)],['Satuan','menit','per tahapan']]);
+  h+=`<div class="toolbar">${_katCari('nwQ',state.nwQ,'Cari kode / tahapan...')}${_katSel('nwKlus',state.nwKlus,'Semua Kluster',K.klusters.map(k=>[k.kode,k.kode+' - '+k.nama+' ('+k.n+')']))}</div>`;
+  h+=_katTbl('Norma Waktu Baku',rows.length,['Kode','Nama Tahapan','#Kluster','#Norma Ideal (mnt)','#Rentang (mnt)','#Unit','#UE1'],
+    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${esc(x.nama)}</td><td class="num-c">${x.klus}</td><td class="num-c"><b>${fmt(x.ideal)}</b></td><td class="num-c">${fmt(x.min)}-${fmt(x.max)}</td><td class="num-c">${fmt(x.n_unit)}</td><td class="num-c">${fmt(x.n_es1)}</td></tr>`).join(''),
+    rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)} - persempit dengan filter/cari.`:'');
+  return h;
+}
+/* ===== #5 KATALOG UNIT & KANTOR ===== */
+function _kuRows(){const K=KATREF.katunit;let r=K.rows;
+  if(state.kuUE1)r=r.filter(x=>x.uk===state.kuUE1);
+  if(state.kuTipe)r=r.filter(x=>x.tipe===state.kuTipe);
+  return _fRows(r,(state.kuQ||'').trim(),['kode','nama','kode_abk']);}
+function vKatUnit(){
+  const g=_katGuard('katunit','build_katalog_unit.py');if(g)return g;
+  const K=KATREF.katunit,rows=_kuRows();
+  let h=`<div class="note-box"><b>Katalog Unit &amp; Kantor</b> - register kode unit (Eselon I + Eselon II/setara) sebagai kunci penghubung antar modul dan dasar <b>kluster/tipe kantor</b>. Kolom Kode ABK = kunci teknis data beban kerja. Tipe kantor dideteksi dari nama - perlu kurasi. Draft untuk pembahasan.</div>`;
+  h+=_katKpi([['Unit Terdaftar',fmt(K.stats.total),'',1],['Unit Eselon I',fmt(K.stats.ue1)],['Tipe Kantor',fmt(K.stats.tipe.length)]]);
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Kluster Tipe Kantor</h2><table><thead><tr><th>Tipe</th><th class="num-c">Jumlah Unit</th></tr></thead><tbody>${K.stats.tipe.map(t=>`<tr style="cursor:pointer;${state.kuTipe===t[0]?'outline:2px solid #2563eb;outline-offset:-2px':''}" data-act="kutipe" data-k="${esc(t[0])}"><td class="link">${esc(t[0])}</td><td class="num-c">${fmt(t[1])}</td></tr>`).join('')}</tbody></table><div class="mini" style="margin-top:6px">Klik tipe untuk memfilter.</div></div>`;
+  const ue1s=[...new Set(K.rows.map(x=>x.uk))];
+  h+=`<div class="toolbar">${_katCari('kuQ',state.kuQ,'Cari kode / nama unit...')}${_katSel('kuUE1',state.kuUE1,'Semua UE1',ue1s.map(x=>[x,x]))}${_katSel('kuTipe',state.kuTipe,'Semua Tipe',K.stats.tipe.map(t=>[t[0],t[0]]))}</div>`;
+  h+=_katTbl('Register Unit',rows.length,['Kode','Nama Unit','Tipe Kantor','#UE1','#Kode ABK'],
+    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${x.lvl===1?`<b>${esc(x.nama)}</b>`:esc(x.nama)}</td><td class="mini">${esc(x.tipe)}</td><td class="num-c">${x.uk}</td><td class="num-c">${esc(x.kode_abk)}</td></tr>`).join(''),
+    rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  return h;
+}
+/* ===== #6 KATALOG LAYANAN ===== */
+function _ksRows(){const K=KATREF.katsvc;let r=K.rows;
+  if(state.ksUE1)r=r.filter(x=>x.ue1===state.ksUE1);
+  if(state.ksDig)r=r.filter(x=>x.digital===state.ksDig);
+  return _fRows(r,(state.ksQ||'').trim(),['kode','nama','pelaksana']);}
+function vKatSvc(){
+  const g=_katGuard('katsvc','build_katalog_svcapp.py');if(g)return g;
+  const K=KATREF.katsvc,rows=_ksRows();
+  let h=`<div class="note-box"><b>Katalog Layanan</b> - daftar baku layanan per UE1 dengan tingkat digitalisasi; kolom Probis = pemetaan ke Katalog Proses Bisnis (PB-x.x). Kode memakai kode layanan resmi (LY-Lxxxx). Draft untuk pembahasan.</div>`;
+  h+=_katKpi([['Layanan Berkode',fmt(K.stats.total),'',1],['UE1 Tercakup',fmt(K.stats.per_ue1.length)],['Fully Digital',fmt((K.stats.digital.find(x=>/fully/i.test(x[0]))||[0,0])[1]),'dari '+fmt(K.stats.total)]]);
+  h+=`<div class="toolbar">${_katCari('ksQ',state.ksQ,'Cari kode / layanan...')}${_katSel('ksUE1',state.ksUE1,'Semua UE1',K.stats.per_ue1.map(x=>[x[0],x[0]+' ('+x[1]+')']))}${_katSel('ksDig',state.ksDig,'Semua Tingkat Digital',K.stats.digital.map(x=>[x[0],x[0]+' ('+x[1]+')']))}</div>`;
+  h+=_katTbl('Daftar Layanan',rows.length,['Kode','Nama Layanan','#UE1','Sasaran','Digitalisasi','Unit Pelaksana','#Probis'],
+    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${esc(x.nama)}</td><td class="num-c">${x.ue1}</td><td class="mini">${esc(x.sasaran)}</td><td class="mini">${esc(x.digital)}</td><td class="mini">${esc(x.pelaksana)}</td><td class="num-c" style="white-space:nowrap">${x.pb}</td></tr>`).join(''),
+    rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  return h;
+}
+/* ===== #7 KATALOG APLIKASI ===== */
+function _kaRows(){const K=KATREF.katapp;let r=K.rows;
+  if(state.kaUE1)r=r.filter(x=>x.ue1===state.kaUE1);
+  return _fRows(r,(state.kaQ||'').trim(),['kode','nama','url']);}
+function vKatApp(){
+  const g=_katGuard('katapp','build_katalog_svcapp.py');if(g)return g;
+  const K=KATREF.katapp,rows=_kaRows();
+  let h=`<div class="note-box"><b>Katalog Aplikasi</b> - daftar baku aplikasi per UE1 (kode resmi AP-Axxxx) dengan model penyebaran, jenis interaksi, dan URL; kolom Probis = pemetaan ke Katalog Proses Bisnis. Bahan telaah <b>duplikasi aplikasi lintas unit</b>. Draft untuk pembahasan.</div>`;
+  h+=_katKpi([['Aplikasi Berkode',fmt(K.stats.total),'',1],['UE1 Tercakup',fmt(K.stats.per_ue1.length)]]);
+  h+=`<div class="toolbar">${_katCari('kaQ',state.kaQ,'Cari kode / aplikasi...')}${_katSel('kaUE1',state.kaUE1,'Semua UE1',K.stats.per_ue1.map(x=>[x[0],x[0]+' ('+x[1]+')']))}</div>`;
+  h+=_katTbl('Daftar Aplikasi',rows.length,['Kode','Nama Aplikasi','#UE1','Model','Interaksi','#Probis','URL'],
+    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${esc(x.nama)}</td><td class="num-c">${x.ue1}</td><td class="mini">${esc(x.model)}</td><td class="mini">${esc(x.gto)}</td><td class="num-c" style="white-space:nowrap">${x.pb}</td><td class="mini">${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.replace(/^https?:\/\//,'').slice(0,32))}</a>`:'-'}</td></tr>`).join(''),
+    rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  return h;
+}
+/* ===== #8 KATALOG KEWENANGAN ===== */
+function _kwRows(){const K=KATREF.katwen;let r=K.rows;
+  if(state.kwUnit)r=r.filter(x=>x.unit===state.kwUnit);
+  if(state.kwJenis)r=r.filter(x=>x.jenis===state.kwJenis);
+  return _fRows(r,(state.kwQ||'').trim(),['kode','uraian','jabatan']);}
+function vKatWen(){
+  const g=_katGuard('katwen','build_katalog_wenang.py');if(g)return g;
+  const K=KATREF.katwen,rows=_kwRows();
+  const units=[...new Set(K.rows.map(x=>x.unit))],jenis=[...new Set(K.rows.map(x=>x.jenis))].sort();
+  let h=`<div class="note-box"><b>Katalog Kewenangan</b> - register butir pelimpahan wewenang/mandat KMK 167/2025 per jabatan penerima (kode WN-&lt;lampiran&gt;-nomor). Tersambung ke Katalog Jabatan lewat nama jabatan. Rincian & analisis lihat modul Tata Kelola. Draft untuk pembahasan.</div>`;
+  h+=_katKpi([['Butir Kewenangan',fmt(K.stats.total_butir),'',1],['Unit/Lampiran',fmt(units.length)],['Jenis Kewenangan',fmt(jenis.length)]]);
+  h+=`<div class="toolbar">${_katCari('kwQ',state.kwQ,'Cari kode / uraian / jabatan...')}${_katSel('kwUnit',state.kwUnit,'Semua Unit',units.map(x=>[x,x]))}${_katSel('kwJenis',state.kwJenis,'Semua Jenis',jenis.map(x=>[x,x]))}</div>`;
+  h+=_katTbl('Register Kewenangan',rows.length,['Kode','Uraian Kewenangan','Jenis','Jabatan Penerima','Unit'],
+    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${esc(x.uraian)}</td><td class="mini">${esc(x.jenis)}</td><td class="mini">${esc(x.jabatan)}</td><td class="mini">${esc(x.unit)}</td></tr>`).join(''),
+    rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  return h;
+}
+
 /* Ekspor PENUH utk view berdaftar panjang: Unduh Excel/PDF memakai seluruh data (sesuai filter aktif),
    bukan tabel layar yang dipenggal 300 baris. Dipanggil _ambilTabelView. */
 const _EXPORT_FULL={
-  katjab:function(){const KJ=ABK&&ABK.katjab;if(!KJ)return null;
+  katjab:function(){const KJ=KATREF&&KATREF.katjab;if(!KJ)return null;
     const q=(state.kjQ||'').toLowerCase().trim();let rows=KJ.jabatan;
     if(state.kjUE1)rows=rows.filter(x=>x.uk===state.kjUE1);
     if(state.kjLvl)rows=rows.filter(x=>x.lvl===state.kjLvl);
@@ -4580,14 +4681,29 @@ const _EXPORT_FULL={
        rows:KJ.klusters.map(k=>[k.uk,k.ue1].concat(LV.map(l=>k[l]||0)).concat([k.total]))},
       {judul:'Daftar Jabatan',head:['Kode','Nama Jabatan','Jenjang','Unit Eselon I','Kemunculan','Sumber'],
        rows:rows.map(x=>[x.kode,x.nama,x.lvl,x.ue1,x.n,x.src])}];},
-  katpb:function(){const KP=ABK&&ABK.katpb;if(!KP)return null;
+  katnw:function(){if(!KATREF||!KATREF.katnw)return null;const r=_nwRows();
+    return [{judul:'Katalog Norma Waktu',head:['Kode','Nama Tahapan','Kluster','Norma Ideal (mnt)','Min','Max','Unit','UE1'],
+      rows:r.map(x=>[x.kode,x.nama,x.klus,x.ideal,x.min,x.max,x.n_unit,x.n_es1])}];},
+  katunit:function(){if(!KATREF||!KATREF.katunit)return null;const r=_kuRows();
+    return [{judul:'Katalog Unit & Kantor',head:['Kode','Nama Unit','Tipe Kantor','UE1','Kode ABK'],
+      rows:r.map(x=>[x.kode,x.nama,x.tipe,x.uk,x.kode_abk])}];},
+  katsvc:function(){if(!KATREF||!KATREF.katsvc)return null;const r=_ksRows();
+    return [{judul:'Katalog Layanan',head:['Kode','Nama Layanan','UE1','Sasaran','Digitalisasi','Unit Pelaksana','Probis'],
+      rows:r.map(x=>[x.kode,x.nama,x.ue1,x.sasaran,x.digital,x.pelaksana,x.pb])}];},
+  katapp:function(){if(!KATREF||!KATREF.katapp)return null;const r=_kaRows();
+    return [{judul:'Katalog Aplikasi',head:['Kode','Nama Aplikasi','UE1','Model','Interaksi','Probis','URL'],
+      rows:r.map(x=>[x.kode,x.nama,x.ue1,x.model,x.gto,x.pb,x.url])}];},
+  katwen:function(){if(!KATREF||!KATREF.katwen)return null;const r=_kwRows();
+    return [{judul:'Katalog Kewenangan',head:['Kode','Uraian','Jenis','Jabatan Penerima','Unit'],
+      rows:r.map(x=>[x.kode,x.uraian,x.jenis,x.jabatan,x.unit])}];},
+  katpb:function(){const KP=KATREF&&KATREF.katpb;if(!KP)return null;
     const rows=_kpbRows();
     return [
       {judul:'Domain Proses Bisnis',head:['Kode','Domain','Subdomain','Grup Proses','Unit Pengampu'],
        rows:KP.domains.map(dm=>[dm.kode,dm.nama,dm.l2,dm.l3,dm.n_unit])},
       {judul:'Katalog Proses Bisnis L1-L3',head:['Kode','Nama','Level','Induk','Jumlah Anak','Pemetaan Unit (UE1)'],
        rows:rows.map(x=>[x.kode,x.nama,'L'+x.lvl,x.parent||'-',x.n_anak,(x.units||[]).join(', ')])}];},
-  katakt:function(){const KT=ABK&&ABK.katalog;if(!KT)return null;
+  katakt:function(){const KT=KATREF&&KATREF.katalog;if(!KT)return null;
     const q=(state.kataktQ||'').toLowerCase().trim();let rows=KT.aktivitas;
     if(state.kataktKlus)rows=rows.filter(x=>x.klus===state.kataktKlus);
     if(q)rows=rows.filter(x=>x.nama.toLowerCase().indexOf(q)>=0||x.kode.toLowerCase().indexOf(q)>=0);
@@ -5877,7 +5993,7 @@ function renderCrumb(){
   const c=[];const v=state.view;
   const bk=_hist.length?`<a data-act="navback" title="Kembali ke menu sebelumnya" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;font-weight:700;color:var(--brand)">&lsaquo; Kembali</a> <span style="color:var(--line);margin:0 4px">|</span> `:'';
   if(v.indexOf('pb_')===0){var _mid=VIEW2MOD[v]||'probis';var _ml=(MODULES.find(function(m){return m.id===_mid;})||{}).lab||'Proses Bisnis';document.getElementById('crumb').innerHTML=bk+'<span>'+esc(_ml)+' &rsaquo; '+esc(PB_LBL[v.slice(3)]||'')+'</span>';return;}
-  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analytic',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',katdata:'List Dataset',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',katakt:'Katalog Produk ABK',katpeta:'Peta Aktivitas Kantor',katjab:'Katalog Jabatan',katpb:'Katalog Proses Bisnis',
+  const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analytic',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',katdata:'List Dataset',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',katakt:'Katalog Produk ABK',katpeta:'Peta Aktivitas Kantor',katjab:'Katalog Jabatan',katpb:'Katalog Proses Bisnis',katnw:'Katalog Norma Waktu',katunit:'Katalog Unit & Kantor',katsvc:'Katalog Layanan',katapp:'Katalog Aplikasi',katwen:'Katalog Kewenangan',
     beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi',jfmap:'Peta Unit Pengelola JF',jf:'Peta JF Keuangan Negara',jffungsi:'Fungsionalisasi (Delayering)',jabkomposisi:'Peta Jabatan',panduan:'Panduan Navigasi'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
@@ -6532,7 +6648,9 @@ function render(){
   if(_navBack){_navBack=false;}else if(_prev&&_prev!==state.view){_hist.push(_prev);if(_hist.length>60)_hist.shift();}
   if((state.view.indexOf('urjab')===0||state.view==='tema')&&!URJAB&&!state.urjabLoading)ensureUrjab();
   if(state.view==='katalog'&&!KATALOG&&!state.katLoading)ensureKatalog();
-  if((state.view.indexOf('abk')===0||state.view==='katakt'||state.view==='katpeta'||state.view==='katjab'||state.view==='katpb')&&!ABK&&!state.abkLoading)ensureAbk();
+  if(state.view.indexOf('abk')===0&&!ABK&&!state.abkLoading)ensureAbk();
+  if(/^kat(akt|peta|jab|pb|nw|unit|svc|app|wen)$/.test(state.view)&&!KATREF&&!state.katrefLoading)ensureKatref();
+  if(state.view==='katpeta'&&!ABK&&!state.abkLoading)ensureAbk();
   if(state.view==='jabkomposisi'&&!ABK&&!state.abkLoading)ensureAbk();
   renderNav();
   const isPb=state.view.indexOf('pb_')===0;
@@ -6551,7 +6669,7 @@ function render(){
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();if(!_sv)window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabkaitan:vUrjabKaitan,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,katakt:vKatAkt,katpeta:vKatPeta,katjab:vKatJab,katpb:vKatPb,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,katakt:vKatAkt,katpeta:vKatPeta,katjab:vKatJab,katpb:vKatPb,katnw:vKatNw,katunit:vKatUnit,katsvc:vKatSvc,katapp:vKatApp,katwen:vKatWen,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   viewEl.innerHTML=menuDescBar()+freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   remoteHost(state.view==='otkremote');
@@ -7315,6 +7433,10 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('kpbQ'))q('kpbQ').oninput=e=>{state.kpbQ=e.target.value;rerenderKeep(vKatPb,'kpbQ');};
   if(q('kpbDom'))q('kpbDom').onchange=e=>{state.kpbDom=e.target.value;render();};
   if(q('kpbLvl'))q('kpbLvl').onchange=e=>{state.kpbLvl=e.target.value;render();};
+  [['nwQ',()=>vKatNw],['kuQ',()=>vKatUnit],['ksQ',()=>vKatSvc],['kaQ',()=>vKatApp],['kwQ',()=>vKatWen]].forEach(([id,fn])=>{
+    if(q(id))q(id).oninput=e=>{state[id]=e.target.value;rerenderKeep(fn(),id);};});
+  ['nwKlus','kuUE1','kuTipe','ksUE1','ksDig','kaUE1','kwUnit','kwJenis'].forEach(id=>{
+    if(q(id))q(id).onchange=e=>{state[id]=e.target.value;render();};});
   if(q('paretoUE1'))q('paretoUE1').onchange=e=>{state.paretoUE1=e.target.value;render();};
   if(q('kalProdUE1'))q('kalProdUE1').onchange=e=>{state.kalProdUE1=e.target.value;state.kalProdU=null;render();};
   if(q('simUE1'))q('simUE1').onchange=e=>{state.simUE1=e.target.value;state.simUnit='';render();};
@@ -7462,6 +7584,7 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='kataktklus'){const _y=window.scrollY;state.kataktKlus=(state.kataktKlus===el.dataset.k?'':el.dataset.k);render();window.scrollTo({top:_y});}
   else if(a==='kjue1'){const _y=window.scrollY;state.kjUE1=(state.kjUE1===el.dataset.k?'':el.dataset.k);render();window.scrollTo({top:_y});}
   else if(a==='kpbdom'){const _y=window.scrollY;state.kpbDom=(state.kpbDom===el.dataset.k?'':el.dataset.k);render();window.scrollTo({top:_y});}
+  else if(a==='kutipe'){const _y=window.scrollY;state.kuTipe=(state.kuTipe===el.dataset.k?'':el.dataset.k);render();window.scrollTo({top:_y});}
   else if(a==='paretof'){state.paretoF=el.dataset.f||'';render();}
   else if(a==='paretosort'){const k=el.dataset.k;state.paretoSort=state.paretoSort.k===k?{k,d:-state.paretoSort.d}:{k,d:-1};render();}
   else if(a==='otkvexp'){const k=+el.dataset.id;state.otkExpV[k]=!state.otkExpV[k];render();}
