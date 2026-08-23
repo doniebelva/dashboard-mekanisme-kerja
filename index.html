@@ -951,8 +951,17 @@ function ensureAbk(){if(ABK||state.abkLoading)return;state.abkLoading=true;state
   loadAbk().then(()=>{state.abkLoading=false;progDone();render();}).catch(()=>{state.abkLoading=false;progDone();state.abkErr=true;render();});}
 /* Katalog Referensi (8 katalog ber-kode): dipisah dari abk.json -> katref.json (13 Ago 2026) */
 let KATREF=null;const KATREF_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?katref=1';
+/* Sebagian nama pada data katalog terlanjur menyimpan entitas HTML ("Pusdiklat&amp;KM"),
+   sehingga saat di-escape ulang untuk keamanan, yang tampil justru kodenya. Data dibersihkan
+   sekali di sini supaya seluruh view katalog ikut benar tanpa menunggu berkas di Drive diperbarui.
+   Perbaikan jangka panjang: bereskan di pipeline pembuat katref.json. */
+function _bersihEntitas(o){
+  if(typeof o==='string')return (o.indexOf('&')<0)?o:o.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g,' ');
+  if(Array.isArray(o)){for(var i=0;i<o.length;i++)o[i]=_bersihEntitas(o[i]);return o;}
+  if(o&&typeof o==='object'){for(var k in o)o[k]=_bersihEntitas(o[k]);return o;}
+  return o;}
 async function loadKatref(){if(KATREF)return KATREF;let d=null;if(REMOTE){d=await api('katref',{});}else if(KATREF_URL){const r=await fetch(KATREF_URL);d=await r.json();}else{return KATREF;}
-  if(!d||!d.katalog)throw new Error('katref-unavailable');KATREF=d;return KATREF;}
+  if(!d||!d.katalog)throw new Error('katref-unavailable');KATREF=_bersihEntitas(d);return KATREF;}
 function ensureKatref(){if(KATREF||state.katrefLoading)return;state.katrefLoading=true;state.katrefErr=false;progStart();
   loadKatref().then(()=>{state.katrefLoading=false;progDone();render();}).catch(()=>{state.katrefLoading=false;progDone();state.katrefErr=true;render();});}
 /* Modul Cuti (domain SDM): agregat cuti pegawai - sensitif, lazy-load via gerbang spt ABK */
@@ -3017,7 +3026,7 @@ function vUrjabAnalisis(){
   h+=`<div class="grid2">
     <div class="card"><h2 class="sec" style="margin-top:0">Rentang Kendali Terlebar</h2><div class="tblw"><table><thead><tr><th>Unit</th><th class="num-c">Unit langsung</th></tr></thead><tbody>${widest.length?widest.map(x=>`<tr><td class="mini">${esc(x.nm)}</td><td class="num-c">${x.n}</td></tr>`).join(''):'<tr><td class="mini">-</td><td class="num-c">-</td></tr>'}</tbody></table></div></div>
     <div class="card"><h2 class="sec" style="margin-top:0">Membaca Jumlah Butir Tugas</h2><div class="mini" style="line-height:1.65">Banyaknya butir uraian tugas <b>tidak mencerminkan tingginya beban kerja</b>. Jumlah butir dipengaruhi oleh <b>seberapa rinci</b> penyusun ANJAB memecah tugas dan oleh <b>luas cakupan</b> tanggung jawab jabatan, bukan oleh volume pekerjaan. Beban kerja yang sesungguhnya dihitung dari <b>volume kegiatan &times; norma waktu</b> pada modul Analisis Beban Kerja (ABK), sesuai PMK 175/238.</div>${canAbk?`<div style="margin-top:10px"><span class="tag link" style="background:var(--brand-l);color:var(--brand-d);font-weight:700;cursor:pointer" data-act="nav" data-view="abk">Buka modul Analisis Beban Kerja &rsaquo;</span></div>`:'<div class="mini" style="margin-top:10px;color:var(--muted)">Modul Analisis Beban Kerja menyajikan beban kerja aktual per unit.</div>'}</div></div>`;
-  if(topcl.length)h+=`<div class="card"><h2 class="sec" style="margin-top:0">Taksonomi Fungsi (Cluster Tusi Terbanyak)</h2><div style="display:flex;flex-wrap:wrap;gap:7px">${topcl.map(c=>`<span class="tag" title="${esc(c[0])}">${esc(c[0].length>54?c[0].slice(0,54)+'&hellip;':c[0])} <b>${c[1]}</b></span>`).join('')}</div><div class="mini" style="margin-top:6px">Entri generik "Penugasan lainnya" dikecualikan.</div></div>`;
+  if(topcl.length)h+=`<div class="card"><h2 class="sec" style="margin-top:0">Taksonomi Fungsi (Cluster Tusi Terbanyak)</h2><div style="display:flex;flex-wrap:wrap;gap:7px">${topcl.map(c=>`<span class="tag" title="${esc(c[0])}">${c[0].length>54?(esc(c[0].slice(0,54))+'&hellip;'):esc(c[0])} <b>${c[1]}</b></span>`).join('')}</div><div class="mini" style="margin-top:6px">Entri generik "Penugasan lainnya" dikecualikan.</div></div>`;
   return h;
 }
 
@@ -6918,9 +6927,12 @@ function cutiLine(labels,series,opt){
     body+='<polyline points="'+pts.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+'" fill="none" stroke="'+s.c+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
     body+=pts.map(function(q){return '<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="2.6" fill="var(--surface)" stroke="'+s.c+'" stroke-width="1.6"><title>'+esc(s.n)+' '+esc(String(labels[q[2]]))+': '+(opt.pct?(s.v[q[2]]+'%'):fmt(s.v[q[2]]))+'</title></circle>';}).join('');
     var la=pts[pts.length-1];
-    akhir+='<text x="'+(la[0]+8).toFixed(1)+'" y="'+(la[1]+3.5).toFixed(1)+'" font-size="10.5" font-weight="700" fill="'+s.c+'">'+
-      esc(opt.pct?(s.v[la[2]]+'%'):fmt(s.v[la[2]]))+'</text>'+
-      (series.length>1?('<text x="'+(la[0]+8).toFixed(1)+'" y="'+(la[1]+14).toFixed(1)+'" font-size="9.5" fill="var(--muted)">'+esc(s.n.replace('Cuti ',''))+'</text>'):'');
+    /* nilai dan nama seri dirangkai dalam satu <text> dua baris: jarak baris memakai dy,
+       bukan koordinat y yang dihitung sendiri, supaya keduanya tidak pernah saling menimpa. */
+    akhir+='<text x="'+(la[0]+8).toFixed(1)+'" y="'+(la[1]+3.5).toFixed(1)+'">'+
+      '<tspan font-size="10.5" font-weight="700" fill="'+s.c+'">'+esc(opt.pct?(s.v[la[2]]+'%'):fmt(s.v[la[2]]))+'</tspan>'+
+      (series.length>1?('<tspan x="'+(la[0]+8).toFixed(1)+'" dy="13" font-size="9.5" fill="var(--muted)">'+esc(s.n.replace('Cuti ',''))+'</tspan>'):'')+
+      '</text>';
   });
   var xl=labels.map(function(l,i){return '<text x="'+X(i).toFixed(1)+'" y="'+(H-8)+'" font-size="10.5" fill="var(--muted)" text-anchor="middle">'+esc(String(l))+'</text>';}).join('');
   return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" style="max-width:100%">'+g+yl+body+akhir+xl+'</svg>';}
@@ -6936,9 +6948,12 @@ function cutiGauge(pct,besar,kecil,catatan){
   var tik='';
   [25,50,75].forEach(function(q){var x=pL+w*q/100;
     tik+='<line x1="'+x.toFixed(1)+'" y1="'+(y-2)+'" x2="'+x.toFixed(1)+'" y2="'+(y+tb+2)+'" stroke="var(--surface)" stroke-width="1.5"/>';});
+  /* Angka besar dan keterangannya dirangkai dalam SATU <text> memakai <tspan>, sehingga
+     browser yang menempatkan posisinya. Versi lama menebak lebar teks (jumlah huruf x 20)
+     dan membuat keterangan tertimpa angka. JANGAN menghitung lebar teks secara manual. */
   return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" style="max-width:100%;display:block">'+
-    '<text x="'+pL+'" y="30" font-size="34" font-weight="800" fill="var(--brand-d)">'+esc(besar)+'</text>'+
-    '<text x="'+(pL+(String(besar).length*20))+'" y="30" font-size="11.5" fill="var(--muted)">'+esc(kecil)+'</text>'+
+    '<text x="'+pL+'" y="30" fill="var(--brand-d)"><tspan font-size="34" font-weight="800">'+esc(besar)+'</tspan>'+
+    '<tspan font-size="11.5" fill="var(--muted)" dx="8">'+esc(kecil)+'</tspan></text>'+
     '<rect x="'+pL+'" y="'+y+'" width="'+w+'" height="'+tb+'" rx="4" fill="var(--track)"/>'+
     '<rect x="'+pL+'" y="'+y+'" width="'+isi.toFixed(1)+'" height="'+tb+'" rx="4" fill="var(--brand)"/>'+tik+
     '<text x="'+pL+'" y="'+(y+tb+16)+'" font-size="10.5" fill="var(--muted)">0</text>'+
@@ -6981,12 +6996,21 @@ function cutiPeta(rows,opt){
     var p=_cutiXY(k[0],k[1],W,H);
     return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+rad(r).toFixed(1)+'" fill="'+warna(r)+
       '" fill-opacity="0.82" stroke="var(--surface)" stroke-width="1.2"><title>'+esc(r.kota)+': '+esc(r.tip)+'</title></circle>';}).join('');
-  var label=urut.slice(0,6).map(function(r){
-    var k=CUTI_KOTA[r.kota];if(!k)return '';
+  /* Label hanya untuk titik terbesar, dan dilewati bila berhimpit dengan label yang sudah
+     digambar (kota Jakarta dan sekitarnya berdekatan sekali). Penghindaran sederhana ini
+     mencegah nama kota saling menimpa. */
+  var dipakai=[],label='';
+  urut.slice(0,10).forEach(function(r){
+    var k=CUTI_KOTA[r.kota];if(!k)return;
     var p=_cutiXY(k[0],k[1],W,H),y=p[1]-rad(r)-5;
     var nm=r.kota.replace('Kota Administrasi ','').replace('Kota ','');
-    return '<text x="'+p[0].toFixed(1)+'" y="'+y.toFixed(1)+'" font-size="11.5" text-anchor="middle" fill="var(--ink)" font-weight="600"'+
-      ' paint-order="stroke" stroke="var(--surface)" stroke-width="3" stroke-linejoin="round">'+esc(nm)+'</text>';}).join('');
+    var lebar=nm.length*6.2, kotak={x1:p[0]-lebar/2,x2:p[0]+lebar/2,y1:y-11,y2:y+3};
+    var bentrok=dipakai.some(function(q){
+      return !(kotak.x2<q.x1-4||kotak.x1>q.x2+4||kotak.y2<q.y1-2||kotak.y1>q.y2+2);});
+    if(bentrok||dipakai.length>=6)return;
+    dipakai.push(kotak);
+    label+='<text x="'+p[0].toFixed(1)+'" y="'+y.toFixed(1)+'" font-size="11.5" text-anchor="middle" fill="var(--ink)" font-weight="600"'+
+      ' paint-order="stroke" stroke="var(--surface)" stroke-width="3" stroke-linejoin="round">'+esc(nm)+'</text>';});
   /* legenda ukuran + warna, menyatu di dalam bidang peta (pola Tableau) */
   var lg='',lx=18,ly=H-14;
   [1,0.45,0.12].forEach(function(f,i){
