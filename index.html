@@ -457,8 +457,10 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 .lanjut-i{border:1px solid var(--line);border-radius:var(--rad-sm);padding:var(--sp-5) var(--sp-6);cursor:pointer;
   background:var(--surface);transition:border-color var(--t-fast) ease,box-shadow var(--t-fast) ease,transform var(--t-fast) ease}
 .lanjut-i:hover{border-color:var(--brand);box-shadow:var(--sh-sm);transform:translateY(-1px)}
+/* Tanda panah ditulis sebagai entitas di HTML (&rsaquo;), BUKAN escape CSS pada ::after.
+   Escape CSS sempat lolos dan tampil apa adanya di layar karena backslash-nya terganda
+   saat melewati string Python. Pola entitas ini sama dengan komponen tautan lain. */
 .lanjut-t{font-weight:700;font-size:var(--fs-md);color:var(--brand);margin-bottom:2px}
-.lanjut-t::after{content:' \\203A'}
 .hm .rh{font-weight:600;font-size:var(--fs-sm);padding-right:var(--sp-5);white-space:nowrap;cursor:pointer;max-width:230px;overflow:hidden;text-overflow:ellipsis;transition:all var(--t-fast) ease}
 .hm .rh:hover{color:var(--brand)}
 .hm .ch{font-size:var(--fs-mini);color:var(--muted);text-transform:uppercase;letter-spacing:.3px;text-align:center;padding-bottom:var(--sp-3)}
@@ -1787,7 +1789,7 @@ const MODULES=[
    {grp:'',items:[{v:'cuti',lab:'Ringkasan'}]},
    {grp:'Analisis',items:[{v:'cutitren',lab:'Tren & Musiman'},{v:'cutiunit',lab:'Profil Unit'},{v:'cutiwilayah',lab:'Sebaran Wilayah'},{v:'cutidemografi',lab:'Demografi & Gender'},{v:'cutipola',lab:'Pola Hari & Kalender'},{v:'cutisakit',lab:'Kategori Cuti Sakit'}]},
    {grp:'Hak & Kepatuhan',items:[{v:'cutiutilisasi',lab:'Utilisasi Hak Cuti'},{v:'cutikualitas',lab:'Kepatuhan & Mutu Data'}]},
-   {grp:'Prediktif & Preskriptif',items:[{v:'cutiprediksi',lab:'Proyeksi Beban Cuti'},{v:'cutisimulasi',lab:'Simulasi PMK 221'}]},
+   {grp:'Perkiraan & Simulasi',items:[{v:'cutiprediksi',lab:'Proyeksi Beban Cuti'},{v:'cutisimulasi',lab:'Simulasi PMK 221'}]},
    {grp:'Data',items:[{v:'cutitentang',lab:'Tentang Data'}]},
  ]},
  {id:'takelola',icn:'govern',lab:'Tata Kelola',groups:[
@@ -2160,7 +2162,7 @@ function cutiLanjut(items){
   if(!t.length)return '';
   return '<div class="card"><h2 class="sec" style="margin-top:0">Langkah Selanjutnya</h2>'+
     '<div class="lanjut">'+t.map(function(x){
-      return '<div class="lanjut-i" data-act="nav" data-view="'+esc(x.v)+'"><div class="lanjut-t">'+esc(x.t)+'</div>'+
+      return '<div class="lanjut-i" data-act="nav" data-view="'+esc(x.v)+'"><div class="lanjut-t">'+esc(x.t)+' &rsaquo;</div>'+
         (x.d?('<div class="mini">'+esc(x.d)+'</div>'):'')+'</div>';}).join('')+'</div></div>';}
 function sorotanCard(judul,isi,tombol){
   var t=(tombol||[]).filter(function(x){return x&&x.v&&((typeof canView!=='function')||canView(x.v));})
@@ -7344,7 +7346,7 @@ function vCutiPola(){
   const lvl=v=>v>=1.15?['Padat','var(--seq-6)','var(--seq-ink-hi)']:v>=1.02?['Di atas rata-rata','var(--seq-4)','var(--seq-ink-hi)']:v>=0.9?['Normal','var(--seq-2)','var(--seq-ink-lo)']:['Longgar','var(--seq-1)','var(--seq-ink-lo)'];
   let kal=CUTI_BLNF.map((b,i)=>{const L=lvl(mus[i]||0);
     return '<td class="cell" style="background:'+L[1]+';color:'+L[2]+'" title="'+b+': indeks '+String(mus[i]).replace('.',',')+' ('+L[0]+')">'+b+'<br><b>'+String((mus[i]||0).toFixed(2)).replace('.',',')+'</b></td>';}).join('');
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kalender Kapasitas Kehadiran (Preskriptif, Indikatif)</h2>'+
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kalender Kapasitas Kehadiran (Perkiraan untuk Perencanaan)</h2>'+
     '<div class="mini" style="margin-bottom:6px">Angka pada tiap bulan menunjukkan indeks keramaian cuti; makin gelap berarti makin banyak pegawai mengambil cuti.</div>'+
     '<div class="tblw"><table class="hm hm-fit"><tbody><tr>'+kal+'</tr></tbody></table></div>'+
     '<p style="margin:10px 0 0">Cara membaca angkanya: 1,00 berarti bulan biasa; 1,20 berarti sekitar 20% lebih ramai cuti daripada bulan biasa; di bawah 1,00 berarti lebih sepi (dihitung dari kebiasaan 2022-2025). Pada bulan yang ramai cuti, sebaiknya hindari menjadwalkan kegiatan besar dan siapkan petugas cadangan untuk layanan. Hari paling rawan kosong: Jumat dan Senin di sekitar libur nasional.</p></div>';
@@ -7417,7 +7419,7 @@ function vCutiPrediksi(){
     const p=P[x]||{}, r25=CUTI.tahunan.find(y=>y.jenis===x&&y.tahun===2025);
     const d=(p.estimasiSetahun&&r25)?Math.round(1000*(p.estimasiSetahun-r25.rekaman)/r25.rekaman)/10:null;
     return '<tr'+(x===j?' style="background:var(--brand-l)"':'')+'><td><b>'+x+'</b></td><td class="num-c">'+fmt(p.realisasiH1||0)+'</td><td class="num-c">'+cutiPct(p.pangsaH1*1000,1000)+'%</td><td class="num-c"><b>'+(p.estimasiSetahun?fmt(p.estimasiSetahun):'-')+'</b></td><td class="num-c">'+(r25?fmt(r25.rekaman):'-')+'</td><td class="num-c">'+(d==null?'-':((d>=0?'+':'')+String(d).replace('.',',')+'%'))+'</td></tr>';}).join('');
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Proyeksi Pengajuan Cuti 2026</h2><div class="tblw"><table><thead><tr><th>Jenis</th><th class="num-c">Realisasi s.d. Juni</th><th class="num-c">Pangsa Historis Sem. I</th><th class="num-c">Estimasi Setahun</th><th class="num-c">Realisasi 2025</th><th class="num-c">Perubahan</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Proyeksi Pengajuan Cuti 2026</h2><div class="tblw"><table><thead><tr><th>Jenis</th><th class="num-c">Realisasi s.d. Juni</th><th class="num-c">Porsi Semester I (Kebiasaan)</th><th class="num-c">Estimasi Setahun</th><th class="num-c">Realisasi 2025</th><th class="num-c">Perubahan</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   /* peringatan dini musiman cuti sakit */
   const ms=CUTI.musiman['Cuti Sakit']||[];
   const tinggi=CUTI_BLNF.filter((b,i)=>(ms[i]||0)>=1.05);
@@ -7463,7 +7465,7 @@ function vCutiTentang(){
     '<tr><td><b>Pengajuan dipakai</b></td><td class="num-c"><b>'+fmt(k.pengajuan_dipakai||0)+'</b></td></tr>'+
     '</tbody></table></div><div class="mini" style="margin-top:6px">Rincian dan sebabnya dijelaskan pada menu Kepatuhan &amp; Mutu Data.</div></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Cakupan &amp; Batasan Analisis</h2>'+
-    '<p style="margin:0 0 6px"><b>Yang sudah bisa dianalisis:</b> pemakaian hak cuti tahunan per pegawai (secara agregat), penelusuran unit sampai <b>Eselon II</b> dengan nama mengikuti Struktur Organisasi (OTK), sebaran menurut kota kantor, serta pola cuti sakit. Lama cuti dihitung dalam <b>hari kerja</b> sesuai dasar penghitungan hak cuti.</p>'+
+    '<p style="margin:0 0 6px"><b>Yang sudah bisa dianalisis:</b> pemakaian hak cuti tahunan per pegawai (disajikan sebagai angka gabungan, bukan per orang), penelusuran unit sampai <b>Eselon II</b> dengan nama mengikuti Struktur Organisasi (OTK), sebaran menurut kota kantor, serta pola cuti sakit. Lama cuti dihitung dalam <b>hari kerja</b> sesuai dasar penghitungan hak cuti.</p>'+
     '<p style="margin:0 0 6px"><b>Yang belum bisa:</b> analisis menurut jabatan (kolomnya tidak tersedia), pemantauan status pengajuan secara langsung (data ini berupa salinan berkala, bukan sambungan ke sistem), serta empat jenis cuti lain di luar tiga jenis yang tersedia. Status homebase belum dapat dipakai karena penulisan alamatnya belum seragam.</p>'+
     '<p style="margin:0 0 6px"><b>Perlindungan data:</b> identitas pegawai dipakai hanya pada tahap pengolahan untuk menghitung angka gabungan, lalu tidak disimpan. Alamat tempat tinggal tidak pernah masuk ke berkas yang disajikan, dan kelompok berjumlah sangat kecil disembunyikan.</p>'+
     '<p style="margin:0">'+esc(m.catatan)+'</p></div>';
