@@ -336,6 +336,10 @@ h2.sec{font-family:var(--font-display);font-size:var(--fs-md);margin:26px 0 13px
 h2.sec::before{content:"";width:4px;height:15px;border-radius:var(--rad-xs);background:linear-gradient(var(--gold2),var(--gold));display:inline-block}
 
 .grid2{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;align-items:stretch}
+/* Item grid WAJIB boleh menyusut: tanpa min-width:0, isi ber-nowrap memaksa kolom
+   membengkak melewati layar (bug timanalitik +757px; fix 3 Agu 2026 yang sempat
+   tersapu rebuild karena dulu ditulis langsung di index.html, kini diserap ke build). */
+.grid2>*,.grid3>*{min-width:0}
 .grid2.eq{grid-template-columns:1fr 1fr}
 .grid2>.card{height:100%}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
@@ -432,8 +436,16 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
    Lebar kolom label diset inline per tabel (bulan pendek, nama unit panjang). */
 .hm-fit{width:100%;table-layout:fixed}
 .hm-fit .cell{width:auto;min-width:56px}
-.hm-fit thead th{height:34px;vertical-align:middle}
+/* selektor sengaja TANPA thead: sebagian heatmap (Adopsi MK, MOFIN) menulis <tr><th> langsung
+   di <table> tanpa thead, jadi aturan ber-thead tidak akan pernah kena. */
+.hm-fit th{height:34px;vertical-align:middle}
 .hm-fit td:first-child{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:var(--sp-4)}
+/* lebar kolom label ditentukan th pertama (table-layout:fixed), jadi batas lama dilepas */
+.hm-fit .rh{max-width:none}
+.hm-fit .ch{white-space:normal;line-height:1.25}
+
+/* -- kartu Sorotan (pembuka modul): aksen kiri brand, semua token supaya ikut mode gelap -- */
+.sorotan{border-left:4px solid var(--brand)}
 .hm .rh{font-weight:600;font-size:var(--fs-sm);padding-right:var(--sp-5);white-space:nowrap;cursor:pointer;max-width:230px;overflow:hidden;text-overflow:ellipsis;transition:all var(--t-fast) ease}
 .hm .rh:hover{color:var(--brand)}
 .hm .ch{font-size:var(--fs-mini);color:var(--muted);text-transform:uppercase;letter-spacing:.3px;text-align:center;padding-bottom:var(--sp-3)}
@@ -546,6 +558,11 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 @media(max-width:900px){.grid2,.grid2.eq{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
 @media(max-width:820px){.bento{grid-template-columns:repeat(2,1fr)}.bento>*{grid-column:span 2!important}}
 @media(max-width:640px){.gt-row{grid-template-columns:120px 1fr}.appfoot .r{display:none}}
+/* Jaring pengaman lebar tablet (zona 761-1000px: sidebar 248px masih tampil sehingga ruang
+   isi menyempit). Tabel yang TIDAK dibungkus .tblw ikut meluap karena .card overflow visible.
+   HARUS sebelum blok 560px supaya aturan yang lebih sempit tetap menang. Diserap dari fix
+   3 Agu 2026 yang sempat hilang saat rebuild. */
+@media(max-width:1000px){.card{overflow-x:auto}.bar-row{grid-template-columns:minmax(90px,150px) 1fr 60px}}
 @media(max-width:560px){.bar-row{grid-template-columns:120px 1fr 72px}
   /* subtitle instansi baru disembunyikan di layar SANGAT sempit (ponsel), bukan di 760px lagi -
    supaya tetap tampil di tablet & desktop yang di-zoom. */
@@ -2117,6 +2134,17 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   cuti:'Ringkasan Cuti Pegawai',cutitren:'Tren & Musiman Cuti',cutiunit:'Cuti per Unit Eselon I',cutidemografi:'Demografi & Gender Cuti',cutipola:'Pola Hari & Kalender Kapasitas',cutisakit:'Kategori Cuti Sakit',cutiprediksi:'Proyeksi Beban Cuti',cutisimulasi:'Simulasi Kebijakan PMK 221',cutitentang:'Tentang Data Cuti',
   mofin:'Skor Kapabilitas',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Ikhtisar Pelimpahan',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
 
+/* ===== Kartu SOROTAN (dipakai lintas modul) =====
+   Pola "jadi apa": halaman pembuka modul dibuka SATU alinea kesimpulan berbasis angka hidup,
+   lalu pintu masuk ke analisis yang relevan. Bukan pengganti isi lama, melainkan lapis di atasnya.
+   Tombol dijaga canView() supaya tidak menawarkan menu yang tak boleh diakses pengguna.
+   ATURAN: kalimatnya merangkai angka yang MEMANG ADA, jangan memberi vonis tanpa dasar resmi. */
+function sorotanCard(judul,isi,tombol){
+  var t=(tombol||[]).filter(function(x){return x&&x.v&&((typeof canView!=='function')||canView(x.v));})
+    .map(function(x){return '<span class="tag link" data-act="nav" data-view="'+esc(x.v)+'">'+esc(x.t)+' &rsaquo;</span>';}).join(' ');
+  return '<div class="card sorotan"><h2 class="sec" style="margin-top:0">'+esc(judul||'Sorotan')+'</h2>'+
+    '<p style="margin:0'+(t?' 0 10px':'')+'">'+isi+'</p>'+(t?'<div>'+t+'</div>':'')+'</div>';
+}
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
   const a=act?`data-act="${act.a}" ${act.d||''}`:'';
   return `<div class="bar-row"><div class="name ${act?'clk':''}" ${a} title="${esc(name)}">${esc(name)}</div><div class="track"><div class="fill ${cls||''}" style="width:${w}%"></div></div><div class="num">${num}</div></div>`;}
@@ -2286,7 +2314,7 @@ function vHeatmap(){
     if(c.dir===-1)return `rgb(${Math.round(224+24*t)},${Math.round(232-150*t)},${Math.round(222-150*t)})`;
     return `rgb(${Math.round(228-120*t)},${Math.round(238-90*t)},${Math.round(250-12*t)})`;}
   let h=`<div class="cap" style="margin-bottom:12px">Matriks UE1 (baris) &times; metrik (kolom). Hijau makin tinggi = adopsi baik; merah makin tinggi = keterlambatan/overdue tinggi; biru = volume. <b>Klik baris atau angka mana pun</b> untuk membuka detail unit.</div>
-  <div class="card tblw"><table class="hm"><tr><th class="ch" style="text-align:left">Unit Eselon I</th>`;
+  <div class="card tblw"><table class="hm hm-fit"><tr><th class="ch" style="text-align:left;width:250px">Unit Eselon I</th>`;
   cols.forEach(c=>h+=`<th class="ch">${c.lab}</th>`);h+=`</tr>`;
   ue1.forEach(u=>{h+=`<tr><td class="rh" data-act="ue1" data-ue1="${esc(u.k)}" title="Buka detail ${esc(u.k)}">${esc(u.k)}</td>`;
     cols.forEach(c=>{const v=u[c.k];h+=`<td class="cell" data-act="ue1" data-ue1="${esc(u.k)}" title="${esc(u.k)} &middot; ${c.lab}" style="cursor:pointer;background:${cc(c,v)}">${v==null?'-':(c.k.endsWith('pct')?v+'%':fmt(v))}</td>`;});h+=`</tr>`;});
@@ -2678,14 +2706,23 @@ function vUrjabKaitan(){
   const ue1s=[...new Set(cand.map(n=>(es1Of(n)||{}).nama).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
   const canAbk=(typeof canMod!=='function')||canMod('abk');
   const abkOn=canAbk&&(typeof ABK!=='undefined')&&!!ABK;   // kolom beban kerja aktif bila ABK sudah dimuat
-  let rows=[];
-  cand.forEach(n=>{const e1=(es1Of(n)||{}).nama||'';if(u1&&e1!==u1)return;
-    const jabs=uidx[_nzName(n.nama)]||[];const tugas=[];jabs.forEach(j=>(j.uraian_tugas||[]).forEach(t=>{if(String(t).trim())tugas.push(t);}));
-    if(!tugas.length)return;
-    const pair=pairTugasFungsi(n.fungsi,tugas);const covered=pair.perF.filter(x=>x.tasks.length).length;
-    const row={id:n.id,nama:n.nama,e1:e1,nF:n.fungsi.length,cov:covered,orph:pair.orphans.length,nJab:jabs.length,pct:covered/n.fungsi.length,beban:null,sel:null,eu1:null};
-    if(abkOn){const fa=abkFind(n.nama);if(fa){row.beban=fa.u.beban;row.sel=fa.u.selisih;row.eu1=fa.u.eu1;}}
-    rows.push(row);});
+  /* Memo hasil pemasangan tugas x fungsi (pola _kokpitPrioritas._c): pairTugasFungsi berjalan
+     untuk SETIAP unit, terukur ~460-660 ms tiap render sebelum di-cache. Kunci cache = referensi
+     dataset (URJAB/OTK/ABK) + filter Eselon I, jadi otomatis batal saat data atau filter berubah. */
+  let rows;
+  const _kc=vUrjabKaitan._c;
+  if(_kc&&_kc.u===URJAB&&_kc.o===OTK&&_kc.a===(abkOn?ABK:null)&&_kc.f===u1)rows=_kc.rows;
+  else{
+    rows=[];
+    cand.forEach(n=>{const e1=(es1Of(n)||{}).nama||'';if(u1&&e1!==u1)return;
+      const jabs=uidx[_nzName(n.nama)]||[];const tugas=[];jabs.forEach(j=>(j.uraian_tugas||[]).forEach(t=>{if(String(t).trim())tugas.push(t);}));
+      if(!tugas.length)return;
+      const pair=pairTugasFungsi(n.fungsi,tugas);const covered=pair.perF.filter(x=>x.tasks.length).length;
+      const row={id:n.id,nama:n.nama,e1:e1,nF:n.fungsi.length,cov:covered,orph:pair.orphans.length,nJab:jabs.length,pct:covered/n.fungsi.length,beban:null,sel:null,eu1:null};
+      if(abkOn){const fa=abkFind(n.nama);if(fa){row.beban=fa.u.beban;row.sel=fa.u.selisih;row.eu1=fa.u.eu1;}}
+      rows.push(row);});
+    vUrjabKaitan._c={u:URJAB,o:OTK,a:(abkOn?ABK:null),f:u1,rows:rows};
+  }
   const totF=rows.reduce((s,r)=>s+r.nF,0),totCov=rows.reduce((s,r)=>s+r.cov,0),totOrph=rows.reduce((s,r)=>s+r.orph,0);
   const gapUnits=rows.filter(r=>r.cov<r.nF).length;
   const abkMatched=rows.filter(r=>r.eu1!=null).length;
@@ -3447,8 +3484,21 @@ function vOtkAnalisis(){
   const es1names=otkKids(0).map(n=>n.nama);
   let h=`<div class="toolbar">`;
   if(SCOPE.type==='all')h+=`<select class="flt" id="otkAnUE1"><option value="">Semua Eselon I</option>${es1names.map(x=>`<option value="${esc(x)}" ${state.otkAnUE1===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
-  h+=`<span class="mini">${fmt(tot)} unit</span></div>
-  <div class="kpis">
+  h+=`<span class="mini">${fmt(tot)} unit</span></div>`;
+  /* Sorotan: merangkai angka yang sudah dihitung di atas (ikut filter Eselon I yang aktif) */
+  h+=(function(){
+    var lingkup=state.otkAnUE1?('Pada '+state.otkAnUE1+', struktur'):'Struktur organisasi';
+    var rata=span2.length?uAvg(span2).toFixed(1).replace('.',','):null;
+    var lebar=widest.length?widest[0]:null;
+    var s=lingkup+' mencakup <b>'+fmt(tot)+' unit</b> dengan kedalaman <b>'+maxd+' tingkat</b>. ';
+    if(rata)s+='Satu unit Eselon II rata-rata membawahi <b>'+rata+'</b> unit';
+    if(lebar)s+=', dan yang terlebar adalah <b>'+esc(lebar.n.nama)+'</b> dengan '+lebar.k+' unit langsung';
+    s+='. ';
+    s+=noF?('Masih ada <b>'+noF+'</b> unit Eselon I dan II yang belum memiliki rumusan fungsi di PMK OTK, sehingga tugasnya belum dapat ditelusuri lewat data.'):
+           'Seluruh unit Eselon I dan II sudah memiliki rumusan fungsi di PMK OTK.';
+    return sorotanCard('Sorotan',s,[{v:'otkhealth',t:'Kesehatan Struktur'},{v:'otkindeks',t:'Usulan Penataan'}]);
+  })();
+  h+=`<div class="kpis">
     <div class="kpi"><div class="lab">Total Unit</div><div class="val">${fmt(tot)}</div></div>
     <div class="kpi"><div class="lab">Kedalaman</div><div class="val">${maxd} tingkat</div></div>
     <div class="kpi gold"><div class="lab">Rata-rata Span ES2</div><div class="val">${span2.length?uAvg(span2).toFixed(1):'-'}</div><div class="note">anak per Eselon II</div></div>
@@ -3783,18 +3833,18 @@ function vJfFungsi(){
   let vis=rows.slice();
   if(state.jfFungF==='noteam')vis=vis.filter(r=>r.covered&&r.tim===0);
   vis.sort((a,b)=>{const ar=(a.covered&&a.tim===0)?0:1,br=(b.covered&&b.tim===0)?0:1;return ar-br||a.es1.localeCompare(b.es1,'id')||a.n.nama.localeCompare(b.n.nama,'id');});
-  let h=`<div class="note-box">Delayering memangkas lapisan struktural (Eselon III) dan mengalihkan fungsinya ke <b>jabatan fungsional</b>. Halaman ini menautkan tiap unit Eselon II yang sudah delayering ke <b>rumpun JF Keuangan Negara</b> yang menjadi muara pengalihan (diturunkan dari JF pengguna pada Eselon I unit tersebut), sekaligus status <b>tim kerja (Mekanisme Kerja)</b>-nya. Pemetaan unit ke JF bersifat indikatif pada tingkat Eselon I; pendalaman per jabatan menyusul saat data pemangku JF internal tersedia. Kolom <b>Fungsional (ABK)</b> = porsi pegawai berjabatan fungsional dari bezetting ABK 2024 (nomenklatur pra-konsolidasi), dicocokkan lewat nama unit; tanda "&mdash;" berarti unit tidak terdata/tercocokkan, bukan nol.</div>`;
+  let h=`<div class="note-box">Delayering memangkas lapisan struktural (Eselon III) dan mengalihkan fungsinya ke <b>jabatan fungsional</b>. Halaman ini menautkan tiap unit Eselon II yang sudah delayering ke <b>rumpun JF Keuangan Negara</b> yang menjadi muara pengalihan (diturunkan dari JF pengguna pada Eselon I unit tersebut), sekaligus status <b>tim kerja (Mekanisme Kerja)</b>-nya. Pemetaan unit ke JF bersifat indikatif pada tingkat Eselon I; pendalaman per jabatan menyusul saat data pemangku JF internal tersedia. Kolom <b>Fungsional (ABK)</b> = porsi pegawai berjabatan fungsional dari bezetting ABK 2024 (nomenklatur pra-konsolidasi), dicocokkan lewat nama unit; tanda "-" berarti unit tidak terdata/tercocokkan, bukan nol.</div>`;
   h+=`<div class="kpis">
     <div class="kpi good"><div class="lab">Unit sudah delayering</div><div class="val">${fmt(delayered.length)}</div><div class="note">Eselon II dalam cakupan</div></div>
     <div class="kpi"><div class="lab">Terpetakan ke JF KN</div><div class="val">${fmt(withJf)}</div><div class="note">punya rumpun JF pengguna</div></div>
     <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Belum ada tim kerja</div><div class="val">${fmt(noTeam)}</div><div class="note">prioritas aktivasi matriks</div></div>
-    <div class="kpi gold"><div class="lab">Rata-rata fungsional (ABK)</div><div class="val">${fsAvg==null?'&mdash;':Math.round(fsAvg*100)+'%'}</div><div class="note">${abkOn?('bezetting 2024 · '+fmt(fsRows.length)+' unit terdata'):'muat data ABK untuk mengisi'}</div></div></div>`;
+    <div class="kpi gold"><div class="lab">Rata-rata fungsional (ABK)</div><div class="val">${fsAvg==null?'-':Math.round(fsAvg*100)+'%'}</div><div class="note">${abkOn?('bezetting 2024 · '+fmt(fsRows.length)+' unit terdata'):'muat data ABK untuk mengisi'}</div></div></div>`;
   h+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">Unit Delayering &rarr; Rumpun JF Tujuan <span class="mini">(${vis.length})</span></h2>${abkOn?'':'<span class="tag link" data-act="loadabk" style="cursor:pointer">Muat data ABK &rsaquo;</span>'}
     <span style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="seg">${seg('','Semua')}${seg('noteam','Belum ada tim')}</span>${ue1Sel}</span></div>
     <div class="tblw"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th>Rumpun JF Tujuan</th><th class="num-c">Tim Kerja (MK)</th><th class="num-c">Fungsional (ABK)</th><th>Rekomendasi</th></tr></thead><tbody>`;
   h+=vis.map(r=>{const tcell=!r.covered?'<span class="mini">-</span>':(r.tim===0?'<span class="pill off">0 tim</span>':'<b>'+fmt(r.tim)+'</b>');
     const jfcell=r.jfs.length?r.jfs.map(k=>`<span class="pill neu link" data-act="jfopen" data-k="${k}" style="cursor:pointer">${esc(jfKNName(k))}</span> `).join(''):'<span class="mini">-</span>';
-    const fcell=r.fs?('<b title="'+fmt(r.fs.fn)+' dari '+fmt(r.fs.tot)+' pegawai (bezetting ABK 2024)">'+Math.round(r.fs.f*100)+'%</b>'):'<span class="mini">&mdash;</span>';
+    const fcell=r.fs?('<b title="'+fmt(r.fs.fn)+' dari '+fmt(r.fs.tot)+' pegawai (bezetting ABK 2024)">'+Math.round(r.fs.f*100)+'%</b>'):'<span class="mini">-</span>';
     const rek=!r.covered?'Data Mekanisme Kerja belum tersedia untuk Eselon I ini.':(r.tim===0?'<b>Prioritas:</b> aktifkan cara kerja tim/matriks bagi jabatan fungsionalnya.':'Perkuat dan perluas cara kerja tim/matriks yang berjalan.');
     return `<tr><td class="link" data-act="otkopen" data-id="${r.n.id}">${esc(r.n.nama)}</td><td class="mini">${esc(r.es1)}</td><td>${jfcell}</td><td class="num-c">${tcell}</td><td class="num-c">${fcell}</td><td class="mini">${rek}</td></tr>`;}).join('')||'<tr><td colspan="6" class="mini">Tidak ada pada cakupan ini.</td></tr>';
   h+=`</tbody></table></div>
@@ -4093,7 +4143,21 @@ function vAbkRingkasan(){
   (ABK.eselon1||[]).forEach(e=>{if(!roots.some(r=>abkNorm(r)===abkNorm(e.nama)))roots.push(e.nama);});
   const nTot=roots.length, nFed=(ABK.eselon1||[]).length;
   let sAda=0,sButuh=0,sUnit=0;(ABK.eselon1||[]).forEach(e=>{sAda+=e.total.ada;sButuh+=e.total.butuh;sUnit+=e.units.length;});
-  let h=`<div class="kpis">
+  /* Sorotan: rangkuman kecukupan pegawai + unit paling kekurangan (angka apa adanya, tanpa vonis) */
+  let h=(function(){
+    var selisih=sAda-sButuh;
+    var kurangUnit=(ABK.eselon1||[]).filter(function(e){return e.total.selisih<0;})
+      .sort(function(a,b){return a.total.selisih-b.total.selisih;});
+    var s='Data beban kerja mencakup <b>'+nFed+' dari '+nTot+' unit Eselon I</b> ('+fmt(sUnit)+' unit Eselon II). '+
+      'Dibandingkan kebutuhan hasil hitungan ABK, jumlah pegawai saat ini <b>'+
+      (selisih<0?('kurang '+fmt(-selisih)):(selisih>0?('lebih '+fmt(selisih)):'sudah pas'))+'</b> orang'+
+      (selisih!==0?(' ('+fmt(sAda)+' ada, '+fmt(sButuh)+' dibutuhkan)'):'')+'. ';
+    if(kurangUnit.length)s+='Kekurangan terbesar ada di <b>'+esc(kurangUnit[0].nama)+'</b> ('+fmt(-kurangUnit[0].total.selisih)+' orang)'+
+      (kurangUnit.length>1?(', diikuti '+esc(kurangUnit[1].nama)):'')+'. ';
+    if(nFed<nTot)s+='Unit yang datanya belum masuk tidak ikut dihitung, jadi angka nasional masih akan berubah.';
+    return sorotanCard('Sorotan',s,[{v:'abkkalibrasi',t:'Kalibrasi'},{v:'abksimulasi',t:'Simulasi Efisiensi'},{v:'abkpareto',t:'Pareto Produk'}]);
+  })();
+  h+=`<div class="kpis">
     <div class="kpi"><div class="lab">Eselon I Terisi Data</div><div class="val">${nFed} / ${nTot}</div><div class="note">unit kerja Eselon I</div></div>
     <div class="kpi gold"><div class="lab">Unit Dievaluasi</div><div class="val">${fmt(sUnit)}</div><div class="note">Eselon II</div></div>
     <div class="kpi"><div class="lab">Bezetting</div><div class="val">${fmt(sAda)}</div></div>
@@ -5500,6 +5564,16 @@ function vTataKelola(){const g=tkGuard();if(g)return g;const f=tkF();
   const kpTrend=Object.keys(kp.kemenkeu||{}).sort().map(function(y){return kp.kemenkeu[y];});
   const card=(v,lab,val,note,col,tab,spark)=>`<div class="kpi" data-act="tknav" data-v="${v}"${tab?` data-tab="${tab}"`:''} style="cursor:pointer;border-top:3px solid ${col};background:color-mix(in srgb, ${col} 8%, transparent)"><div class="lab">${lab}</div><div class="val" style="color:${col}">${val}</div><div class="note">${note}</div>${spark||''}</div>`;
   let h=tkTool();
+  /* Sorotan: rangkuman capaian tata kelola (ikut filter unit/tahun yang sedang aktif) */
+  h+=(function(){
+    var wbbm=iz.filter(function(r){return r.predikat==='WBBM';}).length;
+    var lingkup=f.u?('Pada '+f.u+', '):'';
+    var s=lingkup+'tercatat <b>'+fmt(iz.length)+' predikat Zona Integritas</b>'+(wbbm?(', <b>'+wbbm+'</b> di antaranya WBBM'):'')+'. ';
+    if(kNum!=null)s+='Kepuasan pengguna layanan '+(ky?('tahun '+ky):'')+' berada di angka <b>'+kNum.toFixed(2).replace('.',',')+'</b> dari skala 5. ';
+    if(eup.length)s+='Dari sisi pelayanan publik, <b>'+gA+' dari '+eup.length+' unit</b> meraih predikat A atau A-. ';
+    if(inv.length)s+='Tercatat pula <b>'+fmt(inv.length)+'</b> karya inovasi pelayanan.';
+    return sorotanCard('Sorotan',s,[{v:'tkindeks',t:'Indeks Komposit'},{v:'tkkuadran',t:'Kuadran Tata Kelola'},{v:'tkintegritas',t:'Zona Integritas'}]);
+  })();
   h+=`<div class="kpis">
     ${card('tkintegritas','Predikat Integritas',fmt(iz.length),`${iz.filter(r=>r.predikat==='WBBM').length} WBBM`,'var(--cat-1)',null,_spark(izTrend,'var(--cat-1)'))}
     ${card('tkkepuasan','Kepuasan '+(ky||''),kNum!=null?kNum.toFixed(2):'-',klab+' (skala 5)','var(--cat-2)',null,_spark(kpTrend,'var(--cat-2)'))}
@@ -6066,13 +6140,13 @@ let _lastView=null;let _hist=[];let _navBack=false;
    (dibaca live dari memori, bukan klaim), posisi data, cara pembaruan, dan pengampunya.
    Kolom pengampu dipertajam saat registry modul (konsep 5.1) diisi. */
 function vKatData(){
-  const T=()=>{try{var yrs=TK.integritas.per_tahun_predikat?Object.keys(TK.integritas.per_tahun_predikat):(TK.integritas.per_tahun?Object.keys(TK.integritas.per_tahun):[]);var mx=yrs.length?Math.max.apply(0,yrs.map(Number)):null;return mx?('Data s.d. '+mx):'—';}catch(e){return '—';}};
+  const T=()=>{try{var yrs=TK.integritas.per_tahun_predikat?Object.keys(TK.integritas.per_tahun_predikat):(TK.integritas.per_tahun?Object.keys(TK.integritas.per_tahun):[]);var mx=yrs.length?Math.max.apply(0,yrs.map(Number)):null;return mx?('Data s.d. '+mx):'-';}catch(e){return '-';}};
   const R=[
     {d:'Struktur Organisasi (bundel OTK)',f:'otk_bundle.json',m:'Struktur Organisasi; irisan & replikasi untuk Analisis Jabatan',a:'Gerbang · saat login',
      s:()=>!!(typeof OTK==='object'&&OTK&&OTK.unit),p:()=>{var tu=(OTK&&OTK.meta&&OTK.meta.total_unit)||0;return 'Struktur berjalan'+(tu?(' · '+fmt(tu)+' unit'):'');},
      u:'Rebuild lalu ganti isi file di Drive (File ID tetap)',o:'Biro Organisasi dan Ketatalaksanaan'},
     {d:'Mekanisme Kerja (tim & pegawai)',f:'dashboard_data.json',m:'Mekanisme Kerja; angka adopsi dipakai lintas modul',a:'Gerbang · saat login · sensitif',
-     s:()=>!!(typeof DATA==='object'&&DATA&&DATA.summary&&(DATA.teams||[]).length),p:()=>{var s=(DATA&&DATA.summary)||{};return s.tanggal_olah?('Diolah '+esc(String(s.tanggal_olah))):'—';},
+     s:()=>!!(typeof DATA==='object'&&DATA&&DATA.summary&&(DATA.teams||[]).length),p:()=>{var s=(DATA&&DATA.summary)||{};return s.tanggal_olah?('Diolah '+esc(String(s.tanggal_olah))):'-';},
      u:'Ganti isi file di Drive (File ID tetap)',o:'Biro Organta · UIC Bagian Strategi Organisasi dan Proses Bisnis'},
     {d:'Uraian Jabatan (ANJAB)',f:'urjab.json',m:'Analisis Jabatan (Jabatan Struktural)',a:'Gerbang · saat menu dibuka',
      s:()=>!!(typeof URJAB==='object'&&URJAB&&URJAB.jabatan),p:()=>{var n=(URJAB&&URJAB.jabatan&&URJAB.jabatan.length)||0;return n?('Kompilasi '+fmt(n)+' jabatan · 13 Eselon I'):'Kompilasi dokumen ANJAB resmi';},
@@ -6116,13 +6190,13 @@ function vKatData(){
   <div class="card"><h2 class="sec" style="margin-top:0">Daftar Sumber Data</h2>
     <div class="tblw"><table><thead><tr><th>Dataset</th><th>Menopang Modul</th><th>Akses &amp; Muat</th><th>Status Sesi Ini</th><th>Posisi Data</th><th>Pembaruan</th><th>Pengampu</th></tr></thead><tbody>`;
   h+=R.map(r=>{
-    let st='<span class="mini">&mdash;</span>';
+    let st='<span class="mini">-</span>';
     if(r.s){let ok=false;try{ok=!!r.s();}catch(e){}st=ok?'<span class="pill on">Termuat</span>':'<span class="pill neu">Belum dimuat</span>';}
-    let pp='—';try{pp=r.p();}catch(e){}
+    let pp='-';try{pp=r.p();}catch(e){}
     return `<tr><td><b>${esc(r.d)}</b><div class="mini" style="color:var(--muted)">${esc(r.f)}</div></td><td class="mini">${esc(r.m)}</td><td class="mini">${esc(r.a)}</td><td>${st}</td><td class="mini">${pp}</td><td class="mini">${esc(r.u)}</td><td class="mini">${esc(r.o)}</td></tr>`;
   }).join('');
   h+=`</tbody></table></div>
-  <div class="mini" style="margin-top:9px;color:var(--muted)">Kolom Pengampu akan dipertajam per bagian saat registry modul (konsep OSDM 5.1) diisi. Nilai "&mdash;" berarti tidak berlaku atau belum ada data, bukan nol.</div></div>`;
+  <div class="mini" style="margin-top:9px;color:var(--muted)">Kolom Pengampu akan dipertajam per bagian saat registry modul (konsep OSDM 5.1) diisi. Nilai "-" berarti tidak berlaku atau belum ada data, bukan nol.</div></div>`;
   return h;
 }
 
@@ -6789,9 +6863,9 @@ function vCuti(){
   const _s25=T.find(x=>x.jenis==='Cuti Sakit'&&x.tahun===2025)||{rekaman:0};
   const _kali=_s20.rekaman?Math.round(10*_s25.rekaman/_s20.rekaman)/10:null;
   const _p26=(CUTI.proyeksi&&CUTI.proyeksi['Cuti Sakit'])||{};
-  h+='<div class="card" style="border-left:4px solid var(--brand)"><h2 class="sec" style="margin-top:0">Sorotan</h2>'+
-    '<p style="margin:0 0 10px">Pengajuan cuti sakit tumbuh <b>'+(_kali?String(_kali).replace('.',',')+' kali lipat':'pesat')+'</b> sejak 2020 dan diperkirakan mencapai <b>'+(_p26.estimasiSetahun?fmt(_p26.estimasiSetahun):'-')+'</b> pengajuan pada 2026; pendorong utamanya sakit ringan musiman, bukan penyakit berat. Sementara itu Desember selalu menjadi bulan paling ramai cuti. Dua hal yang perlu diantisipasi pengelola SDM: kapasitas layanan akhir tahun dan musim penyakit di paruh kedua tahun.</p>'+
-    '<div><span class="tag link" data-act="nav" data-view="cutiprediksi">Lihat Proyeksi &rsaquo;</span> <span class="tag link" data-act="nav" data-view="cutipola">Kalender Kapasitas &rsaquo;</span> <span class="tag link" data-act="nav" data-view="cutisakit">Kategori Cuti Sakit &rsaquo;</span></div></div>';
+  h+=sorotanCard('Sorotan',
+    'Pengajuan cuti sakit tumbuh <b>'+(_kali?String(_kali).replace('.',',')+' kali lipat':'pesat')+'</b> sejak 2020 dan diperkirakan mencapai <b>'+(_p26.estimasiSetahun?fmt(_p26.estimasiSetahun):'-')+'</b> pengajuan pada 2026; pendorong utamanya sakit ringan musiman, bukan penyakit berat. Sementara itu Desember selalu menjadi bulan paling ramai cuti. Dua hal yang perlu diantisipasi pengelola SDM: kapasitas layanan akhir tahun dan musim penyakit di paruh kedua tahun.',
+    [{v:'cutiprediksi',t:'Lihat Proyeksi'},{v:'cutipola',t:'Kalender Kapasitas'},{v:'cutisakit',t:'Kategori Cuti Sakit'}]);
   h+=_katKpi([['Total Pengajuan Cuti',fmt(totR),'seluruh jenis, 2020 s.d. Jun 2026',1],['Total Hari Cuti',fmt(totH),'hari kalender'],
     ['Cuti Tahunan',fmt(perJ['Cuti Tahunan'].rekaman),fmt(perJ['Cuti Tahunan'].hari)+' hari'],
     ['Cuti Sakit',fmt(perJ['Cuti Sakit'].rekaman),fmt(perJ['Cuti Sakit'].hari)+' hari'],
@@ -7192,7 +7266,7 @@ function vMofinHeatmap(){
   var h='<div class="seg" style="margin-bottom:12px">'
     +'<span class="segb '+(mode==='skor'?'on':'')+'" data-act="mofmode" data-mode="skor">Skor Kapabilitas Organisasi</span>'
     +'<span class="segb '+(mode==='tl'?'on':'')+'" data-act="mofmode" data-mode="tl">Skor Tindak Lanjut</span></div>';
-  h+='<div class="card tblw"><table class="hm"><tr><th class="rh"></th>';
+  h+='<div class="card tblw"><table class="hm hm-fit"><tr><th class="ch" style="text-align:left;width:230px">Unit Eselon I</th>';
   dims.forEach(d=>h+='<th class="ch">'+esc(d)+'</th>');
   h+='<th class="ch" style="color:var(--brand-d)">'+(mode==='skor'?'Total':'Progress')+'</th></tr>';
   U.forEach(u=>{
