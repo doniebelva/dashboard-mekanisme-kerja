@@ -45,6 +45,17 @@
   --line:#e7ecf3;            /* garis pemisah umum       */
   --track:#eef2f7;           /* alur bar/skor/gantt      */
   --soft-red:#fef2f2;--soft-amber:#fff7ed;
+  /* -- label status (.pill) & kotak catatan: dulu warnanya mentah di blok komponen,
+        akibatnya tidak pernah ikut mode gelap. Sekarang jadi token supaya satu aturan
+        berlaku di dua mode dan komponennya cukup memanggil var(). -- */
+  --pill-on-bg:#dcfce7;--pill-on-ink:#166534;
+  --pill-off-bg:#fde2e1;--pill-off-ink:#9b1c17;
+  --pill-warn-bg:#fef3c7;--pill-warn-ink:#92400e;
+  --pill-neu-bg:#eceef2;--pill-neu-ink:#374151;
+  --pill-blue-bg:#dbe9fb;--pill-blue-ink:#114a8f;
+  --note-bg:#eff6ff;--note-ink:#0f4c92;--note-line:var(--brand-l2);
+  /* -- cincin fokus: satu nilai dipakai seluruh kendali supaya jejak papan ketik konsisten -- */
+  --ring:0 0 0 3px rgba(37,99,235,.28);
 
   /* -- teks -- */
   --ink:#1f2a37;             /* teks utama               */
@@ -385,11 +396,11 @@ td.num-c,th.num-c{font-variant-numeric:tabular-nums}
 /* ============================ 7. KOMPONEN =============================== */
 /* -- label status -- */
 .pill{font-size:var(--fs-mini);padding:3px var(--sp-5);border-radius:var(--rad-pill);font-weight:600;white-space:nowrap;letter-spacing:.2px;transition:all var(--t-fast) ease}
-.pill.on{background:#dcfce7;color:#166534}
-.pill.off{background:#fde2e1;color:#9b1c17}
-.pill.warn{background:#fef3c7;color:#92400e}
-.pill.neu{background:#eceef2;color:#374151}
-.pill.blue{background:#dbe9fb;color:#114a8f}
+.pill.on{background:var(--pill-on-bg);color:var(--pill-on-ink)}
+.pill.off{background:var(--pill-off-bg);color:var(--pill-off-ink)}
+.pill.warn{background:var(--pill-warn-bg);color:var(--pill-warn-ink)}
+.pill.neu{background:var(--pill-neu-bg);color:var(--pill-neu-ink)}
+.pill.blue{background:var(--pill-blue-bg);color:var(--pill-blue-ink)}
 .pill.vio{background:#ede9fe;color:#5b21b6}
 .tag{font-size:var(--fs-mini);padding:var(--sp-1) 7px;border-radius:var(--rad-sm);background:var(--tag-bg);color:var(--tag-ink);font-weight:700}
 .mini{font-size:var(--fs-mini);color:var(--muted)}
@@ -423,14 +434,17 @@ td.num-c,th.num-c{font-variant-numeric:tabular-nums}
 /* -- kendali & pesan -- */
 .toolbar{display:flex;gap:9px;align-items:center;margin-bottom:11px;flex-wrap:wrap}
 input.search,select.flt{border:1px solid var(--line);border-radius:var(--rad-sm);padding:7px 11px;font-size:var(--fs-md);background:var(--surface);color:var(--ink)}
+input.search:focus,select.flt:focus,.segb:focus-visible{outline:none;border-color:var(--brand);box-shadow:var(--ring)}
+input.search:hover,select.flt:hover{border-color:var(--brand-l2)}
 input.search{width:230px}
 input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(20,103,192,.12)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--rad-sm);overflow:hidden;margin-bottom:var(--sp-6)}
 .seg .segb{padding:7px var(--sp-7);font-size:var(--fs-md);font-weight:700;cursor:pointer;color:var(--ink);background:var(--surface)}
 .seg .segb.on{background:var(--brand);color:#fff}
 .seg .segb+.segb{border-left:1px solid var(--line)}
-.note-box{background:linear-gradient(180deg,#f0f6ff,#eaf3fe);border:1px solid var(--brand-l2);border-radius:var(--rad-md);padding:13px var(--sp-8);
-  font-size:var(--fs-sm);color:#0f4c92;margin:var(--sp-6) 0;line-height:1.55}
+.note-box{background:var(--note-bg);border:1px solid var(--note-line);border-left:3px solid var(--brand);
+  border-radius:var(--rad-md);padding:13px var(--sp-8);
+  font-size:var(--fs-sm);color:var(--note-ink);margin:var(--sp-6) 0;line-height:1.55}
 .legend{display:flex;gap:var(--sp-7);flex-wrap:wrap;font-size:var(--fs-sm);color:var(--muted);margin-top:var(--sp-4)}
 .dot{display:inline-block;width:10px;height:10px;border-radius:var(--rad-xs);margin-right:5px;vertical-align:-1px}
 .gap-row{display:flex;justify-content:space-between;font-size:var(--fs-md);padding:var(--sp-3) 0;border-bottom:1px dashed var(--line)}
@@ -554,10 +568,17 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
   --nav-hover:#1c2a3c;--mod-hover:#1c2a3c;--trow-hover:#1c2a3c;
   --tag-bg:#27334a;--tag-ink:#aebacb;
   --soft-red:rgba(224,65,58,.16);--soft-amber:rgba(245,158,11,.15);
+  /* Label status kini ikut gelap lewat token. Sebelumnya .pill.on/.off/.warn/.blue
+     tetap pastel terang di atas permukaan gelap karena warnanya mentah di komponen. */
+  --pill-on-bg:#12352a;--pill-on-ink:#7ee0af;
+  --pill-off-bg:#3a1f21;--pill-off-ink:#f2a2a0;
+  --pill-warn-bg:#3a2e14;--pill-warn-ink:#f0c46a;
+  --pill-neu-bg:#2a3445;--pill-neu-ink:#cbd5e1;
+  --pill-blue-bg:#16304f;--pill-blue-ink:#9ecbff;
+  --note-bg:#14273c;--note-ink:#bcd6f4;--note-line:#27425f;
+  --ring:0 0 0 3px rgba(125,180,239,.32);
 }
 /* Sisa: hanya yang memang tidak bisa diwakili token (gradien & warna khusus). */
-[data-theme=dark] .note-box{background:#14273c;border-color:#27425f;color:#bcd6f4}
-[data-theme=dark] .pill.neu{background:#2a3445;color:#cbd5e1}
 [data-theme=dark] .btn2{background:#2a3445;color:var(--ink)}
 [data-theme=dark] .gt-track{border-color:var(--track)}
 [data-theme=dark] .login-wrap{background:radial-gradient(1100px 520px at 18% -12%,rgba(42,134,219,.30),transparent),linear-gradient(120deg,#0a1828,#0e2540 55%,#103253)}
@@ -806,6 +827,9 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 .th-pair td+td{border-left:1px solid var(--line)}
 .th-pair thead th{vertical-align:bottom}
 .tblw table{width:100%}
+/* Kepala tabel menempel saat digulir. Daftar katalog dan daftar jabatan bisa ratusan baris,
+   dan tanpa ini nama kolomnya hilang begitu pengguna menggulir beberapa layar. */
+.tblw thead th{position:sticky;top:0;z-index:2;background:var(--th-bg)}
 /* sortir generik: tiap th bisa diklik kecuali yang sudah punya handler modul (th.srt) */
 .tblw th{cursor:pointer;user-select:none;white-space:nowrap}
 .tblw th:hover{color:var(--brand)}
@@ -950,7 +974,9 @@ async function loadAbk(){if(ABK)return ABK;let d=null;if(REMOTE){d=await api('ab
 function ensureAbk(){if(ABK||state.abkLoading)return;state.abkLoading=true;state.abkErr=false;progStart();
   loadAbk().then(()=>{state.abkLoading=false;progDone();render();}).catch(()=>{state.abkLoading=false;progDone();state.abkErr=true;render();});}
 /* Katalog Referensi (8 katalog ber-kode): dipisah dari abk.json -> katref.json (13 Ago 2026) */
-let KATREF=null;const KATREF_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?katref=1';
+/* Build LOKAL menanam katref langsung sehingga loadKatref tidak pernah jalan. Penyatuan
+   baris kembar karena itu dipanggil juga di sini, sama seperti pada jalur gerbang. */
+let KATREF=_katrefUniq(null);const KATREF_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?katref=1';
 /* Sebagian nama pada data katalog terlanjur menyimpan entitas HTML ("Pusdiklat&amp;KM"),
    sehingga saat di-escape ulang untuk keamanan, yang tampil justru kodenya. Data dibersihkan
    sekali di sini supaya seluruh view katalog ikut benar tanpa menunggu berkas di Drive diperbarui.
@@ -961,7 +987,7 @@ function _bersihEntitas(o){
   if(o&&typeof o==='object'){for(var k in o)o[k]=_bersihEntitas(o[k]);return o;}
   return o;}
 async function loadKatref(){if(KATREF)return KATREF;let d=null;if(REMOTE){d=await api('katref',{});}else if(KATREF_URL){const r=await fetch(KATREF_URL);d=await r.json();}else{return KATREF;}
-  if(!d||!d.katalog)throw new Error('katref-unavailable');KATREF=_bersihEntitas(d);return KATREF;}
+  if(!d||!d.katalog)throw new Error('katref-unavailable');KATREF=_katrefUniq(_bersihEntitas(d));return KATREF;}
 function ensureKatref(){if(KATREF||state.katrefLoading)return;state.katrefLoading=true;state.katrefErr=false;progStart();
   loadKatref().then(()=>{state.katrefLoading=false;progDone();render();}).catch(()=>{state.katrefLoading=false;progDone();state.katrefErr=true;render();});}
 /* Modul Cuti (domain SDM): agregat cuti pegawai - sensitif, lazy-load via gerbang spt ABK */
@@ -4650,7 +4676,7 @@ function vKatAkt(){
   <div class="card"><h2 class="sec" style="margin-top:0">Aktivitas Standar <span class="mini">(${fmt(rows.length)}${state.kataktKlus?' di '+state.kataktKlus:''}, urut kode)</span></h2>
   <table><thead><tr><th>Kode</th><th>Nama Aktivitas (penulisan terbanyak)</th><th class="num-c">Unit</th><th class="num-c">UE1</th><th class="num-c">Variasi Tulis</th><th class="num-c">Beban Tusi (jam)</th><th class="num-c">Beban Non-Tusi (jam)</th></tr></thead><tbody>`;
   rows.slice(0,300).forEach(x=>{
-    h+=`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${esc(x.nama)}</td><td class="num-c">${fmt(x.n_unit)}</td><td class="num-c">${fmt(x.n_es1)}</td><td class="num-c">${x.n_var>1?`<span style="color:#b45309;font-weight:700">${fmt(x.n_var)}</span>`:'1'}</td><td class="num-c">${x.beban_a?fmt(Math.round(x.beban_a)):'-'}</td><td class="num-c">${x.beban_b?fmt(Math.round(x.beban_b)):'-'}</td></tr>`;});
+    h+=`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${fmt(x.n_unit)}</td><td class="num-c">${fmt(x.n_es1)}</td><td class="num-c">${x.n_var>1?`<span style="color:#b45309;font-weight:700">${fmt(x.n_var)}</span>`:'1'}</td><td class="num-c">${x.beban_a?fmt(Math.round(x.beban_a)):'-'}</td><td class="num-c">${x.beban_b?fmt(Math.round(x.beban_b)):'-'}</td></tr>`;});
   h+=`</tbody></table>${rows.length>300?`<div class="mini" style="margin-top:6px">Menampilkan 300 dari ${fmt(rows.length)} - persempit dengan filter/cari.</div>`:''}</div>`;
   return h;
 }
@@ -4708,8 +4734,9 @@ function vKatJab(){
   <div class="card"><h2 class="sec" style="margin-top:0">Daftar Jabatan <span class="mini">(${fmt(rows.length)}${state.kjUE1?' di '+state.kjUE1:''}${state.kjLvl?', '+esc(LN[state.kjLvl]):''}, urut kode)</span></h2>
   <table><thead><tr><th>Kode</th><th>Nama Jabatan</th><th class="num-c">Jenjang</th><th>Unit Eselon I</th><th class="num-c">Kemunculan</th><th>Sumber</th></tr></thead><tbody>`;
   rows.slice(0,300).forEach(x=>{
-    h+=`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${esc(x.nama)}</td><td class="num-c">${x.lvl}</td><td class="mini">${esc(x.ue1)}</td><td class="num-c">${fmt(x.n)}</td><td class="mini">${esc(x.src)}</td></tr>`;});
+    h+=`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.lvl}</td><td class="mini">${esc(x.ue1)}</td><td class="num-c">${fmt(x.n)}</td><td class="mini">${esc(x.src)}</td></tr>`;});
   h+=`</tbody></table>${rows.length>300?`<div class="mini" style="margin-top:6px">Menampilkan 300 dari ${fmt(rows.length)} - persempit dengan filter/cari.</div>`:''}</div>`;
+  h+=_katGabungNote('katjab');
   return h;
 }
 
@@ -4744,8 +4771,9 @@ function vKatPb(){
   <div class="card"><h2 class="sec" style="margin-top:0">Daftar Proses <span class="mini">(${fmt(rows.length)}, urut kode resmi)</span></h2>
   <table><thead><tr><th>Kode</th><th>Nama</th><th class="num-c">Level</th><th>Induk</th><th class="num-c">Anak</th><th>Pemetaan Unit (UE1)</th></tr></thead><tbody>`;
   rows.forEach(x=>{const ind={1:'',2:'padding-left:18px',3:'padding-left:36px'}[x.lvl]||'';
-    h+=`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td style="${ind}">${x.lvl===1?`<b>${esc(x.nama)}</b>`:esc(x.nama)}</td><td class="num-c">L${x.lvl}</td><td class="mini" style="white-space:nowrap">${x.parent||'-'}</td><td class="num-c">${fmt(x.n_anak)}</td><td class="mini">${(x.units||[]).join(', ')||'-'}</td></tr>`;});
+    h+=`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td style="${ind}">${x.lvl===1?`<b>${esc(x.nama)}</b>`:esc(x.nama)}</td><td class="num-c">L${x.lvl}</td><td class="mini" style="white-space:nowrap">${x.parent||'-'}</td><td class="num-c">${fmt(x.n_anak)}</td><td class="mini">${(x.units||[]).join(', ')||'-'}</td></tr>`;});
   h+=`</tbody></table></div>`;
+  h+=_katGabungNote('katpb');
   return h;
 }
 
@@ -4763,6 +4791,68 @@ function _katTbl(judul,n,head,rowsHtml,cap){
 }
 function _katSel(id,val,all,opts){return `<select class="flt" id="${id}"><option value="">${all}</option>${opts.map(o=>`<option value="${esc(String(o[0]))}"${val===String(o[0])?' selected':''}>${esc(String(o[1]))}</option>`).join('')}</select>`;}
 function _katCari(id,val,ph){return `<input class="search" id="${id}" placeholder="${ph}" value="${esc(val||'')}" style="max-width:270px">`;}
+/* ===== PENYATU BARIS KEMBAR KATALOG =====
+   Aturan katalog: satu item satu baris. Sumber sebagian katalog mencatat satu baris per
+   PEMETAAN (aplikasi kali proses bisnis), sehingga item yang sama muncul berkali-kali dengan
+   kode berbeda. Baris yang isinya sama persis selain kode dan selain kolom pemetaan disatukan.
+   Tidak ada yang dibuang: seluruh kode sumber disimpan di _kode dan seluruh pemetaan di _pb,
+   lalu ditampilkan sebagai penanda pada barisnya. */
+function _katrefUniq(d){
+  if(!d||d._uniq)return d;
+  var SEC=['katalog','katjab','katpb','katnw','katunit','katsvc','katapp','katwen'];
+  d._gabung={};
+  SEC.forEach(function(sn){
+    var sec=d[sn];if(!sec)return;
+    var kunciArr=sec.rows?'rows':(sec.jabatan?'jabatan':(sec.aktivitas?'aktivitas':''));
+    if(!kunciArr)return;
+    var arr=sec[kunciArr];if(!Array.isArray(arr)||!arr.length)return;
+    var out=[],idx={},gabung=0;
+    arr.forEach(function(r){
+      var ks=Object.keys(r).filter(function(k){return k!=='kode'&&k!=='pb';}).sort();
+      var sig=ks.map(function(k){return k+'\u0001'+r[k];}).join('\u0002');
+      var t=idx[sig];
+      if(t===undefined){
+        idx[sig]=out.length;
+        var c={};for(var k in r)c[k]=r[k];
+        c._kode=[r.kode];c._pb=r.pb?[r.pb]:[];
+        out.push(c);
+      }else{
+        gabung++;
+        var o=out[t];
+        if(o._kode.indexOf(r.kode)<0)o._kode.push(r.kode);
+        if(r.pb&&o._pb.indexOf(r.pb)<0)o._pb.push(r.pb);
+      }
+    });
+    if(!gabung)return;
+    d._gabung[sn]={asal:arr.length,jadi:out.length,gabung:gabung};
+    sec[kunciArr]=out;
+    var st=sec.stats||{};
+    if(typeof st.total==='number')st.total=out.length;
+    if(typeof st.total_baris==='number')st.total_baris=out.length;
+    [['per_ue1','ue1'],['per_unit','unit']].forEach(function(pair){
+      if(!Array.isArray(st[pair[0]]))return;
+      var c={};out.forEach(function(r){var v=r[pair[1]];if(v!==undefined)c[v]=(c[v]||0)+1;});
+      st[pair[0]]=st[pair[0]].map(function(x){return [x[0],c[x[0]]||0];}).filter(function(x){return x[1];});
+    });
+    sec.stats=st;
+  });
+  d._uniq=1;return d;
+}
+/* Penanda kode pada baris hasil penyatuan: kode pertama, lalu berapa kode sumber lain. */
+function _katKode(x){
+  var n=(x._kode||[]).length;
+  if(n<2)return '<b>'+esc(x.kode)+'</b>';
+  return '<b>'+esc(x.kode)+'</b> <span class="tag" title="Kode sumber lain: '+esc(x._kode.slice(1).join(', '))+
+         '">+'+(n-1)+'</span>';
+}
+/* Catatan kaki penyatuan, dipasang di tiap halaman katalog yang barisnya sempat kembar. */
+function _katGabungNote(sn){
+  var g=(KATREF&&KATREF._gabung)?KATREF._gabung[sn]:null;
+  if(!g)return '';
+  return '<div class="mini" style="padding:6px 8px">Sebanyak <b>'+fmt(g.gabung)+'</b> baris sumber disatukan '+
+    'karena isinya sama persis dan hanya berbeda kode atau pemetaan prosesnya, sehingga '+fmt(g.asal)+
+    ' baris menjadi <b>'+fmt(g.jadi)+'</b> item. Kode sumber lainnya tetap tersimpan, terlihat sebagai penanda +n pada kolom kode.</div>';
+}
 function _fRows(rows,q,keys){if(!q)return rows;q=q.toLowerCase();return rows.filter(r=>keys.some(k=>String(r[k]||'').toLowerCase().indexOf(q)>=0));}
 
 /* ===== #4 KATALOG NORMA WAKTU ===== */
@@ -4776,8 +4866,9 @@ function vKatNw(){
   h+=_katKpi([['Tahapan Baku Berkode',fmt(K.stats.total),'',1],['Kluster',fmt(K.stats.n_klus)],['Satuan','menit','per tahapan']]);
   h+=`<div class="toolbar">${_katCari('nwQ',state.nwQ,'Cari kode / tahapan...')}${_katSel('nwKlus',state.nwKlus,'Semua Kluster',K.klusters.map(k=>[k.kode,k.kode+' - '+k.nama+' ('+k.n+')']))}</div>`;
   h+=_katTbl('Norma Waktu Baku',rows.length,['Kode','Nama Tahapan','#Kluster','#Norma Ideal (mnt)','#Rentang (mnt)','#Unit','#UE1'],
-    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${esc(x.nama)}</td><td class="num-c">${x.klus}</td><td class="num-c"><b>${fmt(x.ideal)}</b></td><td class="num-c">${fmt(x.min)}-${fmt(x.max)}</td><td class="num-c">${fmt(x.n_unit)}</td><td class="num-c">${fmt(x.n_es1)}</td></tr>`).join(''),
+    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.klus}</td><td class="num-c"><b>${fmt(x.ideal)}</b></td><td class="num-c">${fmt(x.min)}-${fmt(x.max)}</td><td class="num-c">${fmt(x.n_unit)}</td><td class="num-c">${fmt(x.n_es1)}</td></tr>`).join(''),
     rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)} - persempit dengan filter/cari.`:'');
+  h+=_katGabungNote('katnw');
   return h;
 }
 /* ===== #5 KATALOG UNIT & KANTOR ===== */
@@ -4794,8 +4885,9 @@ function vKatUnit(){
   const ue1s=[...new Set(K.rows.map(x=>x.uk))];
   h+=`<div class="toolbar">${_katCari('kuQ',state.kuQ,'Cari kode / nama unit...')}${_katSel('kuUE1',state.kuUE1,'Semua UE1',ue1s.map(x=>[x,x]))}${_katSel('kuTipe',state.kuTipe,'Semua Tipe',K.stats.tipe.map(t=>[t[0],t[0]]))}</div>`;
   h+=_katTbl('Register Unit',rows.length,['Kode','Nama Unit','Tipe Kantor','#UE1','#Kode ABK'],
-    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${x.lvl===1?`<b>${esc(x.nama)}</b>`:esc(x.nama)}</td><td class="mini">${esc(x.tipe)}</td><td class="num-c">${x.uk}</td><td class="num-c">${esc(x.kode_abk)}</td></tr>`).join(''),
+    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${x.lvl===1?`<b>${esc(x.nama)}</b>`:esc(x.nama)}</td><td class="mini">${esc(x.tipe)}</td><td class="num-c">${x.uk}</td><td class="num-c">${esc(x.kode_abk)}</td></tr>`).join(''),
     rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  h+=_katGabungNote('katunit');
   return h;
 }
 /* ===== #6 KATALOG LAYANAN ===== */
@@ -4810,8 +4902,9 @@ function vKatSvc(){
   h+=_katKpi([['Layanan Berkode',fmt(K.stats.total),'',1],['UE1 Tercakup',fmt(K.stats.per_ue1.length)],['Fully Digital',fmt((K.stats.digital.find(x=>/fully/i.test(x[0]))||[0,0])[1]),'dari '+fmt(K.stats.total)]]);
   h+=`<div class="toolbar">${_katCari('ksQ',state.ksQ,'Cari kode / layanan...')}${_katSel('ksUE1',state.ksUE1,'Semua UE1',K.stats.per_ue1.map(x=>[x[0],x[0]+' ('+x[1]+')']))}${_katSel('ksDig',state.ksDig,'Semua Tingkat Digital',K.stats.digital.map(x=>[x[0],x[0]+' ('+x[1]+')']))}</div>`;
   h+=_katTbl('Daftar Layanan',rows.length,['Kode','Nama Layanan','#UE1','Sasaran','Digitalisasi','Unit Pelaksana','#Probis'],
-    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${esc(x.nama)}</td><td class="num-c">${x.ue1}</td><td class="mini">${esc(x.sasaran)}</td><td class="mini">${esc(x.digital)}</td><td class="mini">${esc(x.pelaksana)}</td><td class="num-c" style="white-space:nowrap">${x.pb}</td></tr>`).join(''),
+    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.ue1}</td><td class="mini">${esc(x.sasaran)}</td><td class="mini">${esc(x.digital)}</td><td class="mini">${esc(x.pelaksana)}</td><td class="num-c" style="white-space:nowrap">${x.pb}</td></tr>`).join(''),
     rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  h+=_katGabungNote('katsvc');
   return h;
 }
 /* ===== #7 KATALOG APLIKASI ===== */
@@ -4825,8 +4918,9 @@ function vKatApp(){
   h+=_katKpi([['Aplikasi Berkode',fmt(K.stats.total),'',1],['UE1 Tercakup',fmt(K.stats.per_ue1.length)]]);
   h+=`<div class="toolbar">${_katCari('kaQ',state.kaQ,'Cari kode / aplikasi...')}${_katSel('kaUE1',state.kaUE1,'Semua UE1',K.stats.per_ue1.map(x=>[x[0],x[0]+' ('+x[1]+')']))}</div>`;
   h+=_katTbl('Daftar Aplikasi',rows.length,['Kode','Nama Aplikasi','#UE1','Model','Interaksi','#Probis','URL'],
-    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${esc(x.nama)}</td><td class="num-c">${x.ue1}</td><td class="mini">${esc(x.model)}</td><td class="mini">${esc(x.gto)}</td><td class="num-c" style="white-space:nowrap">${x.pb}</td><td class="mini">${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.replace(/^https?:\/\//,'').slice(0,32))}</a>`:'-'}</td></tr>`).join(''),
+    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.ue1}</td><td class="mini">${esc(x.model)}</td><td class="mini">${esc(x.gto)}</td><td class="num-c" style="white-space:nowrap">${x.pb}</td><td class="mini">${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.replace(/^https?:\/\//,'').slice(0,32))}</a>`:'-'}</td></tr>`).join(''),
     rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  h+=_katGabungNote('katapp');
   return h;
 }
 /* ===== #8 KATALOG KEWENANGAN ===== */
@@ -4842,8 +4936,9 @@ function vKatWen(){
   h+=_katKpi([['Butir Kewenangan',fmt(K.stats.total_butir),'',1],['Unit/Lampiran',fmt(units.length)],['Jenis Kewenangan',fmt(jenis.length)]]);
   h+=`<div class="toolbar">${_katCari('kwQ',state.kwQ,'Cari kode / uraian / jabatan...')}${_katSel('kwUnit',state.kwUnit,'Semua Unit',units.map(x=>[x,x]))}${_katSel('kwJenis',state.kwJenis,'Semua Jenis',jenis.map(x=>[x,x]))}</div>`;
   h+=_katTbl('Register Kewenangan',rows.length,['Kode','Uraian Kewenangan','Jenis','Jabatan Penerima','Unit'],
-    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap"><b>${x.kode}</b></td><td>${esc(x.uraian)}</td><td class="mini">${esc(x.jenis)}</td><td class="mini">${esc(x.jabatan)}</td><td class="mini">${esc(x.unit)}</td></tr>`).join(''),
+    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.uraian)}</td><td class="mini">${esc(x.jenis)}</td><td class="mini">${esc(x.jabatan)}</td><td class="mini">${esc(x.unit)}</td></tr>`).join(''),
     rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  h+=_katGabungNote('katwen');
   return h;
 }
 
