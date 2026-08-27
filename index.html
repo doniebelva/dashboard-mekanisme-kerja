@@ -2129,7 +2129,8 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   kompLoading:false,kompErr:false,kamLoading:false,kamErr:false,
   kompQ:'',kompUE1:'',kompEs:'',kompRp:'',kompGen:'',kompSel:null,kompDari:'',
   kompRpSel:'',kompKhQ:'',kompKhSel:null,kompKhOnly:false,kompKamQ:'',kompKamSel:null,kompMsSel:null,
-  kompKl:'',kompJf:'',kompJenj:'',kompGapLvl:'',kompGapU:'',kompDom:'',kompProyThn:2};
+  kompKl:'',kompJf:'',kompJenj:'',kompGapLvl:'',kompGapU:'',kompDom:'',kompProyThn:2,
+  kompMode:'tabel',kompNav2:null,kompNav3:null};
 
 /* Render satu modul (kepala + akordeon grup/menu). Dipakai di dalam loop domain. */
 function _renderMod(m,curV,curM){
@@ -6931,6 +6932,24 @@ function kompMs(nama){if(!KOMK)return null;var k=kompNrm(nama);
 /* Kluster taksonomi Katalog (20 kluster substantif + 2 penunjang) untuk satu kompetensi. */
 function kompKl(nama){return (KOMJ._kl||{})[kompNrm(nama)]||'';}
 function kompKlNama(k){return (KOMJ.kluster||{})[k]||k||'Belum berkluster';}
+/* Keahlian yang menyertai satu unit kompetensi. Pada sumber, keahlian melekat pada JABATAN
+   (lembar KSA JPT) dan hanya untuk jabatan pimpinan tinggi, sehingga jabatan Eselon III ke bawah
+   tidak punya keahlian sama sekali. Angka di sini adalah KEMUNCULAN BERSAMA: dari sekian jabatan
+   ber-KSA yang memakai kompetensi ini, sekian di antaranya membutuhkan keahlian tersebut.
+   Sifatnya indikatif, dan penyebutnya selalu ditampilkan supaya kekuatan dasarnya terbaca. */
+function kompKhUk(nama){
+  var i=(KOMJ.ukNama||[]).indexOf(nama);
+  if(i<0)return null;
+  return (KOMJ.ukKeahlian||[])[i]||null;
+}
+function kompKhChips(nama,maks){
+  var d=kompKhUk(nama);
+  if(!d||!(d.k||[]).length)return '';
+  return '<div class="mini" style="margin-top:6px"><b>Keahlian yang biasa menyertai:</b> '+
+    d.k.slice(0,maks||5).map(function(x){
+      return '<span class="tag link" data-act="kompkh" data-k="'+esc(x[0])+'" title="'+x[1]+' dari '+d.d+' jabatan ber-KSA yang memakai kompetensi ini">'+
+             esc(x[0])+' <b>'+x[1]+'/'+d.d+'</b></span>';}).join(' ')+'</div>';
+}
 function kompUmumSet(){var s={};(KOMJ.ukUmum||[]).forEach(function(x){s[kompNrm(x)]=1;});return s;}
 
 function kompRows(){
@@ -7053,9 +7072,66 @@ function vKj(){
 }
 var KOMP_LVL={ES1:'Eselon I',SA:'Staf Ahli',ES2:'Eselon II',TP:'Tenaga Pengkaji',ES3:'Eselon III',ES4:'Eselon IV',PEL:'Pelaksana'};
 
+/* Penelusuran berjenjang Unit Eselon I ke Eselon II ke Eselon III lalu jabatan, sebagai
+   alternatif tabel datar. Sebagian jabatan memang tidak punya induk Eselon II atau III pada
+   sumbernya (jabatan pimpinan tinggi dan jabatan dari generasi lama), dan itu ditampilkan
+   apa adanya sebagai kelompok tersendiri, bukan disembunyikan. */
+function _kjGrup(rows,kunci){
+  var g={},urut=[];
+  rows.forEach(function(j){
+    var k=j[kunci]||'';
+    if(!(k in g)){g[k]=[];urut.push(k);}
+    g[k].push(j);});
+  urut.sort(function(a,b){
+    if(!a)return 1;if(!b)return -1;
+    return g[b].length-g[a].length||a.localeCompare(b,'id');});
+  return {g:g,urut:urut};
+}
+function vKjTelusur(){
+  var rows=kompRows().filter(function(j){return j.gen!=='118';});
+  var h='<div class="note-box">Penelusuran berjenjang mengikuti susunan organisasi: pilih unit Eselon I, lalu unit Eselon II di bawahnya, lalu Eselon III, sampai ketemu jabatannya. Yang ditampilkan hanya standar yang berlaku.</div>';
+  /* Tingkat 1: unit Eselon I */
+  var u1=_kjGrup(rows,'u');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">1. Unit Eselon I</h2><div style="display:flex;flex-wrap:wrap;gap:6px">'+
+    u1.urut.map(function(k){
+      return '<span class="tag link'+(state.kompUE1===k?' on':'')+'" data-act="kompnav1" data-k="'+esc(k)+'" style="'+(state.kompUE1===k?'background:var(--brand);color:#fff':'')+'">'+
+        esc(kompUnitNama(k))+' <b>'+fmt(u1.g[k].length)+'</b></span>';}).join('')+'</div></div>';
+  if(!state.kompUE1)return h+'<div class="empty">Pilih satu unit Eselon I untuk melanjutkan penelusuran.</div>';
+  var r1=u1.g[state.kompUE1]||[];
+  var u2=_kjGrup(r1,'e2');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">2. Unit Eselon II pada '+esc(kompUnitNama(state.kompUE1))+'</h2><div style="display:flex;flex-wrap:wrap;gap:6px">'+
+    u2.urut.map(function(k){
+      return '<span class="tag link'+(state.kompNav2===k?' on':'')+'" data-act="kompnav2" data-k="'+esc(k)+'" style="'+(state.kompNav2===k?'background:var(--brand);color:#fff':'')+'">'+
+        esc(k||'tanpa induk Eselon II')+' <b>'+fmt(u2.g[k].length)+'</b></span>';}).join('')+'</div></div>';
+  if(!(state.kompNav2 in u2.g))return h+'<div class="empty">Pilih satu unit Eselon II untuk melanjutkan.</div>';
+  var r2=u2.g[state.kompNav2]||[];
+  var u3=_kjGrup(r2,'e3');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">3. Unit Eselon III pada '+esc(state.kompNav2||'unit tanpa induk')+'</h2><div style="display:flex;flex-wrap:wrap;gap:6px">'+
+    u3.urut.map(function(k){
+      return '<span class="tag link'+(state.kompNav3===k?' on':'')+'" data-act="kompnav3" data-k="'+esc(k)+'" style="'+(state.kompNav3===k?'background:var(--brand);color:#fff':'')+'">'+
+        esc(k||'tanpa induk Eselon III')+' <b>'+fmt(u3.g[k].length)+'</b></span>';}).join('')+'</div></div>';
+  var r3=(state.kompNav3 in u3.g)?u3.g[state.kompNav3]:r2;
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">4. Jabatan ('+fmt(r3.length)+')</h2>'+
+    '<div class="tblw"><table><thead><tr><th>Jabatan</th><th>Jenjang</th><th>Rumpun</th><th class="num-c">UK</th><th>Status</th></tr></thead><tbody>';
+  r3.slice().sort(function(a,b){
+    var o={'Es I':1,'Es II':2,'Es III':3,'Es IV':4};
+    return (o[a.lv]||9)-(o[b.lv]||9)||a.n.localeCompare(b.n,'id');}).forEach(function(j){
+    h+='<tr class="clk" data-act="kompopen" data-i="'+j.i+'"><td><b>'+esc(j.n)+'</b></td><td>'+kompLvlTag(j.lv)+'</td>'+
+       '<td>'+esc(j.rp||'-')+'</td><td class="num-c">'+(j.uk||[]).length+'</td>'+
+       '<td>'+kompGenTag(j)+(j.urj?' <span class="pill on">ANJAB</span>':'')+'</td></tr>';});
+  h+='</tbody></table></div></div>';
+  return h;
+}
+
 /* ---------- 2. Standar Kompetensi Jabatan (cermin lembar PMK 124 dan PMK 118/135) ---------- */
 function vKjStandar(){
   var g=kompGuard();if(g)return g;
+  var mode=state.kompMode||'tabel';
+  var _seg='<div class="toolbar"><div class="seg">'+
+    '<button class="segb'+(mode==='tabel'?' on':'')+'" data-act="kompmode" data-k="tabel">Tabel &amp; Penyaring</button>'+
+    '<button class="segb'+(mode==='telusur'?' on':'')+'" data-act="kompmode" data-k="telusur">Telusuri Berjenjang</button>'+
+    '</div></div>';
+  if(mode==='telusur')return _seg+vKjTelusur();
   var rows=kompFiltered(),semua=kompRows();
   var h='<div class="kpis">'+
     kpiBox('Hasil Tampil',fmt(rows.length),'dari '+fmt(semua.length)+' posisi jabatan')+
@@ -7063,6 +7139,7 @@ function vKjStandar(){
     kpiBox('Ada Padanan Uraian Jabatan',fmt(rows.filter(function(j){return j.urj;}).length),'bisa dibuka berdampingan','good')+
     kpiBox('Ber-KSA',fmt(rows.filter(function(j){return j.ksa;}).length),'aspek kritis dan keahlian')+
     '</div>';
+  h=_seg+h;
   h+='<div class="toolbar">'+
      '<input class="search" id="kompQ" placeholder="Cari nama jabatan, unit, atau kompetensi..." value="'+esc(state.kompQ||'')+'">'+
      kompSelUnit()+kompSelEs()+kompSelRp()+kompSelGen()+
@@ -7126,8 +7203,13 @@ function vKjDetail(){
       if((ik||[]).length)h+='<ul style="margin:6px 0 0 18px">'+ik.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';
     }else if(!kg){h+='<div class="mini" style="margin-top:4px">Rincian level kompetensi ini belum ada di kamus.</div>';}
     if(kritis)h+='<div style="margin-top:6px"><b>Aspek kritis:</b> '+esc(kritis)+'</div>';
+    if(!j.ksa)h+=kompKhChips(u[0],5);
     h+='</div>';});
   h+='</div>';
+  if(!j.ksa){
+    var adaJejak=(j.uk||[]).some(function(u){var d=kompKhUk(u[0]);return d&&(d.k||[]).length;});
+    if(adaJejak)h+='<div class="note-box">Jabatan ini tidak punya paket KSA pada sumbernya, sebab aspek kritis dan daftar keahlian di Database SKTJ baru disusun untuk jabatan pimpinan tinggi. Keahlian yang tercantum di atas <b>indikatif</b>, ditarik dari keahlian yang menyertai jabatan lain yang memakai unit kompetensi yang sama. Angka di tiap keahlian menunjukkan berapa dari sekian jabatan itu yang membutuhkannya.</div>';
+  }
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Kompetensi Manajerial dan Sosial Kultural</h2>';
   if(!j.ms){h+='<div class="mini">Data generasi ini tidak memuat level kompetensi manajerial dan sosial kultural.</div>';}
   else{
@@ -7303,7 +7385,7 @@ function vKjKamus(){
         ((k.urusan&&k.urusan.length)?'<span class="tag">'+esc(k.urusan.join(' · '))+'</span>':'')+
         (k.rp?'<span class="tag" style="background:var(--brand-l);color:var(--brand-d)">'+esc(k.rp[0])+(k.rp[1]?(' &rsaquo; '+esc(k.rp[1])):'')+'</span>':'')+
         (pakai[k.k]?'<span class="tag">dipakai '+fmt(pakai[k.k])+' baris jabatan</span>':'<span class="pill warn">belum dipakai jabatan</span>')+
-        '</div>'+(k.def?'<p style="margin:0">'+esc(k.def)+'</p>':'')+'</div>';
+        '</div>'+(k.def?'<p style="margin:0">'+esc(k.def)+'</p>':'')+kompKhChips(k.n,8)+'</div>';
       ['1','2','3','4','5'].forEach(function(l){
         var d=k.lv&&k.lv[l];if(!d)return;
         h2+='<div class="card"><h2 class="sec" style="margin-top:0">Level '+l+'</h2><p style="margin:0 0 6px">'+esc(d.d||'-')+'</p>'+
@@ -7780,9 +7862,11 @@ function kompPanelUrjab(j){
     (kandidat.length>1?'<span class="mini">'+kandidat.length+' posisi dengan nama sama</span>':'')+'</div>'+
     '<div class="tblw"><table><thead><tr><th>Unit kompetensi teknis</th><th class="num-c">Level</th><th>Kluster</th></tr></thead><tbody>';
   (k.uk||[]).forEach(function(x){
-    h+='<tr><td>'+esc(x[0])+'</td><td class="num-c">'+esc(String(x[1]))+'</td><td class="mini">'+esc(kompKlNama(kompKl(x[0])))+'</td></tr>';});
+    var dk=kompKhUk(x[0]);
+    h+='<tr><td>'+esc(x[0])+(dk&&(dk.k||[]).length?('<div class="mini">'+dk.k.slice(0,3).map(function(y){return esc(y[0]);}).join(' &middot; ')+'</div>'):'')+
+       '</td><td class="num-c">'+esc(String(x[1]))+'</td><td class="mini">'+esc(kompKlNama(kompKl(x[0])))+'</td></tr>';});
   h+='</tbody></table></div>';
-  if(typeof k.ms==='number'&&k.ms)h+='<div class="mini" style="margin-top:6px">Kompetensi manajerial dan sosial kultural: seluruh sembilan kompetensi pada level '+k.ms+' sesuai jenjang '+esc(k.lv)+'.</div>';
+  if(typeof k.ms==='number'&&k.ms)h+='<div class="mini" style="margin-top:6px">Kompetensi manajerial dan sosial kultural: seluruh sembilan kompetensi pada level '+k.ms+' sesuai jenjang '+esc(k.lv)+'. Baris kecil di bawah nama kompetensi adalah keahlian yang biasa menyertainya, bersifat indikatif.</div>';
   h+='<div style="margin-top:8px"><span class="tag link" data-act="kompopen" data-i="'+k.i+'">Lihat rincian standar kompetensi &rsaquo;</span></div></div>';
   return h;
 }
@@ -9355,7 +9439,11 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='kompgaplvl'){state.kompGapLvl=(state.kompGapLvl===el.dataset.k)?'':(el.dataset.k||'');render();}
   else if(a==='kompgapu'){state.kompGapU=(state.kompGapU===el.dataset.k)?'':(el.dataset.k||'');render();}
   else if(a==='kompdom'){state.kompDom=el.dataset.k||'';render();}
-  else if(a==='kompunit'){state.kompUE1=el.dataset.k||'';state.view='kjstandar';render();}
+  else if(a==='kompunit'){state.kompUE1=el.dataset.k||'';state.kompMode='tabel';state.view='kjstandar';render();}
+  else if(a==='kompmode'){state.kompMode=el.dataset.k;render();}
+  else if(a==='kompnav1'){state.kompUE1=(state.kompUE1===el.dataset.k)?'':el.dataset.k;state.kompNav2=null;state.kompNav3=null;render();}
+  else if(a==='kompnav2'){state.kompNav2=(state.kompNav2===el.dataset.k)?null:el.dataset.k;state.kompNav3=null;render();}
+  else if(a==='kompnav3'){state.kompNav3=(state.kompNav3===el.dataset.k)?null:el.dataset.k;render();}
   else if(a==='kompkeurjab'){kompKeUrjab(el.dataset.u,el.dataset.n);}
   else if(a==='cutiunitmode'){state.cutiUnitMode=el.dataset.k;render();}
   else if(a==='cutiunitsel'){state.cutiUnitSel=el.dataset.k||null;render();}
