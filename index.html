@@ -970,6 +970,36 @@ async function loadCuti(){if(CUTI)return CUTI;let d=null;if(REMOTE){d=await api(
   if(!d||!d.tahunan)throw new Error('cuti-unavailable');CUTI=d;return CUTI;}
 function ensureCuti(){if(CUTI||state.cutiLoading)return;state.cutiLoading=true;state.cutiErr=false;progStart();
   loadCuti().then(()=>{state.cutiLoading=false;progDone();render();}).catch(()=>{state.cutiLoading=false;progDone();state.cutiErr=true;render();});}
+/* Modul Kompetensi Jabatan: standar kompetensi (KOMJ) + kamus kompetensi (KOMK).
+   KOMK dimuat terpisah dan hanya saat dibutuhkan, sebab isinya teks panjang seluruh level.
+   CATATAN NAMA: nama KJ sengaja TIDAK dipakai, sudah terpakai sebagai peubah lokal
+   Katalog Jabatan (const KJ=KATREF.katjab) beserta state kjQ/kjUE1/kjLvl. */
+/* Berkas komjab.json disimpan dalam bentuk RINGKAS: nama kompetensi dan triplet rumpun
+   diganti nomor rujukan ke dua daftar kecil di berkas yang sama (ukNama, rpList). Alasannya
+   keduanya berulang 17.916 kali dan memakan 1,45 MB percuma; berkas turun 3,44 MB jadi 1,83 MB.
+   Bentuknya dipulihkan di sini sekali saja, sehingga seluruh kode tampilan tetap membaca
+   [nama, level, [tema, sub, sub-sub]] seperti biasa dan tidak perlu tahu soal peringkasan ini. */
+function _komjExp(d){
+  if(!d||d._exp||!d.jabatan)return d;
+  var N=d.ukNama||[],R=d.rpList||[];
+  var f=function(a){
+    if(typeof a[0]!=='number')return a;             /* sudah bentuk panjang, jangan diapa-apakan */
+    return [N[a[0]]!==undefined?N[a[0]]:'',a[1],R[a[2]]||['','','']];};
+  d.jabatan.forEach(function(j){
+    j.uk=(j.uk||[]).map(f);
+    if(j.uklama)j.uklama=j.uklama.map(f);});
+  (d.jf||[]).forEach(function(x){(x.uk||[]).forEach(function(u){u.ref=f(u.ref);});});
+  d._exp=1;return d;}
+let KOMJ=_komjExp(null);const KOMJ_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?kj=1';
+let KOMK=null;const KOMK_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?kjk=1';
+async function loadKomjab(){if(KOMJ)return KOMJ;let d=null;if(REMOTE){d=await api('kj',{});}else if(KOMJ_URL){const r=await fetch(KOMJ_URL);d=await r.json();}else{return KOMJ;}
+  if(!d||!d.jabatan)throw new Error('komjab-unavailable');KOMJ=_komjExp(d);return KOMJ;}
+function ensureKomjab(){if(KOMJ||state.kompLoading)return;state.kompLoading=true;state.kompErr=false;progStart();
+  loadKomjab().then(()=>{state.kompLoading=false;progDone();render();}).catch(()=>{state.kompLoading=false;progDone();state.kompErr=true;render();});}
+async function loadKamus(){if(KOMK)return KOMK;let d=null;if(REMOTE){d=await api('kjk',{});}else if(KOMK_URL){const r=await fetch(KOMK_URL);d=await r.json();}else{return KOMK;}
+  if(!d||!d.komtek)throw new Error('kamuskom-unavailable');KOMK=d;return KOMK;}
+function ensureKamus(){if(KOMK||state.kamLoading)return;state.kamLoading=true;state.kamErr=false;progStart();
+  loadKamus().then(()=>{state.kamLoading=false;progDone();render();}).catch(()=>{state.kamLoading=false;progDone();state.kamErr=true;render();});}
 /* Mode 'files': muat semua data inti (struktural + MK + akun) dari ./data/*.json sebelum login/render. */
 async function ensureCore(){
   if(DATAMODE!=='files'||OTK)return;
@@ -1765,7 +1795,8 @@ const ICONP={
  katalog:'<rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.2"/>',
  tk:'<path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.2l5-.7z"/><path d="M8.5 21h7"/><path d="M12 17.5V21"/>',
  remote:'<rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8 20.5h8M12 16.5v4"/><path d="M6.5 8.2h5M6.5 11h8"/>',
- cuti:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 9.5h18"/><path d="m9 15.5 2 2 4-4.5"/>'
+ cuti:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 9.5h18"/><path d="m9 15.5 2 2 4-4.5"/>',
+ komjab:'<path d="M12 3 4 6.8v5c0 4.6 3.2 8.4 8 9.2 4.8-.8 8-4.6 8-9.2v-5z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/>'
 };
 function svgIcon(k,s){s=s||17;return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${s>30?1.3:1.6}" stroke-linecap="round" stroke-linejoin="round">${ICONP[k]||''}</svg>`;}
 const MODULES=[
@@ -1784,6 +1815,11 @@ const MODULES=[
    {grp:'',items:[{v:'jabkomposisi',lab:'Peta Jabatan'}]},
    {grp:'Jabatan Struktural',items:[{v:'urjab',lab:'Repositori Jabatan'},{v:'tema',lab:'Penelusuran Tematik'},{v:'urjabanalisis',lab:'Analisis Jabatan'},{v:'urjabkaitan',lab:'Keterkaitan Fungsi & Tugas'},{v:'urjabinsight',lab:'Insight Jabatan'},{v:'urjabcompare',lab:'Komparasi Jabatan'},{v:'urjabredun',lab:'Replikasi Jabatan'}]},
    {grp:'Jabatan Fungsional',items:[{v:'jf',lab:'Peta JF Keuangan Negara'},{v:'jfmap',lab:'Peta Pengelola JF'},{v:'jffungsi',lab:'Fungsionalisasi (Delayering)'}]},
+ ]},
+ {id:'komjab',icn:'komjab',lab:'Kompetensi Jabatan',groups:[
+   {grp:'',items:[{v:'kj',lab:'Ikhtisar Kompetensi'}]},
+   {grp:'Standar Kompetensi',items:[{v:'kjrumpun',lab:'Rumpun Jabatan'},{v:'kjstandar',lab:'Standar Kompetensi Jabatan'},{v:'kjksa',lab:'KSA & Keahlian'}]},
+   {grp:'Referensi',items:[{v:'kjkamus',lab:'Kamus Kompetensi'},{v:'kjtentang',lab:'Tentang Data'}]},
  ]},
  {id:'abk',icn:'abk',lab:'Analisis Beban Kerja',groups:[
    {grp:'',items:[{v:'abk',lab:'Profil ABK'}]},
@@ -1826,7 +1862,7 @@ const MODULES=[
    {grp:'',items:[{v:'katalog',lab:'Kompetensi'},{v:'pb_katalog',lab:'Proses Bisnis'},{v:'pb_layanan',lab:'Layanan'},{v:'pb_aplikasi',lab:'Aplikasi'}]},
  ]},
 ];
-const VIEW2MOD={beranda:'beranda',urjabdetail:'urjab',otkdetail:'otk',otkvdetail:'otk',skill:'mk',unit1:'mk',unit2:'mk',team:'mk',emp:'mk',jfprofil:'urjab',abkunit:'abk'};
+const VIEW2MOD={beranda:'beranda',urjabdetail:'urjab',otkdetail:'otk',otkvdetail:'otk',skill:'mk',unit1:'mk',unit2:'mk',team:'mk',emp:'mk',jfprofil:'urjab',abkunit:'abk',kjdetail:'komjab',kjkamusdetail:'komjab'};
 const MODDEF={};
 MODULES.forEach(m=>{MODDEF[m.id]=(m.groups[0]&&m.groups[0].items[0]&&m.groups[0].items[0].v)||m.id;
   m.groups.forEach(g=>g.items.forEach(it=>VIEW2MOD[it.v]=m.id));});
@@ -1844,7 +1880,7 @@ const DOMAINS=[
 ];
 const MODDOMAIN={
   probis:'organisasi', otk:'organisasi', urjab:'organisasi', abk:'organisasi',
-  mk:'organisasi', kapabilitas:'organisasi', katref:'organisasi',
+  mk:'organisasi', kapabilitas:'organisasi', katref:'organisasi', komjab:'organisasi',
   cuti:'sdm',   /* modul pertama domain SDM (14 Ago 2026); modul lain menyusul via kontrak modul */
   takelola:'tatakelola', layanan:'tatakelola', katalog:'tatakelola', unitremote:'tatakelola'
 };
@@ -1860,6 +1896,7 @@ const MODKET={
   otk:'Struktur organisasi, rentang kendali, dan usulan penataan.',
   urjab:'Uraian jabatan struktural & fungsional beserta analisisnya.',
   abk:'Beban kerja dan kebutuhan pegawai per unit (PMK 175/238).',
+  komjab:'Standar kompetensi jabatan: rumpun, kompetensi teknis dan manajerial, hingga keahlian (KSA).',
   mk:'Adopsi mekanisme kerja: tim, penyelesaian penugasan, pegawai.',
   kapabilitas:'Kapabilitas kelembagaan (MOFIN) dan tindak lanjutnya.',
   takelola:'Pelimpahan wewenang/mandat (KMK 167/2025) lintas unit.',
@@ -1891,6 +1928,8 @@ const MENUKET={
   // Mekanisme Kerja
   ringkasan:'Ikhtisar adopsi mekanisme kerja untuk pimpinan.',analisis:'Kinerja penyelesaian penugasan tim dan ketepatan waktu.',insight:'Temuan otomatis dan rekomendasi tindak lanjut.',timanalitik:'Kuadran kinerja tim: penyelesaian vs ketepatan.',kategoritim:'Pengelompokan tim menurut kategori kerja.',people:'Analitik pegawai: keahlian, ketersediaan, dan beban.',heatmap:'Peta panas adopsi mekanisme kerja antar unit.',beban:'Sebaran beban penugasan pada tim dan pegawai.',struktur:'Telusuri unit beserta tim kerja di dalamnya.',tim:'Jelajahi seluruh tim kerja dan detailnya.',pegawai:'Jelajahi pegawai dan keanggotaan timnya.',keahlian:'Cari pegawai menurut keahlian (expert locator).',avail:'Perkiraan ketersediaan pegawai dari beban kerjanya.',
   // Analitik Cuti (domain SDM)
+  // Kompetensi Jabatan
+  kj:'Ikhtisar standar kompetensi jabatan dan cakupannya.',kjrumpun:'Taksonomi rumpun jabatan tiga tingkat beserta konsep penataannya.',kjstandar:'Daftar standar kompetensi tiap posisi jabatan, dapat disaring dan dicari.',kjdetail:'Rincian kompetensi teknis, manajerial dan sosial kultural, serta KSA satu jabatan.',kjksa:'Keahlian yang dibutuhkan jabatan, dipadankan dengan Katalog Kompetensi.',kjkamus:'Kamus kompetensi teknis dan mansoskul beserta indikator perilaku tiap level.',kjtentang:'Sumber, cakupan, batasan, dan mutu data standar kompetensi.',
   cuti:'Ringkasan pemanfaatan cuti pegawai lintas jenis dan tahun.',cutitren:'Tren bulanan dan pola musiman pengajuan cuti.',cutiunit:'Cuti tiap unit Eselon I, dapat ditelusuri sampai Eselon II.',cutiwilayah:'Sebaran cuti menurut kota tempat kantor berada.',cutiutilisasi:'Pemakaian hak cuti tahunan dibanding hak 24 hari kerja.',cutikualitas:'Kepatuhan terhadap ketentuan hak cuti dan mutu rekaman data.',cutidemografi:'Sebaran cuti menurut kelompok usia dan gender.',cutipola:'Pola hari mulai/selesai cuti dan kalender kapasitas kehadiran.',cutisakit:'Kategori alasan cuti sakit hasil pengolahan teks.',cutiprediksi:'Proyeksi beban cuti berbasis pola musiman historis.',cutisimulasi:'Simulasi dampak perubahan ambang potongan tunjangan (PMK 221/PMK.01/2021).',cutitentang:'Sumber, cakupan, kualitas, dan batasan data cuti.',
   // Kompetensi
   katalog:'Referensi kompetensi jabatan.',
@@ -1912,6 +1951,7 @@ const MENUOBJ={
   jabkomposisi:'Menilai keseimbangan jabatan struktural dan fungsional.',urjab:'Merujuk uraian jabatan resmi saat menata SDM.',urjabanalisis:'Menilai cakupan dan kerincian uraian tugas jabatan.',urjabkaitan:'Memastikan tiap fungsi organisasi didukung tugas dan sumber daya.',urjabinsight:'Menemukan anomali jabatan untuk ditindaklanjuti.',urjabcompare:'Menilai kemiripan atau perbedaan dua jabatan.',urjabredun:'Menemukan jabatan dengan tugas yang berulang.',jf:'Memetakan jabatan fungsional pengelola keuangan negara.',jfmap:'Mengetahui unit pembina tiap jabatan fungsional.',jffungsi:'Menilai peluang pengalihan struktural ke fungsional.',
   abk:'Mengetahui beban kerja dan kebutuhan pegawai tiap unit.',abkkalibrasi:'Memastikan hasil ABK sesuai norma dan ambang.',abknorma:'Merujuk dasar waktu penghitungan beban kerja.',abkstruktur:'Menilai kesesuaian beban dengan tugas dan fungsi unit.',abkpareto:'Menemukan kegiatan penyumbang beban terbesar.',abksimulasi:'Menguji dampak redistribusi pegawai sebelum diputuskan.',
   ringkasan:'Memantau adopsi mekanisme kerja bagi pimpinan.',analisis:'Menilai kinerja penyelesaian penugasan tim.',insight:'Mendapat rekomendasi tindak lanjut otomatis.',timanalitik:'Memetakan tim berkinerja tinggi dan yang perlu dibantu.',kategoritim:'Memahami komposisi tim menurut jenis kerja.',people:'Menilai keahlian, ketersediaan, dan beban pegawai.',heatmap:'Membandingkan tingkat adopsi antar unit.',beban:'Menemukan tim atau pegawai dengan beban berlebih.',struktur:'Menelusuri unit beserta tim di dalamnya.',tim:'Mendalami detail satu tim kerja.',pegawai:'Mendalami keanggotaan dan kontribusi pegawai.',keahlian:'Menemukan pegawai dengan keahlian tertentu.',avail:'Menilai siapa yang tersedia untuk penugasan baru.',
+  kj:'Mengetahui sejauh mana jabatan sudah punya standar kompetensi.',kjrumpun:'Memahami pengelompokan bidang tugas yang menaungi kompetensi.',kjstandar:'Menemukan standar kompetensi jabatan tertentu dengan cepat.',kjdetail:'Membaca kompetensi satu jabatan sampai indikator perilakunya.',kjksa:'Menemukan jabatan yang membutuhkan suatu keahlian.',kjkamus:'Merujuk definisi dan tingkatan tiap kompetensi secara baku.',kjtentang:'Memahami batasan data sebelum memakainya untuk keputusan.',
   cuti:'Memantau pemanfaatan cuti pegawai secara menyeluruh.',cutitren:'Mengantisipasi lonjakan pengajuan cuti pada periode tertentu.',cutiunit:'Membandingkan intensitas cuti antar unit secara adil.',cutiwilayah:'Melihat perbedaan pola cuti antar wilayah kerja.',cutiutilisasi:'Memastikan hak istirahat pegawai benar-benar dimanfaatkan.',cutikualitas:'Menemukan rekaman cuti yang perlu diperiksa dan diperbaiki.',cutidemografi:'Memahami profil risiko cuti menurut usia dan gender.',cutipola:'Merencanakan kapasitas kehadiran dan jadwal kegiatan besar.',cutisakit:'Memahami penyebab cuti sakit untuk intervensi kesehatan.',cutiprediksi:'Memperkirakan beban cuti mendatang untuk perencanaan.',cutisimulasi:'Menguji dampak usulan revisi kebijakan potongan tunjangan.',cutitentang:'Memahami sumber, cakupan, dan batasan data cuti.',
   katalog:'Merujuk standar kompetensi jabatan.',
   mofin:'Menilai kapabilitas kelembagaan tiap unit.',mofheatmap:'Membandingkan skor kapabilitas antar unit dan dimensi.',mofprofil:'Mendalami kapabilitas satu unit.',moftl:'Memantau tindak lanjut rekomendasi kapabilitas.',mofkuadran:'Memprioritaskan area lemah dengan respons rendah.',mofgap:'Menentukan tindak lanjut kapabilitas yang paling mendesak.',
@@ -2079,7 +2119,10 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   cutiLoading:false,cutiErr:false,cutiTrJenis:'Cuti Tahunan',cutiUnitJenis:'',cutiUnitTahun:'',cutiUnitMode:'abs',cutiDemoJenis:'Cuti Sakit',cutiPolaJenis:'Cuti Tahunan',cutiPredJenis:'Cuti Sakit',cutiSimHari:10,cutiUnitSel:null,cutiWilQ:'',cutiUtilTahun:'',
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
   simUE1:'',simUnit:'',simTarget:300,simTrR:0,simTrS:0,simTrK:0,
-  jfQ:'',jfJenis:'',jfSel:null,jfFungUE1:'',jfFungF:'',jkView:'bezetting'};
+  jfQ:'',jfJenis:'',jfSel:null,jfFungUE1:'',jfFungF:'',jkView:'bezetting',
+  kompLoading:false,kompErr:false,kamLoading:false,kamErr:false,
+  kompQ:'',kompUE1:'',kompEs:'',kompRp:'',kompGen:'',kompSel:null,kompDari:'',
+  kompRpSel:'',kompRpTab:'asis',kompKhQ:'',kompKhSel:null,kompKamQ:'',kompKamSel:null,kompKamTab:'teknis'};
 
 /* Render satu modul (kepala + akordeon grup/menu). Dipakai di dalam loop domain. */
 function _renderMod(m,curV,curM){
@@ -2157,6 +2200,7 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'List Dataset',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
   tk:'Ikhtisar Tata Kelola',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   cuti:'Ringkasan Cuti Pegawai',cutitren:'Tren & Musiman Cuti',cutiunit:'Profil Unit',cutiwilayah:'Sebaran Wilayah',cutiutilisasi:'Utilisasi Hak Cuti Tahunan',cutikualitas:'Kepatuhan & Mutu Data',cutidemografi:'Demografi & Gender Cuti',cutipola:'Pola Hari & Kalender Kapasitas',cutisakit:'Kategori Cuti Sakit',cutiprediksi:'Proyeksi Beban Cuti',cutisimulasi:'Simulasi Kebijakan PMK 221',cutitentang:'Tentang Data Cuti',
+  kj:'Ikhtisar Kompetensi Jabatan',kjrumpun:'Rumpun Jabatan',kjstandar:'Standar Kompetensi Jabatan',kjdetail:'Standar Kompetensi Satu Jabatan',kjksa:'KSA & Keahlian',kjkamus:'Kamus Kompetensi',kjkamusdetail:'Rincian Kompetensi',kjtentang:'Tentang Data Kompetensi',
   mofin:'Skor Kapabilitas',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Ikhtisar Pelimpahan',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
 
 /* ===== Kartu SOROTAN (dipakai lintas modul) =====
@@ -2798,6 +2842,7 @@ function vUrjabDetail(){
   h+=lst('Tanggung Jawab',j.tanggung_jawab);
   h+=lst('Syarat Jabatan',j.syarat);
   h+=pwPanelUrjab(j);
+  h+=kompPanelUrjab(j);
   return h;
 }
 
@@ -6131,10 +6176,11 @@ function renderCrumb(){
   const bk=_hist.length?`<a data-act="navback" title="Kembali ke menu sebelumnya" style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;font-weight:700;color:var(--brand)">&lsaquo; Kembali</a> <span style="color:var(--line);margin:0 4px">|</span> `:'';
   if(v.indexOf('pb_')===0){var _mid=VIEW2MOD[v]||'probis';var _ml=(MODULES.find(function(m){return m.id===_mid;})||{}).lab||'Proses Bisnis';document.getElementById('crumb').innerHTML=bk+'<span>'+esc(_ml)+' &rsaquo; '+esc(PB_LBL[v.slice(3)]||'')+'</span>';return;}
   const home={ringkasan:'Dashboard Pimpinan',analisis:'Analisis',timanalitik:'Tim Analytic',people:'People Analytics',insight:'Insight & Rekomendasi',heatmap:'Heatmap',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',avail:'Ketersediaan Pegawai',katalog:'Kompetensi',katdata:'List Dataset',urjab:'Repositori Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',katakt:'Katalog Produk ABK',katpeta:'Peta Aktivitas Kantor',katjab:'Katalog Jabatan',katpb:'Katalog Proses Bisnis',katnw:'Katalog Norma Waktu',katunit:'Katalog Unit & Kantor',katsvc:'Katalog Layanan',katapp:'Katalog Aplikasi',katwen:'Katalog Kewenangan',
-    beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi',jfmap:'Peta Unit Pengelola JF',jf:'Peta JF Keuangan Negara',jffungsi:'Fungsionalisasi (Delayering)',jabkomposisi:'Peta Jabatan',panduan:'Panduan Navigasi'}[v];
+    beranda:'Beranda',otk:'Pohon Organisasi',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',otkeval:'Evaluasi Organisasi',jfmap:'Peta Unit Pengelola JF',jf:'Peta JF Keuangan Negara',jffungsi:'Fungsionalisasi (Delayering)',jabkomposisi:'Peta Jabatan',panduan:'Panduan Navigasi',kj:'Ikhtisar Kompetensi',kjrumpun:'Rumpun Jabatan',kjstandar:'Standar Kompetensi Jabatan',kjksa:'KSA & Keahlian',kjkamus:'Kamus Kompetensi',kjtentang:'Tentang Data Kompetensi'}[v];
   if(home)c.push(`<span>${home}</span>`);
   else{
     if(v==='urjabdetail'){c.push(`<a data-act="nav" data-view="urjab">Repositori Uraian Jabatan</a>`);c.push('&rsaquo;');c.push(`<span>${esc(((URJAB&&URJAB.jabatan[state.urjabJab])||{}).jabatan||'Detail')}</span>`);}
+    if(v==='kjdetail'){c.push(`<a data-act="nav" data-view="kjstandar">Standar Kompetensi Jabatan</a>`);c.push('&rsaquo;');c.push(`<span>${esc((((KOMJ&&KOMJ.jabatan)||[]).find(function(x){return x.i===state.kompSel;})||{}).n||'Rincian')}</span>`);}
     if(v==='jfprofil'){c.push(`<a data-act="nav" data-view="jf">Peta JF Keuangan Negara</a>`);c.push('&rsaquo;');c.push(`<span>${esc(jfKNName(state.jfSel)||'Profil')}</span>`);}
     if(v==='otkdetail'){c.push(`<a data-act="nav" data-view="otk">Struktur Organisasi</a>`);c.push('&rsaquo;');c.push(`<span>${esc((OTK.unit[state.otkSel]||{}).nama||'Unit')}</span>`);}
     if(v==='otkvdetail'){const _vs=curVSet();c.push(`<a data-act="nav" data-view="otk">Struktur Organisasi</a>`);c.push('&rsaquo;');c.push(`<span>${esc(((vById((_vs.ds[_vs.key]||{unit:[]}).unit,state.otkVertSel))||{}).nama||'Unit')}</span>`);}
@@ -6191,6 +6237,12 @@ function vKatData(){
     {d:'Analitik Cuti Pegawai',f:'cuti.json',m:'Analitik Cuti (domain SDM)',a:'Gerbang · saat menu dibuka · sensitif',
      s:()=>!!(typeof CUTI==='object'&&CUTI&&CUTI.tahunan),p:()=>{var a=(CUTI&&CUTI.meta&&CUTI.meta.periode&&CUTI.meta.periode.akhirLabel)||'';return a?('Data s.d. '+a+' · di luar DJP/DJBC'):'Agregat cuti pegawai (anonim)';},
      u:'build_cuti.py lalu ganti isi file di Drive (File ID tetap)',o:'Sumber HRIS · Biro Sumber Daya Manusia'},
+    {d:'Standar Kompetensi Jabatan',f:'komjab.json',m:'Kompetensi Jabatan; panel standar kompetensi di Detail Uraian Jabatan',a:'Gerbang · saat menu dibuka',
+     s:()=>!!(typeof KOMJ==='object'&&KOMJ&&KOMJ.jabatan),p:()=>{var n=(KOMJ&&KOMJ.jabatan&&KOMJ.jabatan.length)||0;return n?(fmt(n)+' posisi jabatan · PMK 124 dan PMK 118/135'):'Database SKTJ';},
+     u:'build_komjab.py lalu ganti isi file di Drive (File ID tetap)',o:'Biro Sumber Daya Manusia · Biro Organisasi dan Ketatalaksanaan'},
+    {d:'Kamus Kompetensi',f:'kamuskom.json',m:'Kompetensi Jabatan (rincian level dan indikator perilaku)',a:'Gerbang · saat rincian atau kamus dibuka',
+     s:()=>!!(typeof KOMK==='object'&&KOMK&&KOMK.komtek),p:()=>{var n=(KOMK&&KOMK.komtek&&KOMK.komtek.length)||0;return n?(fmt(n)+' kompetensi teknis · 9 manajerial dan sosial kultural'):'Kamus kompetensi teknis dan mansoskul';},
+     u:'build_komjab.py lalu ganti isi file di Drive (File ID tetap)',o:'Biro Sumber Daya Manusia'},
     {d:'Katalog Kompetensi',f:'katalog_keahlian.json',m:'Katalog (referensi keahlian)',a:'Gerbang · saat menu dibuka',
      s:()=>!!(typeof KATALOG==='object'&&KATALOG),p:()=>'Referensi taksonomi keahlian',
      u:'Ganti isi file di Drive (File ID tetap)',o:'Biro Organisasi dan Ketatalaksanaan'},
@@ -6812,6 +6864,9 @@ function render(){
   if(state.view==='katpeta'&&!ABK&&!state.abkLoading)ensureAbk();
   if(state.view==='jabkomposisi'&&!ABK&&!state.abkLoading)ensureAbk();
   if(state.view.indexOf('cuti')===0&&!CUTI&&!state.cutiLoading)ensureCuti();
+  if(state.view.indexOf('kj')===0&&!KOMJ&&!state.kompLoading)ensureKomjab();
+  if((state.view==='kjdetail'||state.view==='kjkamus')&&!KOMK&&!state.kamLoading)ensureKamus();
+  if(state.view==='urjabdetail'&&!KOMJ&&!state.kompLoading&&((typeof canMod!=='function')||canMod('komjab')))ensureKomjab();
   if(state.view==='profilunit'&&!CUTI&&!state.cutiLoading&&((typeof canMod!=='function')||canMod('cuti')))ensureCuti();
   renderNav();
   const isPb=state.view.indexOf('pb_')===0;
@@ -6831,6 +6886,7 @@ function render(){
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabkaitan:vUrjabKaitan,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,katakt:vKatAkt,katpeta:vKatPeta,katjab:vKatJab,katpb:vKatPb,katnw:vKatNw,katunit:vKatUnit,katsvc:vKatSvc,katapp:vKatApp,katwen:vKatWen,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
+    kj:vKj,kjrumpun:vKjRumpun,kjstandar:vKjStandar,kjdetail:vKjDetail,kjksa:vKjKsa,kjkamus:vKjKamus,kjtentang:vKjTentang,
     cuti:vCuti,cutitren:vCutiTren,cutiunit:vCutiUnit,cutiwilayah:vCutiWilayah,cutiutilisasi:vCutiUtilisasi,cutikualitas:vCutiKualitas,cutidemografi:vCutiDemografi,cutipola:vCutiPola,cutisakit:vCutiSakit,cutiprediksi:vCutiPrediksi,cutisimulasi:vCutiSimulasi,cutitentang:vCutiTentang,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   viewEl.innerHTML=menuDescBar()+freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
@@ -6839,6 +6895,449 @@ function render(){
   vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
+/* ==================== MODUL KOMPETENSI JABATAN (domain Organisasi) ====================
+   Data: komjab.json + kamuskom.json (build_komjab.py) dari Database SKTJ.
+   Dua generasi standar (PMK 124 dan PMK 118/135) berada dalam SATU daftar dengan penanda
+   generasi, sehingga tidak ada dobel hitung. Satu catatan = satu POSISI jabatan
+   (unit, Eselon II, Eselon III, nama), sebab nama jabatan yang sama pada posisi berbeda
+   memang bisa berbeda susunan kompetensinya. */
+function kompGuard(){
+  if(state.kompErr)return '<div class="empty">Gagal memuat data standar kompetensi jabatan. Periksa koneksi lalu buka menu ini lagi.</div>';
+  if(!KOMJ||state.kompLoading)return skelMemuat('Memuat standar kompetensi jabatan (sekitar 3,4 MB), mohon tunggu...');
+  return '';
+}
+function kamGuard(){
+  if(state.kamErr)return '<div class="note-box">Kamus kompetensi gagal dimuat. Rincian level dan indikator perilaku belum bisa ditampilkan.</div>';
+  if(!KOMK||state.kamLoading)return '<div class="note-box">Memuat kamus kompetensi...</div>';
+  return '';
+}
+const KOMP_GEN={'124':'Standar berlaku','124+118':'Standar berlaku','118':'Tidak berlanjut'};
+function kompNrm(s){return String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
+function kompUnitNama(kode){var u=(KOMJ.unit||[]).find(function(x){return x.kode===kode;});return u?u.nama:kode;}
+function kompKamus(nama){if(!KOMK)return null;var k=kompNrm(nama);
+  return (KOMK.komtek||[]).find(function(x){return x.k===k;})||null;}
+function kompMs(nama){if(!KOMK)return null;var k=kompNrm(nama);
+  return (KOMK.mansoskul||[]).find(function(x){return x.k===k;})||null;}
+/* Daftar jabatan yang boleh dilihat pengguna. Data kompetensi bersumber regulasi (bukan
+   data pegawai), tetapi lingkup unit tetap dihormati supaya sejalan dengan modul lain. */
+function kompRows(){
+  var rows=(KOMJ.jabatan||[]);
+  if(typeof SCOPE!=='undefined'&&SCOPE&&SCOPE.type!=='all'&&SCOPE.ue1){
+    var kunci=kompNrm(SCOPE.ue1);
+    rows=rows.filter(function(j){return kompNrm(kompUnitNama(j.u))===kunci;});
+  }
+  return rows;
+}
+function kompFiltered(){
+  var rows=kompRows();
+  if(state.kompUE1)rows=rows.filter(function(j){return j.u===state.kompUE1;});
+  if(state.kompEs)rows=rows.filter(function(j){return j.lv===state.kompEs;});
+  if(state.kompRp)rows=rows.filter(function(j){return j.rp===state.kompRp;});
+  if(state.kompGen==='berlaku')rows=rows.filter(function(j){return j.gen!=='118';});
+  else if(state.kompGen==='putus')rows=rows.filter(function(j){return j.gen==='118';});
+  else if(state.kompGen==='ubah')rows=rows.filter(function(j){return !!j.uklama;});
+  if(state.kompQ){var q=state.kompQ.toLowerCase();
+    rows=rows.filter(function(j){
+      return j.n.toLowerCase().indexOf(q)>=0||(j.e2||'').toLowerCase().indexOf(q)>=0||
+             (j.e3||'').toLowerCase().indexOf(q)>=0||
+             (j.uk||[]).some(function(u){return String(u[0]).toLowerCase().indexOf(q)>=0;});});}
+  return rows;
+}
+function kompGenTag(j){
+  if(j.gen==='118')return '<span class="pill off">Tidak berlanjut</span>';
+  if(j.uklama)return '<span class="pill warn">Berubah</span>';
+  if(j.gen==='124')return '<span class="pill blue">Baru</span>';
+  return '<span class="tag">Tetap</span>';
+}
+function kompLvlTag(lv){return '<span class="tag">'+esc(lv||'-')+'</span>';}
+function kompSelUnit(){
+  var c={};kompRows().forEach(function(j){c[j.u]=(c[j.u]||0)+1;});
+  var ks=Object.keys(c).sort(function(a,b){return c[b]-c[a];});
+  return '<select class="flt" id="kompUE1"><option value="">Semua unit ('+ks.length+')</option>'+
+    ks.map(function(k){return '<option value="'+esc(k)+'"'+(state.kompUE1===k?' selected':'')+'>'+esc(kompUnitNama(k))+' ('+c[k]+')</option>';}).join('')+'</select>';
+}
+function kompSelRp(){
+  var c={};kompRows().forEach(function(j){if(j.rp)c[j.rp]=(c[j.rp]||0)+1;});
+  var ks=Object.keys(c).sort(function(a,b){return c[b]-c[a];});
+  return '<select class="flt" id="kompRp"><option value="">Semua rumpun ('+ks.length+')</option>'+
+    ks.map(function(k){return '<option value="'+esc(k)+'"'+(state.kompRp===k?' selected':'')+'>'+esc(k)+' ('+c[k]+')</option>';}).join('')+'</select>';
+}
+function kompSelEs(){
+  var urut=['Es I','Es II','Es III','Es IV'],c={};
+  kompRows().forEach(function(j){c[j.lv]=(c[j.lv]||0)+1;});
+  return '<select class="flt" id="kompEs"><option value="">Semua jenjang</option>'+
+    urut.filter(function(x){return c[x];}).map(function(k){return '<option value="'+esc(k)+'"'+(state.kompEs===k?' selected':'')+'>'+esc(k)+' ('+c[k]+')</option>';}).join('')+'</select>';
+}
+function kompSelGen(){
+  var o=[['','Semua generasi'],['berlaku','Standar berlaku'],['ubah','Berubah antar generasi'],['putus','Tidak berlanjut']];
+  return '<select class="flt" id="kompGen">'+o.map(function(x){return '<option value="'+x[0]+'"'+(state.kompGen===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select>';
+}
+
+/* ---------- Ikhtisar ---------- */
+function vKj(){
+  var g=kompGuard();if(g)return g;
+  var rows=kompRows(),st=KOMJ.stat||{},meta=KOMJ.meta||{};
+  var berlaku=rows.filter(function(j){return j.gen!=='118';}).length;
+  var putus=rows.length-berlaku;
+  var ubah=rows.filter(function(j){return !!j.uklama;}).length;
+  var uk={};rows.forEach(function(j){(j.uk||[]).forEach(function(u){if(u[0])uk[u[0]]=(uk[u[0]]||0)+1;});});
+  var nUk=Object.keys(uk).length;
+  var berKsa=rows.filter(function(j){return j.ksa;}).length;
+  var pctUrj=st.urjab_total?Math.round(100*st.urjab_cocok/st.urjab_total):0;
+  var rp={};rows.forEach(function(j){if(j.rp)rp[j.rp]=(rp[j.rp]||0)+1;});
+  var rpU=Object.keys(rp).sort(function(a,b){return rp[b]-rp[a];});
+  var mx=rpU.length?rp[rpU[0]]:0;
+  var es={};rows.forEach(function(j){es[j.lv]=(es[j.lv]||0)+1;});
+  var h='<div class="kpis">'+
+    kpiBox('Posisi Jabatan Berstandar',fmt(berlaku),putus?(fmt(putus)+' lagi tidak berlanjut'):'standar berlaku')+
+    kpiBox('Kompetensi Teknis Dipakai',fmt(nUk),'dari '+fmt(st.komtek||0)+' kompetensi di kamus','gold')+
+    kpiBox('Cakupan Repositori Jabatan',pctUrj+'%',fmt(st.urjab_cocok||0)+' dari '+fmt(st.urjab_total||0)+' nama jabatan','good')+
+    kpiBox('Jabatan Ber-KSA',fmt(berKsa),'aspek kritis dan keahlian')+
+    '</div>';
+  h+=sorotanCard('Yang terbaca dari standar kompetensi',
+    'Sebanyak <b>'+fmt(berlaku)+'</b> posisi jabatan sudah punya standar kompetensi yang berlaku, masing-masing enam unit kompetensi teknis '+
+    'ditambah sembilan kompetensi manajerial dan sosial kultural. Rumpun terbesar adalah <b>'+esc(rpU[0]||'-')+'</b> dengan '+fmt(mx)+' jabatan. '+
+    'Sebanyak <b>'+fmt(ubah)+'</b> posisi berubah susunan kompetensinya dibanding generasi standar sebelumnya, dan <b>'+fmt(putus)+'</b> posisi lama tidak berlanjut '+
+    'karena penataan organisasi. Padanan ke Repositori Jabatan mencapai <b>'+pctUrj+' persen</b>, sehingga standar ini bisa dibaca berdampingan dengan uraian jabatannya.',
+    [{v:'kjstandar',t:'Telusuri Standar Kompetensi'},{v:'kjrumpun',t:'Lihat Rumpun Jabatan'}]);
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Sebaran Jabatan menurut Rumpun</h2>';
+  rpU.forEach(function(k){h+=bar(k,rp[k],mx,'',fmt(rp[k]),{a:'komprp',d:'data-k="'+esc(k)+'"'});});
+  h+='<div class="mini" style="margin-top:6px">Mencakup seluruh '+fmt(rows.length)+' posisi pada daftar gabungan, termasuk '+fmt(putus)+' posisi generasi lama yang tidak berlanjut. Rumpun jabatan diturunkan dari rumpun mayoritas enam unit kompetensinya. Klik nama rumpun untuk menyaring daftar jabatan.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Sebaran menurut Jenjang</h2><div class="tblw"><table><thead><tr><th>Jenjang</th><th class="num-c">Posisi jabatan</th><th class="num-c">Level mansoskul</th></tr></thead><tbody>';
+  ['Es I','Es II','Es III','Es IV'].forEach(function(k){if(!es[k])return;
+    var contoh=rows.find(function(j){return j.lv===k&&typeof j.ms==='number'&&j.ms;});
+    h+='<tr><td>'+esc(k)+'</td><td class="num-c">'+fmt(es[k])+'</td><td class="num-c">'+(contoh?contoh.ms:'-')+'</td></tr>';});
+  h+='</tbody></table></div><div class="mini" style="margin-top:6px">Angka mencakup seluruh '+fmt(rows.length)+' posisi pada daftar gabungan. Level kompetensi manajerial dan sosial kultural pada data ini seragam menurut jenjang, belum dibedakan antar jabatan pada jenjang yang sama.</div></div>';
+  h+='<div class="mini" style="padding:4px 8px">Sumber: '+esc(meta.sumber||'-')+', diolah '+esc(meta.tanggal_olah||'-')+'.</div>';
+  h+=cutiLanjut([{v:'kjstandar',t:'Standar Kompetensi Jabatan',d:'Cari jabatan lalu buka rincian kompetensinya'},
+                 {v:'kjksa',t:'KSA & Keahlian',d:'Keahlian yang paling banyak dibutuhkan'},
+                 {v:'kjtentang',t:'Tentang Data',d:'Cakupan, batasan, dan temuan mutu data'}]);
+  return h;
+}
+
+/* ---------- Rumpun Jabatan ---------- */
+function vKjRumpun(){
+  var g=kompGuard();if(g)return g;
+  var rows=kompRows(),R=KOMJ.rumpun||{};
+  var jml={},jmlSub={},komp={};
+  rows.forEach(function(j){
+    (j.uk||[]).forEach(function(u){
+      var t=u[2][0],s=u[2][1];
+      if(!t)return;
+      komp[t]=komp[t]||{};if(u[0])komp[t][u[0]]=1;
+      if(s){jmlSub[t+'|'+s]=(jmlSub[t+'|'+s]||0)+1;}
+    });
+    if(j.rp)jml[j.rp]=(jml[j.rp]||0)+1;
+  });
+  var tab=state.kompRpTab||'asis';
+  var h='<div class="note-box">Rumpun jabatan adalah pengelompokan bidang tugas yang menaungi kompetensi teknis. Taksonominya tiga tingkat: rumpun, sub rumpun, dan sub-sub rumpun. Angka jabatan dihitung dari rumpun mayoritas enam unit kompetensi tiap jabatan.</div>';
+  h+='<div class="toolbar"><div class="seg">'+
+     '<button class="segb'+(tab==='asis'?' on':'')+'" data-act="komprptab" data-k="asis">Taksonomi Berlaku</button>'+
+     '<button class="segb'+(tab==='tobe'?' on':'')+'" data-act="komprptab" data-k="tobe">Konsep Penataan (As Is ke To Be)</button>'+
+     '</div></div>';
+  if(tab==='tobe'){
+    var tb=R.tobe||[];
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Konsep Penataan Rumpun Jabatan</h2>'+
+       '<div class="mini" style="margin-bottom:8px">Rancangan penataan yang dibawa berkas sumber, disajikan apa adanya sebagai bahan pembahasan. Belum menjadi ketentuan.</div>'+
+       '<div class="tblw"><table><thead><tr><th>Rumpun (berlaku)</th><th>Sub Rumpun</th><th>Sub-Sub Rumpun</th><th>Rumpun (usulan)</th><th>Sub Rumpun (usulan)</th></tr></thead><tbody>';
+    tb.forEach(function(x){
+      h+='<tr><td>'+esc(x.asis[0])+'</td><td>'+esc(x.asis[1])+'</td><td>'+esc(x.asis[2])+'</td>'+
+         '<td>'+esc(x.tobe[0]||'-')+'</td><td>'+esc(x.tobe[1]||'-')+'</td></tr>';});
+    h+='</tbody></table></div><div class="mini" style="margin-top:6px">'+fmt(tb.length)+' baris pemetaan.</div></div>';
+    return h;
+  }
+  var pohon=R.pohon||[];
+  pohon=pohon.slice().sort(function(a,b){return (jml[b.t]||0)-(jml[a.t]||0);});
+  var mx=pohon.length?(jml[pohon[0].t]||1):1;
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Rumpun, Sub Rumpun, dan Sub-Sub Rumpun</h2>';
+  pohon.forEach(function(t){
+    var nk=Object.keys(komp[t.t]||{}).length;
+    var buka=state.kompRpSel===t.t;
+    h+='<div style="margin-bottom:10px">'+
+      bar(t.t,jml[t.t]||0,mx,'',fmt(jml[t.t]||0)+' jabatan · '+nk+' kompetensi',{a:'komprpsel',d:'data-k="'+esc(t.t)+'"'});
+    if(buka){
+      h+='<div class="tblw" style="margin:6px 0 0 12px"><table><thead><tr><th>Sub Rumpun</th><th>Sub-Sub Rumpun</th><th class="num-c">Baris kompetensi</th></tr></thead><tbody>';
+      (t.sub||[]).slice().sort(function(a,b){return (jmlSub[t.t+'|'+b.s]||0)-(jmlSub[t.t+'|'+a.s]||0);}).forEach(function(s){
+        h+='<tr><td>'+esc(s.s||'-')+'</td><td>'+esc((s.ss||[]).join(', ')||'-')+'</td><td class="num-c">'+fmt(jmlSub[t.t+'|'+s.s]||0)+'</td></tr>';});
+      h+='</tbody></table></div>'+
+         '<div class="mini" style="margin:6px 0 0 12px"><span class="tag link" data-act="komprp" data-k="'+esc(t.t)+'">Lihat jabatan rumpun ini &rsaquo;</span></div>';
+    }
+    h+='</div>';
+  });
+  h+='<div class="mini" style="margin-top:6px">Klik nama rumpun untuk membuka sub rumpunnya.</div></div>';
+  return h;
+}
+
+/* ---------- Daftar standar kompetensi jabatan ---------- */
+function vKjStandar(){
+  var g=kompGuard();if(g)return g;
+  var rows=kompFiltered(),semua=kompRows();
+  var h='<div class="kpis">'+
+    kpiBox('Hasil Tampil',fmt(rows.length),'dari '+fmt(semua.length)+' posisi jabatan')+
+    kpiBox('Berubah Antar Generasi',fmt(rows.filter(function(j){return !!j.uklama;}).length),'susunan kompetensinya bergeser','gold')+
+    kpiBox('Ada Padanan Uraian Jabatan',fmt(rows.filter(function(j){return j.urj;}).length),'bisa dibuka berdampingan','good')+
+    kpiBox('Ber-KSA',fmt(rows.filter(function(j){return j.ksa;}).length),'aspek kritis dan keahlian')+
+    '</div>';
+  h+='<div class="toolbar">'+
+     '<input class="search" id="kompQ" placeholder="Cari nama jabatan, unit, atau kompetensi..." value="'+esc(state.kompQ||'')+'">'+
+     kompSelUnit()+kompSelEs()+kompSelRp()+kompSelGen()+
+     '<span class="mini">'+fmt(rows.length)+' jabatan</span></div>';
+  if(!rows.length)return h+'<div class="empty">Tidak ada jabatan yang cocok dengan penyaring ini.</div>';
+  h+='<div class="tblw"><table><thead><tr><th>Jabatan</th><th>Unit</th><th>Jenjang</th><th>Rumpun</th><th>Status</th><th class="num-c">UK</th></tr></thead><tbody>';
+  rows.slice(0,300).forEach(function(j){
+    h+='<tr class="clk" data-act="kompopen" data-i="'+j.i+'">'+
+       '<td><b>'+esc(j.n)+'</b>'+(j.e2?('<div class="mini">'+esc(j.e2)+(j.e3?(' &rsaquo; '+esc(j.e3)):'')+'</div>'):'')+'</td>'+
+       '<td>'+esc(kompUnitNama(j.u))+'</td><td>'+kompLvlTag(j.lv)+'</td><td>'+esc(j.rp||'-')+'</td>'+
+       '<td>'+kompGenTag(j)+(j.urj?' <span class="pill on">ANJAB</span>':'')+'</td>'+
+       '<td class="num-c">'+(j.uk||[]).length+'</td></tr>';});
+  h+='</tbody></table></div>';
+  if(rows.length>300)h+='<div class="mini" style="padding:8px">Menampilkan 300 dari '+fmt(rows.length)+' jabatan. Persempit dengan pencarian atau penyaring.</div>';
+  return h;
+}
+
+/* ---------- Rincian satu jabatan ---------- */
+function vKjDetail(){
+  var g=kompGuard();if(g)return g;
+  var j=(KOMJ.jabatan||[]).find(function(x){return x.i===state.kompSel;});
+  if(!j)return '<div class="empty">Jabatan tidak ditemukan. Kembali ke daftar standar kompetensi.</div>';
+  var h='<div class="toolbar"><span class="tag link" data-act="kompback">&lsaquo; Kembali ke daftar</span>';
+  if(j.urj)h+='<span class="tag link" data-act="kompkeurjab" data-n="'+esc(j.n)+'" data-u="'+esc(j.u)+'">Buka Uraian Jabatan &rsaquo;</span>';
+  h+='</div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">'+esc(j.n)+'</h2>'+
+     '<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px">'+
+     '<span class="tag">'+esc(kompUnitNama(j.u))+'</span>'+kompLvlTag(j.lv)+kompGenTag(j)+
+     (j.st?'<span class="tag">'+esc(j.st)+'</span>':'')+
+     (j.rp?'<span class="tag" style="background:var(--brand-l);color:var(--brand-d)">'+esc(j.rp)+'</span>':'')+'</div>'+
+     (j.e2?'<div class="mini">'+esc(j.e2)+(j.e3?(' &rsaquo; '+esc(j.e3)):'')+'</div>':'')+
+     '<div class="mini">Dasar: '+esc(j.dsr||'-')+(j.dsr118?(' · generasi sebelumnya: '+esc(j.dsr118)):'')+'</div>'+
+     (j.cek?'':'<div class="mini" style="color:var(--st-warn)">Sumber menandai jumlah unit kompetensi jabatan ini perlu diperiksa ulang.</div>')+
+     '</div>';
+  var kg=kamGuard();
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kompetensi Teknis ('+(j.uk||[]).length+')</h2>';
+  if(kg)h+=kg;
+  (j.uk||[]).forEach(function(u){
+    var kam=kompKamus(u[0]),lv=kam&&kam.lv?kam.lv[String(u[1])]:null;
+    var kritis=(j.ksa&&j.ksa.kritis)?j.ksa.kritis[u[0]]:'';
+    h+='<div style="border-top:1px solid var(--line);padding:10px 0">'+
+       '<div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">'+
+       '<b style="color:var(--brand-d)">'+esc(u[0])+'</b>'+
+       '<span class="tag" style="background:var(--brand-l);color:var(--brand-d)">Level '+esc(String(u[1]))+'</span>'+
+       (kam&&kam.kode?'<span class="mini">'+esc(kam.kode)+'</span>':'')+
+       (u[2][1]?'<span class="mini">'+esc(u[2][0])+' &rsaquo; '+esc(u[2][1])+'</span>':'')+'</div>';
+    if(kam&&kam.def)h+='<div class="mini" style="margin-top:4px">'+esc(kam.def)+'</div>';
+    if(lv){
+      h+='<div style="margin-top:6px"><b>Deskripsi level '+esc(String(u[1]))+':</b> '+esc(lv.d||'-')+'</div>';
+      if((lv.ik||[]).length){h+='<ul style="margin:6px 0 0 18px">'+lv.ik.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';}
+    }else if(!kg){h+='<div class="mini" style="margin-top:4px">Rincian level kompetensi ini belum ada di kamus.</div>';}
+    if(kritis)h+='<div style="margin-top:6px"><b>Aspek kritis:</b> '+esc(kritis)+'</div>';
+    h+='</div>';});
+  h+='</div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kompetensi Manajerial dan Sosial Kultural</h2>';
+  if(!j.ms){h+='<div class="mini">Data generasi ini tidak memuat level kompetensi manajerial dan sosial kultural.</div>';}
+  else{
+    var msNama=(KOMK&&KOMK.ms_urut)||['Integritas','Kerjasama','Komunikasi','Orientasi pada Hasil','Pelayanan Publik','Pengembangan Diri dan Orang Lain','Mengelola Perubahan','Pengambilan Keputusan','Perekat Bangsa'];
+    h+=kg||'';
+    h+='<div class="tblw"><table><thead><tr><th>Kompetensi</th><th class="num-c">Level</th><th>Deskripsi level</th></tr></thead><tbody>';
+    msNama.forEach(function(n){
+      var lvv=(typeof j.ms==='number')?j.ms:(j.ms[n]||0);
+      var m=kompMs(n),d=(m&&m.lv&&m.lv[String(lvv)])?m.lv[String(lvv)].d:'';
+      h+='<tr><td><b>'+esc(n)+'</b>'+(m&&m.jenis?('<div class="mini">'+esc(m.jenis)+'</div>'):'')+'</td>'+
+         '<td class="num-c">'+esc(String(lvv||'-'))+'</td><td>'+esc(d||'-')+'</td></tr>';});
+    h+='</tbody></table></div><div class="mini" style="margin-top:6px">Level pada data ini seragam menurut jenjang jabatan, belum dibedakan antar jabatan pada jenjang yang sama.</div>';
+  }
+  h+='</div>';
+  if(j.ksa&&(j.ksa.keahlian||[]).length){
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Keahlian yang Dibutuhkan (KSA)</h2><div style="display:flex;flex-wrap:wrap;gap:6px">'+
+      j.ksa.keahlian.map(function(k){return '<span class="tag link" data-act="kompkh" data-k="'+esc(k)+'">'+esc(k)+'</span>';}).join('')+
+      '</div><div class="mini" style="margin-top:6px">Klik keahlian untuk melihat jabatan lain yang membutuhkannya.</div></div>';
+  }
+  if(j.uklama){
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Perubahan dari Generasi Standar Sebelumnya</h2>'+
+       '<div class="mini" style="margin-bottom:8px">Susunan kompetensi jabatan ini berbeda dengan standar generasi sebelumnya'+
+       (j.uklama_varian?(' (generasi lama punya '+j.uklama_varian+' varian, ditampilkan varian pertama)'):'')+'.</div>';
+    var baru={},lama={};
+    (j.uk||[]).forEach(function(u){baru[kompNrm(u[0])]=u;});
+    (j.uklama||[]).forEach(function(u){lama[kompNrm(u[0])]=u;});
+    h+='<div class="tblw"><table><thead><tr><th>Kompetensi</th><th class="num-c">Level lama</th><th class="num-c">Level berlaku</th><th>Perubahan</th></tr></thead><tbody>';
+    var kunci={};Object.keys(baru).forEach(function(k){kunci[k]=1;});Object.keys(lama).forEach(function(k){kunci[k]=1;});
+    Object.keys(kunci).forEach(function(k){
+      var b=baru[k],l=lama[k];
+      var ket=!l?'Ditambahkan':(!b?'Tidak dipakai lagi':(b[1]===l[1]?'Tetap':(b[1]>l[1]?'Level naik':'Level turun')));
+      h+='<tr><td>'+esc((b||l)[0])+'</td><td class="num-c">'+(l?l[1]:'-')+'</td><td class="num-c">'+(b?b[1]:'-')+'</td><td>'+esc(ket)+'</td></tr>';});
+    h+='</tbody></table></div></div>';
+  }
+  return h;
+}
+
+/* ---------- KSA dan keahlian ---------- */
+function vKjKsa(){
+  var g=kompGuard();if(g)return g;
+  var kh=(KOMJ.keahlian||[]);
+  if(state.kompKhSel){
+    var sel=kh.find(function(x){return kompNrm(x.n)===kompNrm(state.kompKhSel);});
+    if(sel){
+      var jabs=(sel.jab||[]).map(function(i){return (KOMJ.jabatan||[]).find(function(j){return j.i===i;});}).filter(Boolean);
+      var h2='<div class="toolbar"><span class="tag link" data-act="kompkhback">&lsaquo; Kembali ke daftar keahlian</span></div>';
+      h2+='<div class="card"><h2 class="sec" style="margin-top:0">'+esc(sel.n)+'</h2>'+
+        (sel.def?'<p style="margin:0 0 6px">'+esc(sel.def)+'</p>':'')+
+        '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+        (sel.kat?'<span class="tag">'+esc(sel.kat[0])+' &rsaquo; '+esc(sel.kat[2])+'</span>':'<span class="pill warn">Belum baku di katalog</span>')+
+        '<span class="tag">'+fmt(jabs.length)+' jabatan pimpinan tinggi</span>'+
+        (sel.jf?'<span class="tag">'+fmt(sel.jf)+' baris jabatan fungsional</span>':'')+
+        (sel.akn?'<span class="tag">AKN '+fmt(sel.akn)+'</span>':'')+
+        (sel.pkn?'<span class="tag">PKN '+fmt(sel.pkn)+'</span>':'')+
+        '</div></div>';
+      if(jabs.length){
+        h2+='<div class="tblw"><table><thead><tr><th>Jabatan</th><th>Unit</th><th>Jenjang</th></tr></thead><tbody>';
+        jabs.forEach(function(j){h2+='<tr class="clk" data-act="kompopen" data-i="'+j.i+'"><td>'+esc(j.n)+'</td><td>'+esc(kompUnitNama(j.u))+'</td><td>'+kompLvlTag(j.lv)+'</td></tr>';});
+        h2+='</tbody></table></div>';
+      }else{h2+='<div class="note-box">Keahlian ini baru muncul pada standar jabatan fungsional, belum pada jabatan pimpinan tinggi.</div>';}
+      return h2;
+    }
+  }
+  var q=(state.kompKhQ||'').toLowerCase();
+  var rows=kh.filter(function(x){return !q||x.n.toLowerCase().indexOf(q)>=0||(x.def||'').toLowerCase().indexOf(q)>=0;});
+  var baku=kh.filter(function(x){return x.kat;}).length;
+  var h='<div class="kpis">'+
+    kpiBox('Keahlian Terpakai',fmt(kh.length),'pada standar jabatan dan fungsional')+
+    kpiBox('Selaras Katalog Kompetensi',fmt(baku),Math.round(100*baku/Math.max(1,kh.length))+' persen cocok','good')+
+    kpiBox('Belum Baku',fmt(kh.length-baku),'ditampilkan apa adanya, diberi penanda','gold')+
+    kpiBox('Hasil Tampil',fmt(rows.length),q?'cocok pencarian':'')+
+    '</div>';
+  h+='<div class="note-box">Keahlian (KSA) adalah pengetahuan dan keterampilan yang menopang unit kompetensi. Daftar ini dipadankan dengan Katalog Kompetensi yang sudah tayang, sehingga penamaannya bisa dijaga tetap satu bahasa.</div>';
+  h+='<div class="toolbar"><input class="search" id="kompKhQ" placeholder="Cari keahlian atau definisinya..." value="'+esc(state.kompKhQ||'')+'"><span class="mini">'+fmt(rows.length)+' keahlian</span></div>';
+  h+='<div class="tblw"><table><thead><tr><th>Keahlian</th><th>Kelompok di Katalog</th><th class="num-c">Jabatan</th><th class="num-c">Baris JF</th></tr></thead><tbody>';
+  rows.slice(0,250).forEach(function(x){
+    h+='<tr class="clk" data-act="kompkh" data-k="'+esc(x.n)+'"><td><b>'+esc(x.n)+'</b>'+
+       (x.def?('<div class="mini">'+esc(x.def.slice(0,120))+(x.def.length>120?'...':'')+'</div>'):'')+'</td>'+
+       '<td>'+(x.kat?esc(x.kat[0]+' · '+x.kat[2]):'<span class="pill warn">belum baku</span>')+'</td>'+
+       '<td class="num-c">'+fmt((x.jab||[]).length)+'</td><td class="num-c">'+fmt(x.jf||0)+'</td></tr>';});
+  h+='</tbody></table></div>';
+  if(rows.length>250)h+='<div class="mini" style="padding:8px">Menampilkan 250 dari '+fmt(rows.length)+' keahlian.</div>';
+  return h;
+}
+
+/* ---------- Kamus kompetensi ---------- */
+function vKjKamus(){
+  var g=kompGuard();if(g)return g;
+  var kg=kamGuard();if(kg)return kg;
+  var tab=state.kompKamTab||'teknis';
+  var h='<div class="toolbar"><div class="seg">'+
+     '<button class="segb'+(tab==='teknis'?' on':'')+'" data-act="kompkamtab" data-k="teknis">Kompetensi Teknis ('+fmt((KOMK.komtek||[]).length)+')</button>'+
+     '<button class="segb'+(tab==='ms'?' on':'')+'" data-act="kompkamtab" data-k="ms">Manajerial &amp; Sosial Kultural ('+fmt((KOMK.mansoskul||[]).length)+')</button>'+
+     '</div></div>';
+  var pakai={};(KOMJ.jabatan||[]).forEach(function(j){(j.uk||[]).forEach(function(u){if(u[0])pakai[kompNrm(u[0])]=(pakai[kompNrm(u[0])]||0)+1;});});
+  var daftar=(tab==='ms')?(KOMK.mansoskul||[]):(KOMK.komtek||[]);
+  if(state.kompKamSel){
+    var k=daftar.find(function(x){return x.k===state.kompKamSel;});
+    if(k){
+      var h2='<div class="toolbar"><span class="tag link" data-act="kompkamback">&lsaquo; Kembali ke kamus</span></div>';
+      h2+='<div class="card"><h2 class="sec" style="margin-top:0">'+esc(k.n)+'</h2>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">'+
+        (k.kode?'<span class="tag">'+esc(k.kode)+'</span>':'')+
+        (k.jenis?'<span class="tag">'+esc(k.jenis)+'</span>':'')+
+        ((k.urusan&&k.urusan.length)?'<span class="tag">'+esc(k.urusan.join(', '))+'</span>':'')+
+        (k.rp?'<span class="tag" style="background:var(--brand-l);color:var(--brand-d)">'+esc(k.rp[0])+(k.rp[1]?(' &rsaquo; '+esc(k.rp[1])):'')+'</span>':'')+
+        (pakai[k.k]?'<span class="tag">dipakai '+fmt(pakai[k.k])+' baris jabatan</span>':'<span class="tag">belum dipakai jabatan</span>')+
+        '</div>'+(k.def?'<p style="margin:0">'+esc(k.def)+'</p>':'')+'</div>';
+      ['1','2','3','4','5'].forEach(function(l){
+        var d=k.lv&&k.lv[l];if(!d)return;
+        h2+='<div class="card"><h2 class="sec" style="margin-top:0">Level '+l+'</h2><p style="margin:0 0 6px">'+esc(d.d||'-')+'</p>'+
+          ((d.ik||[]).length?('<b>Indikator perilaku:</b><ul style="margin:6px 0 0 18px">'+d.ik.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'):'')+'</div>';});
+      return h2;
+    }
+  }
+  var q=(state.kompKamQ||'').toLowerCase();
+  var rows=daftar.filter(function(x){return !q||x.n.toLowerCase().indexOf(q)>=0||(x.def||'').toLowerCase().indexOf(q)>=0;});
+  h+='<div class="toolbar"><input class="search" id="kompKamQ" placeholder="Cari kompetensi atau definisinya..." value="'+esc(state.kompKamQ||'')+'"><span class="mini">'+fmt(rows.length)+' kompetensi</span></div>';
+  h+='<div class="tblw"><table><thead><tr><th>Kompetensi</th><th>Kode</th><th>Rumpun / Jenis</th><th class="num-c">Level</th><th class="num-c">Dipakai</th></tr></thead><tbody>';
+  rows.slice(0,300).forEach(function(x){
+    h+='<tr class="clk" data-act="kompkam" data-k="'+esc(x.k)+'"><td><b>'+esc(x.n)+'</b>'+
+       (x.def?('<div class="mini">'+esc(x.def.slice(0,110))+(x.def.length>110?'...':'')+'</div>'):'')+'</td>'+
+       '<td>'+esc(x.kode||'-')+'</td>'+
+       '<td>'+esc(x.jenis||(x.rp?x.rp[0]:'-'))+'</td>'+
+       '<td class="num-c">'+Object.keys(x.lv||{}).length+'</td>'+
+       '<td class="num-c">'+fmt(pakai[x.k]||0)+'</td></tr>';});
+  h+='</tbody></table></div>';
+  if(rows.length>300)h+='<div class="mini" style="padding:8px">Menampilkan 300 dari '+fmt(rows.length)+' kompetensi.</div>';
+  return h;
+}
+
+/* ---------- Tentang data ---------- */
+function vKjTentang(){
+  var g=kompGuard();if(g)return g;
+  var m=KOMJ.meta||{},st=KOMJ.stat||{},rows=KOMJ.jabatan||[];
+  var putus=rows.filter(function(j){return j.gen==='118';}).length;
+  var ubah=rows.filter(function(j){return !!j.uklama;}).length;
+  var cek=rows.filter(function(j){return !j.cek;}).length;
+  var tanpaSt=rows.filter(function(j){return !j.st;}).length;
+  var belumBaku=(KOMJ.keahlian||[]).filter(function(x){return !x.kat;}).length;
+  var unitLama=(KOMJ.unit||[]).filter(function(u){return u.lama;}).length;
+  var h='<div class="card"><h2 class="sec" style="margin-top:0">Sumber &amp; Cakupan</h2>'+
+    '<p style="margin:0 0 6px"><b>Sumber:</b> '+esc(m.sumber||'-')+', diolah '+esc(m.tanggal_olah||'-')+'.</p>'+
+    '<p style="margin:0 0 6px"><b>Dasar:</b> '+((m.dasar||[]).map(esc).join('; ')||'-')+'.</p>'+
+    '<p style="margin:0"><b>Cakupan:</b> '+fmt(rows.length)+' posisi jabatan pada '+fmt((KOMJ.unit||[]).length)+' unit ('+fmt(unitLama)+' di antaranya unit lama yang sudah tidak ada pada struktur berjalan), '+
+    fmt(st.komtek||0)+' kompetensi teknis di kamus, 9 kompetensi manajerial dan sosial kultural, '+fmt(st.keahlian||0)+' keahlian, dan '+fmt(st.jf||0)+' kombinasi standar jabatan fungsional.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Cara Membaca</h2>'+
+    '<p style="margin:0 0 6px">Satu catatan sama dengan satu <b>posisi</b> jabatan, yaitu gabungan unit, Eselon II, Eselon III, dan nama jabatan. Nama jabatan yang sama pada posisi berbeda memang bisa berbeda susunan kompetensinya, sehingga penggabungan menurut nama saja akan menyesatkan.</p>'+
+    '<p style="margin:0 0 6px">Dua generasi standar berada dalam satu daftar. Penanda <b>Baru</b> berarti hanya ada pada standar berlaku, <b>Berubah</b> berarti susunan kompetensinya bergeser dari generasi sebelumnya, <b>Tetap</b> berarti sama, dan <b>Tidak berlanjut</b> berarti hanya ada pada generasi lama.</p>'+
+    '<p style="margin:0"><b>Rumpun jabatan</b> tidak diambil dari kolom bantu berkas sumber, sebab kolom itu tidak konsisten antar baris satu jabatan. Rumpun diturunkan dari rumpun mayoritas enam unit kompetensinya, dan aturan ini berlaku sama untuk semua jabatan.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Mutu Data yang Dibuka Apa Adanya</h2>'+
+    '<div class="tblw"><table><thead><tr><th>Temuan</th><th class="num-c">Jumlah</th><th>Perlakuan</th></tr></thead><tbody>'+
+    '<tr><td>Posisi jabatan bertanda perlu periksa ulang oleh penyusun</td><td class="num-c">'+fmt(cek)+'</td><td>Dibawa apa adanya, ditandai pada halaman rincian</td></tr>'+
+    '<tr><td>Posisi jabatan tanpa isi kolom Status</td><td class="num-c">'+fmt(tanpaSt)+'</td><td>Dibiarkan kosong, tidak ditebak</td></tr>'+
+    '<tr><td>Posisi jabatan yang berubah antar generasi</td><td class="num-c">'+fmt(ubah)+'</td><td>Susunan lama disimpan dan ditampilkan sebagai pembanding</td></tr>'+
+    '<tr><td>Posisi jabatan generasi lama yang tidak berlanjut</td><td class="num-c">'+fmt(putus)+'</td><td>Tetap ditampilkan dengan penanda, tidak dihapus</td></tr>'+
+    '<tr><td>Keahlian yang penamaannya belum baku</td><td class="num-c">'+fmt(belumBaku)+'</td><td>Ditampilkan dengan penanda, menunggu pembakuan pemilik data</td></tr>'+
+    '</tbody></table></div>'+
+    '<div class="mini" style="margin-top:6px">Rekonsiliasi lengkap baris masuk dan keluar ada pada berkas <b>komjab_validasi.md</b> yang dihasilkan skrip pengolah.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Batasan</h2>'+
+    '<p style="margin:0 0 6px">Level kompetensi manajerial dan sosial kultural pada data ini <b>seragam menurut jenjang jabatan</b> (Eselon I 5, Eselon II 4, Eselon III 3, Eselon IV 2), tanpa satu pun kekecualian. Angka itu adalah ketentuan jenjang, bukan hasil asesmen pegawai, dan tidak membedakan antar jabatan pada jenjang yang sama.</p>'+
+    '<p style="margin:0 0 6px">Paket KSA berupa aspek kritis dan keahlian baru tersedia untuk jabatan pimpinan tinggi, belum untuk seluruh jenjang. Standar jabatan fungsional tersedia untuk lima jabatan fungsional di bidang keuangan negara.</p>'+
+    '<p style="margin:0">Penyatuan dengan modul lain hanya jujur di aras Eselon I. Unit yang belum berdata pada modul lain ditulis belum ada data, bukan nol.</p></div>';
+  return h;
+}
+
+/* Loncat dari rincian standar kompetensi ke Detail Uraian Jabatan yang sepadan. URJAB
+   dimuat lewat gerbang, jadi pemuatannya dipastikan dulu sebelum berpindah halaman. */
+function kompKeUrjab(unit,nama){
+  if(typeof canMod==='function'&&!canMod('urjab'))return;
+  var UB={SETJEN:'SETJEN',DJP:'DJP',DJBC:'DJBC',DJPb:'DJPB',DJKN:'DJKN',DJA:'DJA',DJPK:'DJPK',DJPPR:'DJPPR',ITJEN:'ITJEN',BPPK:'BPPK',DJSEF:'DJSEF',DJSPSK:'DJSPSK',BTIIK:'BATII'};
+  var uk=UB[unit]||unit,nm=kompNrm(nama);
+  var cari=function(){
+    var idx=((URJAB&&URJAB.jabatan)||[]).findIndex(function(x){return x.unit_kode===uk&&kompNrm(x.jabatan)===nm;});
+    if(idx<0){alert('Uraian jabatan untuk jabatan ini belum ada di repositori.');return;}
+    state.urjabJab=idx;state.view='urjabdetail';render();};
+  if(URJAB)return cari();
+  state.urjabLoading=true;progStart();
+  loadUrjab().then(function(){state.urjabLoading=false;progDone();cari();})
+             .catch(function(){state.urjabLoading=false;progDone();state.urjabErr=true;render();});
+}
+
+/* Panel sisipan di halaman Detail Uraian Jabatan (modul Analisis Jabatan): memasangkan
+   uraian jabatan dengan standar kompetensinya. Dipanggil dari vUrjabDetail. */
+function kompPanelUrjab(j){
+  if(!j||typeof canMod!=='function'||!canMod('komjab'))return '';
+  if(!KOMJ)return '';
+  var UM={SETJEN:'SETJEN',DJP:'DJP',DJBC:'DJBC',DJPB:'DJPb',DJKN:'DJKN',DJA:'DJA',DJPK:'DJPK',DJPPR:'DJPPR',ITJEN:'ITJEN',BPPK:'BPPK',DJSEF:'DJSEF',DJSPSK:'DJSPSK',BATII:'BTIIK'};
+  var u=UM[j.unit_kode]||j.unit_kode,nm=kompNrm(j.jabatan);
+  var kandidat=(KOMJ.jabatan||[]).filter(function(x){return x.u===u&&kompNrm(x.n)===nm;});
+  if(!kandidat.length)return '<div class="card"><h2 class="sec" style="margin-top:0">Standar Kompetensi Jabatan</h2>'+
+    '<div class="mini">Belum ada padanan standar kompetensi untuk jabatan ini pada Database SKTJ.</div></div>';
+  var k=kandidat.find(function(x){return x.gen!=='118';})||kandidat[0];
+  var h='<div class="card"><h2 class="sec" style="margin-top:0">Standar Kompetensi Jabatan</h2>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+kompLvlTag(k.lv)+kompGenTag(k)+
+    (k.rp?'<span class="tag" style="background:var(--brand-l);color:var(--brand-d)">'+esc(k.rp)+'</span>':'')+
+    (kandidat.length>1?'<span class="mini">'+kandidat.length+' posisi dengan nama sama</span>':'')+'</div>'+
+    '<div class="tblw"><table><thead><tr><th>Unit kompetensi teknis</th><th class="num-c">Level</th><th>Rumpun</th></tr></thead><tbody>';
+  (k.uk||[]).forEach(function(x){
+    h+='<tr><td>'+esc(x[0])+'</td><td class="num-c">'+esc(String(x[1]))+'</td><td>'+esc(x[2][1]||x[2][0]||'-')+'</td></tr>';});
+  h+='</tbody></table></div>';
+  if(typeof k.ms==='number'&&k.ms)h+='<div class="mini" style="margin-top:6px">Kompetensi manajerial dan sosial kultural: seluruh sembilan kompetensi pada level '+k.ms+' sesuai jenjang '+esc(k.lv)+'.</div>';
+  h+='<div style="margin-top:8px"><span class="tag link" data-act="kompopen" data-i="'+k.i+'">Lihat rincian standar kompetensi &rsaquo;</span></div></div>';
+  return h;
+}
+
 /* ==================== MODUL ANALITIK CUTI (domain SDM) ====================
    Data: cuti.json (build_cuti.py) - AGREGAT anonim, periode Jan 2020 s.d. Jun 2026,
    cakupan Kemenkeu di luar DJP/DJBC. Empat lapis: deskriptif, diagnostik,
@@ -8202,6 +8701,13 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('avUE1'))q('avUE1').onchange=e=>{state.avUE1=e.target.value;render();};
   if(q('skStat'))q('skStat').onchange=e=>{state.skillStat=e.target.value;render();};if(q('insCat'))q('insCat').onchange=e=>{state.insCat=e.target.value;render();};
   if(q('urjabQ'))q('urjabQ').oninput=e=>{state.urjabQ=e.target.value;rerenderKeep(vUrjab,'urjabQ');};
+  if(q('kompQ'))q('kompQ').oninput=e=>{state.kompQ=e.target.value;rerenderKeep(vKjStandar,'kompQ');};
+  if(q('kompUE1'))q('kompUE1').onchange=e=>{state.kompUE1=e.target.value;render();};
+  if(q('kompEs'))q('kompEs').onchange=e=>{state.kompEs=e.target.value;render();};
+  if(q('kompRp'))q('kompRp').onchange=e=>{state.kompRp=e.target.value;render();};
+  if(q('kompGen'))q('kompGen').onchange=e=>{state.kompGen=e.target.value;render();};
+  if(q('kompKhQ'))q('kompKhQ').oninput=e=>{state.kompKhQ=e.target.value;rerenderKeep(vKjKsa,'kompKhQ');};
+  if(q('kompKamQ'))q('kompKamQ').oninput=e=>{state.kompKamQ=e.target.value;rerenderKeep(vKjKamus,'kompKamQ');};
   if(q('panduanQ'))q('panduanQ').oninput=e=>{state.panduanQ=e.target.value;rerenderKeep(vPanduan,'panduanQ');};
   if(q('otkKaitUE1'))q('otkKaitUE1').onchange=e=>{state.otkKaitUE1=e.target.value;render();};
   if(q('shUE1'))q('shUE1').onchange=e=>{state.shUE1=e.target.value;render();};
@@ -8381,6 +8887,17 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='abksort'){const k=el.dataset.k;state.abkSort=state.abkSort.k===k?{k,d:-state.abkSort.d}:{k,d:k==='nama'?1:-1};render();}
   else if(a==='abkexport'){try{abkExport();}catch(e){alert('Gagal menyiapkan ekspor: '+e);}}
   else if(a==='loadabk'){ensureAbk();}
+  else if(a==='kompopen'){state.kompSel=+el.dataset.i;state.kompDari=state.view;state.view='kjdetail';render();}
+  else if(a==='kompback'){state.view=(state.kompDari&&state.kompDari!=='kjdetail')?state.kompDari:'kjstandar';render();}
+  else if(a==='komprp'){state.kompRp=el.dataset.k||'';state.view='kjstandar';render();}
+  else if(a==='komprpsel'){state.kompRpSel=(state.kompRpSel===el.dataset.k)?'':el.dataset.k;render();}
+  else if(a==='komprptab'){state.kompRpTab=el.dataset.k;render();}
+  else if(a==='kompkh'){state.kompKhSel=el.dataset.k||null;state.view='kjksa';render();}
+  else if(a==='kompkhback'){state.kompKhSel=null;render();}
+  else if(a==='kompkam'){state.kompKamSel=el.dataset.k||null;render();}
+  else if(a==='kompkamback'){state.kompKamSel=null;render();}
+  else if(a==='kompkamtab'){state.kompKamTab=el.dataset.k;state.kompKamSel=null;render();}
+  else if(a==='kompkeurjab'){kompKeUrjab(el.dataset.u,el.dataset.n);}
   else if(a==='cutiunitmode'){state.cutiUnitMode=el.dataset.k;render();}
   else if(a==='cutiunitsel'){state.cutiUnitSel=el.dataset.k||null;render();}
   else if(a==='verifok'||a==='verifno'||a==='verifhapus'){
