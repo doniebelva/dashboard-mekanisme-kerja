@@ -1690,8 +1690,11 @@ window.addEventListener('message',function(e){var d=e&&e.data;if(!d)return;const
 function vertKids(units){const m={};units.forEach(n=>{const p=n.parent==null?-1:n.parent;(m[p]=m[p]||[]).push(n);});return m;}
 // Dataset "vert-like" aktif menurut tab OTK (vertikal/BLU/non-eselon) -> dipakai pohon & detail.
 function curVSet(){
-  if(state.otkMode==='blu')return {ds:(OTKBLU&&OTKBLU.blu)||{},key:state.otkBluSel};
-  if(state.otkMode==='noneselon')return {ds:(OTKBLU&&OTKBLU.noneselon)||{},key:state.otkNonSel};
+  if(state.otkMode==='noneselon'||state.otkMode==='blu'){
+    /* Non Eselon kini satu himpunan: satker berpengelolaan BLU dan bukan BLU. */
+    var _g={};var _b=(OTKBLU&&OTKBLU.noneselon)||{},_c=(OTKBLU&&OTKBLU.blu)||{};
+    Object.keys(_b).forEach(function(k){_g[k]=_b[k];});Object.keys(_c).forEach(function(k){_g[k]=_c[k];});
+    return {ds:_g,key:state.otkNonSel||state.otkBluSel};}
   return {ds:OTKVERT,key:state.otkVertDJ};
 }
 /* cari unit vertikal/BLU by field id (bukan asumsi id==posisi array) supaya tautan tak nyasar walau data ter-reorder */
@@ -1714,11 +1717,26 @@ function kedudukanCard(path,mode,curId){
   return '<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Kedudukan dalam Struktur</h2>'+rows+'</div>';
 }
 function vBluNon(seg){
-  const grp=state.otkMode;                       // 'blu' | 'noneselon'
-  const ds0=(OTKBLU&&OTKBLU[grp])||{};const keys=Object.keys(ds0);
-  const selKey=grp==='blu'?'otkBluSel':'otkNonSel';
-  if(!state[selKey]||!ds0[state[selKey]])state[selKey]=keys[0]||'';
-  const cur=ds0[state[selKey]];const lbl=grp==='blu'?'BLU':'Non-Eselon';
+  /* Satu daftar Non Eselon, memuat satker berpengelolaan BLU maupun bukan. Status BLU
+     disimpan sebagai sifat satker, bukan sebagai jenis organisasi tersendiri. */
+  const _blu=(OTKBLU&&OTKBLU.blu)||{}, _non=(OTKBLU&&OTKBLU.noneselon)||{};
+  const ds0={};const isBlu={};
+  Object.keys(_non).forEach(function(k){ds0[k]=_non[k];isBlu[k]=false;});
+  Object.keys(_blu).forEach(function(k){ds0[k]=_blu[k];isBlu[k]=true;});
+  let keys=Object.keys(ds0);
+  const flt=state.otkNonFlt||'';
+  if(flt==='blu')keys=keys.filter(function(k){return isBlu[k];});
+  else if(flt==='bukan')keys=keys.filter(function(k){return !isBlu[k];});
+  const selKey='otkNonSel';
+  if(!state[selKey]||!ds0[state[selKey]]||keys.indexOf(state[selKey])<0)state[selKey]=keys[0]||'';
+  const cur=ds0[state[selKey]];
+  const lbl='Non Eselon'+(isBlu[state[selKey]]?' (pengelolaan BLU)':'');
+  seg+='<div class="toolbar"><div class="seg">'+
+    ['','blu','bukan'].map(function(f){
+      var t={'':'Semua satker','blu':'Berpengelolaan BLU','bukan':'Bukan BLU'}[f];
+      return '<button class="segb'+(flt===f?' on':'')+'" data-act="otknonflt" data-k="'+f+'">'+t+'</button>';}).join('')+
+    '</div><span class="mini">'+keys.length+' satker</span></div>'+
+    '<div class="note-box">BLU adalah <b>pola pengelolaan keuangan</b>, bukan jenis organisasi, sehingga satker berpengelolaan BLU ditempatkan di sini bersama satker non eselon lainnya dan status BLU-nya menjadi penyaring.</div>';
   if(!keys.length||!cur)return seg+`<div class="card" style="text-align:center;padding:42px 20px"><div style="color:var(--brand);display:flex;justify-content:center">${svgIcon('otk',44)}</div><div style="font-weight:800;color:var(--brand-d);font-size:var(--fs-lg);margin-top:8px">Struktur unit ${esc(lbl)} belum tersedia</div></div>`;
   const units=cur.unit;const km=vertKids(units);
   const nDir=units.filter(n=>n.jenis==='Direktorat').length;const flagN=units.filter(n=>n.flag).length;
@@ -2195,7 +2213,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   urjabQ:'',urjabEs1:'',urjabEs2:'',urjabEs3:'',urjabEs4:'',urjabJab:null,urjabLoading:false,urjabErr:false,
   urjabAnUE1:'',urjabKaitUE1:'',urjabInsSev:'',urjabInsCat:'',urjabCmpA:'',urjabCmpB:'',urjabCmpUE1A:'',urjabCmpUE1B:'',otkCmpA:'',otkCmpB:'',otkCmpUE1A:'',otkCmpUE1B:'',
   otkQ:'',otkExp:{},otkSel:null,otkAnUE1:'',otkShowBagan:false,otkKaitUE1:'',otkKaitF:'',ovTab:'sib',ovCls:'',ovLvl:'',ovUE1:'',shTab:'span',shGap:'',shUE1:'',idxUE1:'',pnTab:'struktur',redTab:'rep',redEs:'',
-  otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',jfFx:'',jfOpen:{},
+  otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkNonFlt:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',jfFx:'',jfOpen:{},
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
   kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',kataktQ:'',kataktKlus:'',katpetaUE1:'',kjQ:'',kjUE1:'',kjLvl:'',kpbQ:'',kpbDom:'',kpbLvl:'',katrefLoading:false,katrefErr:false,nwQ:'',nwKlus:'',kuQ:'',kuUE1:'',kuTipe:'',ksQ:'',ksUE1:'',ksDig:'',kaQ:'',kaUE1:'',kwQ:'',kwUnit:'',kwJenis:'',
   cutiLoading:false,cutiErr:false,cutiTrJenis:'Cuti Tahunan',cutiUnitJenis:'',cutiUnitTahun:'',cutiUnitMode:'abs',cutiDemoJenis:'Cuti Sakit',cutiPolaJenis:'Cuti Tahunan',cutiPredJenis:'Cuti Sakit',cutiSimHari:10,cutiUnitSel:null,cutiWilQ:'',cutiUtilTahun:'',
@@ -3635,10 +3653,23 @@ function vertBranch(km,n,depth){
 }
 function vOtk(){
   const djs=Object.keys(OTKVERT);
-  const seg=`<div class="seg"><span class="segb ${state.otkMode==='pusat'||!state.otkMode?'on':''}" data-act="otkmode" data-m="pusat">Kantor Pusat</span><span class="segb ${state.otkMode==='vertikal'?'on':''}" data-act="otkmode" data-m="vertikal">Instansi Vertikal</span><span class="segb ${state.otkMode==='blu'?'on':''}" data-act="otkmode" data-m="blu">BLU</span><span class="segb ${state.otkMode==='noneselon'?'on':''}" data-act="otkmode" data-m="noneselon">Non Eselon</span></div>`;
+  /* UAT butir 8: BLU bukan jenis organisasi melainkan pola pengelolaan keuangan, sehingga
+     tidak lagi berdiri sebagai ragam tersendiri. Satuan kerja berpengelolaan BLU masuk ke
+     Non Eselon, dan status BLU-nya menjadi penyaring di dalamnya. */
+  const seg=`<div class="seg"><span class="segb ${state.otkMode==='pusat'||!state.otkMode?'on':''}" data-act="otkmode" data-m="pusat">Kantor Pusat</span><span class="segb ${state.otkMode==='vertikal'?'on':''}" data-act="otkmode" data-m="vertikal">Instansi Vertikal dan UPT</span><span class="segb ${(state.otkMode==='noneselon'||state.otkMode==='blu')?'on':''}" data-act="otkmode" data-m="noneselon">Non Eselon</span></div>`;
   if(state.otkMode==='blu'||state.otkMode==='noneselon'){return vBluNon(seg);}
   if(state.otkMode==='vertikal'){
-    const VERTDJ=[['DJPb','Direktorat Jenderal Perbendaharaan'],['DJP','Direktorat Jenderal Pajak'],['DJBC','Direktorat Jenderal Bea dan Cukai'],['DJKN','Direktorat Jenderal Kekayaan Negara']];
+    /* UAT butir 8: dropdown memuat SELURUH Eselon I, bukan hanya empat yang datanya ada,
+       supaya pengguna tahu unit mana yang memang belum punya data instansi vertikal. */
+    const VERTDJ=[['DJPb','Direktorat Jenderal Perbendaharaan'],['DJP','Direktorat Jenderal Pajak'],
+      ['DJBC','Direktorat Jenderal Bea dan Cukai'],['DJKN','Direktorat Jenderal Kekayaan Negara'],
+      ['SETJEN','Sekretariat Jenderal'],['DJA','Direktorat Jenderal Anggaran'],
+      ['DJPK','Direktorat Jenderal Perimbangan Keuangan'],
+      ['DJPPR','Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko'],
+      ['DJSEF','Direktorat Jenderal Strategi Ekonomi dan Fiskal'],
+      ['DJSPSK','Direktorat Jenderal Stabilitas dan Pengembangan Sektor Keuangan'],
+      ['ITJEN','Inspektorat Jenderal'],['BPPK','Badan Pendidikan dan Pelatihan Keuangan'],
+      ['BATII','Badan Teknologi, Informasi, dan Intelijen Keuangan']];
     if(!state.otkVertDJ)state.otkVertDJ='DJPb';
     const djSel=`<select class="flt" id="otkVertDJ">${VERTDJ.map(o=>`<option value="${o[0]}" ${state.otkVertDJ===o[0]?'selected':''}>${esc(o[1])}${OTKVERT[o[0]]?'':' (belum ada data)'}</option>`).join('')}</select>`;
     const ds=OTKVERT[state.otkVertDJ];
@@ -3755,7 +3786,7 @@ function vOtkDetail(){
   ${(BAGAN[n.id]&&state.otkShowBagan)?`<div class="card" style="margin-bottom:12px;text-align:center"><img src="otk_bagan/${BAGAN[n.id]}" alt="Bagan ${esc(n.nama)}" style="max-width:100%;border:1px solid var(--line);border-radius:8px"></div>`:''}`;
   h+=kedudukanCard(path,'pusat',n.id);
   if(n.tugas)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Tugas</h2><div style="font-size:var(--fs-base);line-height:1.6">${esc(n.tugas)}</div></div>`;
-  if(n.fungsi&&n.fungsi.length)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Fungsi <span class="mini">(${n.fungsi.length})</span></h2><ol style="margin:0;padding-left:20px;font-size:var(--fs-base);line-height:1.6">${n.fungsi.map(f=>`<li style="margin-bottom:5px">${esc(f)}</li>`).join('')}</ol></div>`;
+  if(n.fungsi&&n.fungsi.length)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Fungsi Unit <span class="mini">(${n.fungsi.length})</span></h2><div class="mini" style="margin-bottom:7px">Fungsi di sini adalah <b>fungsi unit organisasi menurut PMK OTK</b>, yaitu rincian dari tugas unit yang menjadi dasar penyusunan uraian tugas jabatan di dalamnya. Bukan fungsi jabatan perorangan, dan bukan pula proses bisnis.</div><ol style="margin:0;padding-left:20px;font-size:var(--fs-base);line-height:1.6">${n.fungsi.map(f=>`<li style="margin-bottom:5px">${esc(f)}</li>`).join('')}</ol></div>`;
   h+=vUnitFungsiTugas(n);
   h+=pwPanelOtk(n);
   h+=profil360(n);
@@ -3776,7 +3807,7 @@ function vOtkVDetail(){
     <div class="mini" style="margin-top:7px">${kedudukanChain(path,'vertikal')}</div></div>`;
   h+=kedudukanCard(path,'vertikal',n.id);
   if(n.tugas)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Tugas</h2><div style="font-size:var(--fs-base);line-height:1.6">${esc(n.tugas)}</div></div>`;
-  if(n.fungsi&&n.fungsi.length)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Fungsi <span class="mini">(${n.fungsi.length})</span></h2><ol style="margin:0;padding-left:20px;font-size:var(--fs-base);line-height:1.6">${n.fungsi.map(f=>`<li style="margin-bottom:5px">${esc(f)}</li>`).join('')}</ol></div>`;
+  if(n.fungsi&&n.fungsi.length)h+=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Fungsi Unit <span class="mini">(${n.fungsi.length})</span></h2><div class="mini" style="margin-bottom:7px">Fungsi di sini adalah <b>fungsi unit organisasi menurut PMK OTK</b>, yaitu rincian dari tugas unit yang menjadi dasar penyusunan uraian tugas jabatan di dalamnya. Bukan fungsi jabatan perorangan, dan bukan pula proses bisnis.</div><ol style="margin:0;padding-left:20px;font-size:var(--fs-base);line-height:1.6">${n.fungsi.map(f=>`<li style="margin-bottom:5px">${esc(f)}</li>`).join('')}</ol></div>`;
   if(kids.length)h+=`<div class="card"><h2 class="sec" style="margin-top:0">Unit di Bawahnya <span class="mini">(${kids.length})</span></h2><div style="display:flex;flex-wrap:wrap;gap:7px">${kids.map(c=>`<span class="tag link" data-act="otkvopen" data-id="${c.id}">${esc(c.nama)}</span>`).join('')}</div></div>`;
   // Keterkaitan modul (BLU/Non-Eselon): tautan ke Jabatan/Mekanisme Kerja, auto-muncul saat data unit sudah di-feeding.
   if(n.parent==null&&(state.otkMode==='blu'||state.otkMode==='noneselon')){
@@ -3933,7 +3964,7 @@ function vOtkOverlap(){
     <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Antar Eselon I</div><div class="val">${fmt(CR.length)}</div><div class="note">tumpang tindih lintas DJ</div></div>
     <div class="kpi gold"><div class="lab">Anak meniru induk</div><div class="val">${fmt(PC.length)}</div><div class="note">kandidat delayering</div></div>
     <div class="kpi good"><div class="lab">Ambang</div><div class="val">&ge;${Math.round((OVERLAP.meta&&OVERLAP.meta.threshold_cross||0.5)*100)}%</div><div class="note">kemiripan kata</div></div></div>
-  <div class="note-box">Irisan dihitung dari kemiripan kata tugas dan fungsi (indeks Jaccard). <b>Kemiripan tinggi tidak selalu duplikasi:</b> unit yang fungsinya sama tetapi hanya dibedakan objek atau nomor (mis. Inspektorat I sampai V) ditandai "Serial/objek" atau "Beda objek"; yang perlu ditinjau adalah kelas "Substantif". ${tab==='cross'?'Pada perbandingan antar Eselon I, sebagian kemiripan juga berasal dari rumusan baku regulasi, jadi gunakan sebagai penyaring kandidat lintas Direktorat Jenderal, bukan vonis.':'Alat ini penyaring kandidat untuk ditinjau, bukan vonis penggabungan.'}</div>`;
+  <div class="note-box">Irisan dihitung dari kemiripan kata tugas dan fungsi (indeks Jaccard). <b>Kemiripan tinggi tidak selalu duplikasi:</b> unit yang fungsinya sama tetapi hanya dibedakan objek atau nomor (mis. Inspektorat I sampai V) ditandai "Serial/objek" atau "Beda objek"; yang perlu ditinjau adalah kelas "Substantif". <b>Rumusan yang memang bersifat umum dan berulang</b>, seperti pelaksanaan administrasi atau penyusunan bahan, akan tampak mirip di banyak unit tanpa benar-benar tumpang tindih; untuk kasus seperti itu bandingkan langsung uraian jabatannya lewat <span class="tag link" data-act="nav" data-view="urjabcompare">Komparasi Jabatan &rsaquo;</span> yang membandingkan butir tugas satu per satu. ${tab==='cross'?'Pada perbandingan antar Eselon I, sebagian kemiripan juga berasal dari rumusan baku regulasi, jadi gunakan sebagai penyaring kandidat lintas Direktorat Jenderal, bukan vonis.':'Alat ini penyaring kandidat untuk ditinjau, bukan vonis penggabungan.'}</div>`;
   if(tab==='sib'){
     let rows=SIB.slice();
     if(state.ovCls)rows=rows.filter(r=>r.cls===state.ovCls);
@@ -9690,7 +9721,7 @@ function bindInputs(){const q=id=>document.getElementById(id);
   if(q('otkQ'))q('otkQ').oninput=e=>{state.otkQ=e.target.value;rerenderKeep(vOtk,'otkQ');};
   if(q('otkAnUE1'))q('otkAnUE1').onchange=e=>{state.otkAnUE1=e.target.value;render();};
   if(q('otkVertDJ'))q('otkVertDJ').onchange=e=>{state.otkVertDJ=e.target.value;state.otkExpV={};state.otkKantorReg='';state.otkKantorQ='';render();};
-  if(q('otkBluSel'))q('otkBluSel').onchange=e=>{state[state.otkMode==='blu'?'otkBluSel':'otkNonSel']=e.target.value;state.otkExpV={};render();};
+  if(q('otkBluSel'))q('otkBluSel').onchange=e=>{state.otkNonSel=e.target.value;state.otkBluSel=e.target.value;state.otkExpV={};render();};
   if(q('otkKantorQ'))q('otkKantorQ').oninput=e=>{state.otkKantorQ=e.target.value;rerenderKeep(vOtk,'otkKantorQ');};
   if(q('otkKantorReg'))q('otkKantorReg').onchange=e=>{state.otkKantorReg=e.target.value;render();};
   if(q('otkPusatUE1'))q('otkPusatUE1').onchange=e=>{state.otkPusatUE1=e.target.value;state.otkExp={};render();};
@@ -9860,6 +9891,7 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='kompgapu'){state.kompGapU=(state.kompGapU===el.dataset.k)?'':(el.dataset.k||'');render();}
   else if(a==='kompdom'){state.kompDom=el.dataset.k||'';render();}
   else if(a==='kompunit'){state.kompUE1=el.dataset.k||'';state.kompMode='tabel';state.view='kjstandar';render();}
+  else if(a==='otknonflt'){state.otkNonFlt=el.dataset.k||'';state.otkNonSel='';render();}
   else if(a==='kompmode'){state.kompMode=el.dataset.k;render();}
   else if(a==='kompnav1'){state.kompUE1=(state.kompUE1===el.dataset.k)?'':el.dataset.k;state.kompNav2=null;state.kompNav3=null;render();}
   else if(a==='kompnav2'){state.kompNav2=(state.kompNav2===el.dataset.k)?null:el.dataset.k;state.kompNav3=null;render();}
@@ -9905,7 +9937,7 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='otkvopen'){state.otkVertSel=+el.dataset.id;state.view='otkvdetail';render();}
   else if(a==='temaopen'){var src=el.dataset.src,key=el.dataset.key,id=+el.dataset.id;
     if(src==='pusat'){state.otkSel=id;state.otkShowBagan=false;state.view='otkdetail';}
-    else{state.otkMode=src;if(src==='vertikal')state.otkVertDJ=key;else if(src==='blu')state.otkBluSel=key;else state.otkNonSel=key;state.otkVertSel=id;state.view='otkvdetail';}
+    else{state.otkMode=(src==='blu')?'noneselon':src;if(src==='vertikal')state.otkVertDJ=key;else{state.otkNonSel=key;state.otkBluSel=key;}state.otkVertSel=id;state.view='otkvdetail';}
     render();}
   else if(a==='tematab'){state.temaTab=el.dataset.t;state.temaGrp='';state.temaKls='';render();}
   else if(a==='temagrp'){var g=el.dataset.g;state.temaGrp=(state.temaGrp===g?'':g);render();}
