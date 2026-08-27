@@ -980,8 +980,38 @@ const APPS_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc
 let TOKEN=null, ME=null, ADMIN=false, FEATURES='all';
 let BASEDATA=null, MKYEARS=[];
 /* Uraian Jabatan: LOKAL terisi inline; REMOTE null lalu di-fetch lewat gerbang saat menu dibuka */
-let URJAB=null;const URJAB_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?urjab=1';
-async function loadUrjab(){if(URJAB)return URJAB;if(REMOTE){URJAB=await api('urjab',{});return URJAB;}const r=await fetch(URJAB_URL);URJAB=await r.json();return URJAB;}
+let URJAB=_urjabExp(null);const URJAB_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?urjab=1';
+/* urjab.json v2 disimpan RINGKAS supaya tidak membengkak: teks yang banyak berulang antar
+   jabatan (rujukan peraturan, bahan kerja, hubungan kerja) ditulis sekali di `pool` lalu
+   dirujuk dengan nomor, dan daftar yang merupakan turunan dari pasangan baris tidak ditulis
+   dua kali. Bentuk panjangnya dipulihkan di sini SEKALI, sehingga seluruh view yang sudah
+   berjalan tetap membaca kunci yang sama seperti sebelumnya. */
+function _urjabExp(d){
+  if(!d||d._exp||!d.jabatan)return d;
+  var P=d.pool||[];
+  var amb=function(a){return (a||[]).map(function(i){return (typeof i==='number')?(P[i]||''):i;});};
+  d.jabatan.forEach(function(j){
+    ['peralatan_kerja','bahan_kerja','hubungan_kerja','masalah','risiko','prestasi','cluster_tusi'].forEach(function(k){
+      if(j[k])j[k]=amb(j[k]);});
+    if(j.rincian&&j.rincian.length&&Array.isArray(j.rincian[0])){
+      var ct=j.cluster_tusi||[];
+      j.rincian=j.rincian.map(function(x){return {f:(x[0]>=0?(ct[x[0]]||''):''),t:x[1]||'',h:x[2]||'',no:x[3]||''};});
+      j.uraian_tugas=j.rincian.map(function(x){return x.t;});
+      j.hasil_kerja=j.rincian.map(function(x){return x.h;}).filter(Boolean);
+    }
+    if(j.wewenang_tj&&j.wewenang_tj.length&&Array.isArray(j.wewenang_tj[0])){
+      j.wewenang_tj=j.wewenang_tj.map(function(x){return {w:x[0]||'',j:x[1]||''};});
+      j.wewenang=j.wewenang_tj.map(function(x){return x.w;}).filter(Boolean);
+      j.tanggung_jawab=j.wewenang_tj.map(function(x){return x.j;}).filter(Boolean);
+    }
+    if(j.syarat_rinci&&!j.syarat){
+      var sy=[];Object.keys(j.syarat_rinci).forEach(function(k){
+        (j.syarat_rinci[k]||[]).forEach(function(v){sy.push(k+': '+v);});});
+      j.syarat=sy;
+    }
+  });
+  d._exp=1;return d;}
+async function loadUrjab(){if(URJAB)return URJAB;if(REMOTE){URJAB=_urjabExp(await api('urjab',{}));return URJAB;}const r=await fetch(URJAB_URL);URJAB=_urjabExp(await r.json());return URJAB;}
 function ensureUrjab(){if(URJAB||state.urjabLoading)return;state.urjabLoading=true;state.urjabErr=false;progStart();
   loadUrjab().then(()=>{state.urjabLoading=false;progDone();render();}).catch(()=>{state.urjabLoading=false;progDone();state.urjabErr=true;render();});}
 /* Katalog Keahlian (taksonomi resmi, ~944KB) - lazy-load seperti URJAB */
@@ -2809,10 +2839,11 @@ function vUnitFungsiTugas(n){
   if(typeof URJAB==='undefined'||!URJAB)
     return `<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Keterkaitan Fungsi ke Rincian Tugas (URJAB)</h2><div class="mini">Buka modul <span class="link" data-act="nav" data-view="urjab">Analisis Jabatan</span> lebih dulu untuk memuat data uraian jabatan, lalu buka kembali unit ini.</div></div>`;
   const jabs=urjabUnitIndex()[_nzName(n.nama)]||[];
-  const tugas=[];jabs.forEach(j=>(j.uraian_tugas||[]).forEach(t=>{if(String(t).trim())tugas.push({t:t,jab:j.jabatan});}));
+  const _blk=pairFungsiBlok(fungsi,jabs);
+  const tugas=_blk.tugas;
   if(!tugas.length)
     return `<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Keterkaitan Fungsi ke Rincian Tugas (URJAB)</h2><div class="mini">Belum ada uraian tugas jabatan yang tertaut ke unit ini pada repositori uraian jabatan.</div></div>`;
-  const pair=pairTugasFungsi(fungsi,tugas.map(x=>x.t));
+  const pair=_blk;
   const covered=pair.perF.filter(x=>x.tasks.length).length;
   let h=`<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Keterkaitan Fungsi ke Rincian Tugas <span class="mini">(dari ${jabs.length} jabatan di unit ini)</span></h2>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px"><span class="pill ${covered===fungsi.length?'on':'warn'}">${covered}/${fungsi.length} fungsi didukung tugas</span><span class="pill neu">${tugas.length} uraian tugas</span>${pair.orphans.length?`<span class="pill warn">${pair.orphans.length} tugas tak terpetakan ke fungsi</span>`:''}</div>`;
@@ -2822,7 +2853,7 @@ function vUnitFungsiTugas(n){
       <div style="font-weight:600;font-size:var(--fs-md)">${esc(f)} ${ts.length?`<span class="mini">(${ts.length} tugas)</span>`:'<span class="pill warn">belum ada tugas pendukung</span>'}${_verifTombol(n.nama,i,f)}</div>
       ${ts.length?`<ul class="mini" style="margin:4px 0 0;padding-left:16px;line-height:1.55">${ts.slice(0,6).map(x=>`<li>${esc(tugas[x.i].t)} <span style="color:var(--muted)">&middot; ${esc(tugas[x.i].jab)}</span></li>`).join('')}${ts.length>6?`<li style="color:var(--muted);list-style:none">... dan ${ts.length-6} tugas lain</li>`:''}</ul>`:''}
     </div>`;}).join('');
-  h+=`<div class="mini" style="margin-top:7px;color:var(--muted)">${FT_NOTE} Gunakan tombol <b>Sesuai</b> / <b>Tidak sesuai</b> untuk memverifikasi tiap fungsi; tanda tersimpan di peramban ini dan dapat diekspor dari menu Keterkaitan Fungsi &amp; Tugas.</div>`;
+  h+=`<div class="mini" style="margin-top:7px;color:var(--muted)">${_blk.dariDokumen?('Sebanyak '+_blk.dariDokumen+' kelompok fungsi diambil langsung dari dokumen ANJAB, sehingga tiap tugas mengikuti fungsi induknya, bukan dicocokkan sendiri-sendiri.'+(_blk.dariCocok?(' Sisanya '+_blk.dariCocok+' tugas berasal dari dokumen PDF dan masih dicocokkan otomatis.'):'')+' '):FT_NOTE} Gunakan tombol <b>Sesuai</b> / <b>Tidak sesuai</b> untuk memverifikasi tiap fungsi; tanda tersimpan di peramban ini dan dapat diekspor dari menu Keterkaitan Fungsi &amp; Tugas.</div>`;
   return h+`</div>`;
 }
 /* Aplikasi (c): VIEW KHUSUS "Keterkaitan Fungsi & Tugas" - matriks cakupan lintas unit.
@@ -2849,7 +2880,7 @@ function vUrjabKaitan(){
     cand.forEach(n=>{const e1=(es1Of(n)||{}).nama||'';if(u1&&e1!==u1)return;
       const jabs=uidx[_nzName(n.nama)]||[];const tugas=[];jabs.forEach(j=>(j.uraian_tugas||[]).forEach(t=>{if(String(t).trim())tugas.push(t);}));
       if(!tugas.length)return;
-      const pair=pairTugasFungsi(n.fungsi,tugas);const covered=pair.perF.filter(x=>x.tasks.length).length;
+      const pair=pairFungsiBlok(n.fungsi,jabs);const covered=pair.perF.filter(x=>x.tasks.length).length;
       const row={id:n.id,nama:n.nama,e1:e1,nF:n.fungsi.length,cov:covered,orph:pair.orphans.length,nJab:jabs.length,pct:covered/n.fungsi.length,beban:null,sel:null,eu1:null};
       if(abkOn){const fa=abkFind(n.nama);if(fa){row.beban=fa.u.beban;row.sel=fa.u.selisih;row.eu1=fa.u.eu1;}}
       rows.push(row);});
@@ -2890,13 +2921,102 @@ function vUrjabDetail(){
     <div class="mini" style="margin-top:5px">Sumber: ${esc(j.sumber)}</div></div>`;
   h+=sec('Ikhtisar Jabatan',j.ikhtisar);
   h+=sec('Tujuan Jabatan',j.tujuan);
-  h+=vJabKeterkaitan(j)||lst('Cluster Tusi',j.cluster_tusi);
-  h+=_tugasHasil(j.uraian_tugas,j.hasil_kerja);
-  h+=lst('Wewenang',j.wewenang);
-  h+=lst('Tanggung Jawab',j.tanggung_jawab);
-  h+=lst('Syarat Jabatan',j.syarat);
+  h+=_urjFungsiTugas(j);
+  h+=_urjWewenangTj(j);
+  h+=_urjSyarat(j);
+  h+=_urjKualifikasi(j);
+  h+=_urjLain(j);
   h+=pwPanelUrjab(j);
   h+=kompPanelUrjab(j);
+  return h;
+}
+/* Fungsi dan tugas disajikan sebagaimana dokumen menuliskannya: tiap tugas berada di bawah
+   fungsi induknya, sesuai pasangan baris pada formulir ANJAB. Tidak ada penautan hasil
+   tebakan di sini. Jabatan yang bersumber PDF belum punya pasangan itu, dan dinyatakan apa
+   adanya, bukan ditambal dengan perkiraan. */
+function _urjFungsiTugas(j){
+  var R=j.rincian||[];
+  if(!R.length)return _tugasHasil(j.uraian_tugas,j.hasil_kerja)+
+    '<div class="mini" style="padding:0 8px 8px">Jabatan ini bersumber dokumen PDF, sehingga keterkaitan tiap tugas ke fungsi induknya belum tersedia. Yang tampil adalah daftar tugas dan hasil kerja apa adanya.</div>';
+  var grup=[],idx={};
+  R.forEach(function(x){
+    var k=x.f||'(tanpa fungsi induk pada dokumen)';
+    if(!(k in idx)){idx[k]=grup.length;grup.push({f:k,it:[]});}
+    grup[idx[k]].it.push(x);});
+  var h='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Fungsi dan Uraian Tugas '+
+    '<span class="mini">('+grup.length+' fungsi, '+R.length+' tugas)</span></h2>';
+  grup.forEach(function(g,gi){
+    h+='<div style="'+(gi?'border-top:1px solid var(--line);':'')+'padding:10px 0">'+
+      '<div style="font-weight:700;color:var(--brand-d)">'+esc(g.f)+'</div>'+
+      '<div class="tblw" style="margin-top:6px"><table><thead><tr><th style="width:44px">No</th><th>Uraian Tugas</th><th>Hasil Kerja</th></tr></thead><tbody>';
+    g.it.forEach(function(x,i){
+      h+='<tr><td class="mini">'+esc(x.no||String(i+1))+'</td><td>'+esc(x.t)+'</td><td class="mini">'+esc(x.h||'-')+'</td></tr>';});
+    h+='</tbody></table></div></div>';});
+  h+='<div class="mini" style="margin-top:6px">Pengelompokan ini dibaca langsung dari dokumen ANJAB, bukan hasil pencocokan otomatis.</div></div>';
+  return h;
+}
+/* Wewenang dan Tanggung Jawab berpasangan baris pada dokumen, jadi disandingkan, bukan
+   ditampilkan sebagai dua daftar terpisah seperti sebelumnya. */
+function _urjWewenangTj(j){
+  var P=j.wewenang_tj||[];
+  if(!P.length){
+    var a=j.wewenang||[],b=j.tanggung_jawab||[];
+    if(!a.length&&!b.length)return '';
+    P=[];for(var i=0;i<Math.max(a.length,b.length);i++)P.push({w:a[i]||'',j:b[i]||''});
+  }
+  var h='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Wewenang dan Tanggung Jawab <span class="mini">('+P.length+')</span></h2>'+
+    '<div class="tblw"><table><thead><tr><th style="width:40px">No</th><th>Wewenang</th><th>Tanggung Jawab</th></tr></thead><tbody>';
+  P.forEach(function(x,i){h+='<tr><td class="mini">'+(i+1)+'</td><td>'+esc(x.w||'-')+'</td><td>'+esc(x.j||'-')+'</td></tr>';});
+  return h+'</tbody></table></div></div>';
+}
+function _urjSyarat(j){
+  var S=j.syarat_rinci;
+  if(!S||!Object.keys(S).length)return (j.syarat&&j.syarat.length)?
+    ('<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Syarat Jabatan</h2><ol style="margin:0;padding-left:20px">'+
+     j.syarat.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ol>'+
+     '<div class="mini" style="margin-top:6px">Jabatan ini bersumber dokumen PDF, rincian kategorinya belum tersedia.</div></div>'):'';
+  var urut=['Keterampilan Kerja','Bakat Kerja','Temperamen Kerja','Minat Kerja','Upaya Fisik','Kondisi Fisik','Fungsi Pekerjaan'];
+  var kunci=urut.filter(function(k){return S[k]&&S[k].length;});
+  Object.keys(S).forEach(function(k){if(kunci.indexOf(k)<0&&S[k]&&S[k].length)kunci.push(k);});
+  var h='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Syarat Jabatan <span class="mini">('+kunci.length+' kategori)</span></h2>'+
+    '<div class="tblw"><table><thead><tr><th style="width:190px">Kategori</th><th>Isi</th></tr></thead><tbody>';
+  kunci.forEach(function(k){
+    h+='<tr><td><b>'+esc(k)+'</b></td><td>'+(S[k].length>1?
+      ('<ul style="margin:0;padding-left:18px">'+S[k].map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'):esc(S[k][0]))+'</td></tr>';});
+  return h+'</tbody></table></div></div>';
+}
+function _urjKualifikasi(j){
+  var K=j.kualifikasi_rinci;
+  if(!K||!Object.keys(K).length)return '';
+  var urut=['Ringkasan','Pendidikan Formal','Pendidikan dan Pelatihan','Kualifikasi Lainnya'];
+  var kunci=urut.filter(function(k){return K[k]&&K[k].length;});
+  var h='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Kualifikasi Jabatan</h2>'+
+    '<div class="tblw"><table><thead><tr><th style="width:190px">Kategori</th><th>Isi</th></tr></thead><tbody>';
+  kunci.forEach(function(k){
+    h+='<tr><td><b>'+esc(k)+'</b></td><td>'+(K[k].length>1?
+      ('<ul style="margin:0;padding-left:18px">'+K[k].map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'):esc(K[k][0]))+'</td></tr>';});
+  return h+'</tbody></table></div></div>';
+}
+/* Kolom ANJAB yang selama ini terbuang seluruhnya saat ekstraksi. */
+function _urjLain(j){
+  var BLOK=[['bahan_kerja','Bahan Kerja'],['peralatan_kerja','Peralatan Kerja'],
+            ['hubungan_kerja','Hubungan Kerja'],['masalah','Masalah dan Tantangan Jabatan'],
+            ['risiko','Risiko Jabatan'],['prestasi','Prestasi Kerja']];
+  var h='';
+  BLOK.forEach(function(b){
+    var v=j[b[0]];
+    if(!v||!v.length)return;
+    h+='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">'+b[1]+' <span class="mini">('+v.length+')</span></h2>'+
+      '<ol style="margin:0;padding-left:20px;font-size:var(--fs-base);line-height:1.6">'+
+      v.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ol></div>';});
+  if(j.dimensi)h+='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Dimensi Jabatan</h2><div style="line-height:1.6">'+esc(j.dimensi)+'</div></div>';
+  var L=j.lingkungan_rinci;
+  if(L&&Object.keys(L).length){
+    h+='<div class="card" style="margin-bottom:12px"><h2 class="sec" style="margin-top:0">Kondisi Lingkungan Kerja</h2><div class="tblw"><table><tbody>';
+    Object.keys(L).forEach(function(k){
+      var v=L[k];h+='<tr><td style="width:190px"><b>'+esc(k)+'</b></td><td>'+esc(Array.isArray(v)?v.join(', '):v)+'</td></tr>';});
+    h+='</tbody></table></div></div>';
+  }
   return h;
 }
 
@@ -2940,6 +3060,50 @@ function otkUnitForJab(j,idx){
   return null;
 }
 /* Pasangkan tiap uraian tugas ke fungsi/cluster yang paling mirip (arah: tugas -> fungsi induk). */
+/* Pasangkan fungsi PMK OTK dengan tugas, DENGAN MENGHORMATI pengelompokan dokumen ANJAB.
+   Kembalian bentuknya sama dengan pairTugasFungsi supaya pemanggil lama tidak perlu diubah.
+   `jabs` = daftar jabatan URJAB pada unit itu. Tugas dari jabatan yang punya `rincian`
+   dikelompokkan lebih dulu menurut fungsi induknya di dokumen, lalu blok itu yang dicocokkan
+   ke fungsi PMK OTK. Tugas dari jabatan bersumber PDF jatuh ke cara lama. */
+function pairFungsiBlok(fungsiOtk,jabs,thr){
+  fungsiOtk=fungsiOtk||[];jabs=jabs||[];thr=thr==null?FT_THR_FUNGSI:thr;
+  var ft=fungsiOtk.map(uTok);
+  var perF=fungsiOtk.map(function(f){return {fungsi:f,tasks:[]};});
+  var tugas=[],orphans=[],sisaIdx=[];
+  var blok={},urutBlok=[];
+  jabs.forEach(function(j){
+    var R=j.rincian||[];
+    if(R.length){
+      R.forEach(function(x){
+        var ti=tugas.length;tugas.push({t:x.t,jab:j.jabatan});
+        var k=x.f||'';
+        if(!k){sisaIdx.push(ti);return;}
+        if(!(k in blok)){blok[k]=[];urutBlok.push(k);}
+        blok[k].push(ti);});
+    }else{
+      (j.uraian_tugas||[]).forEach(function(t){
+        if(String(t).trim()){sisaIdx.push(tugas.length);tugas.push({t:t,jab:j.jabatan});}});
+    }
+  });
+  /* blok dokumen -> fungsi PMK OTK terbaik; seluruh tugas di blok itu ikut */
+  urutBlok.forEach(function(k){
+    var kt=uTok(k),bi=-1,bs=0;
+    ft.forEach(function(fk,fi){var sc=uJac(kt,fk);if(sc>bs){bs=sc;bi=fi;}});
+    if(bi>=0&&bs>=thr)blok[k].forEach(function(ti){perF[bi].tasks.push({i:ti,sim:bs,blok:k});});
+    else blok[k].forEach(function(ti){orphans.push(ti);});
+  });
+  /* sisanya (sumber PDF atau tanpa fungsi induk) pakai cara lama, per tugas */
+  if(sisaIdx.length){
+    var tt=sisaIdx.map(function(ti){return uTok(tugas[ti].t);});
+    tt.forEach(function(tk,k){
+      var bi=-1,bs=0;
+      ft.forEach(function(fk,fi){var sc=uJac(fk,tk);if(sc>bs){bs=sc;bi=fi;}});
+      if(bi>=0&&bs>=FT_THR_TUGAS)perF[bi].tasks.push({i:sisaIdx[k],sim:bs});
+      else orphans.push(sisaIdx[k]);});
+  }
+  return {perF:perF,orphans:orphans,tugas:tugas,
+          dariDokumen:urutBlok.length,dariCocok:sisaIdx.length};
+}
 function pairTugasFungsi(fungsi,tugas,thr){
   fungsi=fungsi||[];tugas=tugas||[];thr=thr==null?FT_THR_TUGAS:thr;
   const ft=fungsi.map(uTok),tt=tugas.map(uTok);
@@ -2955,6 +3119,17 @@ function matchClusterToFungsi(cluster,fungsi,thr){
   const ct=cluster.map(uTok),ft=fungsi.map(uTok);
   return cluster.map((c,ci)=>{let bi=-1,bs=0;ft.forEach((fk,fi)=>{const s=uJac(ct[ci],fk);if(s>bs){bs=s;bi=fi;}});return(bi>=0&&bs>=thr)?{fungsi:fungsi[bi],idx:bi,sim:bs}:null;});
 }
+/* UAT butir 4: unit berseri seperti Bidang I A, I B, I C memang dirumuskan mirip dengan
+   sengaja, untuk fleksibilitas pengaturan di tiap unit. Kemiripan semacam itu bukan tumpang
+   tindih yang perlu ditindaklanjuti, jadi dikenali dan diberi anotasi, bukan disembunyikan. */
+function _polaBerseri(a,b){
+  var bersih=function(x){return String(x||'').replace(/\s+/g,' ').trim()
+    .replace(/\b([IVX]+)\s*([A-C])\b/gi,'#').replace(/\b([IVX]+)\b/g,'#')
+    .replace(/\b([A-C])\b/g,'#').replace(/\b(\d+)\b/g,'#').toLowerCase();};
+  var A=bersih(a),B=bersih(b);
+  return !!A&&A===B&&String(a).trim()!==String(b).trim();
+}
+function _tagBerseri(){return '<span class="pill neu" title="Unit berseri seperti I A, I B, I C memang dirumuskan mirip dengan sengaja untuk fleksibilitas pengaturan tiap unit, sehingga tidak dihitung sebagai tumpang tindih">pola berseri, disengaja</span>';}
 function _simPill(sim){const p=Math.round(sim*100);const c=sim>=0.5?'on':sim>=0.3?'warn':'neu';return `<span class="pill ${c}" title="Kemiripan kata ${p}%">${p}%</span>`;}
 
 /* ============ VERIFIKASI MANUSIA ATAS PEMETAAN FUNGSI -> TUGAS ============
@@ -3146,7 +3321,17 @@ function vUrjabInsight(){
   const grp={};all.forEach(j=>{const k=j.unit_kode+'||'+(j.lvl2||'');(grp[k]=grp[k]||[]).push(j);});
   let red=0;
   Object.values(grp).forEach(arr=>{if(arr.length<2||arr.length>50||red>=40)return;const tk=arr.map(j=>uTok((j.uraian_tugas||[]).join(' ')));
-    for(let a=0;a<arr.length&&red<40;a++)for(let b=a+1;b<arr.length&&red<40;b++){const sim=uJac(tk[a],tk[b]);if(sim>=0.6){red++;F.push({sev:sim>=0.8?'tinggi':'sedang',cat:'Redundansi',unit:arr[a].unit_kode,idx:idxOf.get(arr[a]),t:'Potensi tumpang tindih tugas ('+Math.round(sim*100)+'%)',d:'"'+arr[a].jabatan+'" dan "'+arr[b].jabatan+'" memiliki uraian tugas yang sangat mirip. Tinjau batas kewenangan agar tidak duplikatif.'});}}});
+    for(let a=0;a<arr.length&&red<40;a++)for(let b=a+1;b<arr.length&&red<40;b++){const sim=uJac(tk[a],tk[b]);if(sim>=0.6){
+      /* UAT butir 4: unit berseri seperti Bidang I A, I B, I C memang dirumuskan mirip dengan
+         sengaja untuk fleksibilitas pengaturan tiap unit. Kemiripan itu bukan anomali, jadi
+         tidak dihitung sebagai temuan, tetapi tetap dicatat sebagai keterangan. */
+      if(_polaBerseri(arr[a].jabatan,arr[b].jabatan)){
+        F.push({sev:'info',cat:'Pola berseri',unit:arr[a].unit_kode,idx:idxOf.get(arr[a]),
+          t:'Kemiripan yang disengaja ('+Math.round(sim*100)+'%)',
+          d:'"'+arr[a].jabatan+'" dan "'+arr[b].jabatan+'" adalah unit berseri yang memang dirumuskan mirip untuk memberi fleksibilitas pengaturan pada masing-masing unit. Bukan tumpang tindih yang perlu ditindaklanjuti.'});
+        continue;
+      }
+      red++;F.push({sev:sim>=0.8?'tinggi':'sedang',cat:'Redundansi',unit:arr[a].unit_kode,idx:idxOf.get(arr[a]),t:'Potensi tumpang tindih tugas ('+Math.round(sim*100)+'%)',d:'"'+arr[a].jabatan+'" dan "'+arr[b].jabatan+'" memiliki uraian tugas yang sangat mirip. Tinjau batas kewenangan agar tidak duplikatif.'});}}});
   const noK=all.filter(j=>!j.kualifikasi).length;
   if(noK)F.push({sev:'info',cat:'Kelengkapan',unit:'',t:'Kelengkapan data kualifikasi',d:noK+' dari '+all.length+' jabatan belum mencantumkan kualifikasi (pangkat/golongan). Lengkapi untuk analisis syarat jabatan.'});
   const rank={tinggi:0,sedang:1,info:2};F.sort((a,b)=>rank[a.sev]-rank[b.sev]);
@@ -3614,6 +3799,24 @@ function vOtkAnalisis(){
   const widest=units.filter(n=>n.level>=1&&n.level<=3).map(n=>({n,k:otkKids(n.id).filter(inS).length})).filter(x=>x.k>0).sort((a,b)=>b.k-a.k).slice(0,8);
   const noF=units.filter(n=>n.level<=2&&(!n.fungsi||!n.fungsi.length)).length;
   const tot=units.length;const maxd=units.length?Math.max.apply(null,units.map(n=>n.level)):0;
+  /* UAT butir 5 dan 8: angka di halaman ini semula hanya menghitung pohon KANTOR PUSAT,
+     sehingga jumlah unit sebuah Eselon I tampak jauh lebih kecil daripada kenyataannya dan
+     rentang kendali terlebar ikut meleset. Instansi vertikal tersimpan di berkas terpisah,
+     dan kini ikut dihitung serta dinyatakan terpisah supaya tidak tercampur maknanya. */
+  const _vert=(function(){
+    if(typeof OTKVERT==='undefined'||!OTKVERT)return null;
+    const A={BATII:'Badan Teknologi, Informasi, dan Intelijen Keuangan'};
+    const out=[];let kantor=0,unitV=0;
+    Object.keys(OTKVERT).forEach(function(k){
+      const v=OTKVERT[k]||{};const nk=(v.kantor||[]).length,nu=(v.unit||[]).length;
+      if(!nk&&!nu)return;
+      const nm=v.nama||k;
+      if(state.otkAnUE1&&String(nm).toLowerCase().indexOf(String(state.otkAnUE1).toLowerCase().replace(/^direktorat jenderal /,''))<0
+         &&String(state.otkAnUE1).toLowerCase().indexOf('jenderal')>=0
+         &&String(nm).toLowerCase().indexOf(String(state.otkAnUE1).toLowerCase())<0)return;
+      out.push({k:k,nama:nm,kantor:nk,unit:nu});kantor+=nk;unitV+=nu;});
+    return out.length?{rows:out,kantor:kantor,unit:unitV}:null;
+  })();
   const es1names=otkKids(0).map(n=>n.nama);
   let h=`<div class="toolbar">`;
   if(SCOPE.type==='all')h+=`<select class="flt" id="otkAnUE1"><option value="">Semua Eselon I</option>${es1names.map(x=>`<option value="${esc(x)}" ${state.otkAnUE1===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
@@ -3630,6 +3833,22 @@ function vOtkAnalisis(){
     s+=noF?('Masih ada <b>'+noF+'</b> unit Eselon I dan II yang belum memiliki rumusan fungsi di PMK OTK, sehingga tugasnya belum dapat ditelusuri lewat data.'):
            'Seluruh unit Eselon I dan II sudah memiliki rumusan fungsi di PMK OTK.';
     return sorotanCard('Sorotan',s,[{v:'otkhealth',t:'Kesehatan Struktur'},{v:'otkindeks',t:'Usulan Penataan'}]);
+  })();
+  h+=(function(){
+    if(!_vert)return '<div class="note-box">Angka pada halaman ini menghitung struktur <b>kantor pusat</b> menurut PMK OTK. Data instansi vertikal belum termuat pada sesi ini.</div>';
+    var mx=Math.max.apply(null,_vert.rows.map(function(x){return x.kantor;}).concat([1]));
+    var hh='<div class="note-box"><b>Cakupan angka di atas: struktur kantor pusat.</b> Rentang kendali dan jumlah unit dihitung dari pohon PMK OTK kantor pusat. '+
+      'Instansi vertikal punya pola struktur tersendiri yang berulang di tiap kantor, sehingga dihitung terpisah di bawah ini, bukan dijumlahkan begitu saja ke angka kantor pusat.</div>';
+    hh+='<div class="card"><h2 class="sec" style="margin-top:0">Instansi Vertikal dan Unit Pelaksana Teknis</h2>'+
+      '<div class="tblw"><table><thead><tr><th>Unit Eselon I</th><th class="num-c">Kantor</th><th class="num-c">Unit dalam pola struktur</th></tr></thead><tbody>';
+    _vert.rows.forEach(function(x){
+      hh+='<tr><td>'+esc(x.nama)+'</td><td class="num-c">'+fmt(x.kantor)+'</td><td class="num-c">'+fmt(x.unit)+'</td></tr>';});
+    hh+='<tr><td><b>Jumlah</b></td><td class="num-c"><b>'+fmt(_vert.kantor)+'</b></td><td class="num-c"><b>'+fmt(_vert.unit)+'</b></td></tr>';
+    hh+='</tbody></table></div>'+
+      '<div class="mini" style="margin-top:6px">Kolom Kantor adalah jumlah kantor nyata, misalnya kantor wilayah, kantor pelayanan, dan unit pelaksana teknis. '+
+      'Kolom di sebelahnya adalah jumlah unit di dalam satu pola struktur kantor, bukan dikalikan jumlah kantornya. '+
+      'Rincian tiap kantor ada di menu Pohon Organisasi, ragam Instansi Vertikal.</div></div>';
+    return hh;
   })();
   h+=`<div class="kpis">
     <div class="kpi"><div class="lab">Total Unit</div><div class="val">${fmt(tot)}</div></div>
@@ -4000,7 +4219,45 @@ function vJabKomposisi(){
     if(state.abkErr)return '<div class="note-box">Gagal memuat data beban kerja (ABK). <a class="link" data-act="loadabk">Coba muat ulang</a>, atau buka <a class="link" data-act="nav" data-view="urjab">Repositori Jabatan (Struktural)</a>.</div>';
     return '<div class="note-box">Komposisi jabatan memerlukan data beban kerja (ABK) yang belum tersedia untuk akun ini. Silakan buka <a class="link" data-act="nav" data-view="urjab">Repositori Jabatan (Struktural)</a>.</div>';
   }
-  const mode=state.jkView||'bezetting';
+  const mode=state.jkView||'otk';
+  /* Ragam PMK OTK: jabatan struktural dihitung dari Repositori Uraian Jabatan, yaitu daftar
+     jabatan menurut struktur yang berlaku, bukan dari akumulasi entri ABK yang masih membawa
+     struktur pra delayering dan mengulang jabatan pada tiap unit vertikal. */
+  if(mode==='otk'){
+    if(!URJAB){
+      if(state.urjabLoading)return skelMemuat('Memuat repositori uraian jabatan...');
+      ensureUrjab();return skelMemuat('Memuat repositori uraian jabatan...');
+    }
+    var cU={},cE={};
+    (URJAB.jabatan||[]).forEach(function(j){
+      var nm=(typeof namaResmi==='function')?namaResmi(j.unit_kode):j.ue1;
+      cU[nm]=(cU[nm]||0)+1;
+      var e=j.eselon||0;cE[e]=(cE[e]||0)+1;});
+    var urutU=Object.keys(cU).sort(function(a,b){return cU[b]-cU[a];});
+    var totU=urutU.reduce(function(t,k){return t+cU[k];},0);
+    var mxU=urutU.length?cU[urutU[0]]:1;
+    var hh='<div class="note-box"><b>Sumber: Repositori Uraian Jabatan (ANJAB) menurut PMK OTK yang berlaku.</b> '+
+      'Ragam ini menjawab masukan pengujian bahwa komposisi jabatan tidak boleh diambil dari akumulasi data ABK, '+
+      'sebab ABK 2024 masih membawa struktur sebelum delayering dan mengulang jabatan yang sama pada tiap unit vertikal. '+
+      'Sebagai gambaran selisihnya, pada Direktorat Jenderal Anggaran data ABK menghasilkan 232 jabatan struktural, '+
+      'sedangkan menurut uraian jabatan hanya 39.</div>';
+    hh+='<div class="kpis">'+
+      kpiBox('Jabatan Struktural',fmt(totU),'menurut PMK OTK yang berlaku','good')+
+      kpiBox('Unit Eselon I',fmt(urutU.length),'tercakup repositori')+
+      kpiBox('Eselon II',fmt(cE[2]||0),'jabatan pimpinan tinggi pratama')+
+      kpiBox('Eselon III dan IV',fmt((cE[3]||0)+(cE[4]||0)),'administrator dan pengawas','gold')+
+      '</div>';
+    hh+='<div class="toolbar"><span class="seg">'+
+      '<span class="segb on" data-act="jkview" data-v="otk">Struktural menurut PMK OTK</span>'+
+      '<span class="segb" data-act="jkview" data-v="bezetting">Bezetting ABK (pegawai)</span>'+
+      '<span class="segb" data-act="jkview" data-v="jumlah">Jumlah entri ABK</span>'+
+      '</span></div>';
+    hh+='<div class="card"><h2 class="sec" style="margin-top:0">Jabatan Struktural per Unit Eselon I</h2>';
+    urutU.forEach(function(k){hh+=bar(k,cU[k],mxU,'',fmt(cU[k]),null);});
+    hh+='<div class="mini" style="margin-top:6px">Dihitung dari '+fmt(totU)+' jabatan pada Repositori Uraian Jabatan. '+
+      'Jabatan fungsional dan pelaksana tidak termasuk di sini, sebab keduanya tidak diatur di PMK OTK melainkan pada ketentuan tersendiri.</div></div>';
+    return hh;
+  }
   const COL={struktural:'var(--cat-1)',fungsional:'var(--st-good)',pelaksana:'var(--muted)'};   /* token, bukan hex mentah */
   const LBL={struktural:'Struktural',fungsional:'Fungsional',pelaksana:'Pelaksana'};
   const rows=(((ABK&&ABK.eselon1)||[]).map(es=>{
@@ -4015,13 +4272,13 @@ function vJabKomposisi(){
   const unit=mode==='bezetting'?'pegawai':'jabatan';
   const tg=(v,l)=>`<span class="segb ${mode===v?'on':''}" data-act="jkview" data-v="${v}">${l}</span>`;
   const pct=x=>Math.round(1000*x/gt)/10;
-  let h=`<div class="note-box">Komposisi jabatan dari data beban kerja (ABK, tahun 2024) diklasifikasikan menjadi tiga: <b>Struktural</b> (jabatan pimpinan, administrator, pengawas), <b>Fungsional</b> (jabatan fungsional, dikenali dari kamus nomenklatur JF), dan <b>Pelaksana</b>. Makin tinggi porsi <b>Fungsional</b>, makin jauh unit menjalankan penyederhanaan birokrasi (delayering). Angka bersifat agregat per Eselon I; nomenklatur masih era pra-konsolidasi (23 JF, sebelum PMK 124) dan cakupan tiap Eselon I bervariasi.</div>`;
+  let h=`<div class="note-box" style="border-left-color:var(--st-warn)"><b>Perhatian atas sumber angka.</b> Ragam ini memakai data beban kerja (ABK 2024), yang masih membawa struktur sebelum delayering dan mengulang jabatan yang sama pada tiap unit vertikal, sehingga jumlah jabatan strukturalnya lebih besar daripada struktur yang berlaku. Untuk jumlah jabatan menurut PMK OTK, pakai ragam <b>Struktural menurut PMK OTK</b>. Komposisi jabatan dari data beban kerja (ABK, tahun 2024) diklasifikasikan menjadi tiga: <b>Struktural</b> (jabatan pimpinan, administrator, pengawas), <b>Fungsional</b> (jabatan fungsional, dikenali dari kamus nomenklatur JF), dan <b>Pelaksana</b>. Makin tinggi porsi <b>Fungsional</b>, makin jauh unit menjalankan penyederhanaan birokrasi (delayering). Angka bersifat agregat per Eselon I; nomenklatur masih era pra-konsolidasi (23 JF, sebelum PMK 124) dan cakupan tiap Eselon I bervariasi.</div>`;
   h+=`<div class="kpis">
     <div class="kpi"><div class="lab">Total ${unit}</div><div class="val">${fmt(gt)}</div><div class="note">tercakup ABK 2024</div></div>
     <div class="kpi good"><div class="lab">Fungsional</div><div class="val">${pct(g.fungsional)}%</div><div class="note">${fmt(g.fungsional)} ${unit}</div></div>
     <div class="kpi"><div class="lab">Struktural</div><div class="val">${pct(g.struktural)}%</div><div class="note">${fmt(g.struktural)} ${unit}</div></div>
     <div class="kpi gold"><div class="lab">Pelaksana</div><div class="val">${pct(g.pelaksana)}%</div><div class="note">${fmt(g.pelaksana)} ${unit}</div></div></div>`;
-  h+=`<div class="toolbar"><span class="seg">${tg('bezetting','Bezetting (pegawai)')}${tg('jumlah','Jumlah jabatan')}</span>
+  h+=`<div class="toolbar"><span class="seg">${tg('otk','Struktural menurut PMK OTK')}${tg('bezetting','Bezetting ABK (pegawai)')}${tg('jumlah','Jumlah entri ABK')}</span>
     <span style="margin-left:auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap">${['struktural','fungsional','pelaksana'].map(k=>`<span class="mini" style="display:inline-flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:${COL[k]};display:inline-block"></span>${LBL[k]}</span>`).join('')}</span></div>`;
   const canAbk=(typeof canMod==='function'&&canMod('abk'));
   h+=`<div class="card"><h2 class="sec" style="margin-top:0">Komposisi per Eselon I <span class="mini">(urut porsi fungsional tertinggi)</span></h2>
