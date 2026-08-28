@@ -1939,7 +1939,7 @@ const MODULES=[
  ]},
  {id:'abk',icn:'abk',lab:'Analisis Beban Kerja',groups:[
    {grp:'',items:[{v:'abk',lab:'Profil ABK'}]},
-   {grp:'Analisis ABK',items:[{v:'abkkalibrasi',lab:'Kalibrasi'},{v:'abknorma',lab:'Norma Waktu'},{v:'abkstruktur',lab:'Beban vs Struktur'},{v:'abkpareto',lab:'Pareto Produk'},{v:'abksimulasi',lab:'Simulasi Efisiensi'}]},
+   {grp:'Analisis ABK',items:[{v:'abkkalibrasi',lab:'Kalibrasi'},{v:'abknorma',lab:'Norma Waktu'},{v:'abkstruktur',lab:'Beban vs Struktur'},{v:'abkpareto',lab:'Pareto Produk'},{v:'abksimulasi',lab:'Simulasi Efisiensi'},{v:'katpeta',lab:'Peta Aktivitas Kantor'}]},
  ]},
  {id:'mk',icn:'mk',lab:'Mekanisme Kerja',groups:[
    {grp:'',items:[{v:'ringkasan',lab:'Dashboard Pimpinan'}]},
@@ -1967,9 +1967,11 @@ const MODULES=[
  {id:'kapabilitas',icn:'kelembagaan',lab:'Kapabilitas Kelembagaan',groups:[
    {grp:'MOFIN',items:[{v:'mofin',lab:'Skor Kapabilitas'},{v:'mofheatmap',lab:'Heatmap Skor Organisasi'},{v:'mofprofil',lab:'Profil Unit'},{v:'moftl',lab:'Status Tindak Lanjut'},{v:'mofkuadran',lab:'Kuadran Kelemahan \u00d7 Respons'},{v:'mofgap',lab:'Prioritas Tindak Lanjut'}]},
  ]},
+ /* Katalog tidak lagi punya sub kelompok: seluruh katalog berdiri sejajar sebagai daftar,
+    dan Katalog Produk ABK dinaikkan ke urutan pertama. Peta Aktivitas Kantor dipindah ke
+    modul Analisis Beban Kerja sebab keluarannya sebaran beban, bukan register katalog. */
  {id:'katref',icn:'katalog',lab:'Katalog',groups:[
-   {grp:'Produk ABK',items:[{v:'katakt',lab:'Katalog Produk ABK'},{v:'katpeta',lab:'Peta Aktivitas Kantor'}]},
-   {grp:'',items:[{v:'katjab',lab:'Katalog Jabatan'},{v:'katpb',lab:'Katalog Proses Bisnis'},{v:'katnw',lab:'Katalog Norma Waktu'},{v:'katunit',lab:'Katalog Unit & Kantor'},{v:'katsvc',lab:'Katalog Layanan'},{v:'katapp',lab:'Katalog Aplikasi'},{v:'katwen',lab:'Katalog Kewenangan'}]},
+   {grp:'',items:[{v:'katakt',lab:'Katalog Produk ABK'},{v:'katjab',lab:'Katalog Jabatan'},{v:'katpb',lab:'Katalog Proses Bisnis'},{v:'katnw',lab:'Katalog Norma Waktu'},{v:'katunit',lab:'Katalog Unit & Kantor'},{v:'katsvc',lab:'Katalog Layanan'},{v:'katapp',lab:'Katalog Aplikasi'},{v:'katwen',lab:'Katalog Kewenangan'}]},
  ]},
  {id:'unitremote',icn:'remote',lab:'Unit Remote',groups:[
    {grp:'',items:[{v:'otkremote',lab:'Unit Remote'}]},
@@ -2240,7 +2242,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   kompQ:'',kompUE1:'',kompEs:'',kompRp:'',kompGen:'',kompSel:null,kompDari:'',
   kompRpSel:'',kompKhQ:'',kompKhSel:null,kompKhOnly:false,kompKamQ:'',kompKamSel:null,kompMsSel:null,
   kompKl:'',kompJf:'',kompJenj:'',kompGapLvl:'',kompGapU:'',kompDom:'',kompProyThn:2,
-  kompMode:'tabel',kompNav2:null,kompNav3:null,pgn:{}};
+  kompMode:'tabel',kompNav2:null,kompNav3:null,pgn:{},kataktKluBuka:false};
 
 /* Render satu modul (kepala + akordeon grup/menu). Dipakai di dalam loop domain. */
 function _renderMod(m,curV,curM){
@@ -4989,11 +4991,17 @@ function vKatAkt(){
     <div class="kpi"><div class="lab">Aktivitas Khas Unit</div><div class="val">${fmt(KT.stats.khusus)}</div></div>
   </div>`;
   const adaJangkar=KT.klusters.some(k=>k.otk_j!=null);
-  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Kluster Aktivitas</h2>
+  /* Katalog dibuka langsung pada daftarnya. Tabel kluster memuat angka yang tidak ada di
+     penyaring (jumlah aktivitas standar, pangsa beban, jangkar struktur), jadi tidak dibuang,
+     melainkan dilipat dan bisa dibuka saat dibutuhkan. */
+  const _kluBuka=!!state.kataktKluBuka;
+  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Kluster Aktivitas
+    <span class="tag link" data-act="kataktklubuka" style="margin-left:auto">${_kluBuka?'Sembunyikan rincian kluster':'Lihat rincian kluster'}</span></h2>
+    <div style="${_kluBuka?'':'display:none'}">
   <table><thead><tr><th>Kode</th><th>Kluster</th><th class="num-c">Aktivitas Standar</th><th class="num-c">Total Kandidat</th><th class="num-c">% Beban</th>${adaJangkar?'<th class="num-c" title="Jumlah tugas/fungsi resmi OTK yang selaras kluster ini">Jangkar Struktur (OTK)</th><th class="num-c" title="Jumlah teks uraian jabatan yang selaras kluster ini">Jangkar Jabatan (URJAB)</th>':''}</tr></thead><tbody>`;
   KT.klusters.slice().sort((a,b)=>(a.kode==='XXX')-(b.kode==='XXX')||b.beban-a.beban).forEach(k=>{const sel=state.kataktKlus===k.kode;
     h+=`<tr style="cursor:pointer;${sel?'outline:2px solid #2563eb;outline-offset:-2px':''}" data-act="kataktklus" data-k="${k.kode}"><td style="white-space:nowrap"><b>${k.kode}</b></td><td class="link">${esc(k.nama)}</td><td class="num-c">${fmt(k.n_std)}</td><td class="num-c">${fmt(k.n_akt)}</td><td class="num-c">${(100*k.beban/totB).toFixed(1)}%</td>${adaJangkar?`<td class="num-c">${k.kode==='XXX'?'-':fmt(k.otk_j||0)}</td><td class="num-c">${k.kode==='XXX'?'-':fmt(k.ur_j||0)}</td>`:''}</tr>`;});
-  h+=`</tbody></table><div class="mini" style="margin-top:6px">Klik kluster untuk memfilter daftar di bawah. Kluster inti bidang mengikuti tusi UE1 teknis; kluster generik berlaku lintas kantor.${adaJangkar?' Kolom jangkar = validasi silang taksonomi terhadap tugas/fungsi resmi (OTK) dan uraian jabatan (URJAB): tiap kluster terbukti berakar pada struktur, bukan sekadar pola nama produk.':''}</div></div>`;
+  h+=`</tbody></table></div><div class="mini" style="margin-top:6px">Klik kluster untuk memfilter daftar di bawah, atau pakai penyaring Kluster di bawah. Kluster inti bidang mengikuti tusi UE1 teknis; kluster generik berlaku lintas kantor.${adaJangkar?' Kolom jangkar = validasi silang taksonomi terhadap tugas/fungsi resmi (OTK) dan uraian jabatan (URJAB): tiap kluster terbukti berakar pada struktur, bukan sekadar pola nama produk.':''}</div></div>`;
   h+=`
   <div class="toolbar"><input class="search" id="kataktQ" placeholder="Cari kode / nama aktivitas..." value="${esc(state.kataktQ||'')}" style="max-width:300px">
     <select class="flt" id="kataktKlus"><option value="">Semua Kluster</option>${KT.klusters.filter(k=>k.kode!=='XXX').map(k=>`<option value="${k.kode}"${state.kataktKlus===k.kode?' selected':''}>${k.kode} - ${esc(k.nama)}</option>`).join('')}</select></div>
@@ -5253,9 +5261,11 @@ function vKatUnit(){
   const K=KATREF.katunit,rows=_kuRows();
   let h=`<div class="note-box"><b>Katalog Unit &amp; Kantor</b> - register kode unit (Eselon I + Eselon II/setara) sebagai kunci penghubung antar modul dan dasar <b>kluster/tipe kantor</b>. Kolom Kode ABK = kunci teknis data beban kerja. Tipe kantor dideteksi dari nama - perlu kurasi. Draft untuk pembahasan.</div>`;
   h+=_katKpi([['Unit Terdaftar',fmt(K.stats.total),'',1],['Unit Eselon I',fmt(K.stats.ue1)],['Tipe Kantor',fmt(K.stats.tipe.length)]]);
-  h+=`<div class="card"><h2 class="sec" style="margin-top:0">Kluster Tipe Kantor</h2><table><thead><tr><th>Tipe</th><th class="num-c">Jumlah Unit</th></tr></thead><tbody>${K.stats.tipe.map(t=>`<tr style="cursor:pointer;${state.kuTipe===t[0]?'outline:2px solid #2563eb;outline-offset:-2px':''}" data-act="kutipe" data-k="${esc(t[0])}"><td class="link">${esc(t[0])}</td><td class="num-c">${fmt(t[1])}</td></tr>`).join('')}</tbody></table><div class="mini" style="margin-top:6px">Klik tipe untuk memfilter.</div></div>`;
+  /* Tabel "Kluster Tipe Kantor" dihapus: isinya sama persis dengan penyaring Tipe di bawah,
+     hanya memakan satu layar penuh sebelum daftarnya terlihat. Jumlah unit tiap tipe kini
+     menempel pada pilihan penyaringnya, sehingga katalog langsung menampilkan daftar. */
   const ue1s=[...new Set(K.rows.map(x=>x.uk))];
-  h+=`<div class="toolbar">${_katCari('kuQ',state.kuQ,'Cari kode / nama unit...')}${_katSel('kuUE1',state.kuUE1,'Semua UE1',ue1s.map(x=>[x,x]))}${_katSel('kuTipe',state.kuTipe,'Semua Tipe',K.stats.tipe.map(t=>[t[0],t[0]]))}</div>`;
+  h+=`<div class="toolbar">${_katCari('kuQ',state.kuQ,'Cari kode / nama unit...')}${_katSel('kuUE1',state.kuUE1,'Semua UE1',ue1s.map(x=>[x,x]))}${_katSel('kuTipe',state.kuTipe,'Semua Tipe ('+K.stats.tipe.length+')',K.stats.tipe.map(t=>[t[0],t[0]+' ('+t[1]+')']))}</div>`;
   h+=_katTbl('Register Unit',rows.length,['Kode','Nama Unit','Tipe Kantor','#UE1','#Kode ABK'],
     rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${x.lvl===1?`<b>${esc(x.nama)}</b>`:esc(x.nama)}</td><td class="mini">${esc(x.tipe)}</td><td class="num-c">${x.uk}</td><td class="num-c">${esc(x.kode_abk)}</td></tr>`).join(''),
     rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
@@ -10042,6 +10052,7 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='kompdom'){state.kompDom=el.dataset.k||'';render();}
   else if(a==='kompunit'){state.kompUE1=el.dataset.k||'';state.kompMode='tabel';state.view='kjstandar';render();}
   else if(a==='otknonflt'){state.otkNonFlt=el.dataset.k||'';state.otkNonSel='';render();}
+  else if(a==='kataktklubuka'){state.kataktKluBuka=!state.kataktKluBuka;render();}
   else if(a==='pgn'){
     state.pgn=state.pgn||{};
     state.pgn[el.dataset.k]=+el.dataset.p;
