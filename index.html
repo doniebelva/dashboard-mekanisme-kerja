@@ -272,12 +272,11 @@ tr[data-act]:focus-visible,td[data-act]:focus-visible{outline:2px solid var(--br
   border:1px solid var(--line);padding:17px var(--sp-8);position:relative;overflow:hidden;
   display:flex;flex-direction:column;justify-content:center;text-align:center;min-height:106px;
   box-shadow:var(--sh-sm);transition:box-shadow var(--t-med) ease,transform var(--t-med) ease;animation:rise .24s ease both}
-/* Garis aksen tipis di bibir atas kartu. Warnanya mengikuti ragam kartu, sehingga angka
-   penting terbaca sekilas tanpa perlu mewarnai angkanya lebih keras. */
-.kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--brand);opacity:.85}
-.kpi.good::before{background:var(--st-good)}
-.kpi.gold::before{background:var(--st-warn)}
-.kpi.alert::before{background:var(--st-critical)}
+/* Ragam kartu ditandai BINGKAI PENUH yang tipis, bukan pita di bibir atas. Warnanya tetap
+   mengikuti ragam, jadi kartu berstatus masih terbaca sekilas, tetapi tepinya utuh. */
+.kpi.good{border-color:var(--st-good)}
+.kpi.gold{border-color:var(--st-warn)}
+.kpi.alert{border-color:var(--st-critical)}
 .kpi:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
 .kpi .lab{font-size:var(--fs-mini);color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 .kpi .val{font-family:var(--font-display);font-size:var(--fs-kpi);font-weight:800;color:var(--brand-d);margin-top:var(--sp-3);line-height:1.05;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
@@ -432,6 +431,7 @@ td.num-c,th.num-c{font-variant-numeric:tabular-nums}
 .pgn button:hover:not(:disabled){border-color:var(--brand);color:var(--brand-d);background:var(--wash-2)}
 .pgn button:disabled{opacity:.38;cursor:default}
 .pgn button:focus-visible{outline:none;box-shadow:var(--ring)}
+.pgn-lepas{border:1px solid var(--line);border-radius:var(--rad-md);margin-top:var(--sp-5)}
 .pgn .pgn-h{font-size:var(--fs-mini);font-weight:700;color:var(--ink);min-width:96px;text-align:center;font-variant-numeric:tabular-nums}
 
 /* -- bar horizontal -- */
@@ -469,11 +469,15 @@ input.search:hover,select.flt:hover{border-color:var(--brand-l2)}
 input.search{width:230px}
 input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(20,103,192,.12)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--rad-sm);overflow:hidden;margin-bottom:var(--sp-6)}
-.seg .segb{padding:7px var(--sp-7);font-size:var(--fs-md);font-weight:700;cursor:pointer;color:var(--ink);background:var(--surface)}
+/* Sebagian tombol ragam ditulis sebagai <button>, sebagian sebagai <span>. Tanpa aturan ini
+   yang berupa <button> memakai tepi bawaan peramban setebal 2px di tiga sisi, sehingga
+   tepinya timpang dibanding saudaranya. Tepi dinolkan, pemisah antar tombol tetap 1px. */
+.seg .segb{padding:7px var(--sp-7);font-size:var(--fs-md);font-weight:700;cursor:pointer;color:var(--ink);
+  background:var(--surface);border:0;border-radius:0;font-family:inherit;line-height:inherit}
 .seg .segb.on{background:var(--brand);color:#fff}
 .segb:not(.on):hover{background:var(--wash-2)}
 .seg .segb+.segb{border-left:1px solid var(--line)}
-.note-box{background:var(--note-bg);border:1px solid var(--note-line);border-left:3px solid var(--brand);
+.note-box{background:var(--note-bg);border:1px solid var(--brand-l2);
   border-radius:var(--rad-md);padding:13px var(--sp-8);
   font-size:var(--fs-sm);color:var(--note-ink);margin:var(--sp-6) 0;line-height:1.55}
 .legend{display:flex;gap:var(--sp-7);flex-wrap:wrap;font-size:var(--fs-sm);color:var(--muted);margin-top:var(--sp-4)}
@@ -495,8 +499,8 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 .hm-fit .rh{max-width:none}
 .hm-fit .ch{white-space:normal;line-height:1.25}
 
-/* -- kartu Sorotan (pembuka modul): aksen kiri brand, semua token supaya ikut mode gelap -- */
-.sorotan{border-left:4px solid var(--brand)}
+/* -- kartu Sorotan (pembuka modul): bingkai penuh tipis berwarna brand -- */
+.sorotan{border-color:var(--brand)}
 /* -- kartu Langkah Selanjutnya (penutup halaman analitik) -- */
 .lanjut{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--sp-5)}
 .lanjut-i{border:1px solid var(--line);border-radius:var(--rad-sm);padding:var(--sp-5) var(--sp-6);cursor:pointer;
@@ -717,7 +721,8 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 .pnd-klu-dot{width:10px;height:10px;border-radius:3px;background:var(--brand);flex:none}
 .pnd-mod{display:flex;align-items:center;gap:10px;margin-bottom:9px}
 .pnd-modname{font-weight:800;color:var(--brand-d);font-size:var(--fs-md)}
-.pnd-sub{font-weight:700;color:var(--ink);font-size:var(--fs-sm);margin:12px 0 5px;padding-left:8px;border-left:3px solid var(--brand-l2)}
+.pnd-sub{font-weight:700;color:var(--ink);font-size:var(--fs-sm);margin:12px 0 5px;padding:4px 8px;
+  border:1px solid var(--brand-l2);border-radius:var(--rad-sm)}
 .pnd-list{display:flex;flex-direction:column;gap:3px;margin-bottom:4px}
 .pnd-row{display:block;padding:8px 11px;border-radius:var(--rad-sm);cursor:pointer;transition:background var(--t-fast) ease;border:1px solid transparent}
 .pnd-row:hover{background:var(--surface-2);border-color:var(--line)}
@@ -2437,7 +2442,7 @@ function vInsight(){
   <div class="toolbar"><select class="flt" id="insCat"><option value="">Semua kategori</option>${cats.map(c=>`<option ${state.insCat===c?'selected':''}>${esc(c)}</option>`).join('')}</select><span class="mini">${rows.length} temuan ditampilkan</span></div>`;
   if(!rows.length){h+=`<div class="card"><div class="empty">Tidak ada potensi masalah terdeteksi untuk lingkup ini. 👍</div></div>`;return h;}
   rows.slice(0,60).forEach(x=>{const col=x.sev==='tinggi'?'var(--red)':x.sev==='sedang'?'var(--gold2)':'var(--brand)';
-    h+=`<div class="card" style="display:flex;gap:13px;align-items:flex-start;border-left:4px solid ${col};margin-bottom:11px;padding:13px 16px">
+    h+=`<div class="card" style="display:flex;gap:13px;align-items:flex-start;border:1px solid ${col};margin-bottom:11px;padding:13px 16px">
       <div style="flex:1;min-width:0">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px"><span class="pill ${sevPill[x.sev]}">${sevTxt[x.sev]}</span><span class="pill neu">${esc(x.cat)}</span><span class="link" ${x.act} style="font-weight:700">${esc(x.judul)}</span></div>
         <div class="mini" style="margin-bottom:5px">${esc(x.bukti)}</div>
@@ -2885,7 +2890,7 @@ function vUnitFungsiTugas(n){
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px"><span class="pill ${covered===fungsi.length?'on':'warn'}">${covered}/${fungsi.length} fungsi didukung tugas</span><span class="pill neu">${tugas.length} uraian tugas</span>${pair.orphans.length?`<span class="pill warn">${pair.orphans.length} tugas tak terpetakan ke fungsi</span>`:''}</div>`;
   h+=_abkBebanCallout(n.nama,jabs.length);
   h+=fungsi.map((f,i)=>{const ts=pair.perF[i].tasks;
-    return `<div style="margin-bottom:9px;padding-left:10px;border-left:3px solid ${ts.length?'var(--brand)':'var(--st-warn)'}">
+    return `<div style="margin-bottom:9px;padding:8px 10px;border-radius:var(--rad-sm);border:1px solid ${ts.length?'var(--brand)':'var(--st-warn)'}">
       <div style="font-weight:600;font-size:var(--fs-md)">${esc(f)} ${ts.length?`<span class="mini">(${ts.length} tugas)</span>`:'<span class="pill warn">belum ada tugas pendukung</span>'}${_verifTombol(n.nama,i,f)}</div>
       ${ts.length?`<ul class="mini" style="margin:4px 0 0;padding-left:16px;line-height:1.55">${ts.slice(0,6).map(x=>`<li>${esc(tugas[x.i].t)} <span style="color:var(--muted)">&middot; ${esc(tugas[x.i].jab)}</span></li>`).join('')}${ts.length>6?`<li style="color:var(--muted);list-style:none">... dan ${ts.length-6} tugas lain</li>`:''}</ul>`:''}
     </div>`;}).join('');
@@ -3388,7 +3393,7 @@ function vUrjabInsight(){
     <select class="flt" id="urjabInsCat"><option value="">Semua kategori</option>${cats.map(c=>`<option value="${esc(c)}" ${state.urjabInsCat===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
     <span class="mini">${show.length} temuan</span></div>`;
   if(!show.length)h+='<div class="empty">Tidak ada temuan pada filter ini.</div>';
-  h+=show.slice(0,200).map(f=>`<div class="card" style="border-left:4px solid ${bord[f.sev]};margin-bottom:10px">
+  h+=show.slice(0,200).map(f=>`<div class="card" style="border:1px solid ${bord[f.sev]};margin-bottom:10px">
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="tag">${esc(f.cat)}</span>${sevPill(f.sev)}${f.unit?`<span class="mini">${esc(f.unit)}</span>`:''}${f.idx!=null?`<span class="link" style="margin-left:auto" data-act="urjabopen" data-idx="${f.idx}">Lihat jabatan &rarr;</span>`:''}</div>
     <div style="font-weight:700;color:var(--brand-d);margin:6px 0 3px">${esc(f.t)}</div>
     <div class="mini" style="line-height:1.5">${esc(f.d)}</div></div>`).join('');
@@ -3546,7 +3551,7 @@ function _kokpitPrioritas(){
 /* Kartu sinyal Kokpit Prioritas. sev: crit/warn/ok/info -> warna aksen; act = atribut data-act. */
 function _kokCard(sev,num,lab,desc,act){
   const col=sev==='crit'?'var(--st-critical)':sev==='warn'?'var(--st-warn)':sev==='ok'?'var(--st-good)':'var(--brand)';
-  return `<div class="kok-card" ${act||''} style="border-left:4px solid ${col}"><div class="kok-num" style="color:${col}">${num}</div><div class="kok-lab">${esc(lab)}</div><div class="kok-desc">${esc(desc)}</div></div>`;
+  return `<div class="kok-card" ${act||''} style="border:1px solid ${col}"><div class="kok-num" style="color:${col}">${num}</div><div class="kok-lab">${esc(lab)}</div><div class="kok-desc">${esc(desc)}</div></div>`;
 }
 function vBeranda(){
   const s=(DATA&&DATA.summary)||{};
@@ -3619,7 +3624,7 @@ function vBeranda(){
   if(canOtk)kok+=_kokCard(noF>0?'warn':'ok',fmt(noF),'Unit tanpa rumusan fungsi','Eselon I-II tanpa fungsi di PMK OTK','data-act="mod" data-mod="otk"');
   if(canOtk)kok+=_kokCard(wideSpan>0?'warn':'ok',fmt(wideSpan),'Rentang kendali lebar','Unit Eselon II/III membawahi 7+ unit langsung','data-act="nav" data-view="otkhealth"');
   if(abkReady)kok+=_kokCard(abkShortPeople>0?'crit':'ok',fmt(abkShortPeople),'Kekurangan pegawai','Akumulasi butuh melebihi ada (ABK 2024) di '+fmt(abkShortUnits)+' unit','data-act="nav" data-view="abk"');
-  else if(abkAcc)kok+=`<div class="kok-card" data-act="loadabk" style="border-left:4px solid var(--muted)"><div class="kok-num" style="color:var(--muted);font-size:var(--fs-lg)">Muat &rsaquo;</div><div class="kok-lab">Kekurangan pegawai (ABK)</div><div class="kok-desc">Klik untuk memuat data beban kerja lalu tampilkan sinyalnya</div></div>`;
+  else if(abkAcc)kok+=`<div class="kok-card" data-act="loadabk" style="border:1px solid var(--muted)"><div class="kok-num" style="color:var(--muted);font-size:var(--fs-lg)">Muat &rsaquo;</div><div class="kok-lab">Kekurangan pegawai (ABK)</div><div class="kok-desc">Klik untuk memuat data beban kerja lalu tampilkan sinyalnya</div></div>`;
   if(tkReady)kok+=_kokCard(tkGagal>0?'warn':'ok',fmt(tkGagal),'Unit pernah gagal ZI','Punya riwayat kegagalan meraih predikat Zona Integritas','data-act="nav" data-view="tkkegagalan"');
   if(mofReady)kok+=_kokCard(mofBelow>0?'warn':'ok',fmt(mofBelow),'Kapabilitas di bawah rata-rata','Skor MOFIN di bawah Kemenkeu ('+mofRef+')','data-act="nav" data-view="mofin"');
   h+=`<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 10px">Kokpit Prioritas <span class="mini" style="font-weight:400">- sinyal lintas modul yang perlu perhatian pimpinan</span></div><div class="kok-grid">${kok}</div>`;
@@ -3936,7 +3941,7 @@ function vOtkKaitan(){
   h+=`<div class="kpis">
     <div class="kpi"><div class="lab">Unit Eselon II</div><div class="val">${fmt(rows.length)}</div><div class="note">dalam cakupan</div></div>
     <div class="kpi good"><div class="lab">Sudah ada tim</div><div class="val">${fmt(withTim)}</div><div class="note">mengadopsi Mekanisme Kerja</div></div>
-    <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Belum ada tim</div><div class="val">${fmt(noTim)}</div><div class="note">target aktivasi</div></div>
+    <div class="kpi" style="border:1px solid var(--red)"><div class="lab">Belum ada tim</div><div class="val">${fmt(noTim)}</div><div class="note">target aktivasi</div></div>
     <div class="kpi gold"><div class="lab">Cakupan adopsi</div><div class="val">${cover}%</div><div class="note">unit ES II yang aktif</div></div></div>`;
   // Adopsi per Eselon I (benchmark = adopsi tertinggi)
   let e1bars='';e1stat.forEach((x,i)=>{const v=x.adop==null?0:x.adop;const col=colorAdopt(v);
@@ -3979,7 +3984,7 @@ function vOtkOverlap(){
   h+=`</div>
   <div class="kpis">
     <div class="kpi"><div class="lab">Irisan selevel</div><div class="val">${fmt(SIB.length)}</div><div class="note">${fmt(subT)} substantif</div></div>
-    <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Antar Eselon I</div><div class="val">${fmt(CR.length)}</div><div class="note">tumpang tindih lintas DJ</div></div>
+    <div class="kpi" style="border:1px solid var(--red)"><div class="lab">Antar Eselon I</div><div class="val">${fmt(CR.length)}</div><div class="note">tumpang tindih lintas DJ</div></div>
     <div class="kpi gold"><div class="lab">Anak meniru induk</div><div class="val">${fmt(PC.length)}</div><div class="note">kandidat delayering</div></div>
     <div class="kpi good"><div class="lab">Ambang</div><div class="val">&ge;${Math.round((OVERLAP.meta&&OVERLAP.meta.threshold_cross||0.5)*100)}%</div><div class="note">kemiripan kata</div></div></div>
   <div class="note-box">Irisan dihitung dari kemiripan kata tugas dan fungsi (indeks Jaccard). <b>Kemiripan tinggi tidak selalu duplikasi:</b> unit yang fungsinya sama tetapi hanya dibedakan objek atau nomor (mis. Inspektorat I sampai V) ditandai "Serial/objek" atau "Beda objek"; yang perlu ditinjau adalah kelas "Substantif". <b>Rumusan yang memang bersifat umum dan berulang</b>, seperti pelaksanaan administrasi atau penyusunan bahan, akan tampak mirip di banyak unit tanpa benar-benar tumpang tindih; untuk kasus seperti itu bandingkan langsung uraian jabatannya lewat <span class="tag link" data-act="nav" data-view="urjabcompare">Komparasi Jabatan &rsaquo;</span> yang membandingkan butir tugas satu per satu. ${tab==='cross'?'Pada perbandingan antar Eselon I, sebagian kemiripan juga berasal dari rumusan baku regulasi, jadi gunakan sebagai penyaring kandidat lintas Direktorat Jenderal, bukan vonis.':'Alat ini penyaring kandidat untuk ditinjau, bukan vonis penggabungan.'}</div>`;
@@ -4075,7 +4080,7 @@ function vOtkHealth(){
   let h=`<div class="toolbar"><span class="seg">${tb('span','Rentang Kendali & Lapisan')}${tb('right','Right-sizing (beban vs struktur)')}</span></div>
   <div class="kpis">
     <div class="kpi good"><div class="lab">Sudah delayering</div><div class="val">${fmt(delayered.length)}</div><div class="note">dari ${fmt(es2.length)} unit Eselon II</div></div>
-    <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Belum ada tim kerja</div><div class="val">${fmt(noTeam)}</div><div class="note">prioritas aktivasi matriks</div></div>
+    <div class="kpi" style="border:1px solid var(--red)"><div class="lab">Belum ada tim kerja</div><div class="val">${fmt(noTeam)}</div><div class="note">prioritas aktivasi matriks</div></div>
     <div class="kpi"><div class="lab">Span lebar (Eselon I)</div><div class="val">${fmt(es1wide.length)}</div><div class="note">&ge;12 unit Eselon II</div></div>
     <div class="kpi gold"><div class="lab">Rata-rata sub-unit ES III</div><div class="val">${spanAvg.toFixed(1)}</div><div class="note">per Eselon II</div></div></div>`;
   if(tab==='span'){
@@ -4238,7 +4243,7 @@ function vJfFungsi(){
   h+=`<div class="kpis">
     <div class="kpi good"><div class="lab">Unit sudah delayering</div><div class="val">${fmt(delayered.length)}</div><div class="note">Eselon II dalam cakupan</div></div>
     <div class="kpi"><div class="lab">Terpetakan ke JF KN</div><div class="val">${fmt(withJf)}</div><div class="note">punya rumpun JF pengguna</div></div>
-    <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Belum ada tim kerja</div><div class="val">${fmt(noTeam)}</div><div class="note">prioritas aktivasi matriks</div></div>
+    <div class="kpi" style="border:1px solid var(--red)"><div class="lab">Belum ada tim kerja</div><div class="val">${fmt(noTeam)}</div><div class="note">prioritas aktivasi matriks</div></div>
     <div class="kpi gold"><div class="lab">Rata-rata fungsional (ABK)</div><div class="val">${fsAvg==null?'-':Math.round(fsAvg*100)+'%'}</div><div class="note">${abkOn?('bezetting 2024 · '+fmt(fsRows.length)+' unit terdata'):'muat data ABK untuk mengisi'}</div></div></div>`;
   h+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">Unit Delayering &rarr; Rumpun JF Tujuan <span class="mini">(${vis.length})</span></h2>${abkOn?'':'<span class="tag link" data-act="loadabk" style="cursor:pointer">Muat data ABK &rsaquo;</span>'}
     <span style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="seg">${seg('','Semua')}${seg('noteam','Belum ada tim')}</span>${ue1Sel}</span></div>
@@ -4426,7 +4431,7 @@ function vOtkOrg(){
   let h=`<div class="kpis">
     <div class="kpi"><div class="lab">Rata-rata Indeks</div><div class="val" style="color:${cw(avg)}">${avg}</div><div class="note">dari 100, ${fmt(rows.length)} Eselon I</div></div>
     <div class="kpi good"><div class="lab">Status Baik</div><div class="val">${fmt(baik)}</div><div class="note">indeks &ge; 70</div></div>
-    <div class="kpi" style="border-left:3px solid var(--red)"><div class="lab">Perlu Perhatian</div><div class="val">${fmt(perlu)}</div><div class="note">indeks &lt; 50</div></div>
+    <div class="kpi" style="border:1px solid var(--red)"><div class="lab">Perlu Perhatian</div><div class="val">${fmt(perlu)}</div><div class="note">indeks &lt; 50</div></div>
     <div class="kpi gold"><div class="lab">Acuan tertinggi</div><div class="val">${rows.length?rows[0].idx:'-'}</div><div class="note">${rows.length?esc(rows[0].n1.nama):''}</div></div></div>
   <div class="note-box">Indeks kesehatan organisasi per Eselon I (skala 0-100) menyatukan empat dimensi lintas modul dengan bobot: <b>Adopsi Mekanisme Kerja</b> (30%), <b>Penyederhanaan Struktur</b> (persen Eselon II yang sudah delayering, 25%), <b>Kejelasan Fungsi</b> (persen Eselon II tanpa tumpang tindih substantif, 25%), dan <b>Kelengkapan Fungsi</b> (persen unit dengan fungsi tertulis, 20%). Status: Baik &ge;70, Cukup 50-69, Perlu Perhatian &lt;50. Eselon I di luar cakupan Mekanisme Kerja (mis. DJP, DJBC, Itjen, BPPK) ditandai "-" pada Adopsi dan indeksnya dihitung dari tiga dimensi lain, sehingga peringkatnya tidak sepenuhnya setara dengan unit yang dinilai penuh. Alat pembanding antarunit, bukan penilaian final.</div>
   <div class="card"><h2 class="sec" style="margin-top:0">Skor Kesehatan per Eselon I</h2>
@@ -4528,7 +4533,7 @@ function vOtkShare(){
   let h=`<div class="kpis">
     <div class="kpi"><div class="lab">Unit Sekretariat</div><div class="val">${fmt(sek.length)}</div><div class="note">fungsi pendukung seragam</div></div>
     <div class="kpi gold"><div class="lab">Pilar layanan</div><div class="val">${fmt(rows.filter(r=>r.n>0).length)}</div><div class="note">teridentifikasi dari tusi</div></div>
-    <div class="kpi" style="border-left:3px solid var(--brand)"><div class="lab">Kandidat share service kuat</div><div class="val">${fmt(strong)}</div><div class="note">ada di mayoritas sekretariat</div></div></div>
+    <div class="kpi" style="border:1px solid var(--brand)"><div class="lab">Kandidat share service kuat</div><div class="val">${fmt(strong)}</div><div class="note">ada di mayoritas sekretariat</div></div></div>
   <div class="note-box">Sekretariat di tiap Eselon I menjalankan fungsi pendukung yang sebagian besar sama (SDM, keuangan, perencanaan, hukum, umum, dan lain-lain). Pilar yang berulang di banyak sekretariat adalah kandidat <b>share service</b> (layanan bersama lintas unit) ketimbang direplikasi di tiap unit. Pilar diturunkan dari tugas dan fungsi tiap sekretariat. Ini usulan awal untuk dikaji, bukan keputusan final. Tiap baris disusun berpola <b>dasar data &rarr; tindakan &rarr; penanggung jawab &rarr; status</b>, seperti pada menu Usulan Penataan.</div>
   <div class="card"><h2 class="sec" style="margin-top:0">Pilar Layanan Kandidat Share Service</h2>
     <div class="tblw"><table><thead><tr><th>Pilar Layanan</th><th class="num-c">Sekretariat yang Menjalankan</th><th>Penilaian</th><th>Tindakan &amp; Penanggung Jawab</th><th>Status</th></tr></thead><tbody>`;
@@ -6126,7 +6131,7 @@ function vTataKelola(){const g=tkGuard();if(g)return g;const f=tkF();
   const champ=tkChampions().filter(tkKeep);const champU=new Set(champ.map(r=>String(r.unit_kerja).toLowerCase())).size;
   const izTrend=Object.keys(TK.integritas.per_tahun||{}).sort().map(function(y){return TK.integritas.per_tahun[y];});
   const kpTrend=Object.keys(kp.kemenkeu||{}).sort().map(function(y){return kp.kemenkeu[y];});
-  const card=(v,lab,val,note,col,tab,spark)=>`<div class="kpi" data-act="tknav" data-v="${v}"${tab?` data-tab="${tab}"`:''} style="cursor:pointer;border-top:3px solid ${col};background:color-mix(in srgb, ${col} 8%, transparent)"><div class="lab">${lab}</div><div class="val" style="color:${col}">${val}</div><div class="note">${note}</div>${spark||''}</div>`;
+  const card=(v,lab,val,note,col,tab,spark)=>`<div class="kpi" data-act="tknav" data-v="${v}"${tab?` data-tab="${tab}"`:''} style="cursor:pointer;border:1px solid ${col};background:color-mix(in srgb, ${col} 8%, transparent)"><div class="lab">${lab}</div><div class="val" style="color:${col}">${val}</div><div class="note">${note}</div>${spark||''}</div>`;
   let h=tkTool();
   /* Sorotan: rangkuman capaian tata kelola (ikut filter unit/tahun yang sedang aktif) */
   h+=(function(){
@@ -7057,7 +7062,7 @@ function _kartuRingkasanEksekutif(U){
   if(!P.length)return '';
   const abkAda=(typeof ABK!=='undefined')&&!!ABK;
   const bisaAbk=((typeof canMod!=='function')||canMod('abk'));
-  return '<div class="card" style="margin-bottom:12px;border-left:4px solid var(--brand)">'+
+  return '<div class="card" style="margin-bottom:12px;border:1px solid var(--brand)">'+
     '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">'+
       '<h3 style="margin:0">Ringkasan Eksekutif</h3>'+
       '<span class="mini">dirangkai otomatis dari data lintas modul</span>'+
@@ -9187,7 +9192,7 @@ function vMofin(){
   var totTL=done+onp+not,pct=totTL?Math.round(100*done/totTL):0;
   var nd=km.skor_dimensi,wdim=Object.keys(nd).sort((a,b)=>nd[a]-nd[b])[0];
   var BLUE='var(--cat-1)',VIO='var(--cat-5)',TEAL='var(--cat-2)',ORANGE='var(--cat-3)';
-  var card=(v,lab,val,note,col)=>'<div class="kpi" data-act="nav" data-view="'+v+'" style="cursor:pointer;border-top:3px solid '+col+';background:color-mix(in srgb, '+col+' 8%, transparent)"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';
+  var card=(v,lab,val,note,col)=>'<div class="kpi" data-act="nav" data-view="'+v+'" style="cursor:pointer;border:1px solid '+col+';background:color-mix(in srgb, '+col+' 8%, transparent)"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';
   var h='<div class="kpis">'
     +card('mofheatmap','Skor MOFIN Kemenkeu',km.skor_total,'agregat organisasi, skala 0-100',BLUE)
     +card('mofheatmap','Unit Dinilai',U.length,'12 Eselon I + Kemenkeu',VIO)
@@ -9362,7 +9367,7 @@ function vMofinKuadran(){
   var xs=cells.map(c=>c.x).slice().sort((a,b)=>a-b);var xt=xs.length?xs[Math.floor(xs.length/2)]:85;
   var cnt={buta:0,responsif:0,tertunda:0,terjaga:0};cells.forEach(c=>cnt[mofQuad(c.x,c.y,xt)]++);
   var h='<div class="note-box" style="margin:0 0 12px">Tiap titik = satu <b>unit × dimensi</b> yang punya rekomendasi. Sumbu X = skor kapabilitas (makin kiri makin lemah), sumbu Y = indeks tindak lanjut (makin bawah makin mandek). Kuadran kiri-bawah <b style="color:var(--st-critical)">Perlu Perhatian</b> = kelemahan yang belum ditindaklanjuti, prioritas utama. Klik titik untuk detail rekomendasi.</div>';
-  var kc=q=>'<div class="kpi" data-act="nav" data-view="mofgap" style="cursor:pointer;min-height:auto;border-top:3px solid '+MOF_QCOL[q]+'"><div class="lab">'+MOF_QLAB[q]+'</div><div class="val" style="color:'+MOF_QCOL[q]+';font-size:var(--fs-num)">'+cnt[q]+'</div><div class="note">unit × dimensi</div></div>';
+  var kc=q=>'<div class="kpi" data-act="nav" data-view="mofgap" style="cursor:pointer;min-height:auto;border:1px solid '+MOF_QCOL[q]+'"><div class="lab">'+MOF_QLAB[q]+'</div><div class="val" style="color:'+MOF_QCOL[q]+';font-size:var(--fs-num)">'+cnt[q]+'</div><div class="note">unit × dimensi</div></div>';
   h+='<div class="kpis" style="margin-bottom:12px">'+kc('buta')+kc('responsif')+kc('tertunda')+kc('terjaga')+'</div>';
   h+='<div class="card tblw">'+mofScatter(cells,xt)+'<div class="mini" style="margin-top:6px">Garis putus-putus: ambang skor (median '+xt.toFixed(1)+') dan indeks TL 50. Ukuran titik sebanding jumlah rekomendasi.</div></div>';
   var buta=cells.filter(c=>mofQuad(c.x,c.y,xt)==='buta').sort((a,b)=>(a.x+a.y)-(b.x+b.y));
@@ -9410,7 +9415,7 @@ function pwItemRow(it){
   var disp=it.tujuan_disposisi?'<div class="mini" style="margin-top:4px;color:var(--brand)">&rarr; disposisi ke: <b>'+esc(it.tujuan_disposisi)+'</b></div>':'';
   var pb='';
   if(it.probis&&it.probis.length){
-    pb='<div style="margin-top:7px;padding:7px 10px;background:rgba(47,132,103,0.09);border-left:3px solid #2f8467;border-radius:5px">'
+    pb='<div style="margin-top:7px;padding:7px 10px;background:rgba(47,132,103,0.09);border:1px solid #2f8467;border-radius:5px">'
       +'<div class="mini" style="font-weight:700;color:var(--st-good);margin-bottom:2px">Proses bisnis terkait <span style="font-weight:500;color:var(--muted)">(indikatif)</span></div>';
     it.probis.forEach(function(p){
       var own=(p.owner&&p.owner.length)?' <span class="pill" style="background:var(--track);color:#334155;border:1px solid var(--line);font-size:var(--fs-micro)">'+p.owner.map(esc).join('/')+'</span>':'';
@@ -9443,7 +9448,7 @@ function vPelwen(){
   if(!pwReady())return '<div class="empty">Data Pelimpahan Wewenang belum dimuat. Coba muat ulang halaman setelah login.</div>';
   var m=PW.meta,r=PW.ringkas;
   var BLUE='var(--cat-1)',VIO='var(--cat-5)',TEAL='var(--cat-2)',ORANGE='var(--cat-3)';
-  var card=function(v,lab,val,note,col){return '<div class="kpi" data-act="nav" data-view="'+v+'" style="cursor:pointer;border-top:3px solid '+col+';background:'+col+'14"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';};
+  var card=function(v,lab,val,note,col){return '<div class="kpi" data-act="nav" data-view="'+v+'" style="cursor:pointer;border:1px solid '+col+';background:'+col+'14"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';};
   var h='<div class="note-box" style="margin-bottom:14px"><b>'+esc(m.dasar_hukum)+'</b> - '+esc(m.ringkas)+' <span class="mini">Pedoman: '+esc(m.pedoman)+'. Ditetapkan oleh '+esc(m.penandatangan)+'.</span></div>';
   h+='<div class="kpis">'
     +card('pelunit','Butir Kewenangan',fmt(r.butir),'materi kewenangan dilimpahkan',BLUE)
@@ -9613,7 +9618,7 @@ function pwLintasForOtk(id){return ((PW.link&&PW.link.lintas_by_otkid)||{})[Stri
 function pwLintasSection(list){
   if(!list||!list.length)return '';
   var tot=list.reduce(function(s,e){return s+e.jml_butir;},0);
-  var h='<div class="card" style="margin-bottom:12px;border-left:3px solid var(--cat-3)"><h2 class="sec" style="margin-top:0">Mandat Lintas Unit yang Berlaku <span class="mini" style="font-weight:500;text-transform:none;letter-spacing:0">(kolektif, tidak dihitung ke total unit)</span></h2>'
+  var h='<div class="card" style="margin-bottom:12px;border:1px solid var(--cat-3)"><h2 class="sec" style="margin-top:0">Mandat Lintas Unit yang Berlaku <span class="mini" style="font-weight:500;text-transform:none;letter-spacing:0">(kolektif, tidak dihitung ke total unit)</span></h2>'
     +'<div class="mini" style="margin-bottom:8px">Jabatan ini termasuk penerima kolektif mandat lintas unit (Lampiran XIV-XIX KMK 167/2025), total <b>'+tot+' butir</b>. Klik untuk rincian.</div>';
   list.forEach(function(e){
     var tema=(PW.detail[e.key]&&PW.detail[e.key].nama)||('Lampiran '+e.lamp);
@@ -9681,7 +9686,7 @@ function vPelInsight(){
   var nOtk=PW.link.jab.filter(function(r){return r.otk_id!=null;}).length;
   var nUj=PW.link.jab.filter(function(r){return r.urjab_idx!=null;}).length;
   var BLUE='var(--cat-1)',VIO='var(--cat-5)',TEAL='var(--cat-2)',ORANGE='var(--cat-3)';
-  var card=function(lab,val,note,col){return '<div class="kpi" style="border-top:3px solid '+col+';background:'+col+'14"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';};
+  var card=function(lab,val,note,col){return '<div class="kpi" style="border:1px solid '+col+';background:'+col+'14"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';};
   var h='<div class="note-box" style="margin-bottom:12px">Keterkaitan Pelimpahan Wewenang dengan Struktur (OTK), Repositori Jabatan (URJAB), dan Proses Bisnis. Kaitan ke jabatan/unit bersifat deterministik; kaitan ke proses bisnis bersifat <b>indikatif</b> berbasis kesamaan kata kunci makna.</div>';
   h+='<div class="kpis">'
     +card('Jabatan &rarr; Struktur',nOtk,'jabatan penerima terpetakan ke unit OTK',BLUE)
@@ -9725,7 +9730,7 @@ function vPelAnalisis(){
   var BLUE='var(--cat-1)',VIO='var(--cat-5)',TEAL='var(--cat-2)',ORANGE='var(--cat-3)';
   var totB=(S.global.Administratif||0)+(S.global.Penetapan||0)+(S.global.Regulatif||0);
   var formalN=A.formal.length, formalPct=Math.round(100*formalN/totB);
-  var card=function(lab,val,note,col){return '<div class="kpi" style="border-top:3px solid '+col+';background:'+col+'14"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';};
+  var card=function(lab,val,note,col){return '<div class="kpi" style="border:1px solid '+col+';background:'+col+'14"><div class="lab">'+lab+'</div><div class="val" style="color:'+col+'">'+val+'</div><div class="note">'+note+'</div></div>';};
   var h='<div class="note-box" style="margin-bottom:12px">Diagnostik struktur delegasi: seberapa terpusat mandat, sedalam apa diturunkan, dan sekuat apa sifatnya. <span class="mini">Sifat ditentukan produk hukum: KMK/PMK = Penetapan/Regulatif; selain itu Administratif.</span></div>';
   h+='<div class="kpis">'
     +card('Butir Kewenangan',fmt(totB),A.konsentrasi_kum.n_jabatan+' jabatan penerima (unit)',BLUE)
@@ -9793,7 +9798,7 @@ function vPelAnalisis(){
    Tabel yang barisnya saling bergantung, yaitu memuat baris rincian ber-colspan, sengaja
    TIDAK dipenggal supaya baris induk tidak terpisah dari rinciannya. */
 const PGN_N=10;
-function pgnKey(ti){return (state.view||'')+'#'+ti;}
+function pgnKey(jenis,ti){return (state.view||'')+'#'+jenis+ti;}
 function pgnPrepare(root){
   if(!root)return;
   var tabs=root.querySelectorAll('table');
@@ -9808,27 +9813,62 @@ function pgnPrepare(root){
       if(c.length===1&&rows.length>1&&c[0].colSpan>1){bergantung=true;break;}
     }
     if(bergantung)continue;
-    var key=pgnKey(ti),total=rows.length,hal=Math.ceil(total/PGN_N);
-    state.pgn=state.pgn||{};
-    var cur=Math.min(Math.max(1,state.pgn[key]||1),hal);
-    state.pgn[key]=cur;
-    var awal=(cur-1)*PGN_N,akhir=Math.min(total,awal+PGN_N);
-    for(var r=0;r<total;r++)rows[r].style.display=(r>=awal&&r<akhir)?'':'none';
-    var bar=document.createElement('div');
-    bar.className='pgn';
-    var tomb=function(ikon,ke,mati,judul){
-      return '<button data-act="pgn" data-k="'+esc(key)+'" data-p="'+ke+'" title="'+judul+'" aria-label="'+judul+'"'+
-             (mati?' disabled':'')+'>'+svgIcon(ikon,15)+'</button>';};
-    bar.innerHTML='<span class="pgn-i">Menampilkan '+fmt(awal+1)+' sampai '+fmt(akhir)+' dari '+fmt(total)+' baris</span>'+
-      tomb('pgAwal',1,cur===1,'Halaman pertama')+
-      tomb('pgMundur',cur-1,cur===1,'Halaman sebelumnya')+
-      '<span class="pgn-h">'+cur+' / '+hal+'</span>'+
-      tomb('pgMaju',cur+1,cur===hal,'Halaman berikutnya')+
-      tomb('pgAkhir',hal,cur===hal,'Halaman terakhir');
     var wadah=tb.parentNode;
     var sesudah=(wadah&&wadah.classList&&wadah.classList.contains('tblw'))?wadah:tb;
-    if(sesudah.nextSibling&&sesudah.nextSibling.className==='pgn')sesudah.parentNode.removeChild(sesudah.nextSibling);
+    pgnTerap(rows,sesudah,null,pgnKey('t',ti),'baris',false);
+  }
+  pgnBatang(root);
+  pgnKartu(root);
+}
+/* Satu mesin untuk semua bentuk daftar. `anak` adalah kumpulan unsur yang dipenggal;
+   yang di luar halaman aktif hanya disembunyikan, tidak dibuang, supaya penanganan klik
+   yang sudah ada tetap bekerja. Bilah disisipkan setelah `sesudah`, atau di ujung `dalam`. */
+function pgnTerap(anak,sesudah,dalam,key,satuan,lepas){
+  var total=anak.length;
+  if(total<=PGN_N)return;
+  var hal=Math.ceil(total/PGN_N);
+  state.pgn=state.pgn||{};
+  var cur=Math.min(Math.max(1,state.pgn[key]||1),hal);
+  state.pgn[key]=cur;
+  var awal=(cur-1)*PGN_N,akhir=Math.min(total,awal+PGN_N);
+  for(var r=0;r<total;r++)anak[r].style.display=(r>=awal&&r<akhir)?'':'none';
+  var bar=document.createElement('div');
+  bar.className='pgn'+(lepas?' pgn-lepas':'');
+  var tomb=function(ikon,ke,mati,judul){
+    return '<button data-act="pgn" data-k="'+esc(key)+'" data-p="'+ke+'" title="'+judul+'" aria-label="'+judul+'"'+
+           (mati?' disabled':'')+'>'+svgIcon(ikon,15)+'</button>';};
+  bar.innerHTML='<span class="pgn-i">Menampilkan '+fmt(awal+1)+' sampai '+fmt(akhir)+' dari '+fmt(total)+' '+satuan+'</span>'+
+    tomb('pgAwal',1,cur===1,'Halaman pertama')+
+    tomb('pgMundur',cur-1,cur===1,'Halaman sebelumnya')+
+    '<span class="pgn-h">'+cur+' / '+hal+'</span>'+
+    tomb('pgMaju',cur+1,cur===hal,'Halaman berikutnya')+
+    tomb('pgAkhir',hal,cur===hal,'Halaman terakhir');
+  if(sesudah){
+    if(sesudah.nextSibling&&sesudah.nextSibling.className&&String(sesudah.nextSibling.className).indexOf('pgn')===0)
+      sesudah.parentNode.removeChild(sesudah.nextSibling);
     sesudah.parentNode.insertBefore(bar,sesudah.nextSibling);
+  }else if(dalam){dalam.appendChild(bar);}
+}
+/* Deret batang: dipenggal per induknya, bilah disisipkan tepat sesudah batang terakhir
+   supaya catatan kaki kartu tetap berada di bawah bilah. */
+function pgnBatang(root){
+  var semua=root.querySelectorAll('.bar-row'),induk=[],i;
+  for(i=0;i<semua.length;i++)if(induk.indexOf(semua[i].parentNode)<0)induk.push(semua[i].parentNode);
+  for(i=0;i<induk.length;i++){
+    var p=induk[i],baris=[],c=p.children,j;
+    for(j=0;j<c.length;j++)if(c[j].classList&&c[j].classList.contains('bar-row'))baris.push(c[j]);
+    if(baris.length<=PGN_N)continue;
+    pgnTerap(baris,baris[baris.length-1],null,pgnKey('b',i),'baris',true);
+  }
+}
+/* Hamparan kartu. Bilah berdiri sendiri di bawah hamparan, jadi diberi bingkai penuh. */
+function pgnKartu(root){
+  var gr=root.querySelectorAll('.grid3,.grid2,.bento');
+  for(var i=0;i<gr.length;i++){
+    var g=gr[i],anak=[],c=g.children,j;
+    for(j=0;j<c.length;j++)anak.push(c[j]);
+    if(anak.length<=PGN_N)continue;
+    pgnTerap(anak,g,null,pgnKey('g',i),'kartu',true);
   }
 }
 function bindInputs(){const q=id=>document.getElementById(id);
