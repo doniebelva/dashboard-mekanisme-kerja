@@ -7779,42 +7779,115 @@ function vKjJf(){
 }
 
 /* ---------- 6. Taksonomi Rumpun (cermin lembar acuan + konsep) ---------- */
-function _kjPohon(pohon,jml){
+/* Pohon taksonomi tiga tingkat dengan bobot. Tiap simpul membawa angka jabatan dan angka
+   kompetensi, dan lebarnya sebanding dengan bobot itu, sehingga taksonomi terbaca sebagai
+   peta muatan, bukan sekadar daftar bertingkat. */
+function _kjPohon(pohon,bobot,mode){
+  var mx=1;(pohon||[]).forEach(function(t){var v=(bobot&&bobot.t[t.t])||0;if(v>mx)mx=v;});
   var h='';
   (pohon||[]).forEach(function(t){
     var buka=state.kompRpSel===t.t;
-    h+='<div style="border-top:1px solid var(--line);padding:8px 0">'+
-      '<div class="clk" data-act="komprpsel" data-k="'+esc(t.t)+'" style="display:flex;justify-content:space-between;gap:8px">'+
-      '<b>'+(buka?'&#9662; ':'&#9656; ')+esc(t.t)+'</b>'+
-      '<span class="mini">'+(t.sub||[]).length+' sub rumpun'+(jml&&jml[t.t]?(' · '+fmt(jml[t.t])+' jabatan'):'')+'</span></div>';
+    var v=(bobot&&bobot.t[t.t])||0, nk=(bobot&&bobot.k[t.t])?Object.keys(bobot.k[t.t]).length:0;
+    var w=Math.max(3,Math.round(100*v/mx));
+    h+='<div style="border-top:1px solid var(--line);padding:9px 0">'+
+      '<div class="clk" data-act="komprpsel" data-k="'+esc(t.t)+'" style="display:flex;align-items:center;gap:9px">'+
+        '<span style="width:14px;color:var(--muted)">'+(buka?'&#9662;':'&#9656;')+'</span>'+
+        '<span style="flex:0 0 40%;font-weight:700;color:var(--brand-d)">'+esc(t.t)+'</span>'+
+        '<span class="track" style="flex:1"><span class="fill" style="width:'+w+'%;display:block;height:100%"></span></span>'+
+        '<span class="mini" style="flex:0 0 190px;text-align:right">'+
+          (v?(fmt(v)+' jabatan'):'belum ada jabatan')+(nk?(' &middot; '+nk+' kompetensi'):'')+
+        '</span>'+
+        '<span class="mini" style="flex:0 0 74px;text-align:right">'+((t.sub||[]).length)+' sub</span>'+
+      '</div>';
     if(buka){
-      h+='<ul style="margin:6px 0 0 18px">'+(t.sub||[]).map(function(s){
-        return '<li>'+esc(s.s)+((s.ss||[]).length?('<ul style="margin:2px 0 0 16px">'+s.ss.map(function(x){return '<li class="mini">'+esc(x)+'</li>';}).join('')+'</ul>'):'')+'</li>';}).join('')+'</ul>';
+      var mxs=1;(t.sub||[]).forEach(function(x){var vv=(bobot&&bobot.s[t.t+'|'+x.s])||0;if(vv>mxs)mxs=vv;});
+      h+='<div style="margin:8px 0 2px 24px">';
+      (t.sub||[]).forEach(function(sb){
+        var vv=(bobot&&bobot.s[t.t+'|'+sb.s])||0;
+        h+='<div style="margin-bottom:7px">'+
+          '<div style="display:flex;align-items:center;gap:9px">'+
+            '<span style="flex:0 0 38%;font-weight:600">'+esc(sb.s||'-')+'</span>'+
+            '<span class="track" style="flex:1;height:11px"><span class="fill gold" style="width:'+Math.max(3,Math.round(100*vv/mxs))+'%;display:block;height:100%"></span></span>'+
+            '<span class="mini" style="flex:0 0 120px;text-align:right">'+(vv?(fmt(vv)+' baris'):'-')+'</span>'+
+          '</div>'+
+          ((sb.ss||[]).length?('<div style="display:flex;flex-wrap:wrap;gap:5px;margin:5px 0 0 12px">'+
+            sb.ss.map(function(x){return '<span class="tag">'+esc(x)+'</span>';}).join('')+'</div>'):'')+
+          '</div>';});
+      h+='</div>';
+      if(mode==='asis')h+='<div class="mini" style="margin-left:24px"><span class="tag link" data-act="komprp" data-k="'+esc(t.t)+'">Buka daftar jabatan rumpun ini &rsaquo;</span></div>';
     }
     h+='</div>';});
   return h;
 }
+/* Peta luasan rumpun: satu kotak satu rumpun, luasnya sebanding jumlah jabatan. Memakai
+   tata letak dan ramp warna yang sudah dipakai modul lain, bukan palet baru. */
+function _kjPeta(bobot){
+  var items=Object.keys(bobot.t).map(function(k){return {k:k,v:bobot.t[k]};})
+              .filter(function(x){return x.v;}).sort(function(a,b){return b.v-a.v;});
+  if(!items.length)return '';
+  var W=760,H=230,out=[];_tmLayout(items,0,0,W,H,out);
+  var mx=items[0].v;
+  var h='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto" role="img" aria-label="Peta luasan rumpun jabatan">';
+  out.forEach(function(c){
+    var t=c.v/mx, warna=_tmColor(t), tinta=(t>=0.55?'var(--seq-ink-hi)':'var(--seq-ink-lo)');
+    h+='<g class="clk" data-act="komprp" data-k="'+esc(c.k)+'">'+
+       '<rect x="'+c.x.toFixed(1)+'" y="'+c.y.toFixed(1)+'" width="'+Math.max(0,c.w-2).toFixed(1)+'" height="'+Math.max(0,c.h-2).toFixed(1)+'" fill="'+warna+'" stroke="var(--surface)" stroke-width="2" rx="4"/>';
+    if(c.w>84&&c.h>34){
+      h+='<text x="'+(c.x+9).toFixed(1)+'" y="'+(c.y+21).toFixed(1)+'" font-size="12" font-weight="700" fill="'+tinta+'">'+esc(String(c.k).slice(0,Math.floor(c.w/7.2)))+'</text>'+
+         '<text x="'+(c.x+9).toFixed(1)+'" y="'+(c.y+38).toFixed(1)+'" font-size="11" fill="'+tinta+'" opacity=".85">'+fmt(c.v)+' jabatan</text>';
+    }
+    h+='</g>';});
+  return h+'</svg>';
+}
 function vKjRumpun(){
   var g=kompGuard();if(g)return g;
   var R=KOMJ.rumpun||{},rows=kompRows();
-  var jml={};rows.forEach(function(j){if(j.rp)jml[j.rp]=(jml[j.rp]||0)+1;});
-  var h='<div class="note-box">Lembar sumber memuat <b>dua hierarki sejajar</b>, bukan pemetaan baris per baris: taksonomi yang berlaku sekarang (As Is) dan rancangan penataan ke depan (To Be). Keduanya disajikan apa adanya, tanpa memasangkan yang satu ke yang lain, sebab sumbernya memang tidak memasangkannya.</div>';
-  h+='<div class="grid2">';
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Taksonomi Berlaku (As Is)</h2>'+
-     '<div class="mini" style="margin-bottom:6px">'+((R.asis||[]).length)+' rumpun. Sumber: lembar acuan rumpun jabatan.</div>'+
-     _kjPohon(R.asis,jml)+'</div>';
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Rancangan Penataan (To Be)</h2>'+
-     '<div class="mini" style="margin-bottom:6px">'+((R.tobe||[]).length)+' rumpun, dan kelimanya <b>sama persis dengan lima domain peta proses bisnis Kemenkeu</b>. Inilah yang menyambungkan kompetensi ke proses bisnis.</div>'+
-     _kjPohon(R.tobe,null)+'</div>';
-  h+='</div>';
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Rumpun yang Benar-benar Dipakai Data Jabatan</h2>';
+  /* bobot: jabatan per rumpun, baris kompetensi per sub rumpun, kompetensi unik per rumpun */
+  var bobot={t:{},s:{},k:{}};
+  rows.forEach(function(j){if(j.rp)bobot.t[j.rp]=(bobot.t[j.rp]||0)+1;});
+  rows.forEach(function(j){(j.uk||[]).forEach(function(u){
+    var t=u[2][0],sb=u[2][1];if(!t)return;
+    if(sb)bobot.s[t+'|'+sb]=(bobot.s[t+'|'+sb]||0)+1;
+    bobot.k[t]=bobot.k[t]||{};if(u[0])bobot.k[t][u[0]]=1;});});
+  var asis=R.asis||[],tobe=R.tobe||[];
+  var nSubA=asis.reduce(function(t,x){return t+(x.sub||[]).length;},0);
+  var nSubB=tobe.reduce(function(t,x){return t+(x.sub||[]).length;},0);
+  var dipakai={};rows.forEach(function(j){(j.uk||[]).forEach(function(u){if(u[2][0])dipakai[u[2][0]]=1;});});
+  var acuan={};asis.forEach(function(t){acuan[kompNrm(t.t)]=1;});
+  var luar=Object.keys(dipakai).filter(function(k){return !acuan[kompNrm(k)];});
+  var h='<div class="kpis">'+
+    kpiBox('Rumpun Berlaku',fmt(asis.length),fmt(nSubA)+' sub rumpun')+
+    kpiBox('Rumpun Rancangan',fmt(tobe.length),fmt(nSubB)+' sub rumpun','good')+
+    kpiBox('Rumpun Dipakai Data',fmt(Object.keys(dipakai).length),luar.length?(fmt(luar.length)+' di luar acuan'):'seluruhnya sesuai acuan',luar.length?'gold':'')+
+    kpiBox('Jabatan Berumpun',fmt(rows.filter(function(j){return j.rp;}).length),'dari '+fmt(rows.length)+' posisi')+
+    '</div>';
+  h+=sorotanCard('Dua taksonomi berdampingan, bukan satu pemetaan',
+    'Lembar sumber memuat <b>dua hierarki sejajar</b>: taksonomi yang berlaku sekarang dengan <b>'+asis.length+' rumpun</b> '+
+    'dan rancangan penataan dengan <b>'+tobe.length+' rumpun</b>. Keduanya tidak dipasangkan baris per baris, sebab sumbernya '+
+    'memang tidak memasangkannya. Temuan pentingnya, kelima rumpun rancangan <b>sama persis dengan lima domain peta proses bisnis '+
+    'Kementerian Keuangan</b>, sehingga rantai proses bisnis sampai kompetensi dapat disambung tanpa memaksakan pemetaan baru.',
+    [{v:'kjrantai',t:'Telusuri Rantai Proses Bisnis'},{v:'kjtaksonomi',t:'Uji Kesesuaian Taksonomi'}]);
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Peta Luasan Rumpun <span class="mini">(luas kotak sebanding jumlah jabatan, klik untuk menyaring)</span></h2>'+
+     _kjPeta(bobot)+'</div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Taksonomi Berlaku (As Is) <span class="mini">('+asis.length+' rumpun, '+nSubA+' sub rumpun)</span></h2>'+
+     '<div class="mini" style="margin-bottom:4px">Sumber: lembar acuan rumpun jabatan. Klik rumpun untuk membuka sub rumpun beserta sub-sub rumpunnya.</div>'+
+     _kjPohon(asis,bobot,'asis')+'</div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Rancangan Penataan (To Be) <span class="mini">('+tobe.length+' rumpun, '+nSubB+' sub rumpun)</span></h2>'+
+     '<div class="mini" style="margin-bottom:8px">Kelima rumpun ini sama persis dengan lima domain peta proses bisnis. Angka jabatan belum tercantum karena pemetaan jabatan ke rumpun rancangan memang belum ditetapkan.</div>'+
+     '<div class="grid2">';
+  tobe.forEach(function(t){
+    h+='<div class="card" style="margin:0 0 10px"><div style="font-weight:700;color:var(--brand-d)">'+esc(t.t)+'</div>'+
+      '<div class="mini" style="margin:3px 0 7px">'+((t.sub||[]).length)+' sub rumpun</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
+      (t.sub||[]).map(function(x){return '<span class="tag">'+esc(x.s)+'</span>';}).join('')+'</div></div>';});
+  h+='</div></div>';
   var used={};rows.forEach(function(j){(j.uk||[]).forEach(function(u){var t=u[2][0];if(t)used[t]=(used[t]||0)+1;});});
   var uU=Object.keys(used).sort(function(a,b){return used[b]-used[a];});
-  var mx=uU.length?used[uU[0]]:0;
-  var acuan={};(R.asis||[]).forEach(function(t){acuan[kompNrm(t.t)]=1;});
+  var mxu=uU.length?used[uU[0]]:1;
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Rumpun yang Benar-benar Dipakai Data Jabatan</h2>';
   uU.forEach(function(k){
-    h+=bar(k+(acuan[kompNrm(k)]?'':'  (di luar acuan)'),used[k],mx,acuan[kompNrm(k)]?'':'gold',fmt(used[k]),{a:'komprp',d:'data-k="'+esc(k)+'"'});});
-  h+='<div class="mini" style="margin-top:6px">Rumpun yang tidak ada di taksonomi acuan ditandai. Rinciannya di menu Kesesuaian Taksonomi.</div></div>';
+    h+=bar(k+(acuan[kompNrm(k)]?'':'  (di luar acuan)'),used[k],mxu,acuan[kompNrm(k)]?'':'gold',fmt(used[k]),{a:'komprp',d:'data-k="'+esc(k)+'"'});});
+  h+='<div class="mini" style="margin-top:6px">Angka di sini jumlah baris kompetensi, bukan jumlah jabatan. Rumpun yang tidak ada di taksonomi acuan ditandai, rinciannya di menu Kesesuaian Taksonomi.</div></div>';
   return h;
 }
 
