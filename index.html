@@ -421,6 +421,18 @@ td.num-c,th.num-c{font-variant-numeric:tabular-nums}
 .tag.link:hover{border-color:var(--brand-l2);background:var(--wash-2);color:var(--brand-d)}
 .mini{font-size:var(--fs-mini);color:var(--muted)}
 .empty{color:var(--muted);font-size:var(--fs-md);padding:var(--sp-9);text-align:center}
+/* -- paginasi tabel -- */
+.pgn{display:flex;align-items:center;gap:var(--sp-4);justify-content:flex-end;
+  padding:var(--sp-5) var(--sp-6);border-top:1px solid var(--line);background:var(--wash);
+  border-radius:0 0 var(--rad-md) var(--rad-md);flex-wrap:wrap}
+.pgn .pgn-i{font-size:var(--fs-mini);color:var(--muted);margin-right:auto;font-variant-numeric:tabular-nums}
+.pgn button{display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;
+  border:1px solid var(--line);border-radius:var(--rad-sm);background:var(--surface);color:var(--ink);
+  cursor:pointer;transition:all var(--t-fast) ease}
+.pgn button:hover:not(:disabled){border-color:var(--brand);color:var(--brand-d);background:var(--wash-2)}
+.pgn button:disabled{opacity:.38;cursor:default}
+.pgn button:focus-visible{outline:none;box-shadow:var(--ring)}
+.pgn .pgn-h{font-size:var(--fs-mini);font-weight:700;color:var(--ink);min-width:96px;text-align:center;font-variant-numeric:tabular-nums}
 
 /* -- bar horizontal -- */
 .bar-row{display:grid;grid-template-columns:200px 1fr 96px;align-items:center;gap:var(--sp-5);margin:9px 0;font-size:var(--fs-md)}
@@ -1894,7 +1906,11 @@ const ICONP={
  tk:'<path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.2l5-.7z"/><path d="M8.5 21h7"/><path d="M12 17.5V21"/>',
  remote:'<rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8 20.5h8M12 16.5v4"/><path d="M6.5 8.2h5M6.5 11h8"/>',
  cuti:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 9.5h18"/><path d="m9 15.5 2 2 4-4.5"/>',
- komjab:'<path d="M12 3 4 6.8v5c0 4.6 3.2 8.4 8 9.2 4.8-.8 8-4.6 8-9.2v-5z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/>'
+ komjab:'<path d="M12 3 4 6.8v5c0 4.6 3.2 8.4 8 9.2 4.8-.8 8-4.6 8-9.2v-5z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/>',
+ pgAwal:'<path d="M17 5 10 12l7 7"/><path d="M7 5v14"/>',
+ pgMundur:'<path d="M15 5 8 12l7 7"/>',
+ pgMaju:'<path d="m9 5 7 7-7 7"/>',
+ pgAkhir:'<path d="m7 5 7 7-7 7"/><path d="M17 5v14"/>'
 };
 function svgIcon(k,s){s=s||17;return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${s>30?1.3:1.6}" stroke-linecap="round" stroke-linejoin="round">${ICONP[k]||''}</svg>`;}
 const MODULES=[
@@ -2224,7 +2240,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   kompQ:'',kompUE1:'',kompEs:'',kompRp:'',kompGen:'',kompSel:null,kompDari:'',
   kompRpSel:'',kompKhQ:'',kompKhSel:null,kompKhOnly:false,kompKamQ:'',kompKamSel:null,kompMsSel:null,
   kompKl:'',kompJf:'',kompJenj:'',kompGapLvl:'',kompGapU:'',kompDom:'',kompProyThn:2,
-  kompMode:'tabel',kompNav2:null,kompNav3:null};
+  kompMode:'tabel',kompNav2:null,kompNav3:null,pgn:{}};
 
 /* Render satu modul (kepala + akordeon grup/menu). Dipakai di dalam loop domain. */
 function _renderMod(m,curV,curM){
@@ -7315,6 +7331,7 @@ function render(){
   if(!canView(state.view))state.view='beranda';
   const _prev=_lastView;
   const _sv=(_lastView===state.view);_lastView=state.view;
+  if(!_sv)state.pgn={};       /* pindah menu -> paginasi tiap tabel kembali ke halaman pertama */
   if(_navBack){_navBack=false;}else if(_prev&&_prev!==state.view){_hist.push(_prev);if(_hist.length>60)_hist.shift();}
   if((state.view.indexOf('urjab')===0||state.view==='tema')&&!URJAB&&!state.urjabLoading)ensureUrjab();
   if(state.view==='katalog'&&!KATALOG&&!state.katLoading)ensureKatalog();
@@ -7351,7 +7368,7 @@ function render(){
   viewEl.innerHTML=menuDescBar()+freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
   remoteHost(state.view==='otkremote');
   jejak(state.view);
-  vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);
+  vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);pgnPrepare(viewEl);
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
 }
 /* ==================== MODUL KOMPETENSI JABATAN (domain Organisasi) ====================
@@ -7782,17 +7799,26 @@ function vKjJf(){
 /* Pohon taksonomi tiga tingkat dengan bobot. Tiap simpul membawa angka jabatan dan angka
    kompetensi, dan lebarnya sebanding dengan bobot itu, sehingga taksonomi terbaca sebagai
    peta muatan, bukan sekadar daftar bertingkat. */
+/* a, b, ... z, lalu aa, ab, dan seterusnya. Dipakai untuk penomoran sub rumpun. */
+function _abjad(i){
+  var s='';i=i+1;
+  while(i>0){var r=(i-1)%26;s=String.fromCharCode(97+r)+s;i=Math.floor((i-1)/26);}
+  return s;
+}
+/* Catatan pada kolom sub-sub rumpun sisi To Be bukan nama simpul, melainkan keterangan bahwa
+   rinciannya mengacu ke peta proses bisnis. Dikenali supaya tidak tampil sebagai daftar. */
+function _kjCatatan(x){return /^mengacu pada peta proses bisnis/i.test(String(x||''));}
 function _kjPohon(pohon,bobot,mode){
   var mx=1;(pohon||[]).forEach(function(t){var v=(bobot&&bobot.t[t.t])||0;if(v>mx)mx=v;});
   var h='';
-  (pohon||[]).forEach(function(t){
+  (pohon||[]).forEach(function(t,ti){
     var buka=state.kompRpSel===t.t;
     var v=(bobot&&bobot.t[t.t])||0, nk=(bobot&&bobot.k[t.t])?Object.keys(bobot.k[t.t]).length:0;
     var w=Math.max(3,Math.round(100*v/mx));
     h+='<div style="border-top:1px solid var(--line);padding:9px 0">'+
       '<div class="clk" data-act="komprpsel" data-k="'+esc(t.t)+'" style="display:flex;align-items:center;gap:9px">'+
         '<span style="width:14px;color:var(--muted)">'+(buka?'&#9662;':'&#9656;')+'</span>'+
-        '<span style="flex:0 0 40%;font-weight:700;color:var(--brand-d)">'+esc(t.t)+'</span>'+
+        '<span style="flex:0 0 40%;font-weight:700;color:var(--brand-d)"><span style="display:inline-block;min-width:20px;color:var(--muted)">'+(ti+1)+'</span>'+esc(t.t)+'</span>'+
         '<span class="track" style="flex:1"><span class="fill" style="width:'+w+'%;display:block;height:100%"></span></span>'+
         '<span class="mini" style="flex:0 0 190px;text-align:right">'+
           (v?(fmt(v)+' jabatan'):'belum ada jabatan')+(nk?(' &middot; '+nk+' kompetensi'):'')+
@@ -7802,16 +7828,19 @@ function _kjPohon(pohon,bobot,mode){
     if(buka){
       var mxs=1;(t.sub||[]).forEach(function(x){var vv=(bobot&&bobot.s[t.t+'|'+x.s])||0;if(vv>mxs)mxs=vv;});
       h+='<div style="margin:8px 0 2px 24px">';
-      (t.sub||[]).forEach(function(sb){
+      (t.sub||[]).forEach(function(sb,si){
         var vv=(bobot&&bobot.s[t.t+'|'+sb.s])||0;
+        var ss=(sb.ss||[]).filter(function(x){return x&&!_kjCatatan(x);});
+        var cat=(sb.ss||[]).filter(_kjCatatan);
         h+='<div style="margin-bottom:7px">'+
           '<div style="display:flex;align-items:center;gap:9px">'+
-            '<span style="flex:0 0 38%;font-weight:600">'+esc(sb.s||'-')+'</span>'+
+            '<span style="flex:0 0 38%;font-weight:600"><span style="display:inline-block;min-width:22px;color:var(--muted)">'+(ti+1)+_abjad(si)+'</span>'+esc(sb.s||'-')+'</span>'+
             '<span class="track" style="flex:1;height:11px"><span class="fill gold" style="width:'+Math.max(3,Math.round(100*vv/mxs))+'%;display:block;height:100%"></span></span>'+
             '<span class="mini" style="flex:0 0 120px;text-align:right">'+(vv?(fmt(vv)+' baris'):'-')+'</span>'+
           '</div>'+
-          ((sb.ss||[]).length?('<div style="display:flex;flex-wrap:wrap;gap:5px;margin:5px 0 0 12px">'+
-            sb.ss.map(function(x){return '<span class="tag">'+esc(x)+'</span>';}).join('')+'</div>'):'')+
+          (ss.length?('<div style="margin:5px 0 0 34px;font-size:var(--fs-sm);line-height:1.7">'+
+            ss.map(function(x,xi){return '<div><span style="display:inline-block;min-width:26px;color:var(--muted)">'+(xi+1)+')</span>'+esc(x)+'</div>';}).join('')+'</div>'):'')+
+          (cat.length?('<div class="mini" style="margin:4px 0 0 34px;font-style:italic">'+esc(cat[0])+'</div>'):'')+
           '</div>';});
       h+='</div>';
       if(mode==='asis')h+='<div class="mini" style="margin-left:24px"><span class="tag link" data-act="komprp" data-k="'+esc(t.t)+'">Buka daftar jabatan rumpun ini &rsaquo;</span></div>';
@@ -7873,13 +7902,16 @@ function vKjRumpun(){
      '<div class="mini" style="margin-bottom:4px">Sumber: lembar acuan rumpun jabatan. Klik rumpun untuk membuka sub rumpun beserta sub-sub rumpunnya.</div>'+
      _kjPohon(asis,bobot,'asis')+'</div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Rancangan Penataan (To Be) <span class="mini">('+tobe.length+' rumpun, '+nSubB+' sub rumpun)</span></h2>'+
-     '<div class="mini" style="margin-bottom:8px">Kelima rumpun ini sama persis dengan lima domain peta proses bisnis. Angka jabatan belum tercantum karena pemetaan jabatan ke rumpun rancangan memang belum ditetapkan.</div>'+
+     '<div class="mini" style="margin-bottom:8px">Kelima rumpun ini sama persis dengan lima domain peta proses bisnis. Angka jabatan belum tercantum karena pemetaan jabatan ke rumpun rancangan memang belum ditetapkan. '+
+     'Tingkat sub-sub rumpun sengaja tidak dicantumkan pada rancangan ini, sebab lembar sumbernya menyatakan rinciannya <b>mengacu pada peta proses bisnis strategis level 2</b> pada masing-masing peta proses bisnis strategis level 1.</div>'+
      '<div class="grid2">';
-  tobe.forEach(function(t){
-    h+='<div class="card" style="margin:0 0 10px"><div style="font-weight:700;color:var(--brand-d)">'+esc(t.t)+'</div>'+
+  tobe.forEach(function(t,ti){
+    h+='<div class="card" style="margin:0 0 10px"><div style="font-weight:700;color:var(--brand-d)">'+
+      '<span style="display:inline-block;min-width:20px;color:var(--muted)">'+(ti+1)+'</span>'+esc(t.t)+'</div>'+
       '<div class="mini" style="margin:3px 0 7px">'+((t.sub||[]).length)+' sub rumpun</div>'+
-      '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
-      (t.sub||[]).map(function(x){return '<span class="tag">'+esc(x.s)+'</span>';}).join('')+'</div></div>';});
+      '<div style="font-size:var(--fs-sm);line-height:1.75">'+
+      (t.sub||[]).map(function(x,si){return '<div><span style="display:inline-block;min-width:26px;color:var(--muted)">'+(ti+1)+_abjad(si)+'</span>'+esc(x.s)+'</div>';}).join('')+
+      '</div></div>';});
   h+='</div></div>';
   var used={};rows.forEach(function(j){(j.uk||[]).forEach(function(u){var t=u[2][0];if(t)used[t]=(used[t]||0)+1;});});
   var uU=Object.keys(used).sort(function(a,b){return used[b]-used[a];});
@@ -9744,6 +9776,51 @@ function vPelAnalisis(){
   h+='</div>';
   return h;}
 
+/* ==================== PAGINASI TABEL ====================
+   Berjalan setelah halaman dirender. Tiap tabel yang barisnya lebih dari PGN_N dipenggal,
+   baris di luar halaman aktif disembunyikan (tidak dibuang), sehingga penanganan klik baris
+   yang sudah ada tetap bekerja apa adanya.
+   Tabel yang barisnya saling bergantung, yaitu memuat baris rincian ber-colspan, sengaja
+   TIDAK dipenggal supaya baris induk tidak terpisah dari rinciannya. */
+const PGN_N=10;
+function pgnKey(ti){return (state.view||'')+'#'+ti;}
+function pgnPrepare(root){
+  if(!root)return;
+  var tabs=root.querySelectorAll('table');
+  for(var ti=0;ti<tabs.length;ti++){
+    var tb=tabs[ti],body=tb.tBodies&&tb.tBodies[0];
+    if(!body)continue;
+    var rows=body.rows;
+    if(rows.length<=PGN_N)continue;
+    var bergantung=false;
+    for(var i=0;i<rows.length;i++){
+      var c=rows[i].cells;
+      if(c.length===1&&rows.length>1&&c[0].colSpan>1){bergantung=true;break;}
+    }
+    if(bergantung)continue;
+    var key=pgnKey(ti),total=rows.length,hal=Math.ceil(total/PGN_N);
+    state.pgn=state.pgn||{};
+    var cur=Math.min(Math.max(1,state.pgn[key]||1),hal);
+    state.pgn[key]=cur;
+    var awal=(cur-1)*PGN_N,akhir=Math.min(total,awal+PGN_N);
+    for(var r=0;r<total;r++)rows[r].style.display=(r>=awal&&r<akhir)?'':'none';
+    var bar=document.createElement('div');
+    bar.className='pgn';
+    var tomb=function(ikon,ke,mati,judul){
+      return '<button data-act="pgn" data-k="'+esc(key)+'" data-p="'+ke+'" title="'+judul+'" aria-label="'+judul+'"'+
+             (mati?' disabled':'')+'>'+svgIcon(ikon,15)+'</button>';};
+    bar.innerHTML='<span class="pgn-i">Menampilkan '+fmt(awal+1)+' sampai '+fmt(akhir)+' dari '+fmt(total)+' baris</span>'+
+      tomb('pgAwal',1,cur===1,'Halaman pertama')+
+      tomb('pgMundur',cur-1,cur===1,'Halaman sebelumnya')+
+      '<span class="pgn-h">'+cur+' / '+hal+'</span>'+
+      tomb('pgMaju',cur+1,cur===hal,'Halaman berikutnya')+
+      tomb('pgAkhir',hal,cur===hal,'Halaman terakhir');
+    var wadah=tb.parentNode;
+    var sesudah=(wadah&&wadah.classList&&wadah.classList.contains('tblw'))?wadah:tb;
+    if(sesudah.nextSibling&&sesudah.nextSibling.className==='pgn')sesudah.parentNode.removeChild(sesudah.nextSibling);
+    sesudah.parentNode.insertBefore(bar,sesudah.nextSibling);
+  }
+}
 function bindInputs(){const q=id=>document.getElementById(id);
   if(q('tkUE1Sel'))q('tkUE1Sel').onchange=e=>{state.tkUE1=e.target.value;render();};
   if(q('tkYearSel'))q('tkYearSel').onchange=e=>{state.tkYear=e.target.value;render();};
@@ -9965,6 +10042,11 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='kompdom'){state.kompDom=el.dataset.k||'';render();}
   else if(a==='kompunit'){state.kompUE1=el.dataset.k||'';state.kompMode='tabel';state.view='kjstandar';render();}
   else if(a==='otknonflt'){state.otkNonFlt=el.dataset.k||'';state.otkNonSel='';render();}
+  else if(a==='pgn'){
+    state.pgn=state.pgn||{};
+    state.pgn[el.dataset.k]=+el.dataset.p;
+    var _y=window.scrollY;render();window.scrollTo({top:_y});
+  }
   else if(a==='kompmode'){state.kompMode=el.dataset.k;render();}
   else if(a==='kompnav1'){state.kompUE1=(state.kompUE1===el.dataset.k)?'':el.dataset.k;state.kompNav2=null;state.kompNav3=null;render();}
   else if(a==='kompnav2'){state.kompNav2=(state.kompNav2===el.dataset.k)?null:el.dataset.k;state.kompNav3=null;render();}
