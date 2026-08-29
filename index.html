@@ -668,6 +668,7 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
      (posisi datanya sudah pindah ke kop cetak). navPager & tombol aksi generik ikut disembunyikan. */
   #crumb [data-act=navback],#crumb span,.freshbar,.navpager,[data-act=profpick] .pbar,.flt,select,.search,.pgtabs,.navsearch,.domsw{display:none!important}
   .print-only{display:block!important}
+  .pgn{display:none!important}
   #printHead{border-bottom:2px solid var(--brand-d);padding-bottom:8px;margin-bottom:12px}
   #printHead .ph-inst{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:#566;font-weight:700}
   #printHead .ph-judul{font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--brand-d);margin:3px 0 2px}
@@ -1959,7 +1960,7 @@ const MODULES=[
    {grp:'Data',items:[{v:'cutitentang',lab:'Tentang Data'}]},
  ]},
  {id:'takelola',icn:'govern',lab:'Tata Kelola',groups:[
-   {grp:'Pelimpahan Wewenang',items:[{v:'pelwen',lab:'Ikhtisar Pelimpahan'},{v:'pelunit',lab:'Per Unit Eselon I'},{v:'pellintas',lab:'Lintas Unit'},{v:'pelcari',lab:'Cari Kewenangan'},{v:'pelanalisis',lab:'Analisis Delegasi'},{v:'pelinsight',lab:'Keterkaitan & Insight'},{v:'peltentang',lab:'Tentang'}]},
+   {grp:'Pelimpahan Wewenang',items:[{v:'pelwen',lab:'Ikhtisar Pelimpahan'},{v:'pelunit',lab:'Per Unit Eselon I'},{v:'pellintas',lab:'Lintas Unit'},{v:'pelcari',lab:'Daftar Butir Kewenangan'},{v:'pelanalisis',lab:'Analisis Delegasi'},{v:'pelinsight',lab:'Keterkaitan & Insight'},{v:'peltentang',lab:'Dasar Hukum & Ketentuan'}]},
  ]},
  {id:'layanan',icn:'tk',lab:'Layanan Publik',groups:[
    {grp:'Ikhtisar',items:[{v:'tk',lab:'Ikhtisar Tata Kelola'}]},
@@ -2059,7 +2060,7 @@ const MENUKET={
   // Kapabilitas (MOFIN)
   mofin:'Skor kapabilitas kelembagaan (MOFIN) per unit dan dimensi.',mofheatmap:'Peta panas skor kapabilitas antar unit.',mofprofil:'Profil kapabilitas satu unit.',moftl:'Status tindak lanjut rekomendasi kapabilitas.',mofkuadran:'Kuadran kelemahan vs respons tindak lanjut.',mofgap:'Prioritas tindak lanjut dari kesenjangan kapabilitas.',
   // Pelimpahan Wewenang
-  pelwen:'Ikhtisar pelimpahan wewenang/mandat (KMK 167/2025).',pelunit:'Butir pelimpahan wewenang per unit Eselon I.',pellintas:'Pelimpahan wewenang lintas unit dan tema.',pelcari:'Cari butir kewenangan yang dilimpahkan.',pelanalisis:'Pola dan analitik pendelegasian wewenang.',pelinsight:'Keterkaitan mandat dengan modul lain dan temuannya.',peltentang:'Tentang data pelimpahan wewenang.',
+  pelwen:'Ikhtisar pelimpahan wewenang/mandat (KMK 167/2025).',pelunit:'Butir pelimpahan wewenang per unit Eselon I.',pellintas:'Pelimpahan wewenang lintas unit dan tema.',pelcari:'Seluruh 482 butir kewenangan, dapat disaring dan ditelusuri.',pelanalisis:'Pola dan analitik pendelegasian wewenang.',pelinsight:'Keterkaitan mandat dengan modul lain dan temuannya.',peltentang:'Dasar hukum, ketentuan pokok, dan peraturan yang dicabut.',
   // Tata Kelola & Layanan
   tk:'Ikhtisar tata kelola dan mutu layanan publik.',tkintegritas:'Capaian Zona Integritas (WBK/WBBM) tiap unit.',tkmonev:'Pemantauan keberlanjutan predikat Zona Integritas.',tkkegagalan:'Riwayat kegagalan meraih predikat.',tkgeo:'Sebaran geografis capaian tata kelola.',tkkepuasan:'Kepuasan pengguna layanan dari survei.',tkpelayanan:'Penilaian pelayanan publik (EUPP).',tkombudsman:'Kepatuhan standar pelayanan (Ombudsman).',tksarpras:'Layanan ramah kelompok rentan.',tkinovasi:'Inovasi pelayanan tiap unit.',tkinovator:'Tokoh inovator di balik inovasi.',tkkantor:'Kantor terbaik dan champion office.',tkdiagintegritas:'Diagnosa faktor pendorong integritas.',tkkuadran:'Kuadran tata kelola: kinerja vs konsistensi.',tkpanutan:'Unit unggul lintas program tata kelola.',tkindeks:'Indeks komposit tata kelola per unit.'
 };
@@ -2078,7 +2079,7 @@ const MENUOBJ={
   cuti:'Memantau pemanfaatan cuti pegawai secara menyeluruh.',cutitren:'Mengantisipasi lonjakan pengajuan cuti pada periode tertentu.',cutiunit:'Membandingkan intensitas cuti antar unit secara adil.',cutiwilayah:'Melihat perbedaan pola cuti antar wilayah kerja.',cutiutilisasi:'Memastikan hak istirahat pegawai benar-benar dimanfaatkan.',cutikualitas:'Menemukan rekaman cuti yang perlu diperiksa dan diperbaiki.',cutidemografi:'Memahami profil risiko cuti menurut usia dan gender.',cutipola:'Merencanakan kapasitas kehadiran dan jadwal kegiatan besar.',cutisakit:'Memahami penyebab cuti sakit untuk intervensi kesehatan.',cutiprediksi:'Memperkirakan beban cuti mendatang untuk perencanaan.',cutisimulasi:'Menguji dampak usulan revisi kebijakan potongan tunjangan.',cutitentang:'Memahami sumber, cakupan, dan batasan data cuti.',
   katalog:'Merujuk standar kompetensi jabatan.',
   mofin:'Menilai kapabilitas kelembagaan tiap unit.',mofheatmap:'Membandingkan skor kapabilitas antar unit dan dimensi.',mofprofil:'Mendalami kapabilitas satu unit.',moftl:'Memantau tindak lanjut rekomendasi kapabilitas.',mofkuadran:'Memprioritaskan area lemah dengan respons rendah.',mofgap:'Menentukan tindak lanjut kapabilitas yang paling mendesak.',
-  pelwen:'Memahami peta pelimpahan wewenang secara ringkas.',pelunit:'Mengetahui wewenang yang dilimpahkan tiap unit.',pellintas:'Melihat pola pelimpahan wewenang lintas unit.',pelcari:'Menemukan butir kewenangan tertentu dengan cepat.',pelanalisis:'Menganalisis pola dan konsentrasi pendelegasian.',pelinsight:'Mengaitkan mandat dengan modul lain untuk temuan.',peltentang:'Memahami sumber dan cakupan data mandat.',
+  pelwen:'Memahami peta pelimpahan wewenang secara ringkas.',pelunit:'Mengetahui wewenang yang dilimpahkan tiap unit.',pellintas:'Melihat pola pelimpahan wewenang lintas unit.',pelcari:'Menelusuri butir kewenangan sampai ke jabatan penerimanya.',pelanalisis:'Menganalisis pola dan konsentrasi pendelegasian.',pelinsight:'Mengaitkan mandat dengan modul lain untuk temuan.',peltentang:'Memahami dasar hukum dan batas berlaku mandat.',
   tk:'Memantau capaian tata kelola dan mutu layanan.',tkintegritas:'Memantau capaian Zona Integritas tiap unit.',tkmonev:'Menjaga keberlanjutan predikat yang telah diraih.',tkkegagalan:'Belajar dari unit yang gagal meraih predikat.',tkgeo:'Melihat sebaran capaian secara geografis.',tkkepuasan:'Menilai kepuasan masyarakat atas layanan.',tkpelayanan:'Menilai mutu pelayanan publik (EUPP).',tkombudsman:'Memastikan kepatuhan pada standar pelayanan.',tksarpras:'Menilai keramahan layanan bagi kelompok rentan.',tkinovasi:'Mendata dan mendorong inovasi pelayanan.',tkinovator:'Mengapresiasi tokoh penggerak inovasi.',tkkantor:'Mengenali kantor percontohan terbaik.',tkdiagintegritas:'Menemukan faktor pendorong integritas unit.',tkkuadran:'Memetakan unit menurut kinerja dan konsistensi.',tkpanutan:'Mengenali unit unggul di banyak program.',tkindeks:'Membandingkan tata kelola unit secara komposit.'
 };
 /* Menu yang berisi TAB di dalamnya (hasil penggabungan beberapa menu jadi satu halaman).
@@ -2326,7 +2327,7 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   tk:'Ikhtisar Tata Kelola',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   cuti:'Ringkasan Cuti Pegawai',cutitren:'Tren & Musiman Cuti',cutiunit:'Profil Unit',cutiwilayah:'Sebaran Wilayah',cutiutilisasi:'Utilisasi Hak Cuti Tahunan',cutikualitas:'Kepatuhan & Mutu Data',cutidemografi:'Demografi & Gender Cuti',cutipola:'Pola Hari & Kalender Kapasitas',cutisakit:'Kategori Cuti Sakit',cutiprediksi:'Proyeksi Beban Cuti',cutisimulasi:'Simulasi Kebijakan PMK 221',cutitentang:'Tentang Data Cuti',
   kj:'Ikhtisar Kompetensi Jabatan',kjstandar:'Standar Kompetensi Jabatan',kjdetail:'Standar Kompetensi Satu Jabatan',kjksajpt:'KSA Jabatan Pimpinan Tinggi',kjjf:'Standar Kompetensi Jabatan Fungsional',kjrumpun:'Taksonomi Rumpun Jabatan',kjkamus:'Kamus Kompetensi Teknis',kjmansos:'Kamus Manajerial dan Sosial Kultural',kjkeahlian:'Kamus Keahlian',kjcakupan:'Cakupan Standar Jabatan',kjrantai:'Rantai Proses Bisnis ke Kompetensi',kjtaksonomi:'Kesesuaian Taksonomi Rumpun',kjubah:'Perubahan Antar Generasi Standar',kjproyeksi:'Proyeksi Pemenuhan Standar',kjprioritas:'Prioritas Penyusunan Standar',kjtentang:'Tentang Data Kompetensi',
-  mofin:'Skor Kapabilitas',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Ikhtisar Pelimpahan',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Cari Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Tentang Pelimpahan Wewenang',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
+  mofin:'Skor Kapabilitas',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Ikhtisar Pelimpahan',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Daftar Butir Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Dasar Hukum dan Ketentuan Pelimpahan',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
 
 /* ===== Kartu SOROTAN (dipakai lintas modul) =====
    Pola "jadi apa": halaman pembuka modul dibuka SATU alinea kesimpulan berbasis angka hidup,
@@ -2441,7 +2442,7 @@ function vInsight(){
   <div class="note-box">Temuan dihasilkan otomatis dari aturan ambang (overdue, ketepatan, skor, stagnasi, tenggat, adopsi, beban). Sifatnya indikatif untuk membantu prioritas tindak lanjut, bukan penilaian final.</div>
   <div class="toolbar"><select class="flt" id="insCat"><option value="">Semua kategori</option>${cats.map(c=>`<option ${state.insCat===c?'selected':''}>${esc(c)}</option>`).join('')}</select><span class="mini">${rows.length} temuan ditampilkan</span></div>`;
   if(!rows.length){h+=`<div class="card"><div class="empty">Tidak ada potensi masalah terdeteksi untuk lingkup ini. 👍</div></div>`;return h;}
-  rows.slice(0,60).forEach(x=>{const col=x.sev==='tinggi'?'var(--red)':x.sev==='sedang'?'var(--gold2)':'var(--brand)';
+  rows.forEach(x=>{const col=x.sev==='tinggi'?'var(--red)':x.sev==='sedang'?'var(--gold2)':'var(--brand)';
     h+=`<div class="card" style="display:flex;gap:13px;align-items:flex-start;border:1px solid ${col};margin-bottom:11px;padding:13px 16px">
       <div style="flex:1;min-width:0">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px"><span class="pill ${sevPill[x.sev]}">${sevTxt[x.sev]}</span><span class="pill neu">${esc(x.cat)}</span><span class="link" ${x.act} style="font-weight:700">${esc(x.judul)}</span></div>
@@ -2603,7 +2604,7 @@ function vKategoriTim(){
   list.sort((a,b)=>(b.jml_anggota||0)-(a.jml_anggota||0));
   h+=`<div class="toolbar"><span class="mini">${fmt(list.length)} tim${state.katTim?' &middot; kategori '+esc(state.katTim):''}</span>${state.katTim?'<span class="tag" data-act="katfilter" data-k="" style="cursor:pointer">Tampilkan semua</span>':''}</div>
   <div class="card tblw"><table><thead><tr><th>Nama Tim</th><th>Kategori</th><th>Eselon I</th><th>Eselon II</th><th>Status</th><th class="num-c">Formasi</th></tr></thead><tbody>`;
-  list.slice(0,300).forEach(t=>{const c=timKategori(t);h+=`<tr><td>${esc(t.nama)}</td><td><span class="pill ${pill[c]}">${c}</span></td><td class="mini">${esc(t.ue1||'')}</td><td class="mini">${esc(t.ue2||'')}</td><td><span class="pill neu">${esc(t.status||'')}</span></td><td class="num-c">${t.jml_anggota||0}</td></tr>`;});
+  list.forEach(t=>{const c=timKategori(t);h+=`<tr><td>${esc(t.nama)}</td><td><span class="pill ${pill[c]}">${c}</span></td><td class="mini">${esc(t.ue1||'')}</td><td class="mini">${esc(t.ue2||'')}</td><td><span class="pill neu">${esc(t.status||'')}</span></td><td class="num-c">${t.jml_anggota||0}</td></tr>`;});
   h+=`</tbody></table>${list.length>300?'<div class="mini" style="padding:8px">Menampilkan 300 dari '+fmt(list.length)+'.</div>':''}</div>`;
   return h;
 }
@@ -2624,7 +2625,7 @@ function vKatalog(){
   // kelompokkan per Bidang -> Keahlian
   const byB={};rows.forEach(x=>{(byB[x.b]=byB[x.b]||{}); (byB[x.b][x.k]=byB[x.b][x.k]||[]).push(x);});
   h+=`<div class="card tblw"><table><thead><tr><th>Bidang</th><th>Sub Bidang</th><th>Keahlian</th><th>Sub Keahlian</th><th>Deskripsi</th></tr></thead><tbody>`;
-  rows.slice(0,400).forEach(x=>{h+=`<tr><td class="mini">${esc(x.b)}</td><td class="mini">${esc(x.sb)}</td><td style="font-weight:600">${esc(x.k)}</td><td>${esc(x.sk)}</td><td class="mini">${esc(x.d)}</td></tr>`;});
+  rows.forEach(x=>{h+=`<tr><td class="mini">${esc(x.b)}</td><td class="mini">${esc(x.sb)}</td><td style="font-weight:600">${esc(x.k)}</td><td>${esc(x.sk)}</td><td class="mini">${esc(x.d)}</td></tr>`;});
   h+=`</tbody></table>${rows.length>400?'<div class="mini" style="padding:8px">Menampilkan 400 dari '+fmt(rows.length)+'. Persempit dengan pencarian/bidang.</div>':''}</div>`;
   return h;
 }
@@ -2747,7 +2748,7 @@ function vAvail(){
     <select class="flt" id="avUE1"><option value="">Semua UE1</option>${ue1opts.map(u=>`<option ${state.avUE1===u?'selected':''}>${esc(u)}</option>`).join('')}</select>
     <span class="mini">${rows.length} pegawai</span></div>
   <div class="card tblw"><table><thead><tr><th>Nama</th><th>Unit (UE1)</th><th>Status</th><th class="num-c">Tim Aktif</th><th class="num-c">Belum Selesai</th><th class="num-c">Overdue</th><th class="num-c">On-time</th></tr></thead><tbody>`;
-  rows.slice(0,400).forEach(o=>{const p=o.p;h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.ue1)}</td><td>${availPill(o.st)}</td><td class="num-c">${p.jml_tim}</td><td class="num-c">${o.open}</td><td class="num-c">${o.over?'<span style="color:var(--red)">'+o.over+'</span>':'0'}</td><td class="num-c">${p.perf&&p.perf.tepat_pct!=null?p.perf.tepat_pct+'%':'-'}</td></tr>`;});
+  rows.forEach(o=>{const p=o.p;h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.ue1)}</td><td>${availPill(o.st)}</td><td class="num-c">${p.jml_tim}</td><td class="num-c">${o.open}</td><td class="num-c">${o.over?'<span style="color:var(--red)">'+o.over+'</span>':'0'}</td><td class="num-c">${p.perf&&p.perf.tepat_pct!=null?p.perf.tepat_pct+'%':'-'}</td></tr>`;});
   h+=`</tbody></table>${rows.length>400?'<div class="mini" style="padding:8px">Menampilkan 400 dari '+rows.length+'.</div>':''}</div>`;
   return h;}
 
@@ -2785,7 +2786,7 @@ function vSkill(){
     <div class="kpi"><div class="lab">Keahlian</div><div class="val" style="font-size:var(--fs-base);line-height:1.2">${esc(c)}</div></div></div>
   <div class="toolbar"><select class="flt" id="skStat"><option value="">Semua status</option>${[['tersedia','Tersedia'],['terbatas','Terbatas'],['sibuk','Sibuk']].map(s=>`<option value="${s[0]}" ${state.skillStat===s[0]?'selected':''}>${s[1]}</option>`).join('')}</select><span class="mini">${list.length} pegawai</span></div>
   <div class="card tblw"><table><thead><tr><th>Nama</th><th>NIP</th><th>Unit (UE1)</th><th>Status</th><th class="num-c">Task di keahlian</th><th class="num-c">Total Tim</th><th class="num-c">On-time</th></tr></thead><tbody>`;
-  list.slice(0,400).forEach(o=>{const p=o.p;h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.nip)}</td><td class="mini">${esc(p.ue1)}</td><td>${availPill(o.st)}</td><td class="num-c">${o.n}</td><td class="num-c">${p.jml_tim}</td><td class="num-c">${p.perf&&p.perf.tepat_pct!=null?p.perf.tepat_pct+'%':'-'}</td></tr>`;});
+  list.forEach(o=>{const p=o.p;h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.nip)}</td><td class="mini">${esc(p.ue1)}</td><td>${availPill(o.st)}</td><td class="num-c">${o.n}</td><td class="num-c">${p.jml_tim}</td><td class="num-c">${p.perf&&p.perf.tepat_pct!=null?p.perf.tepat_pct+'%':'-'}</td></tr>`;});
   return h+`</tbody></table>${list.length>400?'<div class="mini" style="padding:8px">Menampilkan 400 dari '+list.length+'.</div>':''}</div>`;}
 
 /* ===== Repositori Uraian Jabatan (referensi ANJAB, lazy-load) ===== */
@@ -2835,7 +2836,7 @@ function vUrjab(){
   if(es4opts.length)h+=`<select class="flt" id="urjabEs4"><option value="">Semua Eselon IV (${es4opts.length})</option>${opt(es4opts,e4)}</select>`;
   h+=`<span class="mini">${rows.length} jabatan</span></div>
   <div class="grid3">`;
-  rows.slice(0,300).forEach(o=>{const j=o.j;
+  rows.forEach(o=>{const j=o.j;
     h+=`<div class="card" style="cursor:pointer" data-act="urjabopen" data-idx="${o.i}">
       <div style="font-weight:700;color:var(--brand-d);font-size:var(--fs-base);min-height:38px">${esc(j.jabatan)}</div>
       <div style="margin:6px 0;display:flex;flex-wrap:wrap;gap:5px;align-items:center"><span class="tag">${esc(namaResmi(j.unit_kode))}</span>${esTag(j.eselon)}<span class="mini">${(j.uraian_tugas||[]).length} uraian tugas</span></div>
@@ -2940,7 +2941,7 @@ function vUrjabKaitan(){
     <div class="kpi ${gapUnits?'alert':''}"><div class="lab">Unit dengan celah</div><div class="val">${fmt(gapUnits)}</div><div class="note">ada fungsi tanpa tugas pendukung</div></div>
     ${abkOn?`<div class="kpi ${totKurang>0?'alert':''}"><div class="lab">Kekurangan Pegawai</div><div class="val">${fmt(totKurang)}</div><div class="note">akumulasi selisih butuh &gt; ada (ABK 2024)</div></div>`:`<div class="kpi"><div class="lab">Tugas Tak Terpetakan</div><div class="val">${fmt(totOrph)}</div><div class="note">untuk telaah manual, bukan data buruk</div></div>`}</div>
   <div class="card"><h2 class="sec" style="margin-top:0">Cakupan Fungsi ke Tugas per Unit <span class="mini">(celah terbesar di atas; klik unit untuk rincian)</span></h2><div class="tblw"><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Fungsi</th><th class="num-c">Didukung</th><th style="min-width:120px">Cakupan</th><th class="num-c" title="Uraian tugas jabatan yang belum bisa dikaitkan ke fungsi mana pun (kemiripan di bawah ambang)">Tugas tak terpetakan</th>${abkOn?'<th class="num-c" title="Beban kerja unit, jam/tahun (ABK 2024)">Beban (jam/th)</th><th class="num-c" title="Selisih pegawai (ketersediaan dikurangi kebutuhan); angka negatif berarti kurang orang">Selisih pegawai</th><th class="num-c" title="Efisiensi EU.1; zona wajar 0,75 sampai 1,25">EU.1</th>':''}</tr></thead><tbody>`;
-  h+=rows.slice(0,400).map(r=>{const p=Math.round(100*r.pct);const col=p>=80?'var(--st-good)':p>=50?'var(--st-warn)':'var(--st-critical)';
+  h+=rows.map(r=>{const p=Math.round(100*r.pct);const col=p>=80?'var(--st-good)':p>=50?'var(--st-warn)':'var(--st-critical)';
     const abkCells=abkOn?(r.eu1!=null?`<td class="num-c">${fmt(Math.round(r.beban))}</td><td class="num-c" style="color:${r.sel<0?'var(--st-critical)':r.sel>0?'var(--st-good)':'var(--muted)'};font-weight:${r.sel<0?'700':'400'}">${r.sel>0?'+'+fmt(r.sel):fmt(r.sel)}</td><td class="num-c">${(+r.eu1).toFixed(2)}</td>`:'<td class="num-c mini">-</td><td class="num-c mini">-</td><td class="num-c mini">-</td>'):'';
     return `<tr><td class="link" data-act="otkopen" data-id="${r.id}">${esc(r.nama)}</td><td class="mini">${esc(r.e1)}</td><td class="num-c">${r.nF}</td><td class="num-c">${r.cov}</td><td><div style="display:flex;align-items:center;gap:6px"><div class="track" style="flex:1"><div class="fill" style="width:${p}%;background:${col}"></div></div><span class="mini">${p}%</span></div></td><td class="num-c">${r.orph||'<span class="mini">-</span>'}</td>${abkCells}</tr>`;}).join('')||`<tr><td colspan="${abkOn?9:6}" class="mini">Belum ada unit dengan uraian tugas tertaut pada filter ini.</td></tr>`;
   h+=`</tbody></table></div>${rows.length>400?`<div class="mini" style="padding:8px">Menampilkan 400 dari ${fmt(rows.length)} unit.</div>`:''}</div>`;
@@ -3393,7 +3394,7 @@ function vUrjabInsight(){
     <select class="flt" id="urjabInsCat"><option value="">Semua kategori</option>${cats.map(c=>`<option value="${esc(c)}" ${state.urjabInsCat===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
     <span class="mini">${show.length} temuan</span></div>`;
   if(!show.length)h+='<div class="empty">Tidak ada temuan pada filter ini.</div>';
-  h+=show.slice(0,200).map(f=>`<div class="card" style="border:1px solid ${bord[f.sev]};margin-bottom:10px">
+  h+=show.map(f=>`<div class="card" style="border:1px solid ${bord[f.sev]};margin-bottom:10px">
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="tag">${esc(f.cat)}</span>${sevPill(f.sev)}${f.unit?`<span class="mini">${esc(f.unit)}</span>`:''}${f.idx!=null?`<span class="link" style="margin-left:auto" data-act="urjabopen" data-idx="${f.idx}">Lihat jabatan &rarr;</span>`:''}</div>
     <div style="font-weight:700;color:var(--brand-d);margin:6px 0 3px">${esc(f.t)}</div>
     <div class="mini" style="line-height:1.5">${esc(f.d)}</div></div>`).join('');
@@ -3731,7 +3732,7 @@ function vOtk(){
         <select class="flt" id="otkKantorReg"><option value="">Semua wilayah</option>${regions.map(r=>`<option value="${esc(r)}" ${state.otkKantorReg===r?'selected':''}>${esc(r)}</option>`).join('')}</select>
         <span class="mini">${list.length} kantor</span></div>
       <div class="card tblw"><table><thead><tr><th>Kantor</th><th>Jenis</th><th>Wilayah</th><th>Alamat</th></tr></thead><tbody>`;
-      list.slice(0,250).forEach(k=>{const kw=k.tipe==='Kanwil';h+=`<tr><td${kw?' style="color:var(--brand);font-weight:700"':''}>${esc(k.nama)}</td><td><span class="pill ${kw?'blue':(k.tipe==='KPPN'||k.tipe==='KPU')?'neu':'on'}">${esc(k.tipe)}</span></td><td class="mini">${esc(k.region)}</td><td class="mini">${esc(k.alamat)}</td></tr>`;});
+      list.forEach(k=>{const kw=k.tipe==='Kanwil';h+=`<tr><td${kw?' style="color:var(--brand);font-weight:700"':''}>${esc(k.nama)}</td><td><span class="pill ${kw?'blue':(k.tipe==='KPPN'||k.tipe==='KPU')?'neu':'on'}">${esc(k.tipe)}</span></td><td class="mini">${esc(k.region)}</td><td class="mini">${esc(k.alamat)}</td></tr>`;});
       h+=`</tbody></table>${list.length>250?'<div class="mini" style="padding:8px">Menampilkan 250 dari '+fmt(list.length)+'.</div>':''}</div>`;
     }
     return h;
@@ -3950,7 +3951,7 @@ function vOtkKaitan(){
   // Tabel: beban formal vs adopsi
   let tr=rows.slice().sort((a,b)=>b.jab-a.jab||b.butir-a.butir);
   if(state.otkKaitF==='gap')tr=tr.filter(r=>r.tim===0);
-  const cap=tr.length;tr=tr.slice(0,80);
+  const cap=tr.length;tr=tr;
   let body=tr.map(r=>`<tr><td class="link" data-act="otkopen" data-id="${r.n.id}">${esc(r.n.nama)}</td><td class="mini">${esc(r.es1)}</td><td class="num-c">${fmt(r.jab)}</td><td class="num-c">${fmt(r.butir)}</td><td class="num-c">${fmt(r.tim)}</td><td class="num-c">${r.adop==null?'-':r.adop+'%'}</td><td>${r.tim===0?'<span class="pill off">Belum adopsi</span>':'<span class="pill on">Aktif</span>'}</td></tr>`).join('');
   h+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">Beban Formal vs Adopsi (Eselon II)</h2><span class="seg" style="margin-left:auto"><span class="segb ${!state.otkKaitF?'on':''}" data-act="otkkaitf" data-f="">Semua</span><span class="segb ${state.otkKaitF==='gap'?'on':''}" data-act="otkkaitf" data-f="gap">Belum adopsi</span></span></div>
     <div class="mini" style="margin-bottom:8px">Diurut beban formal terbesar (jumlah jabatan). Unit dengan jabatan banyak namun belum ada tim adalah prioritas dorongan adopsi.${cap>80?' Menampilkan 80 dari '+fmt(cap)+'.':''}</div>
@@ -3993,7 +3994,7 @@ function vOtkOverlap(){
     if(state.ovCls)rows=rows.filter(r=>r.cls===state.ovCls);
     if(state.ovLvl)rows=rows.filter(r=>r.lvl===+state.ovLvl);
     rows.sort((a,b)=>b.sim-a.sim);
-    const cap=rows.length;rows=rows.slice(0,120);
+    const cap=rows.length;rows=rows;
     const seg=(v,l)=>`<span class="segb ${(state.ovCls||'')===v?'on':''}" data-act="ovcls" data-c="${v}">${l}</span>`;
     h+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
       <h2 class="sec" style="margin:0">Irisan Antar Unit Selevel</h2>
@@ -4014,7 +4015,7 @@ function vOtkOverlap(){
     if(state.ovCls)rows=rows.filter(r=>r.cls===state.ovCls);
     if(state.ovLvl)rows=rows.filter(r=>r.lvl===+state.ovLvl);
     rows.sort((a,b)=>b.sim-a.sim);
-    const cap=rows.length;rows=rows.slice(0,120);
+    const cap=rows.length;rows=rows;
     const seg=(v,l)=>`<span class="segb ${(state.ovCls||'')===v?'on':''}" data-act="ovcls" data-c="${v}">${l}</span>`;
     h+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
       <h2 class="sec" style="margin:0">Irisan Antar Eselon I (lintas Direktorat Jenderal)</h2>
@@ -4500,7 +4501,7 @@ function vOtkIndeks(){
     h+=`<div class="card">${hdr('Usul Delayering',delayering.length)}
       <div class="mini" style="margin-bottom:8px">Kandidat = Eselon II dengan 4 atau lebih sub-unit Eselon III; unit dengan 1 sampai 3 Eselon III dianggap sudah sesuai kebutuhan organisasi. Diurut dari jumlah Eselon III terbanyak.</div>
       <div class="tblw"><table><thead><tr><th>Unit Eselon II</th><th>Eselon I</th><th class="num-c">Sub-unit ES III</th><th class="num-c">Total Eselon</th><th>Tindakan &amp; Penanggung Jawab</th><th>Status</th></tr></thead><tbody>`;
-    h+=delayering.slice(0,120).map(x=>`<tr><td class="link" data-act="otkopen" data-id="${x.n.id}">${esc(x.n.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${x.v}</td><td class="num-c">${fmt(x.tot)}</td><td class="mini"><b>Delayering:</b> alihkan Eselon III ke jabatan fungsional; terapkan cara kerja tim/matriks (Mekanisme Kerja); sisakan unit koordinasi (PMP) dan Tata Usaha.<div class="mini" style="color:var(--muted);margin-top:3px">PJ: ${pj(x.es1)}</div></td><td>${stPill}</td></tr>`).join('')||'<tr><td colspan="6" class="mini">Tidak ada.</td></tr>';
+    h+=delayering.map(x=>`<tr><td class="link" data-act="otkopen" data-id="${x.n.id}">${esc(x.n.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${x.v}</td><td class="num-c">${fmt(x.tot)}</td><td class="mini"><b>Delayering:</b> alihkan Eselon III ke jabatan fungsional; terapkan cara kerja tim/matriks (Mekanisme Kerja); sisakan unit koordinasi (PMP) dan Tata Usaha.<div class="mini" style="color:var(--muted);margin-top:3px">PJ: ${pj(x.es1)}</div></td><td>${stPill}</td></tr>`).join('')||'<tr><td colspan="6" class="mini">Tidak ada.</td></tr>';
     h+=`</tbody></table></div>${delayering.length>120?'<div class="mini" style="margin-top:8px">Menampilkan 120 dari '+fmt(delayering.length)+'.</div>':''}</div>`;
   }else if(tab==='urjab'){
     h+=`<div class="card">${hdr('Identifikasi Ulang Uraian Jabatan & Wewenang',urjab.length)}
@@ -4843,7 +4844,7 @@ function _kalJabatan(K){
   gs.slice(0,120).forEach(g=>{const open=state.kalJab===g.key;
     h+=`<tr style="cursor:pointer" data-act="kaljab" data-k="${esc(g.key)}"><td class="link">${open?'&#9662; ':'&#9656; '}${esc(g.label)}</td><td class="num-c">${fmt(g.n)}</td><td class="num-c">${g.med.toFixed(2)}</td><td class="num-c">${g.min.toFixed(2)} - ${g.max.toFixed(2)}</td><td class="num-c">${g.sd.toFixed(2)}</td><td class="num-c">${g.nout?`<span style="color:var(--st-critical);font-weight:700">${g.nout}</span>`:'0'}</td></tr>`;
     if(open){
-      const mem=g.members.slice().sort((a,b)=>Math.abs(b.ej1-g.med)-Math.abs(a.ej1-g.med)).slice(0,60);
+      const mem=g.members.slice().sort((a,b)=>Math.abs(b.ej1-g.med)-Math.abs(a.ej1-g.med));
       h+=`<tr><td colspan="6" style="background:var(--side);padding:10px 14px"><div class="mini" style="margin-bottom:6px">Unit paling menyimpang dari median (${g.med.toFixed(2)}) di atas. Baris merah = pencilan statistik (di luar ${g.lo.toFixed(2)}-${g.hi.toFixed(2)}). Klik unit untuk detail.</div>
       <table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">EJ.1</th><th class="num-c">Beban (jam)</th><th class="num-c">Bezetting</th></tr></thead><tbody>`;
       mem.forEach(m=>{const o=(m.ej1<g.lo||m.ej1>g.hi);h+=`<tr style="cursor:pointer;${o?'background:var(--soft-red)':''}" data-act="abkunit" data-k="${m.kode}"><td class="link">${esc(m.unit)}</td><td class="mini">${esc(m.es1)}</td><td class="num-c">${abkPill(m.ej1)}</td><td class="num-c">${fmt(Math.round(m.beban))}</td><td class="num-c">${fmt(m.ada)}</td></tr>`;});
@@ -4877,7 +4878,7 @@ function _kalKualitas(K){
     let s=`<div class="card"><h2 class="sec" style="margin-top:0">${judul} <span class="mini">(${fmt(list.length)})</span></h2><div class="mini" style="margin-bottom:8px">${desc}</div>`;
     if(!list.length){s+='<div class="mini">Tidak ada.</div></div>';return s;}
     s+=`<table><thead><tr>${cols.map((c,i)=>`<th class="${i>=2?'num-c':''}">${c}</th>`).join('')}</tr></thead><tbody>`;
-    list.slice(0,25).forEach(x=>{s+=rowf(x);});
+    list.forEach(x=>{s+=rowf(x);});
     s+=`</tbody></table>${list.length>25?`<div class="mini" style="margin-top:4px">Menampilkan 25 dari ${fmt(list.length)}.</div>`:''}</div>`;
     return s;
   };
@@ -4967,7 +4968,7 @@ function vAbkNorma(){
     <select class="flt" id="normaUE2"${state.normaUE1?'':' disabled'}><option value="">Semua Eselon II</option>${state.normaUE1?(((ABK.eselon1||[]).find(e=>e.kode===state.normaUE1)||{units:[]}).units||[]).filter(u=>normaUnits.has(u.kode)).slice().sort((a,b)=>a.nama.localeCompare(b.nama)).map(u=>`<option value="${u.kode}"${state.normaUE2===u.kode?' selected':''}>${esc(u.nama)}</option>`).join(''):''}</select></div>
   <div class="card"><h2 class="sec" style="margin-top:0">Tahapan dengan Norma Waktu Menyimpang <span class="mini">(${fmt(items.length)}, urut dampak beban)</span></h2>
   <table><thead><tr><th>Tahapan</th><th class="num-c">Unit</th><th class="num-c">Norma Ideal</th><th class="num-c">Rentang (mnt)</th><th class="num-c">Over</th><th class="num-c">Under</th><th class="num-c">Beban Berlebih (jam)</th></tr></thead><tbody>`;
-  items.slice(0,200).forEach(x=>{const open=state.normaExp===x.nama;
+  items.forEach(x=>{const open=state.normaExp===x.nama;
     h+=`<tr style="cursor:pointer" data-act="normaexp" data-k="${esc(x.nama)}"><td class="link">${open?'&#9662; ':'&#9656; '}${esc(x.nama)}</td><td class="num-c">${fmt(x.n)}</td><td class="num-c"><b>${fmt(x.ideal)}</b> mnt</td><td class="num-c">${fmt(x.min)}-${fmt(x.max)}</td><td class="num-c">${x.nover?`<span style="color:var(--st-critical);font-weight:700">${x.nover}</span>`:'0'}</td><td class="num-c">${x.nunder||0}</td><td class="num-c">${x.lebih?fmt(Math.round(x.lebih)):'-'}</td></tr>`;
     if(open){
       h+=`<tr><td colspan="7" style="background:var(--side);padding:10px 14px"><div class="mini" style="margin-bottom:6px">Norma ideal (modus) <b>${fmt(x.ideal)} menit</b>. Unit yang menyimpang (baris merah = di atas norma):</div><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Norma</th><th>Status</th><th class="num-c">Volume</th><th class="num-c">Beban Berlebih (jam)</th></tr></thead><tbody>`;
@@ -5012,7 +5013,7 @@ function vKatAkt(){
     <select class="flt" id="kataktKlus"><option value="">Semua Kluster</option>${KT.klusters.filter(k=>k.kode!=='XXX').map(k=>`<option value="${k.kode}"${state.kataktKlus===k.kode?' selected':''}>${k.kode} - ${esc(k.nama)}</option>`).join('')}</select></div>
   <div class="card"><h2 class="sec" style="margin-top:0">Aktivitas Standar <span class="mini">(${fmt(rows.length)}${state.kataktKlus?' di '+state.kataktKlus:''}, urut kode)</span></h2>
   <table><thead><tr><th>Kode</th><th>Nama Aktivitas (penulisan terbanyak)</th><th class="num-c">Unit</th><th class="num-c">UE1</th><th class="num-c">Variasi Tulis</th><th class="num-c">Beban Tusi (jam)</th><th class="num-c">Beban Non-Tusi (jam)</th></tr></thead><tbody>`;
-  rows.slice(0,300).forEach(x=>{
+  rows.forEach(x=>{
     h+=`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${fmt(x.n_unit)}</td><td class="num-c">${fmt(x.n_es1)}</td><td class="num-c">${x.n_var>1?`<span style="color:#b45309;font-weight:700">${fmt(x.n_var)}</span>`:'1'}</td><td class="num-c">${x.beban_a?fmt(Math.round(x.beban_a)):'-'}</td><td class="num-c">${x.beban_b?fmt(Math.round(x.beban_b)):'-'}</td></tr>`;});
   h+=`</tbody></table>${rows.length>300?`<div class="mini" style="margin-top:6px">Menampilkan 300 dari ${fmt(rows.length)} - persempit dengan filter/cari.</div>`:''}</div>`;
   return h;
@@ -5070,7 +5071,7 @@ function vKatJab(){
     <select class="flt" id="kjLvl"><option value="">Semua Jenjang</option>${LVLS.map(l=>`<option value="${l}"${state.kjLvl===l?' selected':''}>${l} - ${esc(LN[l])}</option>`).join('')}</select></div>
   <div class="card"><h2 class="sec" style="margin-top:0">Daftar Jabatan <span class="mini">(${fmt(rows.length)}${state.kjUE1?' di '+state.kjUE1:''}${state.kjLvl?', '+esc(LN[state.kjLvl]):''}, urut kode)</span></h2>
   <table><thead><tr><th>Kode</th><th>Nama Jabatan</th><th class="num-c">Jenjang</th><th>Unit Eselon I</th><th class="num-c">Kemunculan</th><th>Sumber</th></tr></thead><tbody>`;
-  rows.slice(0,300).forEach(x=>{
+  rows.forEach(x=>{
     h+=`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.lvl}</td><td class="mini">${esc(x.ue1)}</td><td class="num-c">${fmt(x.n)}</td><td class="mini">${esc(x.src)}</td></tr>`;});
   h+=`</tbody></table>${rows.length>300?`<div class="mini" style="margin-top:6px">Menampilkan 300 dari ${fmt(rows.length)} - persempit dengan filter/cari.</div>`:''}</div>`;
   h+=_katGabungNote('katjab');
@@ -5122,6 +5123,12 @@ function _katGuard(sec,skrip){
   return null;
 }
 function _katKpi(list){return '<div class="kpis">'+list.map(k=>`<div class="kpi ${k[3]?'gold':''}"><div class="lab">${k[0]}</div><div class="val">${k[1]}</div>${k[2]?`<div class="note">${k[2]}</div>`:''}</div>`).join('')+'</div>';}
+/* Versi potong-data dari _katTbl: yang diterima adalah SELURUH baris beserta cara
+   menggambarnya, lalu hanya satu halaman yang benar-benar dipasang. */
+function _katTblP(judul,key,head,rows,fn){
+  return `<div class="card"><h2 class="sec" style="margin-top:0">${judul} <span class="mini">(${fmt(rows.length)})</span></h2>
+  <table data-pgn-key="${key}" data-pgn-total="${rows.length}"><thead><tr>${head.map(h=>`<th${/^#/.test(h)?' class="num-c"':''}>${h.replace(/^#/,'')}</th>`).join('')}</tr></thead><tbody>${pgnPot(rows,key).map(fn).join('')}</tbody></table></div>`;
+}
 function _katTbl(judul,n,head,rowsHtml,cap){
   return `<div class="card"><h2 class="sec" style="margin-top:0">${judul} <span class="mini">(${fmt(n)})</span></h2>
   <table><thead><tr>${head.map(h=>`<th${/^#/.test(h)?' class="num-c"':''}>${h.replace(/^#/,'')}</th>`).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table>${cap?`<div class="mini" style="margin-top:6px">${cap}</div>`:''}</div>`;
@@ -5250,9 +5257,8 @@ function vKatNw(){
   let h=`<div class="note-box"><b>Katalog Norma Waktu</b> - norma baku per tahapan (menit), calon referensi input ABK di sistem transaksional. Norma ideal = <b>modus</b> antar unit utk tahapan sama (dipakai &ge;${K.meta.min_unit} unit); rentang = min-max terpantau. Nama tahapan dinetralkan dari sebutan unit. Status: draft untuk pembahasan.</div>`;
   h+=_katKpi([['Tahapan Baku Berkode',fmt(K.stats.total),'',1],['Kluster',fmt(K.stats.n_klus)],['Satuan','menit','per tahapan']]);
   h+=`<div class="toolbar">${_katCari('nwQ',state.nwQ,'Cari kode / tahapan...')}${_katSel('nwKlus',state.nwKlus,'Semua Kluster',K.klusters.map(k=>[k.kode,k.kode+' - '+k.nama+' ('+k.n+')']))}</div>`;
-  h+=_katTbl('Norma Waktu Baku',rows.length,['Kode','Nama Tahapan','#Kluster','#Norma Ideal (mnt)','#Rentang (mnt)','#Unit','#UE1'],
-    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.klus}</td><td class="num-c"><b>${fmt(x.ideal)}</b></td><td class="num-c">${fmt(x.min)}-${fmt(x.max)}</td><td class="num-c">${fmt(x.n_unit)}</td><td class="num-c">${fmt(x.n_es1)}</td></tr>`).join(''),
-    rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)} - persempit dengan filter/cari.`:'');
+  h+=_katTblP('Norma Waktu Baku','katnw',['Kode','Nama Tahapan','#Kluster','#Norma Ideal (mnt)','#Rentang (mnt)','#Unit','#UE1'],
+    rows,x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.klus}</td><td class="num-c"><b>${fmt(x.ideal)}</b></td><td class="num-c">${fmt(x.min)}-${fmt(x.max)}</td><td class="num-c">${fmt(x.n_unit)}</td><td class="num-c">${fmt(x.n_es1)}</td></tr>`);
   h+=_katGabungNote('katnw');
   return h;
 }
@@ -5271,9 +5277,8 @@ function vKatUnit(){
      menempel pada pilihan penyaringnya, sehingga katalog langsung menampilkan daftar. */
   const ue1s=[...new Set(K.rows.map(x=>x.uk))];
   h+=`<div class="toolbar">${_katCari('kuQ',state.kuQ,'Cari kode / nama unit...')}${_katSel('kuUE1',state.kuUE1,'Semua UE1',ue1s.map(x=>[x,x]))}${_katSel('kuTipe',state.kuTipe,'Semua Tipe ('+K.stats.tipe.length+')',K.stats.tipe.map(t=>[t[0],t[0]+' ('+t[1]+')']))}</div>`;
-  h+=_katTbl('Register Unit',rows.length,['Kode','Nama Unit','Tipe Kantor','#UE1','#Kode ABK'],
-    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${x.lvl===1?`<b>${esc(x.nama)}</b>`:esc(x.nama)}</td><td class="mini">${esc(x.tipe)}</td><td class="num-c">${x.uk}</td><td class="num-c">${esc(x.kode_abk)}</td></tr>`).join(''),
-    rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  h+=_katTblP('Register Unit','katunit',['Kode','Nama Unit','Tipe Kantor','#UE1','#Kode ABK'],
+    rows,x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${x.lvl===1?`<b>${esc(x.nama)}</b>`:esc(x.nama)}</td><td class="mini">${esc(x.tipe)}</td><td class="num-c">${x.uk}</td><td class="num-c">${esc(x.kode_abk)}</td></tr>`);
   h+=_katGabungNote('katunit');
   return h;
 }
@@ -5288,9 +5293,8 @@ function vKatSvc(){
   let h=`<div class="note-box"><b>Katalog Layanan</b> - daftar baku layanan per UE1 dengan tingkat digitalisasi; kolom Probis = pemetaan ke Katalog Proses Bisnis (PB-x.x). Kode memakai kode layanan resmi (LY-Lxxxx). Draft untuk pembahasan.</div>`;
   h+=_katKpi([['Layanan Berkode',fmt(K.stats.total),'',1],['UE1 Tercakup',fmt(K.stats.per_ue1.length)],['Fully Digital',fmt((K.stats.digital.find(x=>/fully/i.test(x[0]))||[0,0])[1]),'dari '+fmt(K.stats.total)]]);
   h+=`<div class="toolbar">${_katCari('ksQ',state.ksQ,'Cari kode / layanan...')}${_katSel('ksUE1',state.ksUE1,'Semua UE1',K.stats.per_ue1.map(x=>[x[0],x[0]+' ('+x[1]+')']))}${_katSel('ksDig',state.ksDig,'Semua Tingkat Digital',K.stats.digital.map(x=>[x[0],x[0]+' ('+x[1]+')']))}</div>`;
-  h+=_katTbl('Daftar Layanan',rows.length,['Kode','Nama Layanan','#UE1','Sasaran','Digitalisasi','Unit Pelaksana','#Probis'],
-    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.ue1}</td><td class="mini">${_katVar(x,'sasaran')}</td><td class="mini">${_katVar(x,'digital')}</td><td class="mini">${_katVar(x,'pelaksana')}</td><td class="num-c" style="white-space:nowrap">${(x._pb||[]).join(', ')||x.pb||''}</td></tr>`).join(''),
-    rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  h+=_katTblP('Daftar Layanan','katsvc',['Kode','Nama Layanan','#UE1','Sasaran','Digitalisasi','Unit Pelaksana','#Probis'],
+    rows,x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.ue1}</td><td class="mini">${_katVar(x,'sasaran')}</td><td class="mini">${_katVar(x,'digital')}</td><td class="mini">${_katVar(x,'pelaksana')}</td><td class="num-c" style="white-space:nowrap">${(x._pb||[]).join(', ')||x.pb||''}</td></tr>`);
   h+=_katGabungNote('katsvc');
   return h;
 }
@@ -5304,9 +5308,8 @@ function vKatApp(){
   let h=`<div class="note-box"><b>Katalog Aplikasi</b> - daftar baku aplikasi per UE1 (kode resmi AP-Axxxx) dengan model penyebaran, jenis interaksi, dan URL; kolom Probis = pemetaan ke Katalog Proses Bisnis. Bahan telaah <b>duplikasi aplikasi lintas unit</b>. Draft untuk pembahasan.</div>`;
   h+=_katKpi([['Aplikasi Berkode',fmt(K.stats.total),'',1],['UE1 Tercakup',fmt(K.stats.per_ue1.length)]]);
   h+=`<div class="toolbar">${_katCari('kaQ',state.kaQ,'Cari kode / aplikasi...')}${_katSel('kaUE1',state.kaUE1,'Semua UE1',K.stats.per_ue1.map(x=>[x[0],x[0]+' ('+x[1]+')']))}</div>`;
-  h+=_katTbl('Daftar Aplikasi',rows.length,['Kode','Nama Aplikasi','#UE1','Model','Interaksi','#Probis','URL'],
-    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.ue1}</td><td class="mini">${_katVar(x,'model')}</td><td class="mini">${_katVar(x,'gto')}</td><td class="num-c" style="white-space:nowrap">${(x._pb||[]).join(', ')||x.pb||''}</td><td class="mini">${_katUrl(x)}</td></tr>`).join(''),
-    rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  h+=_katTblP('Daftar Aplikasi','katapp',['Kode','Nama Aplikasi','#UE1','Model','Interaksi','#Probis','URL'],
+    rows,x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.nama)}</td><td class="num-c">${x.ue1}</td><td class="mini">${_katVar(x,'model')}</td><td class="mini">${_katVar(x,'gto')}</td><td class="num-c" style="white-space:nowrap">${(x._pb||[]).join(', ')||x.pb||''}</td><td class="mini">${_katUrl(x)}</td></tr>`);
   h+=_katGabungNote('katapp');
   return h;
 }
@@ -5322,9 +5325,8 @@ function vKatWen(){
   let h=`<div class="note-box"><b>Katalog Kewenangan</b> - register butir pelimpahan wewenang/mandat KMK 167/2025 per jabatan penerima (kode WN-&lt;lampiran&gt;-nomor). Tersambung ke Katalog Jabatan lewat nama jabatan. Rincian & analisis lihat modul Tata Kelola. Draft untuk pembahasan.</div>`;
   h+=_katKpi([['Butir Kewenangan',fmt(K.stats.total_butir),'',1],['Unit/Lampiran',fmt(units.length)],['Jenis Kewenangan',fmt(jenis.length)]]);
   h+=`<div class="toolbar">${_katCari('kwQ',state.kwQ,'Cari kode / uraian / jabatan...')}${_katSel('kwUnit',state.kwUnit,'Semua Unit',units.map(x=>[x,x]))}${_katSel('kwJenis',state.kwJenis,'Semua Jenis',jenis.map(x=>[x,x]))}</div>`;
-  h+=_katTbl('Register Kewenangan',rows.length,['Kode','Uraian Kewenangan','Jenis','Jabatan Penerima','Unit'],
-    rows.slice(0,300).map(x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.uraian)}</td><td class="mini">${esc(x.jenis)}</td><td class="mini">${esc(x.jabatan)}</td><td class="mini">${esc(x.unit)}</td></tr>`).join(''),
-    rows.length>300?`Menampilkan 300 dari ${fmt(rows.length)}.`:'');
+  h+=_katTblP('Register Kewenangan','katwen',['Kode','Uraian Kewenangan','Jenis','Jabatan Penerima','Unit'],
+    rows,x=>`<tr><td style="white-space:nowrap">${_katKode(x)}</td><td>${esc(x.uraian)}</td><td class="mini">${esc(x.jenis)}</td><td class="mini">${esc(x.jabatan)}</td><td class="mini">${esc(x.unit)}</td></tr>`);
   h+=_katGabungNote('katwen');
   return h;
 }
@@ -5455,7 +5457,7 @@ function vAbkPareto(){
   </div>
   <div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><h2 class="sec" style="margin:0">Konsentrasi Beban per Unit <span class="mini">(${fmt(view.length)})</span></h2><span style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">${seg}${ue1sel}</span></div>
   <table><thead><tr><th>Unit</th><th>Eselon I</th>${th('produk_total','Beban Produk (jam)')}${th('jml_produk','Jml Produk')}${th('produk_n80','Produk utk 80%')}<th>Produk Dominan</th></tr></thead><tbody>`;
-  view.slice(0,200).forEach(u=>{const t1=(u.produk_top&&u.produk_top[0])||null;const sh=t1&&u.produk_total?Math.round(100*t1.beban/u.produk_total):0;const k=kon(u);
+  view.forEach(u=>{const t1=(u.produk_top&&u.produk_top[0])||null;const sh=t1&&u.produk_total?Math.round(100*t1.beban/u.produk_total):0;const k=kon(u);
     h+=`<tr style="cursor:pointer;${k?'background:var(--soft-amber)':''}" data-act="abkunit" data-k="${u.kode}"><td class="link">${esc(u.nama)}</td><td class="mini">${esc(u.es1)}</td><td class="num-c">${fmt(Math.round(u.produk_total))}</td><td class="num-c">${fmt(u.jml_produk)}</td><td class="num-c">${k?`<b style="color:var(--st-critical)">${u.produk_n80}</b>`:u.produk_n80}</td><td class="mini">${t1?esc(t1.nama.slice(0,46))+(t1.nama.length>46?'…':'')+` <span class="pill blue">${sh}%</span>`:'-'}</td></tr>`;});
   h+=`</tbody></table>${view.length>200?`<div class="mini" style="margin-top:6px">Menampilkan 200 dari ${fmt(view.length)} unit. Baris kuning = terkonsentrasi (kandidat otomasi).</div>`:`<div class="mini" style="margin-top:6px">Baris kuning = terkonsentrasi (kandidat otomasi). Klik unit untuk melihat produk teratasnya.</div>`}</div>`;
   return h;
@@ -5610,7 +5612,7 @@ function vTim(){
     <th class="srt num-c" data-act="timsort" data-k="task">Total Tugas</th><th class="srt num-c" data-act="timsort" data-k="done">Progres</th>
     <th class="srt num-c" data-act="timsort" data-k="tepat">Tepat Waktu</th><th class="srt num-c" data-act="timsort" data-k="penting">Penting</th>
     <th class="srt num-c" data-act="timsort" data-k="skor">Skor</th></tr></thead><tbody>`;
-  rows.slice(0,400).forEach(o=>{const t=o.t,tk=t.task;const done=tk?Math.round(100*(tk.selesai_tepat+tk.telat)/Math.max(1,tk.total)):null;
+  rows.forEach(o=>{const t=o.t,tk=t.task;const done=tk?Math.round(100*(tk.selesai_tepat+tk.telat)/Math.max(1,tk.total)):null;
     h+=`<tr><td class="link" data-act="team" data-team="${o.i}">${esc(t.nama)}</td><td class="mini">${esc(t.ue1)}</td><td>${statusPill(t.status)}</td>
       <td class="num-c">${tk?fmt(tk.total):'<span class="mini">-</span>'}</td><td class="num-c">${done==null?'<span class="mini">-</span>':done+'%'}</td>
       <td class="num-c">${t.tepat_pct==null?'<span class="mini">-</span>':t.tepat_pct+'%'}</td><td class="num-c">${t.penting_pct==null?'<span class="mini">-</span>':t.penting_pct+'%'}</td>
@@ -5635,7 +5637,7 @@ function _vPegawaiBody(){
   <div class="card tblw"><table><thead><tr><th class="srt" data-act="pegsort" data-k="nama">Nama</th><th>Unit (UE1)</th>
     <th class="srt num-c" data-act="pegsort" data-k="jml_tim">Tim</th><th class="srt num-c" data-act="pegsort" data-k="jml_task">Task</th>
     <th class="srt num-c" data-act="pegsort" data-k="task_selesai">Selesai</th><th class="srt num-c" data-act="pegsort" data-k="persen">Progres</th><th>Peran</th></tr></thead><tbody>`;
-  rows.slice(0,400).forEach(p=>h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.ue1)}</td>
+  rows.forEach(p=>h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.ue1)}</td>
     <td class="num-c">${p.jml_tim}${p.jml_tim>=3?' <span class="pill warn">padat</span>':''}</td><td class="num-c">${fmt(p.jml_task)}</td><td class="num-c">${fmt(p.task_selesai)}</td>
     <td class="num-c"><div class="track" style="width:80px;display:inline-block;vertical-align:middle"><div class="fill" style="width:${Math.max(2,p.persen)}%"></div></div> ${p.persen}%</td>
     <td>${p.is_leader?'<span class="pill on">Ketua</span>':'<span class="pill neu">Anggota</span>'}</td></tr>`);
@@ -5880,7 +5882,7 @@ function vTema(){
     let shown=otkRes.filter(r=>(!state.temaGrp||r.gkey===state.temaGrp)&&(!state.temaKls||r.kls===state.temaKls));
     h+=`<h2 class="sec">Unit yang memuat "${esc(q)}" <span class="mini">(${fmt(shown.length)})</span>${chips()}</h2><div class="card tblw"><table><thead><tr><th>Unit</th><th>Lingkup</th><th>Pola</th><th>Muncul di</th><th>Cuplikan</th></tr></thead><tbody>`;
     if(!shown.length)h+=`<tr><td colspan="5" class="empty">Tidak ada unit yang cocok.</td></tr>`;
-    shown.slice(0,300).forEach(r=>{ const sn=r.wh.indexOf('tugas')>=0?_temaSnip(r.tugas,words):(r.wh.indexOf('fungsi')>=0?_temaSnip((r.fungsi||[]).join(' • '),words):''); h+=`<tr><td class="link" data-act="temaopen" data-src="${r.src}" data-key="${esc(r.key)}" data-id="${r.id}">${_temaHL(r.nama,words)}</td><td class="mini">${esc(r.grp)}</td><td>${_temaKlsPill(r.kls)}</td><td>${pill(r.wh)}</td><td class="mini">${sn}</td></tr>`; });
+    shown.forEach(r=>{ const sn=r.wh.indexOf('tugas')>=0?_temaSnip(r.tugas,words):(r.wh.indexOf('fungsi')>=0?_temaSnip((r.fungsi||[]).join(' • '),words):''); h+=`<tr><td class="link" data-act="temaopen" data-src="${r.src}" data-key="${esc(r.key)}" data-id="${r.id}">${_temaHL(r.nama,words)}</td><td class="mini">${esc(r.grp)}</td><td>${_temaKlsPill(r.kls)}</td><td>${pill(r.wh)}</td><td class="mini">${sn}</td></tr>`; });
     h+=`</tbody></table>${shown.length>300?'<div class="mini" style="padding:8px">Menampilkan 300 dari '+fmt(shown.length)+'.</div>':''}</div>`;
   }else{
     if(!URJAB)return h+`<div class="card"><div class="empty">Memuat data jabatan...</div></div>`;
@@ -5893,7 +5895,7 @@ function vTema(){
     let shown=urjRes.filter(r=>(!state.temaGrp||r.gkey===state.temaGrp)&&(!state.temaKls||r.kls===state.temaKls));
     h+=`<h2 class="sec">Jabatan yang memuat "${esc(q)}" <span class="mini">(${fmt(shown.length)})</span>${chips()}</h2><div class="card tblw"><table><thead><tr><th>Jabatan</th><th>Unit</th><th>Pola</th><th>Muncul di</th><th>Cuplikan</th></tr></thead><tbody>`;
     if(!shown.length)h+=`<tr><td colspan="5" class="empty">Tidak ada jabatan yang cocok.</td></tr>`;
-    shown.slice(0,300).forEach(r=>{ const sn=r.wh.indexOf('uraian tugas')>=0?_temaSnip((r.ut||[]).join(' • '),words):(r.wh.indexOf('ikhtisar')>=0?_temaSnip(r.ikh,words):''); h+=`<tr><td class="link" data-act="urjabopen" data-idx="${r.idx}">${_temaHL(r.nama,words)}</td><td class="mini">${esc((r.unit||''))}</td><td>${_temaKlsPill(r.kls)}</td><td>${pill(r.wh)}</td><td class="mini">${sn}</td></tr>`; });
+    shown.forEach(r=>{ const sn=r.wh.indexOf('uraian tugas')>=0?_temaSnip((r.ut||[]).join(' • '),words):(r.wh.indexOf('ikhtisar')>=0?_temaSnip(r.ikh,words):''); h+=`<tr><td class="link" data-act="urjabopen" data-idx="${r.idx}">${_temaHL(r.nama,words)}</td><td class="mini">${esc((r.unit||''))}</td><td>${_temaKlsPill(r.kls)}</td><td>${pill(r.wh)}</td><td class="mini">${sn}</td></tr>`; });
     h+=`</tbody></table>${shown.length>300?'<div class="mini" style="padding:8px">Menampilkan 300 dari '+fmt(shown.length)+'.</div>':''}</div>`;
   }
   return h;
@@ -5956,7 +5958,7 @@ function vOtkEval(){
   if(tab==='gabung'){
     h+=`<div class="note-box">Pasangan unit selevel dengan tumpang tindih tugas dan fungsi <b>substantif</b> (bukan sekadar serial/objek). Tinjau untuk konsolidasi atau penegasan batas kewenangan.</div><div class="card tblw"><table><thead><tr><th>Unit A</th><th>Unit B</th><th>Eselon I</th><th class="num-c">Kemiripan</th></tr></thead><tbody>`;
     if(!pairs.length)h+=`<tr><td colspan="4" class="empty">Tidak ada.</td></tr>`;
-    pairs.slice(0,200).forEach(x=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${x.a}">${esc(x.an)}</td><td class="link" data-act="otkopen" data-id="${x.b}">${esc(x.bn)}</td><td class="mini">${esc((x.es1||''))}</td><td class="num-c">${Math.round(x.sim*100)}%</td></tr>`;});
+    pairs.forEach(x=>{h+=`<tr><td class="link" data-act="otkopen" data-id="${x.a}">${esc(x.an)}</td><td class="link" data-act="otkopen" data-id="${x.b}">${esc(x.bn)}</td><td class="mini">${esc((x.es1||''))}</td><td class="num-c">${Math.round(x.sim*100)}%</td></tr>`;});
     h+=`</tbody></table>${pairs.length>200?'<div class="mini" style="padding:8px">Menampilkan 200 dari '+fmt(pairs.length)+'.</div>':''}</div>`;
   }else if(tab==='lebur'){
     h+=`<div class="note-box">Unit Eselon II/III dengan mandat tipis (fungsi sangat sedikit) <b>dan</b> tumpang tindih dengan unit selevel. Kandidat dilebur ke unit terkait; perlu telaah beban riil.</div><div class="card tblw"><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Fungsi</th><th>Beririsan dengan</th></tr></thead><tbody>`;
@@ -7630,7 +7632,7 @@ function vKjStandar(){
      '<span class="mini">'+fmt(rows.length)+' jabatan</span></div>';
   if(!rows.length)return h+'<div class="empty">Tidak ada jabatan yang cocok dengan penyaring ini.</div>';
   h+='<div class="tblw"><table><thead><tr><th>Jabatan</th><th>Unit</th><th>Jenjang</th><th>Rumpun</th><th>Dasar</th><th>Status</th><th class="num-c">UK</th></tr></thead><tbody>';
-  rows.slice(0,300).forEach(function(j){
+  rows.forEach(function(j){
     h+='<tr class="clk" data-act="kompopen" data-i="'+j.i+'">'+
        '<td><b>'+esc(j.n)+'</b>'+(j.e2?('<div class="mini">'+esc(j.e2)+(j.e3?(' &rsaquo; '+esc(j.e3)):'')+'</div>'):'')+'</td>'+
        '<td>'+esc(kompUnitNama(j.u))+'</td><td>'+kompLvlTag(j.lv)+'</td><td>'+esc(j.rp||'-')+'</td>'+
@@ -7762,7 +7764,7 @@ function vKjKsaJpt(){
      umum.map(function(x){return '<span class="tag">'+esc(x)+'</span>';}).join(' ')+'</div>';
   h+='<div class="toolbar"><input class="search" id="kompKhQ" placeholder="Cari jabatan atau keahlian..." value="'+esc(state.kompKhQ||'')+'"><span class="mini">'+fmt(tampil.length)+' jabatan</span></div>';
   h+='<div class="tblw"><table><thead><tr><th>Jabatan</th><th>Unit</th><th>Jenjang</th><th class="num-c">Keahlian khusus</th><th class="num-c">Aspek kritis</th><th class="num-c">Catatan</th></tr></thead><tbody>';
-  tampil.slice(0,250).forEach(function(j){
+  tampil.forEach(function(j){
     h+='<tr class="clk" data-act="kompopen" data-i="'+j.i+'"><td><b>'+esc(j.n)+'</b></td><td>'+esc(kompUnitNama(j.u))+'</td>'+
        '<td>'+kompLvlTag(j.lv)+'</td><td class="num-c">'+(j.ksa.khusus||[]).length+'</td>'+
        '<td class="num-c">'+Object.keys(j.ksa.kritis||{}).length+'</td>'+
@@ -7978,7 +7980,7 @@ function vKjKamus(){
      (state.kompKl?('<span class="tag link" data-act="kompkl" data-k="">Kluster: '+esc(kompKlNama(state.kompKl))+' &times;</span>'):'')+
      '<span class="mini">'+fmt(rows.length)+' kompetensi</span></div>';
   h+='<div class="tblw"><table><thead><tr><th>Kompetensi</th><th>Kode</th><th>Kluster</th><th class="num-c">Level</th><th class="num-c">Dipakai</th></tr></thead><tbody>';
-  rows.slice(0,300).forEach(function(x){
+  rows.forEach(function(x){
     h+='<tr class="clk" data-act="kompkam" data-k="'+esc(x.k)+'"><td><b>'+esc(x.n)+'</b>'+
        (x.def?('<div class="mini">'+esc(x.def.slice(0,110))+(x.def.length>110?'...':'')+'</div>'):'')+'</td>'+
        '<td>'+esc(x.kode||'-')+'</td>'+
@@ -8065,7 +8067,7 @@ function vKjKeahlian(){
      '<button class="segb'+(state.kompKhOnly?' on':'')+'" data-act="kompkhonly" data-k="1">Hanya yang dipakai</button></div>'+
      '<span class="mini">'+fmt(rows.length)+' keahlian</span></div>';
   h+='<div class="tblw"><table><thead><tr><th>Keahlian</th><th>Definisi</th><th class="num-c">Jabatan</th><th class="num-c">Baris JF</th></tr></thead><tbody>';
-  rows.slice(0,250).forEach(function(x){
+  rows.forEach(function(x){
     var p=pakai[kompNrm(x.n)];
     h+='<tr class="clk" data-act="kompkh" data-k="'+esc(x.n)+'"><td><b>'+esc(x.n)+'</b>'+(p&&!p.kat?' <span class="pill warn">belum baku</span>':'')+'</td>'+
        '<td class="mini">'+esc((x.def||'').slice(0,150))+((x.def||'').length>150?'...':'')+'</td>'+
@@ -8106,7 +8108,7 @@ function vKjCakupan(){
     '<span class="mini">'+fmt(f.length)+' jabatan belum berstandar</span></div>';
   if(!f.length)h+='<div class="empty">Tidak ada jabatan belum berstandar pada penyaring ini. Berarti jenjang atau unit tersebut sudah tuntas.</div>';
   else h+='<div class="tblw"><table><thead><tr><th>Kode</th><th>Jabatan</th><th>Unit</th><th>Jenjang</th><th class="num-c">Pemangku</th></tr></thead><tbody>';
-  f.slice(0,300).forEach(function(x){
+  f.forEach(function(x){
     h+='<tr><td class="mini">'+esc(x.kode)+'</td><td><b>'+esc(x.n)+'</b></td><td>'+esc(x.ue1)+'</td>'+
        '<td>'+esc(KOMP_LVL[x.lvl]||x.lvl)+'</td><td class="num-c">'+fmt(x.jml||0)+'</td></tr>';});
   if(f.length)h+='</tbody></table></div>';
@@ -8341,7 +8343,7 @@ function vKjPrioritas(){
     '</tbody></table></div></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Urutan Penggarapan</h2>'+
     '<div class="tblw"><table><thead><tr><th class="num-c">#</th><th>Jabatan</th><th>Unit</th><th>Jenjang</th><th class="num-c">Pemangku</th><th class="num-c">Skor</th></tr></thead><tbody>';
-  skor.slice(0,200).forEach(function(r,i){
+  skor.forEach(function(r,i){
     h+='<tr><td class="num-c">'+(i+1)+'</td><td><b>'+esc(r.x.n)+'</b>'+(r.jenjKosong?' <span class="pill warn">jenjang kosong</span>':'')+'</td>'+
        '<td>'+esc(r.x.ue1)+'</td><td>'+esc(KOMP_LVL[r.x.lvl]||r.x.lvl)+'</td>'+
        '<td class="num-c">'+fmt(r.x.jml||0)+'</td><td class="num-c"><b>'+r.s+'</b></td></tr>';});
@@ -9461,7 +9463,7 @@ function vPelwen(){
   h+='<h2 class="sec">Telusuri Pelimpahan Wewenang</h2><div class="grid3">'
     +nav('pelunit','Per Unit Eselon I','Peta mandat 13 Unit Eselon I; klik unit lalu jabatan untuk melihat rincian kewenangan.')
     +nav('pellintas','Lintas Unit','Enam tema kewenangan yang berlaku lintas unit organisasi (pengguna barang, keberatan/banding, hibah, dsb).')
-    +nav('pelcari','Cari Kewenangan','Telusuri seluruh butir kewenangan berdasarkan kata kunci, unit, dan jenis.')
+    +nav('pelcari','Daftar Butir Kewenangan','Seluruh butir kewenangan, disaring menurut kata kunci, unit, dan jenis.')
     +'</div>';
   h+='<h2 class="sec">Sebaran Mandat per Unit Eselon I</h2><div class="card">';
   var mx=PW.per_unit[0]?PW.per_unit[0].jml_butir:1;
@@ -9470,7 +9472,7 @@ function vPelwen(){
   h+='<h2 class="sec">Kewenangan Lintas Unit</h2><div class="grid3">';
   PW.lintas.forEach(function(t){h+='<div class="card" data-act="pwtema" data-key="'+t.lamp+'" style="cursor:pointer"><div class="mini">Lampiran '+t.lamp+'</div><h3 style="margin:3px 0">'+esc(t.tema)+'</h3><div class="mini">'+t.jml_butir+' butir · '+t.jml_jabatan+' jabatan</div><div class="mini" style="margin-top:5px;color:var(--brand)">Buka &rsaquo;</div></div>';});
   h+='</div>';
-  h+='<div class="mini" style="margin-top:14px"><span class="tag" data-act="nav" data-view="peltentang" style="cursor:pointer">Tentang Pelimpahan Wewenang &amp; ketentuan pokok &rsaquo;</span></div>';
+  h+='<div class="mini" style="margin-top:14px"><span class="tag" data-act="nav" data-view="peltentang" style="cursor:pointer">Dasar hukum dan ketentuan pokok &rsaquo;</span></div>';
   return h;}
 
 function vPelUnit(){
@@ -9562,16 +9564,17 @@ function vPelCari(){
     return true;});
   if(!q&&!fu&&!fj){h+='<div class="mini" style="margin-bottom:8px">Menampilkan seluruh '+res.length+' butir. Ketik kata kunci atau pilih filter untuk mempersempit.</div>';}
   else{h+='<div class="mini" style="margin-bottom:8px"><b>'+res.length+'</b> butir cocok.</div>';}
-  var LIM=200,shown=res.slice(0,LIM);
+  /* Dulu daftar dipotong diam-diam pada butir ke-200 dan sisanya hanya disebut di catatan kaki.
+     Sekarang seluruh hasil ditampilkan dan paginasi yang mengatur panjangnya, sehingga tidak
+     ada butir yang tersembunyi dari pembaca. */
   h+='<div class="card">';
   if(!res.length)h+='<div class="empty">Tidak ada butir yang cocok.</div>';
-  shown.forEach(function(x){
+  res.forEach(function(x){
     var badge=x.scope==='unit'?x.unit:('Lintas '+x.lamp);
     h+='<div style="padding:9px 0;border-bottom:1px solid var(--line)">'
       +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill" style="background:var(--track);color:#334155;border:1px solid var(--line);font-weight:700">'+esc(badge)+'</span>'+pwChip(x.jenis)
       +'<span class="tag link" data-act="pwgoto" data-key="'+x.key+'" data-ji="'+x.ji+'" data-scope="'+x.scope+'" style="cursor:pointer;margin-left:auto">'+esc(x.jab)+' &rsaquo;</span></div>'
       +'<div style="margin-top:5px">'+esc(x.materi)+'</div></div>';});
-  if(res.length>LIM)h+='<div class="mini" style="margin-top:8px">Menampilkan '+LIM+' dari '+res.length+' butir. Persempit dengan kata kunci atau filter.</div>';
   h+='</div>';return h;}
 
 function vPelTentang(){
@@ -9799,6 +9802,34 @@ function vPelAnalisis(){
    TIDAK dipenggal supaya baris induk tidak terpisah dari rinciannya. */
 const PGN_N=10;
 function pgnKey(jenis,ti){return (state.view||'')+'#'+jenis+ti;}
+/* Potong di tingkat DATA. Dipakai daftar yang sangat panjang, supaya yang dipasang ke
+   halaman cukup satu halaman saja, bukan puluhan ribu baris yang lalu disembunyikan. */
+function pgnPot(rows,key){
+  state.pgn=state.pgn||{};
+  var total=rows.length,hal=Math.max(1,Math.ceil(total/PGN_N)),kk='D#'+key;
+  var cur=Math.min(Math.max(1,state.pgn[kk]||1),hal);
+  state.pgn[kk]=cur;
+  return rows.slice((cur-1)*PGN_N,cur*PGN_N);
+}
+function pgnBilah(key,total,satuan,lepas){
+  var hal=Math.max(1,Math.ceil(total/PGN_N));
+  state.pgn=state.pgn||{};
+  var cur=Math.min(Math.max(1,state.pgn[key]||1),hal);
+  state.pgn[key]=cur;
+  var awal=(cur-1)*PGN_N,akhir=Math.min(total,awal+PGN_N);
+  var bar=document.createElement('div');
+  bar.className='pgn'+(lepas?' pgn-lepas':'');
+  var tomb=function(ikon,ke,mati,judul){
+    return '<button data-act="pgn" data-k="'+esc(key)+'" data-p="'+ke+'" title="'+judul+'" aria-label="'+judul+'"'+
+           (mati?' disabled':'')+'>'+svgIcon(ikon,15)+'</button>';};
+  bar.innerHTML='<span class="pgn-i">Menampilkan '+fmt(awal+1)+' sampai '+fmt(akhir)+' dari '+fmt(total)+' '+satuan+'</span>'+
+    tomb('pgAwal',1,cur===1,'Halaman pertama')+
+    tomb('pgMundur',cur-1,cur===1,'Halaman sebelumnya')+
+    '<span class="pgn-h">'+cur+' / '+hal+'</span>'+
+    tomb('pgMaju',cur+1,cur===hal,'Halaman berikutnya')+
+    tomb('pgAkhir',hal,cur===hal,'Halaman terakhir');
+  return bar;
+}
 function pgnPrepare(root){
   if(!root)return;
   var tabs=root.querySelectorAll('table');
@@ -9806,6 +9837,15 @@ function pgnPrepare(root){
     var tb=tabs[ti],body=tb.tBodies&&tb.tBodies[0];
     if(!body)continue;
     var rows=body.rows;
+    /* tabel yang sudah dipotong di tingkat data: barisnya memang cuma satu halaman,
+       jumlah sebenarnya dibaca dari atribut */
+    var totD=+(tb.getAttribute('data-pgn-total')||0);
+    if(totD>PGN_N){
+      var wd=tb.parentNode,sd=(wd&&wd.classList&&wd.classList.contains('tblw'))?wd:tb;
+      if(sd.nextSibling&&String(sd.nextSibling.className||'').indexOf('pgn')===0)sd.parentNode.removeChild(sd.nextSibling);
+      sd.parentNode.insertBefore(pgnBilah('D#'+tb.getAttribute('data-pgn-key'),totD,'baris',false),sd.nextSibling);
+      continue;
+    }
     if(rows.length<=PGN_N)continue;
     var bergantung=false;
     for(var i=0;i<rows.length;i++){
@@ -9819,6 +9859,37 @@ function pgnPrepare(root){
   }
   pgnBatang(root);
   pgnKartu(root);
+  pgnBlok(root);
+  pgnBersihCatatan(root);
+}
+/* Bentuk keempat: DERET BIASA. Banyak daftar tidak ditulis sebagai tabel, batang, atau
+   hamparan, melainkan sekadar <div> beruntun di dalam sebuah kartu, misalnya hasil telusur
+   kewenangan dan daftar peraturan yang dicabut. Yang dicari adalah deret BERSAMBUNG dengan
+   nama kelas sama, supaya judul kelompok tidak ikut terpenggal dari anggotanya. */
+var PGN_LEWAT='.kpis,.toolbar,.seg,.legend,.lanjut,.tree,.grid3,.grid2,.bento,.modmenu,nav,select,thead,tbody,tr,svg';
+function pgnBlok(root){
+  var semua=root.querySelectorAll('*');
+  for(var i=0;i<semua.length;i++){
+    var p=semua[i];
+    if(p===root||p.closest(PGN_LEWAT))continue;
+    var c=p.children;
+    if(c.length<=PGN_N)continue;
+    /* deret bersambung terpanjang yang anaknya sekelas */
+    var best=null,run=1,j;
+    for(j=1;j<=c.length;j++){
+      var sama=j<c.length&&c[j].tagName===c[j-1].tagName&&String(c[j].className)===String(c[j-1].className);
+      if(sama){run++;}
+      else{if(run>PGN_N&&(!best||run>best.n))best={akhir:j-1,n:run};run=1;}
+    }
+    if(!best)continue;
+    var anak=[];
+    for(j=best.akhir-best.n+1;j<=best.akhir;j++)anak.push(c[j]);
+    var kls=String(anak[0].className||'');
+    /* batang dan hamparan sudah ditangani mesin lain; keping berlabel bukan daftar baris */
+    if(kls.indexOf('bar-row')>=0||kls.indexOf('tag')>=0||kls.indexOf('kpi')>=0||kls.indexOf('pgn')>=0)continue;
+    if(getComputedStyle(anak[0]).display.indexOf('inline')===0)continue;
+    pgnTerap(anak,anak[anak.length-1],null,pgnKey('d',i),'baris',true);
+  }
 }
 /* Satu mesin untuk semua bentuk daftar. `anak` adalah kumpulan unsur yang dipenggal;
    yang di luar halaman aktif hanya disembunyikan, tidak dibuang, supaya penanganan klik
@@ -9831,7 +9902,13 @@ function pgnTerap(anak,sesudah,dalam,key,satuan,lepas){
   var cur=Math.min(Math.max(1,state.pgn[key]||1),hal);
   state.pgn[key]=cur;
   var awal=(cur-1)*PGN_N,akhir=Math.min(total,awal+PGN_N);
-  for(var r=0;r<total;r++)anak[r].style.display=(r>=awal&&r<akhir)?'':'none';
+  for(var r=0;r<total;r++){
+    var tampil=(r>=awal&&r<akhir);
+    anak[r].style.display=tampil?'':'none';
+    /* Ditandai supaya saat MENCETAK seluruh baris bisa dimunculkan lagi. Tanpa ini kertas
+       hanya memuat halaman yang sedang terbuka, dan uraian jabatan tercetak terpotong. */
+    if(tampil)anak[r].removeAttribute('data-pgnh');else anak[r].setAttribute('data-pgnh','1');
+  }
   var bar=document.createElement('div');
   bar.className='pgn'+(lepas?' pgn-lepas':'');
   var tomb=function(ikon,ke,mati,judul){
@@ -9869,6 +9946,36 @@ function pgnKartu(root){
     for(j=0;j<c.length;j++)anak.push(c[j]);
     if(anak.length<=PGN_N)continue;
     pgnTerap(anak,g,null,pgnKey('g',i),'kartu',true);
+  }
+}
+/* Kertas tidak mengenal halaman paginasi. Sebelum dicetak semua baris dimunculkan lagi,
+   sesudahnya dikembalikan ke halaman yang tadi sedang dibuka. */
+function pgnCetakBuka(){
+  var d=document.querySelectorAll('[data-pgnh]');
+  for(var i=0;i<d.length;i++)d[i].style.display='';
+}
+function pgnCetakTutup(){
+  var d=document.querySelectorAll('[data-pgnh]');
+  for(var i=0;i<d.length;i++)d[i].style.display='none';
+}
+if(window.addEventListener){
+  window.addEventListener('beforeprint',pgnCetakBuka);
+  window.addEventListener('afterprint',pgnCetakTutup);
+}
+/* Catatan "Menampilkan 300 dari 22.104" adalah sisa dari potongan tampilan yang kini sudah
+   dibuka. Bilah paginasi sudah menyebut rentang dan jumlah yang sebenarnya, jadi kalimat itu
+   dibuang agar tidak ada dua angka yang saling bertentangan pada satu halaman. Kalau kalimat
+   itu hanya sebagian dari keterangan yang lebih panjang, yang dibuang cuma kalimatnya. */
+var PGN_CAT=/\s*Menampilkan\s+[\d.]+\s+[^.]{0,80}?dari\s+[\d.]+[^.]{0,40}\.?/;
+function pgnBersihCatatan(root){
+  var m=root.querySelectorAll('.mini'),i,j;
+  for(i=m.length-1;i>=0;i--){
+    var el=m[i],t=(el.textContent||'').trim();
+    if(!PGN_CAT.test(t))continue;
+    if(/^Menampilkan/.test(t)&&t.replace(PGN_CAT,'').trim()===''){el.parentNode.removeChild(el);continue;}
+    var tn=el.childNodes;
+    for(j=0;j<tn.length;j++)if(tn[j].nodeType===3&&PGN_CAT.test(tn[j].nodeValue))
+      tn[j].nodeValue=tn[j].nodeValue.replace(PGN_CAT,'');
   }
 }
 function bindInputs(){const q=id=>document.getElementById(id);
