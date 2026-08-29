@@ -1977,14 +1977,15 @@ const MODULES=[
     dan Katalog Produk ABK dinaikkan ke urutan pertama. Peta Aktivitas Kantor dipindah ke
     modul Analisis Beban Kerja sebab keluarannya sebaran beban, bukan register katalog. */
  {id:'katref',icn:'katalog',lab:'Katalog',groups:[
-   {grp:'',items:[{v:'katakt',lab:'Katalog Produk ABK'},{v:'katjab',lab:'Katalog Jabatan'},{v:'katpb',lab:'Katalog Proses Bisnis'},{v:'katnw',lab:'Katalog Norma Waktu'},{v:'katunit',lab:'Katalog Unit & Kantor'},{v:'katsvc',lab:'Katalog Layanan'},{v:'katapp',lab:'Katalog Aplikasi'},{v:'katwen',lab:'Katalog Kewenangan'}]},
+   {grp:'',items:[{v:'katakt',lab:'Katalog Produk ABK'},{v:'katjab',lab:'Katalog Jabatan'},{v:'katalog',lab:'Katalog Keahlian'},{v:'katpb',lab:'Katalog Proses Bisnis'},{v:'katnw',lab:'Katalog Norma Waktu'},{v:'katunit',lab:'Katalog Unit & Kantor'},{v:'katsvc',lab:'Katalog Layanan'},{v:'katapp',lab:'Katalog Aplikasi'},{v:'katwen',lab:'Katalog Kewenangan'}]},
  ]},
  {id:'unitremote',icn:'remote',lab:'Unit Remote',groups:[
    {grp:'',items:[{v:'otkremote',lab:'Unit Remote'}]},
  ]},
- {id:'katalog',icn:'katalog',lab:'Katalog',groups:[
-   {grp:'',items:[{v:'katalog',lab:'Kompetensi'},{v:'pb_katalog',lab:'Proses Bisnis'},{v:'pb_layanan',lab:'Layanan'},{v:'pb_aplikasi',lab:'Aplikasi'}]},
- ]},
+ /* Modul "Katalog" lama dibubarkan pada 29 Ago 2026. Tiga dari empat menunya (Proses Bisnis,
+    Layanan, Aplikasi) menunjuk view yang tidak pernah terdaftar di router, sehingga ketiganya
+    diam-diam jatuh ke halaman yang sama: empat menu, satu halaman. Satu halaman yang benar-
+    benar ada, Katalog Keahlian, sudah dipindahkan ke modul Katalog di kluster Katalog. */
 ];
 const VIEW2MOD={beranda:'beranda',urjabdetail:'urjab',otkdetail:'otk',otkvdetail:'otk',skill:'mk',unit1:'mk',unit2:'mk',team:'mk',emp:'mk',jfprofil:'urjab',abkunit:'abk',kjdetail:'komjab',kjkamusdetail:'komjab'};
 const MODDEF={};
@@ -2000,13 +2001,18 @@ function curMod(){return VIEW2MOD[state.view]||'beranda';}
 const DOMAINS=[
   {k:'organisasi',lab:'Organisasi'},
   {k:'sdm',lab:'SDM'},
-  {k:'tatakelola',lab:'Tata Kelola & Layanan'}
+  {k:'tatakelola',lab:'Tata Kelola & Layanan'},
+  /* Katalog dinaikkan jadi kluster tersendiri (29 Ago 2026). Register acuan dipakai lintas
+     ketiga kluster lain, jadi menaruhnya di bawah salah satu kluster selalu keliru bagi dua
+     kluster sisanya. */
+  {k:'katalog',lab:'Katalog'}
 ];
 const MODDOMAIN={
   probis:'organisasi', otk:'organisasi', urjab:'organisasi', abk:'organisasi',
-  mk:'organisasi', kapabilitas:'organisasi', katref:'organisasi', komjab:'organisasi',
+  mk:'organisasi', kapabilitas:'organisasi', komjab:'organisasi',
+  katref:'katalog',   /* seluruh register acuan berkumpul di kluster Katalog */
   cuti:'sdm',   /* modul pertama domain SDM (14 Ago 2026); modul lain menyusul via kontrak modul */
-  takelola:'tatakelola', layanan:'tatakelola', katalog:'tatakelola', unitremote:'tatakelola'
+  takelola:'tatakelola', layanan:'tatakelola', unitremote:'tatakelola'
 };
 function domOf(modId){return MODDOMAIN[modId]||'organisasi';}   /* modul lintas -> default Organisasi */
 function domLab(k){var d=DOMAINS.find(function(x){return x.k===k;});return d?d.lab:k;}
@@ -2025,7 +2031,7 @@ const MODKET={
   kapabilitas:'Kapabilitas kelembagaan (MOFIN) dan tindak lanjutnya.',
   takelola:'Pelimpahan wewenang/mandat (KMK 167/2025) lintas unit.',
   layanan:'Zona Integritas, kepuasan layanan, inovasi, kantor terbaik.',
-  katalog:'Referensi: kompetensi, proses bisnis, layanan, aplikasi.',
+  katalog:'Katalog keahlian baku: 3.217 sub-keahlian dalam 22 bidang.',
   katref:'Katalog referensi baku ber-kode: Produk ABK, Jabatan, Proses Bisnis, Norma Waktu, Unit & Kantor, Layanan, Aplikasi, Kewenangan.',
   cuti:'Pola pemanfaatan cuti pegawai: tren, musiman, unit, demografi, kategori sakit, proyeksi, hingga simulasi kebijakan.',
   unitremote:'Aplikasi unit remote (UKDR) tertanam di dalam dashboard.'
@@ -2042,7 +2048,7 @@ const MENUKET={
   profil:'Profil ringkas tiap unit Eselon I lintas modul.',profilunit:'Profil ringkas tiap unit Eselon I lintas modul.',
   panduan:'Peta navigasi seluruh kluster, modul, sub modul, dan menu.',
   // Proses Bisnis
-  pb_exec:'Ikhtisar proses bisnis untuk pimpinan.',pb_ringkasan:'Ringkasan peta proses bisnis Kemenkeu.',pb_tree:'Diagram pohon domain sampai sub-proses.',pb_heatmap:'Peta panas proses bisnis per unit.',pb_tematik:'Telaah proses bisnis menurut tema.',pb_jaringan:'Jaringan keterkaitan antar unit dalam proses bisnis.',pb_profil:'Profil satu domain proses bisnis.',pb_spbe:'Tingkat maturitas SPBE tiap proses.',pb_gap:'Celah dan area belum tergarap (whitespace) proses bisnis.',pb_monitoring:'Pemantauan kelengkapan dan kualitas data proses bisnis.',pb_validasi:'Validasi konsistensi peta proses bisnis.',pb_level:'Validasi penjenjangan level proses.',pb_katalog:'Katalog proses bisnis.',pb_layanan:'Katalog layanan.',pb_aplikasi:'Katalog aplikasi pendukung.',
+  pb_exec:'Ikhtisar proses bisnis untuk pimpinan.',pb_ringkasan:'Ringkasan peta proses bisnis Kemenkeu.',pb_tree:'Diagram pohon domain sampai sub-proses.',pb_heatmap:'Peta panas proses bisnis per unit.',pb_tematik:'Telaah proses bisnis menurut tema.',pb_jaringan:'Jaringan keterkaitan antar unit dalam proses bisnis.',pb_profil:'Profil satu domain proses bisnis.',pb_spbe:'Tingkat maturitas SPBE tiap proses.',pb_gap:'Celah dan area belum tergarap (whitespace) proses bisnis.',pb_monitoring:'Pemantauan kelengkapan dan kualitas data proses bisnis.',pb_validasi:'Validasi konsistensi peta proses bisnis.',pb_level:'Validasi penjenjangan level proses.',
   // Struktur Organisasi
   otkremote:'Buka aplikasi Unit Remote (UKDR) di dalam dashboard.',otk:'Telusuri struktur organisasi dari Eselon I sampai IV.',tema:'Cari satu istilah di seluruh tugas/fungsi unit dan uraian jabatan.',otkcompare:'Bandingkan tugas dan fungsi dua unit berdampingan.',otkanalisis:'Komposisi jenjang eselon dan rentang kendali tiap unit.',otkhealth:'Deteksi rentang kendali lebar dan lapisan berlebih.',otkoverlap:'Irisan tugas dan fungsi antar unit sebagai kandidat konsolidasi.',otkkaitan:'Adopsi mekanisme kerja dibanding beban formal tiap unit.',otkeval:'Kandidat penggabungan, peleburan, dan delayering unit.',otkorg:'Skor kematangan organisasi per unit dari beberapa dimensi.',otkindeks:'Usulan penataan unit berdasar indeks kesehatan.',otkshare:'Fungsi pendukung yang berpeluang jadi layanan bersama.',
   // Analisis Jabatan
@@ -2056,7 +2062,7 @@ const MENUKET={
   kj:'Ikhtisar standar kompetensi jabatan dan cakupannya.',kjrumpun:'Taksonomi rumpun jabatan tiga tingkat beserta konsep penataannya.',kjstandar:'Daftar standar kompetensi tiap posisi jabatan, dapat disaring dan dicari.',kjdetail:'Rincian kompetensi teknis, manajerial dan sosial kultural, serta KSA satu jabatan.',kjksa:'Keahlian yang dibutuhkan jabatan, dipadankan dengan Katalog Kompetensi.',kjkamus:'Kamus kompetensi teknis dan mansoskul beserta indikator perilaku tiap level.',kjtentang:'Sumber, cakupan, batasan, dan mutu data standar kompetensi.',
   cuti:'Ringkasan pemanfaatan cuti pegawai lintas jenis dan tahun.',cutitren:'Tren bulanan dan pola musiman pengajuan cuti.',cutiunit:'Cuti tiap unit Eselon I, dapat ditelusuri sampai Eselon II.',cutiwilayah:'Sebaran cuti menurut kota tempat kantor berada.',cutiutilisasi:'Pemakaian hak cuti tahunan dibanding hak 24 hari kerja.',cutikualitas:'Kepatuhan terhadap ketentuan hak cuti dan mutu rekaman data.',cutidemografi:'Sebaran cuti menurut kelompok usia dan gender.',cutipola:'Pola hari mulai/selesai cuti dan kalender kapasitas kehadiran.',cutisakit:'Kategori alasan cuti sakit hasil pengolahan teks.',cutiprediksi:'Proyeksi beban cuti berbasis pola musiman historis.',cutisimulasi:'Simulasi dampak perubahan ambang potongan tunjangan (PMK 221/PMK.01/2021).',cutitentang:'Sumber, cakupan, kualitas, dan batasan data cuti.',
   // Kompetensi
-  katalog:'Referensi kompetensi jabatan.',
+  katalog:'Merujuk keahlian baku untuk pemetaan keahlian tim dan pegawai.',
   // Kapabilitas (MOFIN)
   mofin:'Skor kapabilitas kelembagaan (MOFIN) per unit dan dimensi.',mofheatmap:'Peta panas skor kapabilitas antar unit.',mofprofil:'Profil kapabilitas satu unit.',moftl:'Status tindak lanjut rekomendasi kapabilitas.',mofkuadran:'Kuadran kelemahan vs respons tindak lanjut.',mofgap:'Prioritas tindak lanjut dari kesenjangan kapabilitas.',
   // Pelimpahan Wewenang
@@ -2070,7 +2076,7 @@ const MENUOBJ={
   beranda:'Memantau kondisi organisasi sekilas dan menemukan isu prioritas.',
   profil:'Melihat potret satu unit Eselon I dari semua modul dalam satu halaman.',profilunit:'Melihat potret satu unit Eselon I dari semua modul dalam satu halaman.',
   panduan:'Menemukan menu yang tepat untuk kebutuhan analisis Anda.',
-  pb_exec:'Memberi pimpinan gambaran cepat kematangan proses bisnis.',pb_ringkasan:'Memahami cakupan peta proses bisnis secara menyeluruh.',pb_tree:'Menelusuri hierarki proses dari domain hingga sub-proses.',pb_heatmap:'Membandingkan intensitas proses bisnis antar unit.',pb_tematik:'Menemukan proses yang terkait tema kebijakan tertentu.',pb_jaringan:'Mengidentifikasi unit yang saling terhubung dalam proses.',pb_profil:'Mendalami satu domain proses bisnis secara utuh.',pb_spbe:'Menilai kematangan digital (SPBE) tiap proses.',pb_gap:'Menemukan proses yang belum tergarap atau tumpang tindih.',pb_monitoring:'Menjaga kelengkapan dan mutu data proses bisnis.',pb_validasi:'Memastikan peta proses bisnis konsisten dan sahih.',pb_level:'Memastikan penjenjangan level proses sudah benar.',pb_katalog:'Merujuk daftar baku proses bisnis.',pb_layanan:'Merujuk daftar baku layanan.',pb_aplikasi:'Merujuk daftar aplikasi pendukung proses.',
+  pb_exec:'Memberi pimpinan gambaran cepat kematangan proses bisnis.',pb_ringkasan:'Memahami cakupan peta proses bisnis secara menyeluruh.',pb_tree:'Menelusuri hierarki proses dari domain hingga sub-proses.',pb_heatmap:'Membandingkan intensitas proses bisnis antar unit.',pb_tematik:'Menemukan proses yang terkait tema kebijakan tertentu.',pb_jaringan:'Mengidentifikasi unit yang saling terhubung dalam proses.',pb_profil:'Mendalami satu domain proses bisnis secara utuh.',pb_spbe:'Menilai kematangan digital (SPBE) tiap proses.',pb_gap:'Menemukan proses yang belum tergarap atau tumpang tindih.',pb_monitoring:'Menjaga kelengkapan dan mutu data proses bisnis.',pb_validasi:'Memastikan peta proses bisnis konsisten dan sahih.',pb_level:'Memastikan penjenjangan level proses sudah benar.',
   otkremote:'Mengakses aplikasi unit remote tanpa keluar dari dashboard.',otk:'Memahami susunan organisasi dan posisi tiap unit.',tema:'Melacak sebuah isu di seluruh tugas, fungsi, dan jabatan.',otkcompare:'Menilai kesetaraan tugas dan fungsi dua unit sejenis.',otkanalisis:'Menilai kewajaran jenjang dan rentang kendali unit.',otkhealth:'Menemukan struktur yang terlalu gemuk atau berlapis.',otkoverlap:'Mengidentifikasi fungsi yang beririsan untuk ditata.',otkkaitan:'Membandingkan adopsi kerja dengan beban formal unit.',otkeval:'Menyusun usulan penggabungan atau perampingan unit.',otkorg:'Mengukur kematangan organisasi secara terukur.',otkindeks:'Memprioritaskan unit yang perlu ditata ulang.',otkshare:'Menemukan fungsi yang layak dijadikan layanan bersama.',
   jabkomposisi:'Menilai keseimbangan jabatan struktural dan fungsional.',urjab:'Merujuk uraian jabatan resmi saat menata SDM.',urjabanalisis:'Menilai cakupan dan kerincian uraian tugas jabatan.',urjabkaitan:'Memastikan tiap fungsi organisasi didukung tugas dan sumber daya.',urjabinsight:'Menemukan anomali jabatan untuk ditindaklanjuti.',urjabcompare:'Menilai kemiripan atau perbedaan dua jabatan.',urjabredun:'Menemukan jabatan dengan tugas yang berulang.',jf:'Memetakan jabatan fungsional pengelola keuangan negara.',jfmap:'Mengetahui unit pembina tiap jabatan fungsional.',jffungsi:'Menilai peluang pengalihan struktural ke fungsional.',
   abk:'Mengetahui beban kerja dan kebutuhan pegawai tiap unit.',abkkalibrasi:'Memastikan hasil ABK sesuai norma dan ambang.',abknorma:'Merujuk dasar waktu penghitungan beban kerja.',abkstruktur:'Menilai kesesuaian beban dengan tugas dan fungsi unit.',abkpareto:'Menemukan kegiatan penyumbang beban terbesar.',abksimulasi:'Menguji dampak redistribusi pegawai sebelum diputuskan.',
@@ -2323,7 +2329,7 @@ function renderNav(){
   document.getElementById('nav').innerHTML=h;a11yPrepare(document.getElementById('nav'));}
 const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analytic',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
   struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',katakt:'Katalog Produk ABK',katpeta:'Peta Aktivitas Kantor',katjab:'Katalog Jabatan',katpb:'Katalog Proses Bisnis',katnw:'Katalog Norma Waktu',katunit:'Katalog Unit & Kantor',katsvc:'Katalog Layanan',katapp:'Katalog Aplikasi',katwen:'Katalog Kewenangan',
-  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'List Dataset',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Kompetensi',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
+  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'List Dataset',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',hub_katalog:'Katalog',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Katalog Keahlian',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
   tk:'Ikhtisar Tata Kelola',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   cuti:'Ringkasan Cuti Pegawai',cutitren:'Tren & Musiman Cuti',cutiunit:'Profil Unit',cutiwilayah:'Sebaran Wilayah',cutiutilisasi:'Utilisasi Hak Cuti Tahunan',cutikualitas:'Kepatuhan & Mutu Data',cutidemografi:'Demografi & Gender Cuti',cutipola:'Pola Hari & Kalender Kapasitas',cutisakit:'Kategori Cuti Sakit',cutiprediksi:'Proyeksi Beban Cuti',cutisimulasi:'Simulasi Kebijakan PMK 221',cutitentang:'Tentang Data Cuti',
   kj:'Ikhtisar Kompetensi Jabatan',kjstandar:'Standar Kompetensi Jabatan',kjdetail:'Standar Kompetensi Satu Jabatan',kjksajpt:'KSA Jabatan Pimpinan Tinggi',kjjf:'Standar Kompetensi Jabatan Fungsional',kjrumpun:'Taksonomi Rumpun Jabatan',kjkamus:'Kamus Kompetensi Teknis',kjmansos:'Kamus Manajerial dan Sosial Kultural',kjkeahlian:'Kamus Keahlian',kjcakupan:'Cakupan Standar Jabatan',kjrantai:'Rantai Proses Bisnis ke Kompetensi',kjtaksonomi:'Kesesuaian Taksonomi Rumpun',kjubah:'Perubahan Antar Generasi Standar',kjproyeksi:'Proyeksi Pemenuhan Standar',kjprioritas:'Prioritas Penyusunan Standar',kjtentang:'Tentang Data Kompetensi',
@@ -3757,8 +3763,8 @@ function vOtk(){
     <span class="mini">${fmt(all.length)} unit</span></div>`;
   if(state.otkQ){
     const q=state.otkQ.toLowerCase();
-    const res=all.filter(n=>n.nama.toLowerCase().includes(q)).slice(0,300);
-    h+=`<div class="card tree">`;
+    const res=all.filter(n=>n.nama.toLowerCase().includes(q));
+    h+=`<div class="card tree" data-pgn-ok="1">`;
     res.forEach(n=>{h+=`<div class="trow"><span class="tname link" data-act="otkopen" data-id="${n.id}" title="${esc(n.nama)}">${esc(n.nama)}</span><span class="tmet">${otkTag(n.level)}</span></div>`;});
     return h+(res.length?'':'<div class="empty" style="padding:14px">Tidak ada unit cocok.</div>')+`</div>`;
   }
@@ -7378,7 +7384,7 @@ function render(){
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();if(!_sv)window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabkaitan:vUrjabKaitan,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,katakt:vKatAkt,katpeta:vKatPeta,katjab:vKatJab,katpb:vKatPb,katnw:vKatNw,katunit:vKatUnit,katsvc:vKatSvc,katapp:vKatApp,katwen:vKatWen,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,katakt:vKatAkt,katpeta:vKatPeta,katjab:vKatJab,katpb:vKatPb,katnw:vKatNw,katunit:vKatUnit,katsvc:vKatSvc,katapp:vKatApp,katwen:vKatWen,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,hub_katalog:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     kj:vKj,kjstandar:vKjStandar,kjdetail:vKjDetail,kjksajpt:vKjKsaJpt,kjjf:vKjJf,kjrumpun:vKjRumpun,kjkamus:vKjKamus,kjmansos:vKjMansos,kjkeahlian:vKjKeahlian,kjcakupan:vKjCakupan,kjrantai:vKjRantai,kjtaksonomi:vKjTaksonomi,kjubah:vKjUbah,kjproyeksi:vKjProyeksi,kjprioritas:vKjPrioritas,kjtentang:vKjTentang,
     cuti:vCuti,cutitren:vCutiTren,cutiunit:vCutiUnit,cutiwilayah:vCutiWilayah,cutiutilisasi:vCutiUtilisasi,cutikualitas:vCutiKualitas,cutidemografi:vCutiDemografi,cutipola:vCutiPola,cutisakit:vCutiSakit,cutiprediksi:vCutiPrediksi,cutisimulasi:vCutiSimulasi,cutitentang:vCutiTentang,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
@@ -9871,7 +9877,9 @@ function pgnBlok(root){
   var semua=root.querySelectorAll('*');
   for(var i=0;i<semua.length;i++){
     var p=semua[i];
-    if(p===root||p.closest(PGN_LEWAT))continue;
+    if(p===root)continue;
+    /* wadah bertanda data-pgn-ok memang daftar datar walau kelasnya masuk daftar kecuali */
+    if(!p.hasAttribute('data-pgn-ok')&&p.closest(PGN_LEWAT))continue;
     var c=p.children;
     if(c.length<=PGN_N)continue;
     /* deret bersambung terpanjang yang anaknya sekelas */
