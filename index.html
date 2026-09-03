@@ -537,6 +537,22 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 .gt-axis span{text-align:left;padding-bottom:3px;border-left:1px solid var(--line);padding-left:3px}
 
 /* -- bilah kemajuan global -- */
+#muatPanel{position:fixed;right:18px;bottom:18px;z-index:320;width:330px;max-width:calc(100vw - 36px);background:var(--surface);border:1px solid var(--line);border-radius:var(--rad-lg);box-shadow:var(--sh-lg);padding:13px 15px;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s,transform .2s}
+#muatPanel.on{opacity:1;transform:none}
+#muatPanel .mp-judul{font-weight:700;color:var(--ink);margin-bottom:8px}
+#muatPanel .mp-bar{height:6px;border-radius:3px;background:var(--track);overflow:hidden}
+#muatPanel .mp-isi{height:100%;background:var(--brand);border-radius:3px;transition:width .25s}
+/* Fase server: lebar tak diketahui, jadi garisnya berjalan supaya jelas masih hidup. */
+#muatPanel .mp-isi.mp-jalan{width:38%;animation:mpJalan 1.15s ease-in-out infinite}
+@keyframes mpJalan{0%{margin-left:-38%}100%{margin-left:100%}}
+#muatPanel .mp-baris{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px}
+#muatPanel .mp-fase{font-size:var(--fs-xs);color:var(--muted);margin-right:8px}
+#muatPanel .mp-fase.done{color:var(--st-good)}
+#muatPanel .mp-fase.on{color:var(--brand);font-weight:700}
+#muatPanel .mp-dtk{font-size:var(--fs-xs);color:var(--muted);font-variant-numeric:tabular-nums}
+#muatPanel .mp-ket{font-size:var(--fs-xs);color:var(--muted);margin-top:5px;line-height:1.45}
+@media print{#muatPanel{display:none!important}}
+@media(max-width:560px){#muatPanel{left:12px;right:12px;width:auto;bottom:12px}}
 #nprog{position:fixed;top:0;left:0;right:0;height:3px;z-index:300;pointer-events:none;opacity:0;transition:opacity .3s}
 #nprog.on{opacity:1}
 #nprogBar{height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--gold));
@@ -1029,15 +1045,15 @@ function _urjabExp(d){
     }
   });
   d._exp=1;return d;}
-async function loadUrjab(){if(URJAB)return URJAB;if(REMOTE){URJAB=_urjabExp(await api('urjab',{}));return URJAB;}const r=await fetch(URJAB_URL);URJAB=_urjabExp(await r.json());return URJAB;}
+async function loadUrjab(){if(URJAB)return URJAB;if(REMOTE){URJAB=_urjabExp(await apiUnduh('urjab',{}));return URJAB;}const r=await fetch(URJAB_URL);URJAB=_urjabExp(await r.json());return URJAB;}
 function ensureUrjab(){if(URJAB||state.urjabLoading)return;state.urjabLoading=true;state.urjabErr=false;progStart();
   loadUrjab().then(()=>{state.urjabLoading=false;progDone();render();}).catch(()=>{state.urjabLoading=false;progDone();state.urjabErr=true;render();});}
 /* Katalog Keahlian (taksonomi resmi, ~944KB) - lazy-load seperti URJAB */
 let KATALOG=null;const KATALOG_URL='';
-async function loadKatalog(){if(KATALOG)return KATALOG;if(REMOTE){KATALOG=await api('katalog',{});return KATALOG;}if(KATALOG_URL){const r=await fetch(KATALOG_URL);KATALOG=await r.json();return KATALOG;}return KATALOG;}
+async function loadKatalog(){if(KATALOG)return KATALOG;if(REMOTE){KATALOG=await apiUnduh('katalog',{});return KATALOG;}if(KATALOG_URL){const r=await fetch(KATALOG_URL);KATALOG=await r.json();return KATALOG;}return KATALOG;}
 /* Analisis Beban Kerja (ABK): sensitif -> LOKAL inline; REMOTE null lalu fetch lewat gerbang saat menu dibuka */
 let ABK=null;const ABK_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?abk=1';
-async function loadAbk(){if(ABK)return ABK;let d=null;if(REMOTE){d=await api('abk',{});}else if(ABK_URL){const r=await fetch(ABK_URL);d=await r.json();}else{return ABK;}
+async function loadAbk(){if(ABK)return ABK;let d=null;if(REMOTE){d=await apiUnduh('abk',{});}else if(ABK_URL){const r=await fetch(ABK_URL);d=await r.json();}else{return ABK;}
   if(!d||!d.eselon1)throw new Error('abk-unavailable');ABK=d;return ABK;}
 function ensureAbk(){if(ABK||state.abkLoading)return;state.abkLoading=true;state.abkErr=false;progStart();
   loadAbk().then(()=>{state.abkLoading=false;progDone();render();}).catch(()=>{state.abkLoading=false;progDone();state.abkErr=true;render();});}
@@ -1054,22 +1070,42 @@ function _bersihEntitas(o){
   if(Array.isArray(o)){for(var i=0;i<o.length;i++)o[i]=_bersihEntitas(o[i]);return o;}
   if(o&&typeof o==='object'){for(var k in o)o[k]=_bersihEntitas(o[k]);return o;}
   return o;}
-async function loadKatref(){if(KATREF)return KATREF;let d=null;if(REMOTE){d=await api('katref',{});}else if(KATREF_URL){const r=await fetch(KATREF_URL);d=await r.json();}else{return KATREF;}
+async function loadKatref(){if(KATREF)return KATREF;let d=null;if(REMOTE){d=await apiUnduh('katref',{});}else if(KATREF_URL){const r=await fetch(KATREF_URL);d=await r.json();}else{return KATREF;}
   if(!d||!d.katalog)throw new Error('katref-unavailable');KATREF=_katrefUniq(_bersihEntitas(d));return KATREF;}
 function ensureKatref(){if(KATREF||state.katrefLoading)return;state.katrefLoading=true;state.katrefErr=false;progStart();
   loadKatref().then(()=>{state.katrefLoading=false;progDone();render();}).catch(()=>{state.katrefLoading=false;progDone();state.katrefErr=true;render();});}
 /* Modul Cuti (domain SDM): agregat cuti pegawai - sensitif, lazy-load via gerbang spt ABK */
 let CUTI=null;const CUTI_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?cuti=1';
-async function loadCuti(){if(CUTI)return CUTI;let d=null;if(REMOTE){d=await api('cuti',{});}else if(CUTI_URL){const r=await fetch(CUTI_URL);d=await r.json();}else{return CUTI;}
+async function loadCuti(){if(CUTI)return CUTI;let d=null;if(REMOTE){d=await apiUnduh('cuti',{});}else if(CUTI_URL){const r=await fetch(CUTI_URL);d=await r.json();}else{return CUTI;}
   if(!d||!d.tahunan)throw new Error('cuti-unavailable');CUTI=d;return CUTI;}
 function ensureCuti(){if(CUTI||state.cutiLoading)return;state.cutiLoading=true;state.cutiErr=false;progStart();
   loadCuti().then(()=>{state.cutiLoading=false;progDone();render();}).catch(()=>{state.cutiLoading=false;progDone();state.cutiErr=true;render();});}
 /* Modul Suksesi & Regenerasi (domain SDM): agregat pejabat Eselon II-IV - lazy-load spt Cuti */
 let SUKSESI=null;const SUKSESI_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?suksesi=1';
-async function loadSuksesi(){if(SUKSESI)return SUKSESI;let d=null;if(REMOTE){d=await api('suksesi',{});}else if(SUKSESI_URL){const r=await fetch(SUKSESI_URL);d=await r.json();}else{return SUKSESI;}
+async function loadSuksesi(){if(SUKSESI)return SUKSESI;let d=null;if(REMOTE){d=await apiUnduh('suksesi',{});}else if(SUKSESI_URL){const r=await fetch(SUKSESI_URL);d=await r.json();}else{return SUKSESI;}
   if(!d||!d.pensiun)throw new Error('suksesi-unavailable');SUKSESI=d;return SUKSESI;}
 function ensureSuksesi(){if(SUKSESI||state.sukLoading)return;state.sukLoading=true;state.sukErr=false;progStart();
   loadSuksesi().then(()=>{state.sukLoading=false;progDone();render();}).catch(()=>{state.sukLoading=false;progDone();state.sukErr=true;render();});}
+/* ===== Data Mekanisme Kerja (tim & pegawai) DITUNDA sampai modulnya dibuka =====
+   Dulu login mengirim SELURUH dashboard_data.json (1,82 MB), padahal Beranda hanya memakai
+   summary + ue1/ue2 + trend (0,004 MB). Sisanya, teams (1,46 MB) & pegawai (0,47 MB), cuma
+   dipakai modul Mekanisme Kerja. Akibatnya login jadi panggilan terberat di sistem: tiap
+   percobaan menahan satu eksekusi Apps Script berdetik-detik, dan saat beberapa orang masuk
+   berbarengan antreannya menumpuk sampai permintaan sepele ikut lambat (terjadi 3 Sep 2026).
+   Sekarang login ringan, dan bagian beratnya diambil di sini saat menu MK dibuka.
+   BACKWARD COMPATIBLE: kalau gerbang masih versi lama dan sudah mengirim teams saat login,
+   MKFULL langsung dianggap siap sehingga tidak ada permintaan tambahan. */
+let MKFULL=false;
+function mkSiap(){return MKFULL||!REMOTE||!!(BASEDATA&&(BASEDATA.teams||[]).length);}
+async function loadMkFull(){
+  if(mkSiap()){MKFULL=true;return true;}
+  const j=await apiUnduh('mkfull',{});
+  if(!j||!j.ok||!j.data)throw new Error('mk-unavailable');
+  BASEDATA=fixNames(j.data);MKYEARS=mkYearsOf(BASEDATA);
+  if(!state.mkYear||MKYEARS.indexOf(state.mkYear)<0)state.mkYear=MKYEARS[MKYEARS.length-1]||'';
+  DATA=yearSlice(BASEDATA,state.mkYear);MKFULL=true;return true;}
+function ensureMkFull(){if(mkSiap()||state.mkLoading)return;state.mkLoading=true;state.mkErr=false;
+  loadMkFull().then(()=>{state.mkLoading=false;render();}).catch(()=>{state.mkLoading=false;state.mkErr=true;render();});}
 /* Modul Kompetensi Jabatan: standar kompetensi (KOMJ) + kamus kompetensi (KOMK).
    KOMK dimuat terpisah dan hanya saat dibutuhkan, sebab isinya teks panjang seluruh level.
    CATATAN NAMA: nama KJ sengaja TIDAK dipakai, sudah terpakai sebagai peubah lokal
@@ -1096,11 +1132,11 @@ function _komjExp(d){
   d._exp=1;return d;}
 let KOMJ=_komjExp(null);const KOMJ_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?kj=1';
 let KOMK=null;const KOMK_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?kjk=1';
-async function loadKomjab(){if(KOMJ)return KOMJ;let d=null;if(REMOTE){d=await api('kj',{});}else if(KOMJ_URL){const r=await fetch(KOMJ_URL);d=await r.json();}else{return KOMJ;}
+async function loadKomjab(){if(KOMJ)return KOMJ;let d=null;if(REMOTE){d=await apiUnduh('kj',{});}else if(KOMJ_URL){const r=await fetch(KOMJ_URL);d=await r.json();}else{return KOMJ;}
   if(!d||!d.jabatan)throw new Error('komjab-unavailable');KOMJ=_komjExp(d);return KOMJ;}
 function ensureKomjab(){if(KOMJ||state.kompLoading)return;state.kompLoading=true;state.kompErr=false;progStart();
   loadKomjab().then(()=>{state.kompLoading=false;progDone();render();}).catch(()=>{state.kompLoading=false;progDone();state.kompErr=true;render();});}
-async function loadKamus(){if(KOMK)return KOMK;let d=null;if(REMOTE){d=await api('kjk',{});}else if(KOMK_URL){const r=await fetch(KOMK_URL);d=await r.json();}else{return KOMK;}
+async function loadKamus(){if(KOMK)return KOMK;let d=null;if(REMOTE){d=await apiUnduh('kjk',{});}else if(KOMK_URL){const r=await fetch(KOMK_URL);d=await r.json();}else{return KOMK;}
   if(!d||!d.komtek)throw new Error('kamuskom-unavailable');KOMK=d;return KOMK;}
 function ensureKamus(){if(KOMK||state.kamLoading)return;state.kamLoading=true;state.kamErr=false;progStart();
   loadKamus().then(()=>{state.kamLoading=false;progDone();render();}).catch(()=>{state.kamLoading=false;progDone();state.kamErr=true;render();});}
@@ -2285,6 +2321,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkNonFlt:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',jfFx:'',jfOpen:{},
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
   kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',kataktQ:'',kataktKlus:'',katpetaUE1:'',kjQ:'',kjUE1:'',kjLvl:'',kpbQ:'',kpbDom:'',kpbLvl:'',katrefLoading:false,katrefErr:false,nwQ:'',nwKlus:'',kuQ:'',kuUE1:'',kuTipe:'',ksQ:'',ksUE1:'',ksDig:'',kaQ:'',kaUE1:'',kwQ:'',kwUnit:'',kwJenis:'',
+  mkLoading:false,mkErr:false,
   sukLoading:false,sukErr:false,sukKaderMode:'gabungan',sukEs2Q:'',sukEs2UE1:'',sukUnitSel:'',sukPirJalur:'semua',
   /* Daftar nominatif: seluruhnya hanya di memori. Password TIDAK PERNAH masuk state. */
   nomTok2:null,nomExp:0,nomRows:null,nomInfo:null,nomTh1:0,nomTh2:0,nomUe1:'',nomEs:'',nomQ:'',
@@ -7409,6 +7446,8 @@ function render(){
   if(/^kat(akt|peta|jab|pb|nw|unit|svc|app|wen)$/.test(state.view)&&!KATREF&&!state.katrefLoading)ensureKatref();
   if(state.view==='katpeta'&&!ABK&&!state.abkLoading)ensureAbk();
   if(state.view==='jabkomposisi'&&!ABK&&!state.abkLoading)ensureAbk();
+  /* Modul Mekanisme Kerja: data tim & pegawai baru diambil di sini, bukan saat login. */
+  if(curMod()==='mk'&&!mkSiap()&&!state.mkLoading)ensureMkFull();
   if(state.view.indexOf('suk')===0&&!SUKSESI&&!state.sukLoading)ensureSuksesi();
   if(state.view.indexOf('cuti')===0&&!CUTI&&!state.cutiLoading)ensureCuti();
   if(state.view.indexOf('kj')===0&&!KOMJ&&!state.kompLoading)ensureKomjab();
@@ -7438,7 +7477,15 @@ function render(){
     suksesi:vSuksesi,sukpensiun:vSukPensiun,sukunit:vSukUnit,sukkritikal:vSukKritikal,sukkader:vSukKader,sukpopulasi:vSukPopulasi,sukes2:vSukEs2,sukinstrumen:vSukInstrumen,suktentang:vSukTentang,
     cuti:vCuti,cutitren:vCutiTren,cutiunit:vCutiUnit,cutiwilayah:vCutiWilayah,cutiutilisasi:vCutiUtilisasi,cutikualitas:vCutiKualitas,cutidemografi:vCutiDemografi,cutipola:vCutiPola,cutisakit:vCutiSakit,cutiprediksi:vCutiPrediksi,cutisimulasi:vCutiSimulasi,cutitentang:vCutiTentang,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
-  viewEl.innerHTML=menuDescBar()+freshBar()+(map[state.view]||(()=>'<div class="empty">-</div>'))()+navPager();
+  /* Penjaga terpusat modul Mekanisme Kerja: selama data tim & pegawai belum tiba, tampilkan
+     kerangka, JANGAN render view dengan data kosong (bisa terbaca sebagai 'nol tim'). Satu
+     tempat di sini jauh lebih aman daripada menambah guard di belasan view MK. */
+  const _mkTunggu = (curMod()==='mk' && !mkSiap());
+  const _isiView = _mkTunggu
+    ? (state.mkErr ? '<div class="empty">Gagal memuat data Mekanisme Kerja. Buka menu ini sekali lagi.</div>'
+                   : skelMemuat('Memuat data tim dan pegawai...'))
+    : (map[state.view]||(()=>'<div class="empty">-</div>'))();
+  viewEl.innerHTML=menuDescBar()+freshBar()+_isiView+navPager();
   remoteHost(state.view==='otkremote');
   jejak(state.view);
   vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);pgnPrepare(viewEl);
@@ -10750,7 +10797,7 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='sukstepup'){
     const pw=_nomVal('nomPw2'); if(!pw){state.nomMsg='Password kedua belum diisi.';render();return;}
     state.nomBusy=true;state.nomMsg='';render();
-    api('stepup',{pw2:pw}).then(j=>{state.nomBusy=false;
+    apiUlang('stepup',{pw2:pw}).then(j=>{state.nomBusy=false;
       if(j&&j.ok){state.nomTok2=j.token2;state.nomExp=Date.now()+((j.ttl||600)*1000);state.nomMsg='';}
       else if(j&&j.perluSet){state.nomSetMode=true;state.nomMsg='Password kedua belum ditetapkan. Tetapkan lebih dulu.';}
       else state.nomMsg=(j&&j.err)||'Verifikasi gagal.';
@@ -10758,10 +10805,16 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='suksetpw2'){
     const lp=_nomVal('nomLoginP'), np=_nomVal('nomNewP2');
     if(!lp||!np){state.nomMsg='Kedua kotak harus diisi.';render();return;}
-    api('setpw2',{loginp:lp,newp2:np}).then(j=>{
+    state.nomBusy=true;state.nomMsg='';render();
+    apiUlang('setpw2',{loginp:lp,newp2:np}).then(j=>{state.nomBusy=false;
       if(j&&j.ok){if(ME)ME.nom_set=true;state.nomSetMode=false;state.nomMsg='Password kedua tersimpan. Silakan buka daftar.';}
       else state.nomMsg=(j&&j.err)||'Gagal menyimpan password kedua.';
-      render();}).catch(()=>{state.nomMsg='Gagal menghubungi gerbang data.';render();});}
+      render();}).catch(()=>{state.nomBusy=false;
+      /* Jangan bilang "gagal" begitu saja: penulisan di server bisa saja SUDAH terjadi
+         meski jawabannya tak sampai. Arahkan pengguna memverifikasi, bukan menebak. */
+      state.nomSetMode=false;
+      state.nomMsg='Gerbang tidak menjawab tepat waktu. Password kedua MUNGKIN sudah tersimpan: coba langsung masukkan password kedua yang tadi Anda ketik pada kotak di atas. Kalau ditolak, tetapkan ulang.';
+      render();});}
   else if(a==='suksetmode'){state.nomSetMode=true;state.nomMsg='';render();}
   else if(a==='suksetbatal'){state.nomSetMode=false;state.nomMsg='';render();}
   else if(a==='sukkunci'){nomLupakan();state.nomMsg='Kunci ditutup.';render();}
@@ -10863,6 +10916,106 @@ async function api(action,params){
     const r=await fetch(APPS_URL,{method:'POST',body:JSON.stringify(body)});return await r.json();}
   return apiLocal(action,params||{});
 }
+/* ==================== PENUNJUK PEMUATAN DATA (3 FASE) ====================
+   PELAJARAN 3 Sep 2026: bar persentase berbasis byte MENYESATKAN untuk gerbang ini.
+   Untuk urjab (13,7 MB) & abk (8,8 MB), sebagian besar waktu habis di SERVER (Apps Script
+   membaca berkas dari Drive lalu mengubahnya jadi teks) sebelum satu byte pun terkirim.
+   Bar byte akan diam di 0% lama lalu meloncat ke 100%: lebih bikin cemas daripada tidak ada.
+   Karena itu penunjuk ini memakai TIGA FASE yang jujur, ditambah detik berjalan dan
+   perkiraan lama wajar. Perkiraan byte memakai ukuran MENTAH (bukan gzip), sebab pembaca
+   aliran memberi byte yang sudah dinyahmampatkan. */
+const MUAT_INFO={
+  urjab  :{lab:'Analisis Jabatan',      byte:13710000, detik:[8,25]},
+  abk    :{lab:'Analisis Beban Kerja',  byte: 8830000, detik:[6,20]},
+  katref :{lab:'Katalog',               byte: 6940000, detik:[5,18]},
+  kjk    :{lab:'Kamus Kompetensi',      byte: 2680000, detik:[3,12]},
+  kj     :{lab:'Kompetensi Jabatan',    byte: 2130000, detik:[3,12]},
+  otk    :{lab:'Struktur Organisasi',   byte: 1990000, detik:[3,12]},
+  mkfull :{lab:'Mekanisme Kerja',       byte: 1820000, detik:[3,12]},
+  tk     :{lab:'Tata Kelola',           byte: 1110000, detik:[2,8]},
+  katalog:{lab:'Katalog Keahlian',      byte:  970000, detik:[2,8]},
+  pw     :{lab:'Pelimpahan Wewenang',   byte:  580000, detik:[2,8]},
+  mofin  :{lab:'Kapabilitas Kelembagaan',byte: 680000, detik:[2,8]},
+  cuti   :{lab:'Analitik Cuti',         byte:  180000, detik:[2,6]},
+  suksesi:{lab:'Suksesi & Regenerasi',  byte:   80000, detik:[2,6]}
+};
+let MUAT={aktif:false,lab:'',fase:'',mulai:0,byte:0,perkiraan:0,rentang:null,_t:null};
+function _mb(n){return (n/1048576).toFixed(1).replace('.',',');}
+function muatMulai(kode){
+  const i=MUAT_INFO[kode]||{lab:'Data',byte:0,detik:[2,10]};
+  MUAT={aktif:true,lab:i.lab,fase:'server',mulai:Date.now(),byte:0,perkiraan:i.byte,rentang:i.detik,_t:null};
+  progStart();
+  MUAT._t=setInterval(muatGambar,250);
+  muatGambar();
+}
+function muatFase(f){if(MUAT.aktif){MUAT.fase=f;muatGambar();}}
+function muatByte(n){if(MUAT.aktif){MUAT.byte=n;if(MUAT.fase==='server')MUAT.fase='unduh';}}
+function muatSelesai(){
+  if(MUAT._t)clearInterval(MUAT._t);
+  MUAT.aktif=false;progDone();
+  const el=document.getElementById('muatPanel');if(el)el.classList.remove('on');
+}
+function muatGambar(){
+  let el=document.getElementById('muatPanel');
+  if(!el){el=document.createElement('div');el.id='muatPanel';document.body.appendChild(el);}
+  if(!MUAT.aktif){el.classList.remove('on');return;}
+  const dtk=Math.max(0,Math.round((Date.now()-MUAT.mulai)/1000));
+  const [lo,hi]=MUAT.rentang||[2,10];
+  let pct=null, ket='';
+  if(MUAT.fase==='server'){
+    ket='Menyiapkan data di server. Tahap ini yang paling lama karena berkasnya besar.';
+  }else if(MUAT.fase==='unduh'){
+    pct=MUAT.perkiraan?Math.min(99,Math.round(100*MUAT.byte/MUAT.perkiraan)):null;
+    ket='Mengunduh '+_mb(MUAT.byte)+' MB'+(MUAT.perkiraan?(' dari sekitar '+_mb(MUAT.perkiraan)+' MB'):'')+'.';
+  }else{ pct=100; ket='Menyusun tampilan.'; }
+  const lambat = dtk > hi;
+  el.innerHTML =
+    '<div class="mp-judul">Memuat '+esc(MUAT.lab)+'</div>'+
+    '<div class="mp-bar"><div class="mp-isi'+(pct==null?' mp-jalan':'')+'"'+(pct==null?'':' style="width:'+pct+'%"')+'></div></div>'+
+    '<div class="mp-baris"><span>'+
+      ['server','unduh','susun'].map(function(f,i){
+        const aktif=MUAT.fase===f, lewat=['server','unduh','susun'].indexOf(MUAT.fase)>i;
+        return '<span class="mp-fase'+(aktif?' on':'')+(lewat?' done':'')+'">'+
+               ['1 Server','2 Unduh','3 Susun'][i]+'</span>';}).join('')+
+    '</span><span class="mp-dtk">'+dtk+' dtk</span></div>'+
+    '<div class="mp-ket">'+esc(ket)+'</div>'+
+    '<div class="mp-ket">'+(lambat
+      ? 'Lebih lama dari biasanya (normalnya '+lo+' sampai '+hi+' detik). Tetap ditunggu, jangan tutup halaman atau klik menunya berulang kali.'
+      : 'Biasanya selesai dalam '+lo+' sampai '+hi+' detik.')+'</div>';
+  el.classList.add('on');
+}
+/* Ambil data lewat gerbang SAMBIL melaporkan byte yang sudah tiba. Kalau peramban tidak
+   mendukung pembacaan aliran, jatuh kembali ke cara biasa tanpa laporan byte. */
+async function apiUnduh(action,params){
+  muatMulai(action);
+  try{
+    if(!REMOTE){ const j=await apiLocal(action,params||{}); muatFase('susun'); return j; }
+    const body=Object.assign({action:action,token:TOKEN},params||{});
+    const r=await fetch(APPS_URL,{method:'POST',body:JSON.stringify(body)});
+    if(!r.body||!r.body.getReader){ muatFase('susun'); return await r.json(); }
+    const rd=r.body.getReader(), dec=new TextDecoder(), bag=[]; let n=0;
+    for(;;){ const {done,value}=await rd.read(); if(done)break;
+      n+=value.length; muatByte(n); bag.push(dec.decode(value,{stream:true})); }
+    bag.push(dec.decode());
+    muatFase('susun');
+    return JSON.parse(bag.join(''));
+  } finally { muatSelesai(); }
+}
+/* Gerbang Apps Script bisa lambat atau putus (cold start, antrean, kuota). Untuk aksi yang
+   IDEMPOTEN (menulis nilai sama berulang kali hasilnya sama), coba ulang beberapa kali.
+   ALASANNYA NYATA (3 Sep 2026): _setpw2 SUDAH menulis phash2 di server, tapi jawabannya tidak
+   sampai ke peramban, sehingga layar melaporkan "gagal" padahal password kedua tersimpan.
+   Pengguna lalu tidak tahu password kedua mana yang berlaku. Jangan pakai ini untuk aksi
+   yang TIDAK idempoten. */
+async function apiUlang(action,params,n){
+  n=n||3; let err=null;
+  for(let i=0;i<n;i++){
+    if(i)await new Promise(r=>setTimeout(r,800*i));
+    try{ const j=await api(action,params); if(j)return j; }catch(e){ err=e; }
+  }
+  if(err)throw err;
+  return null;
+}
 /* ============ Telemetri pemanfaatan (pasangan _jejak/_statistik di Code.gs) ============
    Yang dikirim HANYA id menu. Tidak ada isi data, tidak ada kata kunci pencarian, tidak ada NIP.
    Dikirim BERKELOMPOK (bukan per klik) supaya tidak membebani kuota Apps Script & jaringan.
@@ -10925,13 +11078,17 @@ function closeModal(){if(document.getElementById('modal').dataset.forced==='1')r
 /* ganti password */
 function openChangePw(forced){
   openModal(`<div style="font-size:var(--fs-lg);font-weight:800;color:var(--brand-d)">Ganti Password</div>
-  <div class="mini" style="margin:5px 0 12px">${forced?'Password Anda masih default. Wajib diganti sebelum melanjutkan.':'Masukkan password lama lalu password baru.'}</div>
+  <div class="mini" style="margin:5px 0 4px">${forced?'Password Anda masih default. Wajib diganti sebelum melanjutkan.':'Masukkan password lama lalu password baru.'}</div>
+  <div class="mini" style="margin:0 0 12px"><b>Akun: ${esc((ME&&ME.u)||'-')}</b>. Password lama yang diminta adalah milik akun ini, bukan akun lain.</div>
   <div id="cpErr" class="lerr" style="display:none"></div>
-  <input id="cpOld" class="fld" type="password" placeholder="Password lama">
-  <input id="cpNew" class="fld" type="password" placeholder="Password baru (min. 8 karakter)">
-  <input id="cpNew2" class="fld" type="password" placeholder="Ulangi password baru">
+  <input id="cpOld" class="fld" type="password" placeholder="Password lama" autocomplete="current-password">
+  <input id="cpNew" class="fld" type="password" placeholder="Password baru (min. 8 karakter)" autocomplete="new-password">
+  <input id="cpNew2" class="fld" type="password" placeholder="Ulangi password baru" autocomplete="new-password">
   <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">${forced?'':'<button class="btn2" data-act="closeModal">Batal</button>'}<button class="btn" data-act="cpSave">Simpan</button></div>`);
   document.getElementById('modal').dataset.forced=forced?'1':'';
+  var _kosongkan=function(){['cpOld','cpNew','cpNew2'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});};
+  _kosongkan(); setTimeout(_kosongkan,120); setTimeout(_kosongkan,400);
+  setTimeout(function(){var el=document.getElementById('cpOld');if(el)el.focus();},420);
 }
 async function doChangePw(){
   const o=document.getElementById('cpOld').value,n=document.getElementById('cpNew').value,n2=document.getElementById('cpNew2').value;
@@ -10940,7 +11097,11 @@ async function doChangePw(){
   if(n!==n2)return show('Konfirmasi password tidak cocok.');
   if(n===o)return show('Password baru harus berbeda dari yang lama.');
   const j=await api('changepw',{oldp:o,newp:n});
-  if(!j||!j.ok)return show((j&&j.err)||'Gagal mengganti password.');
+  if(!j||!j.ok){
+    var m=(j&&j.err)||'Gagal mengganti password.';
+    if(/lama salah/i.test(m)) m+=' Anda sedang masuk sebagai "'+((ME&&ME.u)||'-')+'", jadi yang diminta adalah password akun itu.';
+    return show(m);
+  }
   ME.must_change=false;document.getElementById('modal').dataset.forced='';closeModal();alert('Password berhasil diganti.');
 }
 /* manajemen user (admin) */
