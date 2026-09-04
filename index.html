@@ -721,6 +721,18 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 .pgtab.on{background:var(--brand);color:#fff}
 .pgtab:not(.on):hover{color:var(--brand)}
 /* Subjudul fungsi menu (in-context) + halaman Panduan Navigasi */
+/* JUDUL HALAMAN / MODUL - SENGAJA BUKAN KARTU (4 Sep 2026, permintaan Donny).
+   Dulu nama domain & nama modul dibungkus .card, sehingga terbaca setara dengan kartu isi
+   di bawahnya dan identitas halaman jadi tenggelam. Sekarang judul berdiri sendiri: tanpa
+   latar, tanpa bingkai, warnanya beda dari teks isi, dan diberi aksen kiri sebagai penanda.
+   JANGAN membungkusnya kembali dengan .card. */
+.pghead{margin:0 0 var(--sp-8);padding:0 0 var(--sp-5) var(--sp-6);border-left:3px solid var(--brand);border-bottom:1px solid var(--line)}
+.pghead h1,.pghead .pgt{margin:0 0 var(--sp-2);font-size:var(--fs-xl);font-weight:800;line-height:1.2;color:var(--brand-d);letter-spacing:-.01em}
+.pghead .pgd{margin:0;font-size:var(--fs-sm);color:var(--muted);line-height:1.5;max-width:900px}
+.pghead .pgd p{margin:0 0 var(--sp-3)}
+.pghead .pgd p:last-child{margin-bottom:0}
+.pghead .pgm{margin-top:var(--sp-3);font-size:var(--fs-mini);color:var(--ink-cap)}
+@media(max-width:560px){.pghead{padding-left:var(--sp-5)}.pghead h1,.pghead .pgt{font-size:var(--fs-lg)}}
 .menudesc{font-size:var(--fs-sm);color:var(--muted);margin:-2px 0 var(--sp-6);line-height:1.45;max-width:840px}
 /* Aksi per-menu (unduh Excel & cetak): di baris judul (subbar), bukan di appbar dan bukan
    memakan satu baris sendiri di dalam view - supaya ruang view penuh untuk informasi. */
@@ -3536,6 +3548,14 @@ function _berandaTabs(active){
 }
 /* Subjudul fungsi menu (in-context), tepat di bawah judul tiap view. Sumber = MENUKET.
    Disembunyikan utk halaman ikhtisar/hub/detail/iframe yg tak butuh keterangan menu. */
+/* Satu pintu untuk judul halaman/modul supaya bentuknya seragam di seluruh dashboard.
+   isi = boleh berisi beberapa <p>. Dipakai menggantikan pola lama:
+   '<div class="card"><h2>Judul</h2><p>...</p></div>' */
+function pgHead(judul,isi,kaki){
+  return '<div class="pghead"><div class="pgt">'+esc(judul)+'</div>'+
+         (isi?('<div class="pgd">'+isi+'</div>'):'')+
+         (kaki?('<div class="pgm">'+kaki+'</div>'):'')+'</div>';
+}
 function menuDescBar(){
   var v=state.view;
   if(v==='beranda'||v==='profil'||v==='profilunit'||v==='panduan'||v.indexOf('hub_')===0||v.indexOf('pb_')===0||v==='otkremote')return '';
@@ -6955,8 +6975,7 @@ addEventListener('resize',function(){if(state.view==='otkremote')remoteFit();});
 function vDomainHub(){
   const dom=(state.view.indexOf('hub_')===0)?state.view.slice(4):'organisasi';
   const mods=MODULES.filter(m=>m.id!=='beranda'&&domOf(m.id)===dom&&canMod(m.id));
-  let h='<div class="card"><h2 style="margin:0 0 3px">'+esc(domLab(dom))+'</h2>'+
-    '<p class="sub" style="margin:0">'+esc(DOMDESC[dom]||'')+'</p></div>';
+  let h=pgHead(domLab(dom), '<p>'+esc(DOMDESC[dom]||'')+'</p>');
   h+='<div class="hubgrid">';
   mods.forEach(function(m){
     const n=(m.groups||[]).reduce((s,g)=>s+g.items.filter(i=>featOK(i.v)).length,0);
@@ -8746,7 +8765,9 @@ function vCuti(){
   const T=CUTI.tahunan, thn=cutiThn(), J=CUTI.meta.jenis;
   const totR=cutiSumF(T,'rekaman'), totH=cutiSumF(T,'hari');
   const perJ={};J.forEach(j=>{const r=T.filter(x=>x.jenis===j);perJ[j]={rekaman:cutiSumF(r,'rekaman'),hari:cutiSumF(r,'hari')};});
-  let h='<div class="card"><h2 class="sec" style="margin-top:0">Apa yang Disajikan Modul Ini</h2><p style="margin:0">Modul ini membaca seluruh catatan pengajuan cuti pegawai di HRIS untuk menjawab pertanyaan sehari-hari pengelola SDM: berapa banyak cuti diajukan, kapan menumpuk, unit mana yang tertinggi, siapa yang mengajukan, dan apa alasannya.</p><p style="margin:0">Dari potret itu modul melangkah lebih jauh: menelusuri mengapa polanya demikian (Tren dan Kategori Cuti Sakit), memperkirakan beban ke depan (Proyeksi), lalu membantu mengambil tindakan (Kalender Kapasitas, Utilisasi Hak Cuti, dan Simulasi PMK 221).</p></div>'+
+  let h=pgHead('Analitik Cuti Pegawai',
+    '<p>Modul ini membaca seluruh catatan pengajuan cuti pegawai di HRIS untuk menjawab pertanyaan sehari-hari pengelola SDM: berapa banyak cuti diajukan, kapan menumpuk, unit mana yang tertinggi, siapa yang mengajukan, dan apa alasannya.</p>'+
+    '<p>Dari potret itu modul melangkah lebih jauh: menelusuri mengapa polanya demikian (Tren dan Kategori Cuti Sakit), memperkirakan beban ke depan (Proyeksi), lalu membantu mengambil tindakan (Kalender Kapasitas, Utilisasi Hak Cuti, dan Simulasi PMK 221).</p>')+
     cutiCakupan();
   /* sorotan pimpinan: satu kalimat kesimpulan + pintu masuk analisis */
   const _s20=T.find(x=>x.jenis==='Cuti Sakit'&&x.tahun===2020)||{rekaman:0};
@@ -9263,10 +9284,10 @@ function vSuksesi(){
                 (SUKSESI.populasi.perUnit||[])[0]||{};
   const kritTop=(SUKSESI.kritikal||[]).filter(function(x){return x.n>=MINJAB;})[0]||
                 (SUKSESI.kritikal||[])[0]||{};
-  let h='<div class="card"><h2 class="sec" style="margin-top:0">Apa yang Dijawab Modul Ini</h2>'+
-    '<p style="margin:0">Modul ini menjawab satu pertanyaan yang sederhana tetapi jarang terhitung: berapa banyak kursi kepemimpinan yang akan kosong, kapan kosongnya, di unit mana, dan apakah ada calon penggantinya. Dasarnya populasi '+
+  let h=pgHead('Suksesi & Regenerasi Kepemimpinan',
+    '<p>Modul ini menjawab satu pertanyaan yang sederhana tetapi jarang terhitung: berapa banyak kursi kepemimpinan yang akan kosong, kapan kosongnya, di unit mana, dan apakah ada calon penggantinya. Dasarnya populasi '+
     fmt(tot)+' pejabat struktural dan fungsional setara Eselon II sampai IV posisi '+esc(M.posisiData)+'.</p>'+
-    '<p style="margin:0">Dari potret itu modul melangkah ke diagnosa: jabatan pimpinan mana yang paling terekspos, unit mana yang kolam kadernya dangkal, dan rubrik apa yang bisa dipakai menilai kesiapan calon. Seluruh angka bersifat agregat pada level unit dan jabatan, tanpa identitas pegawai.</p></div>';
+    '<p>Dari potret itu modul melangkah ke diagnosa: jabatan pimpinan mana yang paling terekspos, unit mana yang kolam kadernya dangkal, dan rubrik apa yang bisa dipakai menilai kesiapan calon. Seluruh angka bersifat agregat pada level unit dan jabatan, tanpa identitas pegawai.</p>');
   h+=sorotanCard('Sorotan',
     '<b>Hampir sepertiga kursi pejabat berganti dalam lima tahun.</b> Sebanyak '+fmt(L.total)+' dari '+fmt(tot)+
     ' pejabat, atau '+sukNum(L.pct)+' persen, mencapai batas usia pensiun sampai akhir '+bt+
@@ -9581,9 +9602,9 @@ function vSukNominatif(){
   if(!(ME&&ME.nom))return '<div class="empty">Akun Anda tidak diberi akses daftar nominatif. Hubungi admin bila memang diperlukan untuk tugas Anda.</div>';
   const g=sukGuard();if(g)return g;
 
-  let h='<div class="card"><h2 class="sec" style="margin-top:0">Daftar Pejabat yang Akan Pensiun</h2>'+
-    '<p style="margin:0">Halaman ini memulangkan nama, jabatan, unit, dan tanggal pensiun pejabat pada periode yang Anda pilih. Gunakan untuk menyusun rencana pengisian jabatan dan usulan mutasi.</p>'+
-    '<p style="margin:0">Karena memuat data pribadi, halaman ini dijaga berlapis dua: selain sudah masuk dengan akun Anda, diperlukan token akses yang diberikan pengelola dashboard. Penyaringan dilakukan di server, sehingga yang terkirim hanya baris pada periode yang diminta.</p></div>';
+  let h=pgHead('Daftar Pejabat yang Akan Pensiun',
+    '<p>Halaman ini memulangkan nama, jabatan, unit, dan tanggal pensiun pejabat pada periode yang Anda pilih. Gunakan untuk menyusun rencana pengisian jabatan dan usulan mutasi.</p>'+
+    '<p>Karena memuat data pribadi, halaman ini dijaga berlapis dua: selain sudah masuk dengan akun Anda, diperlukan token akses yang diberikan pengelola dashboard. Penyaringan dilakukan di server, sehingga yang terkirim hanya baris pada periode yang diminta.</p>');
   h+='<div class="note-box warn"><b>Setiap pembukaan dicatat.</b> Waktu, nama pengguna, periode yang diminta, dan jumlah baris yang keluar tersimpan pada jejak sistem. Permintaan menampilkan NIP secara penuh dicatat tersendiri. Data yang tampil tidak disimpan di peramban dan hilang begitu Anda keluar.</div>';
 
   /* Panel pemasangan sandi kedua per pengguna DIHAPUS (3 Sep 2026, keputusan Donny):
@@ -10144,10 +10165,8 @@ function vPelCari(){
 function vPelTentang(){
   if(!pwReady())return '<div class="empty">Data Pelimpahan Wewenang belum dimuat.</div>';
   var m=PW.meta;
-  var h='<div class="card"><h2 style="margin:0 0 4px">'+esc(m.judul)+'</h2>'
-    +'<div class="mini">'+esc(m.dasar_hukum)+'</div>'
-    +'<p style="margin:10px 0">'+esc(m.ringkas)+'</p>'
-    +'<div class="mini">Pedoman penetapan: '+esc(m.pedoman)+'.<br>Ditetapkan oleh: '+esc(m.penandatangan)+'.</div></div>';
+  var h=pgHead(m.judul, '<p>'+esc(m.ringkas)+'</p>',
+    esc(m.dasar_hukum)+'<br>Pedoman penetapan: '+esc(m.pedoman)+'. Ditetapkan oleh: '+esc(m.penandatangan)+'.');
   h+='<h2 class="sec">Ketentuan Pokok</h2><div class="card"><ul style="margin:0;padding-left:18px">'
     +m.ketentuan_pokok.map(function(x){return '<li style="margin:5px 0">'+esc(x)+'</li>';}).join('')+'</ul></div>';
   h+='<h2 class="sec">Peraturan yang Dicabut ('+m.mencabut.length+')</h2><div class="card">'
