@@ -2170,6 +2170,7 @@ const MENUOBJ={
    Ditampilkan di Panduan sbg baris "Tab:" dan ikut jadi kata kunci pencarian, supaya
    menu yang "hilang" dari sidebar tetap ketemu (mis. cari "Kategori Tim" atau "Mapping"). */
 const MENUTAB={
+  pelanalisis:['Konsentrasi','Kedalaman Delegasi','Karakter Wewenang','Beban Tanda Tangan'],
   beranda:['Beranda','Profil Eselon I','Panduan Navigasi'],
   profil:['Beranda','Profil Eselon I','Panduan Navigasi'],
   panduan:['Beranda','Profil Eselon I','Panduan Navigasi'],
@@ -2339,6 +2340,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkNonFlt:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',jfFx:'',jfOpen:{},
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
   kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',kataktQ:'',kataktKlus:'',katpetaUE1:'',kjQ:'',kjUE1:'',kjLvl:'',kpbQ:'',kpbDom:'',kpbLvl:'',katrefLoading:false,katrefErr:false,nwQ:'',nwKlus:'',kuQ:'',kuUE1:'',kuTipe:'',ksQ:'',ksUE1:'',ksDig:'',kaQ:'',kaUE1:'',kwQ:'',kwUnit:'',kwJenis:'',
+  pwAnTab:'konsentrasi',
   mkLoading:false,mkErr:false,
   sukLoading:false,sukErr:false,sukKaderMode:'gabungan',sukEs2Q:'',sukEs2UE1:'',sukUnitSel:'',sukPirJalur:'semua',
   /* Daftar nominatif: seluruhnya hanya di memori. Password TIDAK PERNAH masuk state. */
@@ -5450,7 +5452,40 @@ function vKatWen(){
 
 /* Ekspor PENUH utk view berdaftar panjang: Unduh Excel/PDF memakai seluruh data (sesuai filter aktif),
    bukan tabel layar yang dipenggal 300 baris. Dipanggil _ambilTabelView. */
+/* Halaman yang dipecah jadi tab hanya menaruh SATU tab di layar, sehingga Unduh Excel/PDF
+   yang membaca tabel di layar cuma menangkap tab aktif. Helper ini merender tiap tab ke wadah
+   sementara di luar layar, memanen tabelnya, lalu mengembalikan keadaan tab seperti semula.
+   Judul tiap tabel diberi awalan nama tab supaya lembarnya tidak tertukar. */
+function _tabelSemuaTab(kunciState, daftarTab, fnView, label){
+  var simpan=state[kunciState], hasil=[];
+  var wadah=document.createElement('div');
+  wadah.style.cssText='position:absolute;left:-99999px;top:0;width:1200px';
+  document.body.appendChild(wadah);
+  try{
+    daftarTab.forEach(function(tab,i){
+      state[kunciState]=tab;
+      wadah.innerHTML=fnView();
+      [].slice.call(wadah.querySelectorAll('table')).forEach(function(tb){
+        var head=[],rows=[];
+        var hr=tb.querySelector('thead tr');
+        if(hr)head=[].slice.call(hr.children).map(function(e){return String(e.textContent||'').replace(/\s+/g,' ').trim();});
+        [].slice.call(tb.querySelectorAll('tbody tr')).forEach(function(tr){
+          var sel=[].slice.call(tr.children);
+          if(sel.length<2)return;
+          rows.push(sel.map(function(e){return String(e.textContent||'').replace(/\s+/g,' ').trim();}));
+        });
+        if(rows.length)hasil.push({judul:((label&&label[i])||tab)+' - tabel '+(hasil.length+1),head:head,rows:rows});
+      });
+    });
+  }catch(e){}
+  state[kunciState]=simpan;
+  wadah.remove();
+  return hasil;
+}
 const _EXPORT_FULL={
+  /* Halaman bertab: kumpulkan tabel dari SELURUH tab, bukan cuma yang sedang terlihat. */
+  pelanalisis:function(){return _tabelSemuaTab('pwAnTab',['konsentrasi','kedalaman','karakter','beban'],vPelAnalisis,
+    ['Konsentrasi','Kedalaman Delegasi','Karakter Wewenang','Beban Tanda Tangan']);},
   katjab:function(){const KJ=KATREF&&KATREF.katjab;if(!KJ)return null;
     const q=(state.kjQ||'').toLowerCase().trim();let rows=KJ.jabatan;
     if(state.kjUE1)rows=rows.filter(x=>x.uk===state.kjUE1);
@@ -10359,14 +10394,22 @@ function vPelAnalisis(){
     +'</div>';
 
   // 1. KONSENTRASI
-  h+='<h2 class="sec">1. Konsentrasi Kewenangan</h2><div class="card">';
+
+  /* Halaman ini dipecah per tema supaya tidak jadi gulungan panjang.
+     Ringkasan di atas sengaja TETAP tampil di semua tab: itu konteks, bukan tema. */
+  var _tab=state.pwAnTab||'konsentrasi';
+  h+='<div class="pgtabs">'+'<button class="pgtab'+(_tab==='konsentrasi'?' on':'')+'" data-act="pwantab" data-tab="konsentrasi">Konsentrasi</button>'+'<button class="pgtab'+(_tab==='kedalaman'?' on':'')+'" data-act="pwantab" data-tab="kedalaman">Kedalaman Delegasi</button>'+'<button class="pgtab'+(_tab==='karakter'?' on':'')+'" data-act="pwantab" data-tab="karakter">Karakter Wewenang</button>'+'<button class="pgtab'+(_tab==='beban'?' on':'')+'" data-act="pwantab" data-tab="beban">Beban Tanda Tangan</button>'+'</div>';
+  if(_tab==='konsentrasi'){
+h+='<h2 class="sec">1. Konsentrasi Kewenangan</h2><div class="card">';
   h+='<div class="mini" style="margin-bottom:8px">8 jabatan teratas memegang <b>'+A.konsentrasi_kum.share_top8+'%</b> dari '+A.konsentrasi_kum.total+' butir (dari '+A.konsentrasi_kum.n_jabatan+' jabatan penerima). Titik konsentrasi = kandidat bottleneck keputusan.</div>';
   var mx=A.konsentrasi[0].butir;
   A.konsentrasi.slice(0,12).forEach(function(x){h+=bar(x.unit+' · '+x.jabatan,x.butir,mx,(x.butir>=40?'':(x.butir<6?'':'')),x.butir+' butir');});
   h+='</div>';
 
   // 2. KEDALAMAN DELEGASI
-  h+='<h2 class="sec">2. Kedalaman Delegasi</h2><div class="card">';
+  }
+  if(_tab==='kedalaman'){
+h+='<h2 class="sec">2. Kedalaman Delegasi</h2><div class="card">';
   h+='<div class="mini" style="margin-bottom:10px">Porsi mandat yang ditahan di Dirjen (Eselon I) vs diturunkan ke Eselon II dan bawah/vertikal. Batang penuh di kiri gelap = sentralistik.</div>';
   var dord=['Eselon I','Eselon II','Eselon III/IV','Vertikal/lain'];
   var dcol={'Eselon I':'#123a6b','Eselon II':'#2f6fb0','Eselon III/IV':'#7aa7d4','Vertikal/lain':'#b9c4d4'};
@@ -10383,7 +10426,9 @@ function vPelAnalisis(){
   h+='</div>';
 
   // 3. PROFIL KARAKTER
-  h+='<h2 class="sec">3. Profil Karakter Wewenang</h2><div class="card">';
+  }
+  if(_tab==='karakter'){
+h+='<h2 class="sec">3. Profil Karakter Wewenang</h2><div class="card">';
   ['Administratif','Penetapan','Regulatif'].forEach(function(s){
     h+=bar(s,S.global[s]||0,totB,'',(S.global[s]||0)+' ('+Math.round(100*(S.global[s]||0)/totB)+'%)');});
   h+='<div class="mini" style="margin:10px 0 4px;font-weight:700;color:var(--muted)">Tekstur Administratif</div>';
@@ -10403,11 +10448,14 @@ function vPelAnalisis(){
   h+='</tbody></table></div></div>';
 
   // 4. BEBAN PENANDATANGANAN
-  h+='<h2 class="sec">4. Beban Penandatanganan</h2><div class="card">';
+  }
+  if(_tab==='beban'){
+h+='<h2 class="sec">4. Beban Penandatanganan</h2><div class="card">';
   h+='<div class="mini" style="margin-bottom:8px">Jabatan dengan beban tanda tangan naskah dinas terbanyak, kandidat untuk pelimpahan lanjutan / penyederhanaan.</div>';
   var mxb=A.beban_ttd.length?A.beban_ttd[0].n:1;
   A.beban_ttd.slice(0,10).forEach(function(x){h+=bar(x.unit+' · '+x.jabatan,x.n,mxb,'',x.n+' butir');});
   h+='</div>';
+  }
   return h;}
 
 /* ==================== PAGINASI TABEL ====================
@@ -10839,6 +10887,7 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='kompnav2'){state.kompNav2=(state.kompNav2===el.dataset.k)?null:el.dataset.k;state.kompNav3=null;render();}
   else if(a==='kompnav3'){state.kompNav3=(state.kompNav3===el.dataset.k)?null:el.dataset.k;render();}
   else if(a==='kompkeurjab'){kompKeUrjab(el.dataset.u,el.dataset.n);}
+  else if(a==='pwantab'){state.pwAnTab=el.dataset.tab;render();}
   else if(a==='sukkadermode'){state.sukKaderMode=el.dataset.m;render();}
   else if(a==='sukstepup'){
     const pw=_nomVal('nomPw2'); if(!pw){state.nomMsg='Token akses belum diisi.';render();return;}
