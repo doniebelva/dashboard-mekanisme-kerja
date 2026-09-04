@@ -2171,6 +2171,12 @@ const MENUOBJ={
    menu yang "hilang" dari sidebar tetap ketemu (mis. cari "Kategori Tim" atau "Mapping"). */
 const MENUTAB={
   pelanalisis:['Konsentrasi','Kedalaman Delegasi','Karakter Wewenang','Beban Tanda Tangan'],
+  otkeval:['Dimensi Evaluasi','Peta Ukuran Struktur','Ringkasan per Eselon I'],
+  tkintegritas:['Perolehan per Tahun','Sebaran per Eselon I','Jejak Naik Kelas','Daftar Perolehan'],
+  kjrumpun:['Peta Luasan','Taksonomi Berlaku','Rancangan Penataan','Yang Dipakai Data'],
+  cutisakit:['Komposisi Kategori','Heatmap per Tahun','Kategori x Usia','Kategori per Unit','Contoh Teks Alasan'],
+  abksimulasi:['Kalibrasi Beban','Usulan per Unit','Usulan per Jabatan','Jenis Paling Efisien','Rekomendasi'],
+  cutiutilisasi:['Pemakaian Hak','Sebaran Pemakaian','Tren per Tahun','Per Unit Eselon I','Cuti Besar'],
   beranda:['Beranda','Profil Eselon I','Panduan Navigasi'],
   profil:['Beranda','Profil Eselon I','Panduan Navigasi'],
   panduan:['Beranda','Profil Eselon I','Panduan Navigasi'],
@@ -2340,7 +2346,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   otkMode:'pusat',otkVertDJ:'',otkBluSel:'',otkNonSel:'',otkNonFlt:'',otkExpV:{},otkVertSel:null,otkKantorReg:'',otkKantorQ:'',otkPusatUE1:'',bebanYear:'',mkYear:'',katTim:'',katBidang:'',katQ:'',katLoading:false,katErr:false,uKat:'',bebanUE1:'',bebanUE2:'',temaQ:'',temaUE1:'',temaTab:'otk',temaGrp:'',temaKls:'',temaViz:'bar',evUE1:'',evTab:'gabung',evViz:'peta',jfFx:'',jfOpen:{},
   abkTab:'ringkasan',abkUE1:'',abkUnit:null,abkSort:{k:'eu1',d:-1},abkLoading:false,abkErr:false,
   kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',kataktQ:'',kataktKlus:'',katpetaUE1:'',kjQ:'',kjUE1:'',kjLvl:'',kpbQ:'',kpbDom:'',kpbLvl:'',katrefLoading:false,katrefErr:false,nwQ:'',nwKlus:'',kuQ:'',kuUE1:'',kuTipe:'',ksQ:'',ksUE1:'',ksDig:'',kaQ:'',kaUE1:'',kwQ:'',kwUnit:'',kwJenis:'',
-  pwAnTab:'konsentrasi',
+  pwAnTab:'konsentrasi',otkEvTab:'dimensi',tkIntTab:'tahun',kjRumTab:'peta',cutiSkTab:'komposisi',abkSimTab:'kalibrasi',cutiUtTab:'pakai',
   mkLoading:false,mkErr:false,
   sukLoading:false,sukErr:false,sukKaderMode:'gabungan',sukEs2Q:'',sukEs2UE1:'',sukUnitSel:'',sukPirJalur:'semua',
   /* Daftar nominatif: seluruhnya hanya di memori. Password TIDAK PERNAH masuk state. */
@@ -5486,6 +5492,12 @@ const _EXPORT_FULL={
   /* Halaman bertab: kumpulkan tabel dari SELURUH tab, bukan cuma yang sedang terlihat. */
   pelanalisis:function(){return _tabelSemuaTab('pwAnTab',['konsentrasi','kedalaman','karakter','beban'],vPelAnalisis,
     ['Konsentrasi','Kedalaman Delegasi','Karakter Wewenang','Beban Tanda Tangan']);},
+  otkeval:function(){return _tabelSemuaTab('otkEvTab',['dimensi','peta','ringkas'],vOtkEval,['Dimensi Evaluasi','Peta Ukuran Struktur','Ringkasan per Eselon I']);},
+  tkintegritas:function(){return _tabelSemuaTab('tkIntTab',['tahun','unit','jejak','daftar'],vTkIntegritas,['Perolehan per Tahun','Sebaran per Eselon I','Jejak Naik Kelas','Daftar Perolehan']);},
+  kjrumpun:function(){return _tabelSemuaTab('kjRumTab',['peta','asis','tobe','dipakai'],vKjRumpun,['Peta Luasan','Taksonomi Berlaku','Rancangan Penataan','Yang Dipakai Data']);},
+  cutisakit:function(){return _tabelSemuaTab('cutiSkTab',['komposisi','heatmap','usia','unit','teks'],vCutiSakit,['Komposisi Kategori','Heatmap per Tahun','Kategori x Usia','Kategori per Unit','Contoh Teks Alasan']);},
+  abksimulasi:function(){return _tabelSemuaTab('abkSimTab',['kalibrasi','unit','jabatan','jenis','rekom'],vAbkSimulasi,['Kalibrasi Beban','Usulan per Unit','Usulan per Jabatan','Jenis Paling Efisien','Rekomendasi']);},
+  cutiutilisasi:function(){return _tabelSemuaTab('cutiUtTab',['pakai','sebaran','tren','unit','besar'],vCutiUtilisasi,['Pemakaian Hak','Sebaran Pemakaian','Tren per Tahun','Per Unit Eselon I','Cuti Besar']);},
   katjab:function(){const KJ=KATREF&&KATREF.katjab;if(!KJ)return null;
     const q=(state.kjQ||'').toLowerCase().trim();let rows=KJ.jabatan;
     if(state.kjUE1)rows=rows.filter(x=>x.uk===state.kjUE1);
@@ -5661,6 +5673,7 @@ function vAbkSimulasi(){
     <div><div class="mini" style="margin-bottom:3px">Fokus Unit (opsional)</div><select class="flt" id="simUnit" style="max-width:340px">${unitopt}</select></div>
     <div><div class="mini" style="margin-bottom:3px">Target pengurangan (orang)</div><input class="flt" id="simTarget" type="number" min="0" value="${target}" style="width:130px;padding:7px 10px"></div>
   </div></div>`;
+  var _pg0=h.length;
   h+=`<div class="card"><h2 class="sec" style="margin-top:0">Kalibrasi Beban Penunjang <span class="mini">(opsional, skenario)</span></h2>
    <div class="mini" style="margin-bottom:8px">Sebagian beban adalah kegiatan penunjang yang bukan output jabatan (rapat, seremonial, diklat) dan rawan klaim berlebih. Tentukan berapa persen tiap kategori dianggap kelebihan klaim atau dapat diefisienkan; Kebutuhan dihitung ulang sehingga unit yang tampak kurang dapat berbalik menjadi lebih. Biarkan 0 untuk menonaktifkan (mis. diklat pada unit pendidikan adalah output, set 0).</div>
    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">
@@ -5680,6 +5693,7 @@ function vAbkSimulasi(){
     : `Dari beban kerja saat ini, hanya <b>${fmt(D.pool)}</b> orang yang dapat diefisiensikan tanpa menambah beban unit. Sisanya <b>${fmt(D.gap)}</b> orang hanya dapat dicapai melalui <b>intervensi</b> (otomasi, perubahan SOP/proses bisnis, atau penyederhanaan struktur). Memangkas ${fmt(D.gap)} orang tanpa intervensi akan membuat unit kelebihan beban.`;
   h+=`<div class="note-box" style="border-left-color:${D.gap>0?'var(--st-critical)':'var(--st-good)'}">${verdict}</div>`;
   if(!state.simUnit){
+  var _pg1=h.length;
     h+=`<div class="card"><h2 class="sec" style="margin-top:0">Usulan Pengurangan per Unit</h2><table><thead><tr><th>Unit</th><th class="num-c">Bezetting</th><th class="num-c">Kebutuhan</th><th class="num-c">Penunjang</th><th class="num-c">Kebutuhan Kalibrasi</th><th class="num-c">Selisih</th><th class="num-c">Usul Kurangi</th><th>Dasar / Pertimbangan</th></tr></thead><tbody>`;
     D.rows.forEach(r=>{const u=r.u;const flip=(r.selOri<0&&r.selCal>0);
       const dasar=D.calOn
@@ -5691,6 +5705,7 @@ function vAbkSimulasi(){
     h+=`</tbody></table><div class="mini" style="margin-top:6px"><b>Hitungan:</b> Kebutuhan = Beban ÷ Jam Kerja Efektif (${fmt(JKE)} jam). Bila Kalibrasi aktif, Kebutuhan dikurangi proporsional terhadap beban penunjang yang diefisienkan. Usul Kurangi = Bezetting - Kebutuhan Kalibrasi (hanya bila positif). Unit yang tetap kurang diarahkan ke redistribusi internal dan intervensi.</div></div>`;
   }else{
     const u=D.units[0]||{};const ured=(D.rows[0]||{}).red||0;
+  var _pg2=h.length;
     h+=`<div class="card"><h2 class="sec" style="margin-top:0">Usulan Pengurangan per Jabatan</h2><div class="mini" style="margin-bottom:6px">Kelebihan unit ini${D.calOn?' (setelah kalibrasi)':''}: <b>${fmt(ured)}</b> orang (Bezetting ${fmt(u.ada||0)} - Kebutuhan ${fmt(D.calOn?(D.rows[0]||{}).butuhCal:(u.butuh||0))}). Pengurangan diambil dari jabatan yang kelebihan kapasitas.</div>`;
     if(!D.jabAlloc.length){h+=`<div class="mini">${ured>0?'Tidak ada jabatan yang dapat dialokasikan.':'Unit ini tidak memiliki kelebihan (bezetting ≤ kebutuhan); pengurangan justru menambah beban. Fokuskan pada redistribusi internal dan intervensi.'}</div></div>`;}
     else{h+=`<table><thead><tr><th>Jabatan</th><th class="num-c">Bezetting</th><th class="num-c">Kebutuhan</th><th class="num-c">Usul Kurangi</th><th class="num-c">EJ.1</th></tr></thead><tbody>`;
@@ -5698,6 +5713,7 @@ function vAbkSimulasi(){
       h+=`</tbody></table></div>`;}
   }
   if(!state.simUnit&&D.jabTop.length){
+  var _pg3=h.length;
     h+=`<div class="card"><h2 class="sec" style="margin-top:0">Jenis Jabatan Paling Bisa Diefisiensikan</h2><div class="mini" style="margin-bottom:6px">Kelebihan kapasitas per nama jabatan, dihitung <b>hanya pada unit yang surplus</b> (yang benar-benar dapat dipangkas). Pada unit yang kekurangan, kelebihan jabatan diarahkan ke redistribusi internal.</div><table><thead><tr><th>Jabatan</th><th class="num-c">Jumlah Unit</th><th class="num-c">Kelebihan Kapasitas</th></tr></thead><tbody>`;
     D.jabTop.slice(0,20).forEach(j=>{h+=`<tr><td>${esc(j.jab)}</td><td class="num-c">${fmt(j.n)}</td><td class="num-c"><b>${fmt(j.red)}</b></td></tr>`;});
     h+=`</tbody></table></div>`;
@@ -5707,6 +5723,7 @@ function vAbkSimulasi(){
   const konsen=scope.filter(u=>(u.produk_n80||99)<=5);
   const lowtusi=scope.filter(u=>u.eu2>0&&u.eu2<85);
   const strukJoin=(typeof OTK!=='undefined'&&OTK)?abkStrukData().joined.filter(u=>u.es1===e.nama&&(!state.simUnit||u.kode===state.simUnit)&&u.es3>=4):[];
+  var _pg4=h.length;
   h+=`<div class="card"><h2 class="sec" style="margin-top:0">Rekomendasi &amp; Enabler</h2>
    <div style="margin-bottom:10px"><b>Efisiensi alami (${fmt(D.pool)} orang).</b> Pangkas hanya dari unit yang bezetting-nya melebihi kebutuhan beban (kolom Selisih positif); beban tetap tertangani. Pada unit yang kekurangan, lakukan <b>redistribusi internal</b> (alihkan jabatan yang kelebihan ke jabatan yang kekurangan di unit yang sama), bukan pengurangan. Verifikasi lebih dulu lewat menu <b>Kalibrasi</b>, karena sebagian kelebihan dapat berasal dari norma/volume yang belum terkalibrasi.</div>`;
   if(D.gap>0){
@@ -5720,6 +5737,13 @@ function vAbkSimulasi(){
     h+=`<div class="mini">Target berada dalam kapasitas efisiensi alami; intervensi tambahan tidak wajib, namun otomasi dan perbaikan SOP tetap memperkuat keberlanjutan efisiensi.</div>`;
   }
   h+=`<div class="mini" style="margin-top:10px;font-style:italic">Simulasi bersifat indikatif sebagai bahan pengambilan keputusan, mengacu pada beban kerja ABK 2024. Angka kebutuhan mengikuti perhitungan PMK (Beban / Jam Kerja Efektif).</div></div>`;
+  var _pgE=h.length;
+  /* Dipecah per tema supaya tidak jadi gulungan panjang. Seluruh tema TETAP dihitung
+     di atas, jadi lingkup variabelnya utuh; di sini hasilnya tinggal dipotong dan hanya
+     tema aktif yang ditampilkan. Ringkasan sebelum tab sengaja tetap tampil di semua tab. */
+  var _tab=state.abkSimTab||'kalibrasi';
+  var _bag={kalibrasi:h.slice(_pg0,_pg1),unit:h.slice(_pg1,_pg2),jabatan:h.slice(_pg2,_pg3),jenis:h.slice(_pg3,_pg4),rekom:h.slice(_pg4,_pgE)};
+  h = h.slice(0,_pg0) + '<div class="pgtabs">'+'<button class="pgtab'+(_tab==='kalibrasi'?' on':'')+'" data-act="abksimtab" data-tab="kalibrasi">Kalibrasi Beban</button>'+'<button class="pgtab'+(_tab==='unit'?' on':'')+'" data-act="abksimtab" data-tab="unit">Usulan per Unit</button>'+'<button class="pgtab'+(_tab==='jabatan'?' on':'')+'" data-act="abksimtab" data-tab="jabatan">Usulan per Jabatan</button>'+'<button class="pgtab'+(_tab==='jenis'?' on':'')+'" data-act="abksimtab" data-tab="jenis">Jenis Paling Efisien</button>'+'<button class="pgtab'+(_tab==='rekom'?' on':'')+'" data-act="abksimtab" data-tab="rekom">Rekomendasi</button>'+'</div>' + (_bag[_tab]!==undefined?_bag[_tab]:_bag['kalibrasi']);
   return h;
 }
 
@@ -6107,6 +6131,7 @@ function vOtkEval(){
   if(flt){pairs=pairs.filter(x=>x.es1===flt);leburU=leburU.filter(u=>e1by[u.id]===flt);delayerU=delayerU.filter(u=>e1by[u.id]===flt);}
   const totN=rows.reduce((s,r)=>s+r.n,0), totGab=(OVERLAP.sibling||[]).filter(x=>x.cls==='substantif').length, totLeb=U.filter(u=>verdict(u)==='lebur').length, totDel=U.filter(u=>u.level===2&&!u.nonunit&&e3cnt(u)>=4).length, totRep=(REDUN&&REDUN.replikasi?REDUN.replikasi.length:0);
   let h=`<div class="note-box">Evaluasi struktur berdasarkan <b>tugas dan fungsi</b> serta <b>jabatan</b> saat ini (dimensi beban kerja/ABK menyusul). Kriteria: <b>kandidat penggabungan</b> = unit selevel dengan tumpang tindih tusi substantif; <b>kandidat peleburan</b> = unit Eselon II/III bermandat tipis (fungsi minim) sekaligus tumpang tindih; <b>delayering</b> = Eselon II dengan 4 atau lebih Eselon III. Semua bersifat <b>indikatif untuk ditelaah</b>, bukan keputusan; kemiripan berbasis kata sehingga perlu konfirmasi.</div>`;
+  var _pg0=h.length;
   h+=`<div class="card"><h2 class="sec" style="margin-top:0">Dimensi evaluasi <span class="mini">(peta jalan &middot; saat ini 2 dimensi inti)</span></h2>
     <div class="mini" style="margin-bottom:7px">Mengacu praktik desain organisasi (Galbraith Star Model, McKinsey 7S) dan PermenPAN-RB. Evaluasi dikembangkan bertahap, belum mencakup semua dimensi.</div>
     <div style="display:flex;gap:7px;flex-wrap:wrap">
@@ -6122,9 +6147,11 @@ function vOtkEval(){
     <div class="kpi good"><div class="lab">Replikasi jabatan</div><div class="val">${fmt(totRep)}</div><div class="note">nama lintas DJ</div></div></div>`;
   const arr=rows.map(r=>({k:r.nama,v:r.n}));
   const viz=state.evViz||'peta';
+  var _pg1=h.length;
   h+=`<div class="card"><h2 class="sec" style="margin-top:0">Peta ukuran struktur per Eselon I <span class="mini">(kotak besar = unit lebih banyak; klik untuk menyaring)</span></h2>
     <div class="seg" style="margin-bottom:8px"><span class="segb ${viz!=='bar'?'on':''}" data-act="evviz" data-v="peta">Peta (treemap)</span><span class="segb ${viz==='bar'?'on':''}" data-act="evviz" data-v="bar">Bar</span></div>
     ${viz==='bar'?_temaBars(arr,state.evUE1,'evue1'):_temaTree(arr,state.evUE1,'evue1')}</div>`;
+  var _pg2=h.length;
   h+=`<h2 class="sec">Ringkasan per Eselon I <span class="mini">(klik nama, atau angka delayering/gabung/lebur untuk rincian)</span>${flt?` <span class="tag link" data-act="evue1" data-g="${esc(flt)}">${esc(flt)} &times;</span>`:''}</h2><div class="card tblw"><table><thead><tr><th>Eselon I</th><th class="num-c">Unit</th><th class="num-c">ES II</th><th class="num-c">ES III</th><th class="num-c">ES IV</th><th class="num-c">Rentang sempit</th><th class="num-c">Delayering</th><th class="num-c">Kand. gabung</th><th class="num-c">Kand. lebur</th></tr></thead><tbody>`;
   rows.forEach(r=>{h+=`<tr><td class="link" data-act="evue1" data-g="${esc(r.nama)}"${state.evUE1===r.nama?' style="font-weight:800"':''}>${esc(r.nama)}</td><td class="num-c">${r.n}</td><td class="num-c">${r.e2}</td><td class="num-c">${r.e3}</td><td class="num-c">${r.e4}</td><td class="num-c">${r.narrow||''}</td><td class="num-c">${r.delayer?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="delayer" style="font-weight:800;color:var(--brand)">'+r.delayer+'</span>':''}</td><td class="num-c">${r.gab?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="gabung">'+r.gab+'</span>':''}</td><td class="num-c">${r.leb?'<span class="link" data-act="evcell" data-g="'+esc(r.nama)+'" data-t="lebur" style="font-weight:800;color:var(--red)">'+r.leb+'</span>':''}</td></tr>`;});
   h+=`</tbody></table></div>`;
@@ -6148,6 +6175,13 @@ function vOtkEval(){
   }
   const top=rows.slice(0,3).map(r=>r.nama+' ('+r.n+')');
   h+=`<div class="note-box"><b>Kesimpulan.</b> Dari <b>${fmt(totN)}</b> unit Eselon II-IV: <b>${fmt(totGab)}</b> pasangan tumpang tindih substantif (kandidat penggabungan), <b>${fmt(totLeb)}</b> unit bermandat tipis dan tumpang tindih (kandidat peleburan), serta <b>${fmt(totDel)}</b> Eselon II kandidat delayering. Dari sisi jabatan, <b>${fmt(totRep)}</b> nama jabatan tereplikasi lintas Eselon I (kandidat standardisasi). Struktur terbesar: ${esc(top.join(', '))}. Seluruh temuan indikatif untuk ditelaah lebih lanjut bersama acuan PermenPAN-RB, bukan keputusan final.</div>`;
+  var _pgE=h.length;
+  /* Dipecah per tema supaya tidak jadi gulungan panjang. Seluruh tema TETAP dihitung
+     di atas, jadi lingkup variabelnya utuh; di sini hasilnya tinggal dipotong dan hanya
+     tema aktif yang ditampilkan. Ringkasan sebelum tab sengaja tetap tampil di semua tab. */
+  var _tab=state.otkEvTab||'dimensi';
+  var _bag={dimensi:h.slice(_pg0,_pg1),peta:h.slice(_pg1,_pg2),ringkas:h.slice(_pg2,_pgE)};
+  h = h.slice(0,_pg0) + '<div class="pgtabs">'+'<button class="pgtab'+(_tab==='dimensi'?' on':'')+'" data-act="otkevtab" data-tab="dimensi">Dimensi Evaluasi</button>'+'<button class="pgtab'+(_tab==='peta'?' on':'')+'" data-act="otkevtab" data-tab="peta">Peta Ukuran Struktur</button>'+'<button class="pgtab'+(_tab==='ringkas'?' on':'')+'" data-act="otkevtab" data-tab="ringkas">Ringkasan per Eselon I</button>'+'</div>' + (_bag[_tab]!==undefined?_bag[_tab]:_bag['dimensi']);
   return h;
 }
 /* ===== Peta Unit Pengelola JF: unit yang menangani "jabatan fungsional" di tugas/fungsi, treemap bersarang ES1>2>3>4 ===== */
@@ -6368,6 +6402,7 @@ function vTkIntegritas(){const g=tkGuard();if(g)return g;const N=TK.integritas,f
     <div class="kpi"><div class="lab">Unit WBK</div><div class="val" style="color:${TK_WBK}">${fmt(uWbk)}</div><div class="note">Wilayah Bebas dari Korupsi</div></div>
     <div class="kpi"><div class="lab">Unit WBBM</div><div class="val" style="color:${TK_WBBM}">${fmt(uWbbm)}</div><div class="note">Birokrasi Bersih &amp; Melayani</div></div>
     <div class="kpi"><div class="lab">Naik Kelas</div><div class="val">${fmt(naik.length)}</div><div class="note">unit WBK &rarr; WBBM</div></div></div>`;
+  var _pg0=h.length;
   h+=`<div class="card"><h3>Perolehan predikat per tahun${f.u?' &middot; '+esc(f.u):''}${fp?' &middot; '+fp:''}${pen?' &middot; '+pen:''}</h3>
     ${_tkCols(cats,{h:280,hlYear:f.y})}${_tkLeg(legItems)}
     <div class="mini" style="margin-top:8px">Grafik ini berbasis <b>perolehan per tahun</b> (satu unit bisa muncul dua kali: saat meraih WBK lalu WBBM), sedangkan kartu di atas berbasis <b>jumlah unit</b>. Pada 2024-2025 perolehan WBK menurun tajam sementara WBBM bertambah, menandakan pergeseran ke predikat kelas lebih tinggi.</div></div>`;
@@ -6381,14 +6416,24 @@ function vTkIntegritas(){const g=tkGuard();if(g)return g;const N=TK.integritas,f
     bars=pu.map(([u,v])=>_tkStack(u,[{v:v.WBK,c:TK_WBK,name:'WBK'},{v:v.WBBM,c:TK_WBBM,name:'WBBM'}],mxu,`${v.WBK+v.WBBM} <span class="mini">(${v.WBK} WBK &middot; ${v.WBBM} WBBM)</span>`,{a:'tkflt',d:`data-k="tkUE1" data-v="${u}"`})).join('');}
   else{const puf=Object.entries(pum).map(([u,v])=>[u,v[fp]]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]),mxf=Math.max(1,...puf.map(x=>x[1]));
     bars=puf.map(([u,val])=>bar(u,val,mxf,u===f.u?'good':'',String(val),{a:'tkflt',d:`data-k="tkUE1" data-v="${u}"`})).join('');}
+  var _pg1=h.length;
   h+=`<div class="card"><h3>Sebaran per Eselon I${fp?' &middot; '+fp:''} <span class="mini">jumlah unit &middot; klik batang untuk menyaring &middot; ${fp===''?_tkDot(TK_WBK,'WBK')+_tkDot(TK_WBBM,'WBBM'):''}</span></h3>${bars||'<div class="mini">Tidak ada data pada filter ini.</div>'}</div>`;
+  var _pg2=h.length;
   h+=`<div class="card"><h3>Jejak naik kelas WBK &rarr; WBBM (${naik.length} unit)</h3><div class="tblw"><table><thead><tr><th>Unit Kerja</th><th>Eselon I</th><th class="num-c">Tahun WBK</th><th class="num-c">Tahun WBBM</th></tr></thead><tbody>`;
   naik.slice(0,80).forEach(r=>{h+=`<tr><td>${esc(r.unit)}</td><td>${esc(namaResmi(r.ue1))}</td><td class="num-c">${r.tahun_wbk}</td><td class="num-c">${r.tahun_wbbm}</td></tr>`;});
   h+=(naik.length?'':'<tr><td colspan="4" class="mini">Tidak ada pada filter ini.</td></tr>')+`</tbody></table></div></div>`;
   let rows=N.rows.filter(r=>tkKeep(r)&&penOK(r)&&predOK(r)).sort((a,b)=>b.tahun-a.tahun);
+  var _pg3=h.length;
   h+=`<div class="card"><h3>Daftar perolehan predikat${fp?' &middot; '+fp:''}${pen?' &middot; '+pen:''}</h3><div class="tblw"><table><thead><tr><th class="num-c">Tahun</th><th>Unit Kerja</th><th>Eselon I</th><th>Predikat</th><th>Penilai</th></tr></thead><tbody>`;
   rows.slice(0,200).forEach(r=>{h+=`<tr><td class="num-c">${r.tahun}</td><td>${esc(r.unit_kerja)}</td><td>${esc(namaResmi(r.ue1))}</td><td><span class="pill ${r.predikat==='WBBM'?'good':'neu'}">${esc(r.predikat)}</span></td><td class="mini">${esc(r.penilai||'-')}</td></tr>`;});
   h+=(rows.length?'':'<tr><td colspan="5" class="mini">Tidak ada data pada filter ini.</td></tr>')+`</tbody></table></div><div class="mini" style="margin-top:6px">Menampilkan ${Math.min(200,rows.length)} dari ${fmt(rows.length)} perolehan. TPN = Tim Penilai Nasional (KemenPAN-RB), TPK = Tim Penilai Kementerian Keuangan.</div></div>`;
+  var _pgE=h.length;
+  /* Dipecah per tema supaya tidak jadi gulungan panjang. Seluruh tema TETAP dihitung
+     di atas, jadi lingkup variabelnya utuh; di sini hasilnya tinggal dipotong dan hanya
+     tema aktif yang ditampilkan. Ringkasan sebelum tab sengaja tetap tampil di semua tab. */
+  var _tab=state.tkIntTab||'tahun';
+  var _bag={tahun:h.slice(_pg0,_pg1),unit:h.slice(_pg1,_pg2),jejak:h.slice(_pg2,_pg3),daftar:h.slice(_pg3,_pgE)};
+  h = h.slice(0,_pg0) + '<div class="pgtabs">'+'<button class="pgtab'+(_tab==='tahun'?' on':'')+'" data-act="tkinttab" data-tab="tahun">Perolehan per Tahun</button>'+'<button class="pgtab'+(_tab==='unit'?' on':'')+'" data-act="tkinttab" data-tab="unit">Sebaran per Eselon I</button>'+'<button class="pgtab'+(_tab==='jejak'?' on':'')+'" data-act="tkinttab" data-tab="jejak">Jejak Naik Kelas</button>'+'<button class="pgtab'+(_tab==='daftar'?' on':'')+'" data-act="tkinttab" data-tab="daftar">Daftar Perolehan</button>'+'</div>' + (_bag[_tab]!==undefined?_bag[_tab]:_bag['tahun']);
   return h;}
 
 function vTkKepuasan(){const g=tkGuard();if(g)return g;const K=TK.kepuasan,f=tkF();
@@ -8103,11 +8148,14 @@ function vKjRumpun(){
     'memang tidak memasangkannya. Temuan pentingnya, kelima rumpun rancangan <b>sama persis dengan lima domain peta proses bisnis '+
     'Kementerian Keuangan</b>, sehingga rantai proses bisnis sampai kompetensi dapat disambung tanpa memaksakan pemetaan baru.',
     [{v:'kjrantai',t:'Telusuri Rantai Proses Bisnis'},{v:'kjtaksonomi',t:'Uji Kesesuaian Taksonomi'}]);
+  var _pg0=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Peta Luasan Rumpun <span class="mini">(luas kotak sebanding jumlah jabatan, klik untuk menyaring)</span></h2>'+
      _kjPeta(bobot)+'</div>';
+  var _pg1=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Taksonomi Berlaku (As Is) <span class="mini">('+asis.length+' rumpun, '+nSubA+' sub rumpun)</span></h2>'+
      '<div class="mini" style="margin-bottom:4px">Sumber: lembar acuan rumpun jabatan. Klik rumpun untuk membuka sub rumpun beserta sub-sub rumpunnya.</div>'+
      _kjPohon(asis,bobot,'asis')+'</div>';
+  var _pg2=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Rancangan Penataan (To Be) <span class="mini">('+tobe.length+' rumpun, '+nSubB+' sub rumpun)</span></h2>'+
      '<div class="mini" style="margin-bottom:8px">Kelima rumpun ini sama persis dengan lima domain peta proses bisnis. Angka jabatan belum tercantum karena pemetaan jabatan ke rumpun rancangan memang belum ditetapkan. '+
      'Tingkat sub-sub rumpun sengaja tidak dicantumkan pada rancangan ini, sebab lembar sumbernya menyatakan rinciannya <b>mengacu pada peta proses bisnis strategis level 2</b> pada masing-masing peta proses bisnis strategis level 1.</div>'+
@@ -8123,10 +8171,18 @@ function vKjRumpun(){
   var used={};rows.forEach(function(j){(j.uk||[]).forEach(function(u){var t=u[2][0];if(t)used[t]=(used[t]||0)+1;});});
   var uU=Object.keys(used).sort(function(a,b){return used[b]-used[a];});
   var mxu=uU.length?used[uU[0]]:1;
+  var _pg3=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Rumpun yang Benar-benar Dipakai Data Jabatan</h2>';
   uU.forEach(function(k){
     h+=bar(k+(acuan[kompNrm(k)]?'':'  (di luar acuan)'),used[k],mxu,acuan[kompNrm(k)]?'':'gold',fmt(used[k]),{a:'komprp',d:'data-k="'+esc(k)+'"'});});
   h+='<div class="mini" style="margin-top:6px">Angka di sini jumlah baris kompetensi, bukan jumlah jabatan. Rumpun yang tidak ada di taksonomi acuan ditandai, rinciannya di menu Kesesuaian Taksonomi.</div></div>';
+  var _pgE=h.length;
+  /* Dipecah per tema supaya tidak jadi gulungan panjang. Seluruh tema TETAP dihitung
+     di atas, jadi lingkup variabelnya utuh; di sini hasilnya tinggal dipotong dan hanya
+     tema aktif yang ditampilkan. Ringkasan sebelum tab sengaja tetap tampil di semua tab. */
+  var _tab=state.kjRumTab||'peta';
+  var _bag={peta:h.slice(_pg0,_pg1),asis:h.slice(_pg1,_pg2),tobe:h.slice(_pg2,_pg3),dipakai:h.slice(_pg3,_pgE)};
+  h = h.slice(0,_pg0) + '<div class="pgtabs">'+'<button class="pgtab'+(_tab==='peta'?' on':'')+'" data-act="kjrumtab" data-tab="peta">Peta Luasan</button>'+'<button class="pgtab'+(_tab==='asis'?' on':'')+'" data-act="kjrumtab" data-tab="asis">Taksonomi Berlaku</button>'+'<button class="pgtab'+(_tab==='tobe'?' on':'')+'" data-act="kjrumtab" data-tab="tobe">Rancangan Penataan</button>'+'<button class="pgtab'+(_tab==='dipakai'?' on':'')+'" data-act="kjrumtab" data-tab="dipakai">Yang Dipakai Data</button>'+'</div>' + (_bag[_tab]!==undefined?_bag[_tab]:_bag['peta']);
   return h;
 }
 
@@ -9054,6 +9110,7 @@ function vCutiUtilisasi(){
     '12 hari untuk tahun berjalan ditambah sisa hak tahun sebelumnya), sesuai '+esc(CUTI.meta.hakCuti.dasar)+'. '+
     'Halaman ini membandingkan pemakaian nyata terhadap hak tersebut. Angka tahun berjalan belum lengkap sehingga rujukan utama adalah tahun penuh terakhir, yaitu <b>'+thPenuh+'</b>.</div>'+cutiCakupan(true);
   /* meteran: satu angka yang jadi pusat perhatian, bukan sekadar KPI datar */
+  var _pg0=h.length;
   h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Seberapa Banyak Hak Cuti Dipakai?</h2>'+
     cutiGauge(cur.utilisasiPct||0,String(cur.utilisasiPct||0).replace('.',',')+'%','dari hak '+hak+' hari kerja','tahun '+thPenuh)+
     '<p style="margin:10px 0 0">Rata-rata pegawai memakai <b>'+String(cur.rataHk||0).replace('.',',')+' hari kerja</b> dari '+hak+' hari yang menjadi haknya. Sisanya, sekitar <b>'+fmt(cur.sisaHakHk||0)+' hari kerja</b>, tidak terpakai sepanjang '+thPenuh+'.</p></div>'+
@@ -9069,17 +9126,20 @@ function vCutiUtilisasi(){
   const sb=cur.sebaran||{},urut=[['1-6','1 sampai 6 hari'],['7-12','7 sampai 12 hari'],['13-18','13 sampai 18 hari'],['19-24','19 sampai 24 hari'],['lewat','di atas '+hak+' hari']];
   const totS=urut.reduce((s,k)=>s+(sb[k[0]]||0),0)||1;
   const mxS=Math.max(...urut.map(k=>sb[k[0]]||0));
+  var _pg1=h.length;
   h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Sebaran Pemakaian Hak ('+thPenuh+')</h2>'+
     urut.map(k=>bar(k[1],sb[k[0]]||0,mxS,'',fmt(sb[k[0]]||0)+' ('+cutiPct(sb[k[0]]||0,totS)+'%)')).join('')+
     '<div class="note-box" style="margin-top:10px">Sebagian besar pegawai memakai jauh di bawah haknya. Sisa hak yang tidak terpakai pada '+thPenuh+' mencapai <b>'+fmt(cur.sisaHakHk||0)+' hari kerja</b>, setara istirahat yang tidak diambil. Ini bahan pertimbangan kebijakan kesejahteraan, bukan penilaian kinerja.</div></div>';
   /* tren utilisasi antar tahun */
   const mxT=Math.max(...PT.map(x=>x.utilisasiPct||0));
+  var _pg2=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Tren Utilisasi Hak per Tahun</h2>'+
     PT.map(x=>bar(String(x.tahun)+(x.tahun>thPenuh?' (berjalan)':''),x.utilisasiPct||0,mxT,'',String(x.utilisasiPct||0).replace('.',',')+'%')).join('')+
     '<div class="mini" style="margin-top:6px">Tahun 2020 dan 2021 rendah karena pembatasan masa pandemi. Tahun berjalan belum genap setahun sehingga wajar lebih rendah.</div></div></div>';
   /* per unit */
   const UU=(CUTI.utilisasiUnit||[]);
   const mxU=Math.max(1,...UU.map(x=>x.utilisasiPct));
+  var _pg3=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Utilisasi Hak per Unit Eselon I ('+thPenuh+')</h2><div class="tblw"><table><thead><tr><th>Unit</th><th class="num-c">Pegawai</th><th class="num-c">Rata Pemakaian (hari kerja)</th><th></th><th class="num-c">Utilisasi</th><th class="num-c">Melebihi Hak</th></tr></thead><tbody>'+
     UU.map(x=>{const par=cutiParsial(x.nama);
       return '<tr><td>'+esc(x.nama)+(par?' <span class="tag" title="Data unit ini baru sebagian masuk HRIS">parsial</span>':'')+'</td>'+
@@ -9089,6 +9149,7 @@ function vCutiUtilisasi(){
     '</tbody></table></div><div class="mini" style="margin-top:6px">Unit bertanda parsial datanya belum lengkap; angka utilisasinya belum menggambarkan kondisi sebenarnya. Hanya unit dengan sekurangnya 50 pegawai yang ditampilkan.</div></div>';
   /* cuti besar & pola sakit: kategori lain, ambang sendiri */
   const B=CUTI.besar||{},P=CUTI.polaSakit||{};
+  var _pg4=h.length;
   h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Cuti Besar ('+B.tahun+')</h2>'+
     '<p style="margin:0 0 8px">Ketentuannya berbeda dari cuti tahunan: paling lama <b>3 bulan</b>, dan pada tahun pengambilannya hak cuti tahunan menjadi gugur. Karena itu cuti besar tidak boleh dijumlahkan dengan cuti tahunan.</p>'+
     _katKpi([['Pegawai Mengambil',fmt(B.pegawai||0),'pada '+B.tahun],['Durasi Median',(B.medianKal||0)+' hari','kalender'],['Melebihi Ketentuan',String(B.lewatMaks||0),'perlu diperiksa']])+'</div>';
@@ -9096,6 +9157,13 @@ function vCutiUtilisasi(){
     '<p style="margin:0 0 8px">Cuti sakit <b>tidak memiliki batas tetap</b> karena bergantung kondisi medis. Yang disajikan adalah pengelompokan pola untuk keperluan kebijakan kesehatan, bukan penilaian terhadap pegawai.</p>'+
     (P.pola||[]).map(x=>bar(x.label,x.pegawai,Math.max(...(P.pola||[{pegawai:1}]).map(y=>y.pegawai)),'',fmt(x.pegawai))).join('')+'</div></div>';
   h+=cutiLanjut([{v:'cutikualitas',t:'Kepatuhan & Mutu Data',d:'Periksa rekaman yang melebihi hak'},{v:'cutiunit',t:'Profil Unit',d:'Bandingkan antarunit lebih rinci'},{v:'cutipola',t:'Kalender Kapasitas',d:'Kapan sebaiknya cuti diambil'}]);
+  var _pgE=h.length;
+  /* Dipecah per tema supaya tidak jadi gulungan panjang. Seluruh tema TETAP dihitung
+     di atas, jadi lingkup variabelnya utuh; di sini hasilnya tinggal dipotong dan hanya
+     tema aktif yang ditampilkan. Ringkasan sebelum tab sengaja tetap tampil di semua tab. */
+  var _tab=state.cutiUtTab||'pakai';
+  var _bag={pakai:h.slice(_pg0,_pg1),sebaran:h.slice(_pg1,_pg2),tren:h.slice(_pg2,_pg3),unit:h.slice(_pg3,_pg4),besar:h.slice(_pg4,_pgE)};
+  h = h.slice(0,_pg0) + '<div class="pgtabs">'+'<button class="pgtab'+(_tab==='pakai'?' on':'')+'" data-act="cutiuttab" data-tab="pakai">Pemakaian Hak</button>'+'<button class="pgtab'+(_tab==='sebaran'?' on':'')+'" data-act="cutiuttab" data-tab="sebaran">Sebaran Pemakaian</button>'+'<button class="pgtab'+(_tab==='tren'?' on':'')+'" data-act="cutiuttab" data-tab="tren">Tren per Tahun</button>'+'<button class="pgtab'+(_tab==='unit'?' on':'')+'" data-act="cutiuttab" data-tab="unit">Per Unit Eselon I</button>'+'<button class="pgtab'+(_tab==='besar'?' on':'')+'" data-act="cutiuttab" data-tab="besar">Cuti Besar</button>'+'</div>' + (_bag[_tab]!==undefined?_bag[_tab]:_bag['pakai']);
   return h;
 }
 
@@ -9186,6 +9254,7 @@ function vCutiSakit(){
     fmt(totIsi)+' berhasil dikelompokkan; '+fmt(totTanpa)+' ('+cutiPct(totTanpa,totAll)+'%) tidak bisa karena kolom alasannya kosong (kewajiban mengisi alasan baru berjalan beberapa tahun terakhir).</div>';
   const mxk=Math.max(1,...kats.map(k=>tot[k.kat]||0));
   const kUrut=kats.slice().sort((a,b)=>(tot[b.kat]||0)-(tot[a.kat]||0));
+  var _pg0=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Komposisi Kategori (Akumulasi 2020 s.d. Jun 2026)</h2>'+
     kUrut.map(k=>bar(k.label,tot[k.kat]||0,mxk,'',fmt(tot[k.kat]||0)+' ('+cutiPct(tot[k.kat]||0,totIsi)+'%)')).join('')+
     '<div class="mini" style="margin-top:6px">Persentase dihitung terhadap '+fmt(totIsi)+' pengajuan yang terkategorikan.</div></div>';
@@ -9194,6 +9263,7 @@ function vCutiSakit(){
     const vals=thn.map(t=>{const r=K.find(x=>x.kat===k.kat&&x.tahun===t);return r?r.rekaman:0;});
     const mx=Math.max(1,...vals);
     return '<tr><td>'+esc(k.label)+'</td>'+vals.map((v,i)=>'<td class="cell" style="background:'+mofRamp(v/mx)+';color:'+mofRampInk(v/mx)+'" title="'+thn[i]+': '+fmt(v)+'">'+fmt(v)+'</td>').join('')+'</tr>';}).join('');
+  var _pg1=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Kategori per Tahun</h2><div class="tblw"><table class="hm hm-fit"><thead><tr><th style="width:250px;text-align:left">Kategori</th>'+thn.map(t=>'<th style="text-align:center">'+t+'</th>').join('')+'</tr></thead><tbody>'+tr+'</tbody></table></div><div class="mini" style="margin-top:6px">Warna dibandingkan di dalam baris masing-masing: sel paling gelap adalah tahun tertinggi untuk kategori itu. 2026 baru sampai Juni.</div></div>';
   /* kategori x band usia */
   const bands=['20-35','36-49','50+'];
@@ -9201,6 +9271,7 @@ function vCutiSakit(){
     const vals=bands.map(b=>{const r=CUTI.kategoriUsia.find(x=>x.kat===k.kat&&x.band===b);return r?r.rekaman:0;});
     const tt=vals.reduce((s,x)=>s+x,0)||1;
     return '<tr><td>'+esc(k.label)+'</td>'+vals.map(v=>'<td class="num-c">'+fmt(v)+' <span class="mini">('+cutiPct(v,tt)+'%)</span></td>').join('')+'</tr>';}).join('');
+  var _pg2=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori x Kelompok Usia</h2><div class="tblw"><table><thead><tr><th>Kategori</th>'+bands.map(b=>'<th class="num-c">'+b+'</th>').join('')+'</tr></thead><tbody>'+bu+'</tbody></table></div><div class="mini" style="margin-top:6px">Polanya sejalan dengan studi: masalah kehamilan dan reproduksi menumpuk pada usia 20-35, sedangkan penyakit menahun dan operasi meningkat pada usia 50 ke atas.</div></div>';
   /* kategori per unit: proporsi per baris; sel berjumlah kecil DITAHAN demi privasi */
   const KU=CUTI.kategoriUnit||[];
@@ -9214,15 +9285,24 @@ function vCutiSakit(){
       const sh=Math.min(1,(v/unitTot[u])/0.6);
       return '<td class="cell" style="background:'+mofRamp(sh)+';color:'+mofRampInk(sh)+'" title="'+esc(k.label)+': '+fmt(v)+' pengajuan ('+cutiPct(v,unitTot[u])+'%)">'+cutiPct(v,unitTot[u])+'%</td>';});
     return '<tr><td class="rh" title="'+esc(u)+'">'+esc(u)+'</td>'+cells.join('')+'</tr>';}).join('');
+  var _pg3=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori per Unit Eselon I</h2><div class="tblw"><table class="hm hm-fit"><thead><tr><th style="width:250px;text-align:left">Unit</th>'+kUrut.map(k=>'<th style="text-align:center" title="'+esc(k.label)+'">'+(KLBL[k.kat]||k.label)+'</th>').join('')+'</tr></thead><tbody>'+ku+'</tbody></table></div>'+
     '<div class="mini" style="margin-top:6px">Angka = persen dari pengajuan terkategori pada unit itu (satu baris berjumlah 100%). Bacaan praktisnya: unit dengan proporsi cedera otot tinggi cocok jadi sasaran program ergonomi; proporsi kesehatan mental yang menonjol layak ditindaklanjuti dengan hati-hati dan rahasia. Sel bertanda &lt;10 ditahan demi menjaga privasi; unit dengan total di bawah 50 pengajuan terkategori tidak ditampilkan.</div></div>';
   /* contoh teks per kategori (transparansi) */
+  var _pg4=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Contoh Teks Alasan Terbanyak per Kategori</h2>'+kats.map(k=>{
     const c=(CUTI.kategoriContoh[k.kat]||[]).slice(0,5);
     if(!c.length)return '';
     return '<div style="margin-bottom:8px"><span class="mini"><b>'+esc(k.label)+':</b></span> '+c.map(x=>'<span class="tag">'+esc(x.teks)+' ('+fmt(x.n)+')</span>').join(' ')+'</div>';}).join('')+
     '<div class="mini">Teks apa adanya dari isian pegawai (huruf kecil), ditampilkan untuk transparansi metode klasifikasi.</div></div>';
   h+=cutiLanjut([{v:'cutidemografi',t:'Demografi & Gender',d:'Profil risiko menurut usia'},{v:'cutiprediksi',t:'Proyeksi Beban Cuti',d:'Peringatan dini musim penyakit'},{v:'cutiunit',t:'Profil Unit',d:'Unit mana yang perlu perhatian'}]);
+  var _pgE=h.length;
+  /* Dipecah per tema supaya tidak jadi gulungan panjang. Seluruh tema TETAP dihitung
+     di atas, jadi lingkup variabelnya utuh; di sini hasilnya tinggal dipotong dan hanya
+     tema aktif yang ditampilkan. Ringkasan sebelum tab sengaja tetap tampil di semua tab. */
+  var _tab=state.cutiSkTab||'komposisi';
+  var _bag={komposisi:h.slice(_pg0,_pg1),heatmap:h.slice(_pg1,_pg2),usia:h.slice(_pg2,_pg3),unit:h.slice(_pg3,_pg4),teks:h.slice(_pg4,_pgE)};
+  h = h.slice(0,_pg0) + '<div class="pgtabs">'+'<button class="pgtab'+(_tab==='komposisi'?' on':'')+'" data-act="cutisktab" data-tab="komposisi">Komposisi Kategori</button>'+'<button class="pgtab'+(_tab==='heatmap'?' on':'')+'" data-act="cutisktab" data-tab="heatmap">Heatmap per Tahun</button>'+'<button class="pgtab'+(_tab==='usia'?' on':'')+'" data-act="cutisktab" data-tab="usia">Kategori x Usia</button>'+'<button class="pgtab'+(_tab==='unit'?' on':'')+'" data-act="cutisktab" data-tab="unit">Kategori per Unit</button>'+'<button class="pgtab'+(_tab==='teks'?' on':'')+'" data-act="cutisktab" data-tab="teks">Contoh Teks Alasan</button>'+'</div>' + (_bag[_tab]!==undefined?_bag[_tab]:_bag['komposisi']);
   return h;
 }
 
@@ -10888,6 +10968,12 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='kompnav3'){state.kompNav3=(state.kompNav3===el.dataset.k)?null:el.dataset.k;render();}
   else if(a==='kompkeurjab'){kompKeUrjab(el.dataset.u,el.dataset.n);}
   else if(a==='pwantab'){state.pwAnTab=el.dataset.tab;render();}
+  else if(a==='otkevtab'){state.otkEvTab=el.dataset.tab;render();}
+  else if(a==='tkinttab'){state.tkIntTab=el.dataset.tab;render();}
+  else if(a==='kjrumtab'){state.kjRumTab=el.dataset.tab;render();}
+  else if(a==='cutisktab'){state.cutiSkTab=el.dataset.tab;render();}
+  else if(a==='abksimtab'){state.abkSimTab=el.dataset.tab;render();}
+  else if(a==='cutiuttab'){state.cutiUtTab=el.dataset.tab;render();}
   else if(a==='sukkadermode'){state.sukKaderMode=el.dataset.m;render();}
   else if(a==='sukstepup'){
     const pw=_nomVal('nomPw2'); if(!pw){state.nomMsg='Token akses belum diisi.';render();return;}
