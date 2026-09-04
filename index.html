@@ -1972,7 +1972,7 @@ const ICONP={
  tk:'<path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.2l5-.7z"/><path d="M8.5 21h7"/><path d="M12 17.5V21"/>',
  remote:'<rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8 20.5h8M12 16.5v4"/><path d="M6.5 8.2h5M6.5 11h8"/>',
  cuti:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 9.5h18"/><path d="m9 15.5 2 2 4-4.5"/>',
- /* Suksesi: dua sosok bertumpuk (alih generasi) dengan anak panah naik = kader menggantikan. */
+ /* Suksesi: dua sosok bertumpuk (alih generasi) dengan anak panah naik = generasi berikut menggantikan. */
  suksesi:'<circle cx="7.5" cy="7" r="2.8"/><path d="M3 19a4.5 4.5 0 0 1 9 0"/><circle cx="16.5" cy="10.5" r="2.4"/><path d="M12.5 19a4 4 0 0 1 8 0"/><path d="M19 7.5V3m0 0-1.8 1.8M19 3l1.8 1.8"/>',
  komjab:'<path d="M12 3 4 6.8v5c0 4.6 3.2 8.4 8 9.2 4.8-.8 8-4.6 8-9.2v-5z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/>',
  pgAwal:'<path d="M17 5 10 12l7 7"/><path d="M7 5v14"/>',
@@ -2027,7 +2027,7 @@ const MODULES=[
  {id:'suksesi',icn:'suksesi',lab:'Suksesi & Regenerasi',groups:[
    {grp:'',items:[{v:'suksesi',lab:'Ikhtisar'}]},
    {grp:'Proyeksi',items:[{v:'sukpensiun',lab:'Gelombang Pensiun'},{v:'sukunit',lab:'Eksposur per Unit'}]},
-   {grp:'Risiko & Kader',items:[{v:'sukkritikal',lab:'Risiko Jabatan Pimpinan'},{v:'sukkader',lab:'Kesinambungan Kader'}]},
+   {grp:'Risiko & Regenerasi',items:[{v:'sukkritikal',lab:'Risiko Jabatan Pimpinan'},{v:'sukregen',lab:'Regenerasi Pejabat'}]},
    {grp:'Profil Pejabat',items:[{v:'sukpopulasi',lab:'Komposisi & Piramida Usia'},{v:'sukes2',lab:'Unit Eselon II'}]},
    {grp:'Daftar Nominatif',items:[{v:'suknominatif',lab:'Pejabat Akan Pensiun'}]},
    {grp:'Rujukan',items:[{v:'sukinstrumen',lab:'Instrumen Profesionalitas'},{v:'suktentang',lab:'Tentang Data'}]},
@@ -2108,7 +2108,7 @@ const MODKET={
   katalog:'Katalog keahlian baku: 3.217 sub-keahlian dalam 22 bidang.',
   katref:'Katalog referensi baku ber-kode: Produk ABK, Jabatan, Proses Bisnis, Norma Waktu, Unit & Kantor, Layanan, Aplikasi, Kewenangan.',
   cuti:'Pola pemanfaatan cuti pegawai: tren, musiman, unit, demografi, kategori sakit, proyeksi, hingga simulasi kebijakan.',
-  suksesi:'Kesiapan regenerasi kepemimpinan: gelombang pensiun pejabat Eselon II sampai IV, jabatan pimpinan yang paling terekspos, dan kedalaman kolam kader tiap unit.',
+  suksesi:'Kesiapan regenerasi kepemimpinan: gelombang pensiun pejabat Eselon II sampai IV, jabatan pimpinan yang paling terekspos, dan seberapa dalam ketersediaan calon pengganti di tiap unit.',
   unitremote:'Aplikasi unit remote (UKDR) tertanam di dalam dashboard.'
 };
 const DOMDESC={
@@ -2137,7 +2137,7 @@ const MENUKET={
   kj:'Ikhtisar standar kompetensi jabatan dan cakupannya.',kjrumpun:'Taksonomi rumpun jabatan tiga tingkat beserta konsep penataannya.',kjstandar:'Daftar standar kompetensi tiap posisi jabatan, dapat disaring dan dicari.',kjdetail:'Rincian kompetensi teknis, manajerial dan sosial kultural, serta KSA satu jabatan.',kjksa:'Keahlian yang dibutuhkan jabatan, dipadankan dengan Katalog Kompetensi.',kjkamus:'Kamus kompetensi teknis dan mansoskul beserta indikator perilaku tiap level.',kjtentang:'Sumber, cakupan, batasan, dan mutu data standar kompetensi.',
   cuti:'Ringkasan pemanfaatan cuti pegawai lintas jenis dan tahun.',cutitren:'Tren bulanan dan pola musiman pengajuan cuti.',cutiunit:'Cuti tiap unit Eselon I, dapat ditelusuri sampai Eselon II.',cutiwilayah:'Sebaran cuti menurut kota tempat kantor berada.',cutiutilisasi:'Pemakaian hak cuti tahunan dibanding hak 24 hari kerja.',cutikualitas:'Kepatuhan terhadap ketentuan hak cuti dan mutu rekaman data.',cutidemografi:'Sebaran cuti menurut kelompok usia dan gender.',cutipola:'Pola hari mulai/selesai cuti dan kalender kapasitas kehadiran.',cutisakit:'Kategori alasan cuti sakit hasil pengolahan teks.',cutiprediksi:'Proyeksi beban cuti berbasis pola musiman historis.',cutisimulasi:'Simulasi dampak perubahan ambang potongan tunjangan (PMK 221/PMK.01/2021).',cutitentang:'Sumber, cakupan, kualitas, dan batasan data cuti.',
   // Suksesi & Regenerasi (domain SDM)
-  suksesi:'Potret kesiapan regenerasi kepemimpinan Eselon II sampai IV dalam satu halaman.',sukpensiun:'Jumlah kursi pejabat yang kosong karena pensiun, tahun demi tahun sampai sepuluh tahun ke depan.',sukunit:'Unit Eselon I mana yang paling banyak kehilangan pejabat dalam lima tahun.',sukkritikal:'Jabatan pimpinan satuan kerja yang pemangkunya paling banyak segera pensiun.',sukkader:'Perbandingan kursi yang akan kosong dengan jumlah kandidat di satu tingkat di bawahnya.',sukpopulasi:'Komposisi pejabat menurut eselon, jalur, gender, dan piramida usia.',sukes2:'Kesinambungan pejabat sampai level unit Eselon II, penghubung ke modul Struktur Organisasi.',sukinstrumen:'Rubrik penilaian profesionalitas dan personalitas pemimpin sebagai rujukan penilaian talenta.',suktentang:'Sumber, cara hitung batas usia pensiun, mutu data, dan rambu privasi.',suknominatif:'Daftar nama pejabat yang akan pensiun pada periode tertentu, dijaga verifikasi kedua.',
+  suksesi:'Potret kesiapan regenerasi kepemimpinan Eselon II sampai IV dalam satu halaman.',sukpensiun:'Jumlah kursi pejabat yang kosong karena pensiun, tahun demi tahun sampai sepuluh tahun ke depan.',sukunit:'Unit Eselon I mana yang paling banyak kehilangan pejabat dalam lima tahun.',sukkritikal:'Jabatan pimpinan satuan kerja yang pemangkunya paling banyak segera pensiun.',sukregen:'Perbandingan kursi yang akan kosong dengan jumlah kandidat di satu tingkat di bawahnya.',sukpopulasi:'Komposisi pejabat menurut eselon, jalur, gender, dan piramida usia.',sukes2:'Kesinambungan pejabat sampai level unit Eselon II, penghubung ke modul Struktur Organisasi.',sukinstrumen:'Rubrik penilaian profesionalitas dan personalitas pemimpin sebagai rujukan penilaian talenta.',suktentang:'Sumber, cara hitung batas usia pensiun, mutu data, dan rambu privasi.',suknominatif:'Daftar nama pejabat yang akan pensiun pada periode tertentu, dibuka dengan token akses dari pengelola dashboard.',
   // Kompetensi
   katalog:'Merujuk keahlian baku untuk pemetaan keahlian tim dan pegawai.',
   // Kapabilitas (MOFIN)
@@ -2160,7 +2160,7 @@ const MENUOBJ={
   ringkasan:'Memantau adopsi mekanisme kerja bagi pimpinan.',analisis:'Menilai kinerja penyelesaian penugasan tim.',insight:'Mendapat rekomendasi tindak lanjut otomatis.',timanalitik:'Memetakan tim berkinerja tinggi dan yang perlu dibantu.',kategoritim:'Memahami komposisi tim menurut jenis kerja.',people:'Menilai keahlian, ketersediaan, dan beban pegawai.',heatmap:'Membandingkan tingkat adopsi antar unit.',beban:'Menemukan tim atau pegawai dengan beban berlebih.',struktur:'Menelusuri unit beserta tim di dalamnya.',tim:'Mendalami detail satu tim kerja.',pegawai:'Mendalami keanggotaan dan kontribusi pegawai.',keahlian:'Menemukan pegawai dengan keahlian tertentu.',avail:'Menilai siapa yang tersedia untuk penugasan baru.',
   kj:'Mengetahui sejauh mana jabatan sudah punya standar kompetensi.',kjrumpun:'Memahami pengelompokan bidang tugas yang menaungi kompetensi.',kjstandar:'Menemukan standar kompetensi jabatan tertentu dengan cepat.',kjdetail:'Membaca kompetensi satu jabatan sampai indikator perilakunya.',kjksa:'Menemukan jabatan yang membutuhkan suatu keahlian.',kjkamus:'Merujuk definisi dan tingkatan tiap kompetensi secara baku.',kjtentang:'Memahami batasan data sebelum memakainya untuk keputusan.',
   cuti:'Memantau pemanfaatan cuti pegawai secara menyeluruh.',cutitren:'Mengantisipasi lonjakan pengajuan cuti pada periode tertentu.',cutiunit:'Membandingkan intensitas cuti antar unit secara adil.',cutiwilayah:'Melihat perbedaan pola cuti antar wilayah kerja.',cutiutilisasi:'Memastikan hak istirahat pegawai benar-benar dimanfaatkan.',cutikualitas:'Menemukan rekaman cuti yang perlu diperiksa dan diperbaiki.',cutidemografi:'Memahami profil risiko cuti menurut usia dan gender.',cutipola:'Merencanakan kapasitas kehadiran dan jadwal kegiatan besar.',cutisakit:'Memahami penyebab cuti sakit untuk intervensi kesehatan.',cutiprediksi:'Memperkirakan beban cuti mendatang untuk perencanaan.',cutisimulasi:'Menguji dampak usulan revisi kebijakan potongan tunjangan.',cutitentang:'Memahami sumber, cakupan, dan batasan data cuti.',
-  suksesi:'Menilai kesiapan Kementerian menghadapi pergantian pemimpin.',sukpensiun:'Merencanakan kebutuhan pengisian jabatan tahun per tahun.',sukunit:'Menentukan unit mana yang perlu didahulukan kaderisasinya.',sukkritikal:'Mengamankan kepemimpinan satuan kerja yang segera berganti.',sukkader:'Mengetahui unit yang tidak punya cukup calon pengganti sendiri.',sukpopulasi:'Memahami struktur usia dan komposisi pejabat hari ini.',sukes2:'Menelusuri kesinambungan pejabat sampai unit Eselon II.',sukinstrumen:'Menyeragamkan dasar penilaian talenta untuk promosi dan mutasi.',suktentang:'Memahami asumsi, mutu, dan batasan data pejabat.',suknominatif:'Menyusun rencana pengisian jabatan dan usulan mutasi atas nama orang.',
+  suksesi:'Menilai kesiapan Kementerian menghadapi pergantian pemimpin.',sukpensiun:'Merencanakan kebutuhan pengisian jabatan tahun per tahun.',sukunit:'Menentukan unit mana yang perlu didahulukan penyiapan penggantinya.',sukkritikal:'Mengamankan kepemimpinan satuan kerja yang segera berganti.',sukregen:'Mengetahui unit yang tidak punya cukup calon pengganti sendiri.',sukpopulasi:'Memahami struktur usia dan komposisi pejabat hari ini.',sukes2:'Menelusuri kesinambungan pejabat sampai unit Eselon II.',sukinstrumen:'Menyeragamkan dasar penilaian talenta untuk promosi dan mutasi.',suktentang:'Memahami asumsi, mutu, dan batasan data pejabat.',suknominatif:'Menyusun rencana pengisian jabatan dan usulan mutasi atas nama orang.',
   katalog:'Merujuk standar kompetensi jabatan.',
   mofin:'Menilai kapabilitas kelembagaan tiap unit.',mofheatmap:'Membandingkan skor kapabilitas antar unit dan dimensi.',mofprofil:'Mendalami kapabilitas satu unit.',moftl:'Memantau tindak lanjut rekomendasi kapabilitas.',mofkuadran:'Memprioritaskan area lemah dengan respons rendah.',mofgap:'Menentukan tindak lanjut kapabilitas yang paling mendesak.',
   pelwen:'Memahami peta pelimpahan wewenang secara ringkas.',pelunit:'Mengetahui wewenang yang dilimpahkan tiap unit.',pellintas:'Melihat pola pelimpahan wewenang lintas unit.',pelcari:'Menelusuri butir kewenangan sampai ke jabatan penerimanya.',pelanalisis:'Menganalisis pola dan konsentrasi pendelegasian.',pelinsight:'Mengaitkan mandat dengan modul lain untuk temuan.',peltentang:'Memahami dasar hukum dan batas berlaku mandat.',
@@ -2196,15 +2196,15 @@ const SDM_PLAN=[
   {lab:'Perencanaan Kebutuhan SDM',ket:'Proyeksi kebutuhan pegawai, menyatu dengan ABK.'},
   {lab:'Rekrutmen',ket:'Analitik seleksi & pengisian formasi.'},
   {lab:'Onboarding',ket:'Pemantauan penempatan & masa awal pegawai.'},
-  {lab:'Kompetensi',ket:'Peta kompetensi vs syarat jabatan (gap).'},
-  {lab:'Karier & Talenta',ket:'Talent pool, suksesi, jenjang karier.'},
+  {lab:'Kompetensi',ket:'Peta kompetensi dibanding syarat jabatan dan kesenjangannya.'},
+  {lab:'Karier & Talenta',ket:'Ketersediaan calon, suksesi, jenjang karier.'},
   {lab:'Kinerja',ket:'Capaian kinerja pegawai & unit.'},
-  {lab:'Pembelajaran',ket:'Learning path & pengembangan kompetensi.'},
+  {lab:'Pembelajaran',ket:'Jalur pembelajaran dan pengembangan kompetensi.'},
   {lab:'Kompensasi & Manfaat',ket:'Analitik remunerasi & tunjangan.'},
-  {lab:'Penggajian',ket:'Analitik payroll & komponen gaji.'},
+  {lab:'Penggajian',ket:'Analitik penggajian dan komponen gaji.'},
   {lab:'Kehadiran',ket:'Pola kehadiran & disiplin pegawai.'},
   {lab:'Budaya & Keterlibatan',ket:'Indeks keterlibatan & budaya organisasi.'},
-  {lab:'Pemberhentian',ket:'Attrition, pensiun, dan analisis keluar.'}
+  {lab:'Pemberhentian',ket:'Pemberhentian, pensiun, dan purna tugas.'}
 ];
 
 /* ====================== KESEGARAN DATA ("Data per ...") ======================
@@ -2348,7 +2348,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',kataktQ:'',kataktKlus:'',katpetaUE1:'',kjQ:'',kjUE1:'',kjLvl:'',kpbQ:'',kpbDom:'',kpbLvl:'',katrefLoading:false,katrefErr:false,nwQ:'',nwKlus:'',kuQ:'',kuUE1:'',kuTipe:'',ksQ:'',ksUE1:'',ksDig:'',kaQ:'',kaUE1:'',kwQ:'',kwUnit:'',kwJenis:'',
   pwAnTab:'konsentrasi',otkEvTab:'dimensi',tkIntTab:'tahun',kjRumTab:'peta',cutiSkTab:'komposisi',abkSimTab:'kalibrasi',cutiUtTab:'pakai',
   mkLoading:false,mkErr:false,
-  sukLoading:false,sukErr:false,sukKaderMode:'gabungan',sukEs2Q:'',sukEs2UE1:'',sukUnitSel:'',sukPirJalur:'semua',
+  sukLoading:false,sukErr:false,sukRegenMode:'gabungan',sukEs2Q:'',sukEs2UE1:'',sukUnitSel:'',sukPirJalur:'semua',
   /* Daftar nominatif: seluruhnya hanya di memori. Password TIDAK PERNAH masuk state. */
   nomTok2:null,nomExp:0,nomRows:null,nomInfo:null,nomTh1:0,nomTh2:0,nomUe1:'',nomEs:'',nomQ:'',
   nomBusy:false,nomMsg:'',nomSetMode:false,
@@ -2438,7 +2438,7 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'List Dataset',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',hub_katalog:'Katalog',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Katalog Keahlian',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
   tk:'Ikhtisar Tata Kelola',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   cuti:'Ringkasan Cuti Pegawai',cutitren:'Tren & Musiman Cuti',cutiunit:'Profil Unit',cutiwilayah:'Sebaran Wilayah',cutiutilisasi:'Utilisasi Hak Cuti Tahunan',cutikualitas:'Kepatuhan & Mutu Data',cutidemografi:'Demografi & Gender Cuti',cutipola:'Pola Hari & Kalender Kapasitas',cutisakit:'Kategori Cuti Sakit',cutiprediksi:'Proyeksi Beban Cuti',cutisimulasi:'Simulasi Kebijakan PMK 221',cutitentang:'Tentang Data Cuti',
-  suksesi:'Ikhtisar Suksesi & Regenerasi',sukpensiun:'Gelombang Pensiun',sukunit:'Eksposur Pensiun per Unit',sukkritikal:'Risiko Jabatan Pimpinan',sukkader:'Kesinambungan Kader',sukpopulasi:'Komposisi & Piramida Usia Pejabat',sukes2:'Kesinambungan Unit Eselon II',sukinstrumen:'Instrumen Profesionalitas Pemimpin',suktentang:'Tentang Data Pejabat',suknominatif:'Pejabat Akan Pensiun (Daftar Nominatif)',
+  suksesi:'Ikhtisar Suksesi & Regenerasi',sukpensiun:'Gelombang Pensiun',sukunit:'Eksposur Pensiun per Unit',sukkritikal:'Risiko Jabatan Pimpinan',sukregen:'Regenerasi Pejabat',sukpopulasi:'Komposisi & Piramida Usia Pejabat',sukes2:'Kesinambungan Unit Eselon II',sukinstrumen:'Instrumen Profesionalitas Pemimpin',suktentang:'Tentang Data Pejabat',suknominatif:'Pejabat Akan Pensiun (Daftar Nominatif)',
   kj:'Ikhtisar Kompetensi Jabatan',kjstandar:'Standar Kompetensi Jabatan',kjdetail:'Standar Kompetensi Satu Jabatan',kjksajpt:'KSA Jabatan Pimpinan Tinggi',kjjf:'Standar Kompetensi Jabatan Fungsional',kjrumpun:'Taksonomi Rumpun Jabatan',kjkamus:'Kamus Kompetensi Teknis',kjmansos:'Kamus Manajerial dan Sosial Kultural',kjkeahlian:'Kamus Keahlian',kjcakupan:'Cakupan Standar Jabatan',kjrantai:'Rantai Proses Bisnis ke Kompetensi',kjtaksonomi:'Kesesuaian Taksonomi Rumpun',kjubah:'Perubahan Antar Generasi Standar',kjproyeksi:'Proyeksi Pemenuhan Standar',kjprioritas:'Prioritas Penyusunan Standar',kjtentang:'Tentang Data Kompetensi',
   mofin:'Skor Kapabilitas',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Ikhtisar Pelimpahan',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Daftar Butir Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Dasar Hukum dan Ketentuan Pelimpahan',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
 
@@ -7606,7 +7606,7 @@ function render(){
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,katakt:vKatAkt,katpeta:vKatPeta,katjab:vKatJab,katpb:vKatPb,katnw:vKatNw,katunit:vKatUnit,katsvc:vKatSvc,katapp:vKatApp,katwen:vKatWen,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,hub_katalog:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     kj:vKj,kjstandar:vKjStandar,kjdetail:vKjDetail,kjksajpt:vKjKsaJpt,kjjf:vKjJf,kjrumpun:vKjRumpun,kjkamus:vKjKamus,kjmansos:vKjMansos,kjkeahlian:vKjKeahlian,kjcakupan:vKjCakupan,kjrantai:vKjRantai,kjtaksonomi:vKjTaksonomi,kjubah:vKjUbah,kjproyeksi:vKjProyeksi,kjprioritas:vKjPrioritas,kjtentang:vKjTentang,
     suknominatif:vSukNominatif,
-    suksesi:vSuksesi,sukpensiun:vSukPensiun,sukunit:vSukUnit,sukkritikal:vSukKritikal,sukkader:vSukKader,sukpopulasi:vSukPopulasi,sukes2:vSukEs2,sukinstrumen:vSukInstrumen,suktentang:vSukTentang,
+    suksesi:vSuksesi,sukpensiun:vSukPensiun,sukunit:vSukUnit,sukkritikal:vSukKritikal,sukregen:vSukRegen,sukpopulasi:vSukPopulasi,sukes2:vSukEs2,sukinstrumen:vSukInstrumen,suktentang:vSukTentang,
     cuti:vCuti,cutitren:vCutiTren,cutiunit:vCutiUnit,cutiwilayah:vCutiWilayah,cutiutilisasi:vCutiUtilisasi,cutikualitas:vCutiKualitas,cutidemografi:vCutiDemografi,cutipola:vCutiPola,cutisakit:vCutiSakit,cutiprediksi:vCutiPrediksi,cutisimulasi:vCutiSimulasi,cutitentang:vCutiTentang,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
   /* Penjaga terpusat modul Mekanisme Kerja: selama data tim & pegawai belum tiba, tampilkan
@@ -9435,7 +9435,7 @@ function vSuksesi(){
   let h=pgHead('Suksesi & Regenerasi Kepemimpinan',
     '<p>Modul ini menjawab satu pertanyaan yang sederhana tetapi jarang terhitung: berapa banyak kursi kepemimpinan yang akan kosong, kapan kosongnya, di unit mana, dan apakah ada calon penggantinya. Dasarnya populasi '+
     fmt(tot)+' pejabat struktural dan fungsional setara Eselon II sampai IV posisi '+esc(M.posisiData)+'.</p>'+
-    '<p>Dari potret itu modul melangkah ke diagnosa: jabatan pimpinan mana yang paling terekspos, unit mana yang kolam kadernya dangkal, dan rubrik apa yang bisa dipakai menilai kesiapan calon. Seluruh angka bersifat agregat pada level unit dan jabatan, tanpa identitas pegawai.</p>');
+    '<p>Dari potret itu modul melangkah ke diagnosa: jabatan pimpinan mana yang paling terekspos, unit mana yang ketersediaan calon penggantinya tipis, dan rubrik apa yang bisa dipakai menilai kesiapan calon. Seluruh angka bersifat agregat pada level unit dan jabatan, tanpa identitas pegawai.</p>');
   h+=sorotanCard('Sorotan',
     '<b>Hampir sepertiga kursi pejabat berganti dalam lima tahun.</b> Sebanyak '+fmt(L.total)+' dari '+fmt(tot)+
     ' pejabat, atau '+sukNum(L.pct)+' persen, mencapai batas usia pensiun sampai akhir '+bt+
@@ -9444,8 +9444,8 @@ function vSuksesi(){
     ' pejabat Eselon II struktural, atau '+sukNum(es2.pensiun5Pct)+' persen, pensiun dalam rentang yang sama. Pada jabatan '+
     esc(kritTop.jabatan||'pimpinan satuan kerja')+' proporsinya bahkan '+sukNum(kritTop.pensiun5Pct||0)+' persen.'+
     '</p><p style="margin:0 0 10px"><b>Dua tindak lanjut:</b> menyiapkan pengisian jabatan secara berjadwal mengikuti kurva pensiun, '+
-    'dan memperdalam kolam kader di unit yang tidak punya cukup calon dari jalur strukturalnya sendiri.',
-    [{v:'sukpensiun',t:'Lihat Gelombang Pensiun'},{v:'sukkritikal',t:'Jabatan Paling Terekspos'},{v:'sukkader',t:'Kesinambungan Kader'}]);
+    'dan menambah calon pengganti di unit yang belum punya cukup calon dari jalur strukturalnya sendiri.',
+    [{v:'sukpensiun',t:'Lihat Gelombang Pensiun'},{v:'sukkritikal',t:'Jabatan Paling Terekspos'},{v:'sukregen',t:'Regenerasi Pejabat'}]);
   h+='<div class="kpis">'+
     kpiBox('Kursi kosong s.d. '+bt,fmt(L.total),sukNum(L.pct)+' persen dari populasi pejabat','','data-act="nav" data-view="sukpensiun"')+
     kpiBox('Puncak dalam jendela',fmt(puncak.total||0),'kursi pada '+(puncak.tahun||'-'),'','data-act="nav" data-view="sukpensiun"')+
@@ -9458,7 +9458,7 @@ function vSuksesi(){
     T.map(function(x){return '<div'+(x.tahun<=bt?'':' style="opacity:.45"')+'>'+bar(String(x.tahun),x.total,mx,'',fmt(x.total))+'</div>';}).join('')+
     '<div class="mini" style="margin-top:6px">Batang penuh berada dalam jendela lima tahun (sampai akhir '+bt+'); batang redup adalah tahun sesudahnya.</div>'+
     sukCatatanBup()+'</div>';
-  h+='<div class="note-box" style="margin-top:14px">Modul ini tidak memuat nama maupun NIP pegawai. Seluruh angka adalah agregat pada level unit atau jabatan, dan sel bermuatan kecil ditahan. Rincian asumsi dan mutu data ada pada menu Tentang Data.</div>';
+  h+='<div class="note-box" style="margin-top:14px">Modul ini tidak memuat nama maupun NIP pegawai. Seluruh angka adalah agregat pada level unit atau jabatan, dan sel yang isinya sangat sedikit tidak ditampilkan. Rincian asumsi dan mutu data ada pada menu Tentang Data.</div>';
   return h;}
 
 /* ---------- Gelombang pensiun ---------- */
@@ -9542,22 +9542,22 @@ function vSukKritikal(){
         '<td style="text-align:center">'+sukPillZona(x.pensiun5Pct)+'</td><td style="text-align:right">'+x.medianUsia+'</td>'+
         '<td>'+esc(x.unitTeratas)+'</td></tr>';}).join('')+
     '</tbody></table></div>'+sukCatatanBup()+'</div>';
-  h+='<div class="note-box" style="margin-top:14px">Jabatan berzona tinggi berarti lebih dari separuh pemangkunya berganti dalam lima tahun. Pada jabatan yang memimpin kantor pelayanan, pergantian serentak seperti ini berdampak langsung pada kesinambungan layanan, sehingga penyiapan calon dan masa alih tugas layak dijadwalkan sejak sekarang. Sebaliknya, jabatan berzona rendah dengan jumlah pemangku besar justru berperan sebagai kolam kader.</div>';
+  h+='<div class="note-box" style="margin-top:14px">Jabatan berzona tinggi berarti lebih dari separuh pemangkunya berganti dalam lima tahun. Pada jabatan yang memimpin kantor pelayanan, pergantian serentak seperti ini berdampak langsung pada kesinambungan layanan, sehingga penyiapan calon dan masa alih tugas layak dijadwalkan sejak sekarang. Sebaliknya, jabatan berzona rendah dengan jumlah pemangku besar justru menjadi sumber calon pengganti bagi jabatan di atasnya.</div>';
   return h;}
 
-/* ---------- Kesinambungan kader ---------- */
-function vSukKader(){
+/* ---------- Regenerasi pejabat ---------- */
+function vSukRegen(){
   const g=sukGuard();if(g)return g;
-  const mode=state.sukKaderMode||'gabungan', bt=sukBatas();
+  const mode=state.sukRegenMode||'gabungan', bt=sukBatas();
   const kunciR=mode==='gabungan'?'rasioGabungan':'rasioStruktural';
   const kunciK=mode==='gabungan'?'kaderGabungan':'kaderStruktural';
   const K=(SUKSESI.kader||[]).slice().sort(function(a,b){
     const ra=(a.lapis.Es2||{})[kunciR], rb=(b.lapis.Es2||{})[kunciR];
     return (ra==null?99:ra)-(rb==null?99:rb);});
-  let h='<div class="toolbar"><span class="mini">Kolam kandidat</span><span class="seg">'+
-    '<span class="segb '+(mode==='gabungan'?'on':'')+'" data-act="sukkadermode" data-m="gabungan">Struktural dan fungsional</span>'+
-    '<span class="segb '+(mode==='struktural'?'on':'')+'" data-act="sukkadermode" data-m="struktural">Struktural saja</span></span></div>';
-  h+='<div class="note-box"><b>Dua pembacaan, dua kesimpulan berbeda, dan keduanya sah.</b> Bila pejabat fungsional setara ikut dihitung sebagai calon, sesuai arah kebijakan fungsionalisasi, hampir semua unit tampak berkecukupan. Bila kolam dibatasi pada jalur struktural saja, beberapa unit kecil terlihat tidak punya kedalaman bangku sendiri. Modul sengaja tidak memilih salah satu; gunakan tombol di atas untuk berpindah sudut pandang.</div>';
+  let h='<div class="toolbar"><span class="mini">Calon dihitung dari</span><span class="seg">'+
+    '<span class="segb '+(mode==='gabungan'?'on':'')+'" data-act="sukregenmode" data-m="gabungan">Struktural dan fungsional</span>'+
+    '<span class="segb '+(mode==='struktural'?'on':'')+'" data-act="sukregenmode" data-m="struktural">Struktural saja</span></span></div>';
+  h+='<div class="note-box"><b>Dua pembacaan, dua kesimpulan berbeda, dan keduanya sah.</b> Bila pejabat fungsional setara ikut dihitung sebagai calon, sesuai arah kebijakan fungsionalisasi, hampir semua unit tampak berkecukupan. Bila perhitungan dibatasi pada jalur struktural saja, beberapa unit kecil terlihat tidak punya cukup calon dari jalurnya sendiri. Modul sengaja tidak memilih salah satu; gunakan tombol di atas untuk berpindah sudut pandang.</div>';
   const kadMaks=(SUKSESI.meta&&SUKSESI.meta.kaderMaksUsia)||50;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Kursi yang Akan Kosong dibanding Calon di Satu Tingkat di Bawahnya</h2><div class="tblw"><table><thead><tr>'+
     '<th style="text-align:left" rowspan="2">Unit Eselon I</th><th colspan="4" style="text-align:center">Eselon II diisi dari Eselon III</th>'+
@@ -9619,7 +9619,7 @@ function vSukPopulasi(){
       '<div class="num" style="width:70px;text-align:right">'+fmt(t.n)+'</div></div>';});
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Piramida Usia Pejabat</h2>'+pir+
     '<div class="mini" style="margin-top:8px"><span style="display:inline-block;width:10px;height:10px;background:var(--brand);border-radius:2px"></span> pria (kiri) &nbsp; '+
-    '<span style="display:inline-block;width:10px;height:10px;background:var(--seq-3);border-radius:2px"></span> wanita (kanan). Sel bermuatan sangat kecil ditahan demi privasi, sehingga jumlah baris dapat sedikit melebihi penjumlahan dua sisinya.</div></div>';
+    '<span style="display:inline-block;width:10px;height:10px;background:var(--seq-3);border-radius:2px"></span> wanita (kanan). Sel yang isinya sangat sedikit tidak ditampilkan demi privasi, sehingga jumlah baris dapat sedikit melebihi penjumlahan dua sisinya.</div></div>';
   /* gender: pola cekung, layak diberi catatan supaya tidak salah dibaca */
   const gs=PE.filter(function(x){return x.jalur==='struktural';}).sort(function(a,b){return b.eselon-a.eselon;});
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Proporsi Perempuan menurut Jenjang</h2>'+
@@ -9751,7 +9751,7 @@ function vSukNominatif(){
   const g=sukGuard();if(g)return g;
 
   let h=pgHead('Daftar Pejabat yang Akan Pensiun',
-    '<p>Halaman ini memulangkan nama, jabatan, unit, dan tanggal pensiun pejabat pada periode yang Anda pilih. Gunakan untuk menyusun rencana pengisian jabatan dan usulan mutasi.</p>'+
+    '<p>Halaman ini menampilkan nama, jabatan, unit, dan tanggal pensiun pejabat pada periode yang Anda pilih. Gunakan untuk menyusun rencana pengisian jabatan dan usulan mutasi.</p>'+
     '<p>Karena memuat data pribadi, halaman ini dijaga berlapis dua: selain sudah masuk dengan akun Anda, diperlukan token akses yang diberikan pengelola dashboard. Penyaringan dilakukan di server, sehingga yang terkirim hanya baris pada periode yang diminta.</p>');
   h+='<div class="note-box warn"><b>Setiap pembukaan dicatat.</b> Waktu, nama pengguna, periode yang diminta, dan jumlah baris yang keluar tersimpan pada jejak sistem. Permintaan menampilkan NIP secara penuh dicatat tersendiri. Data yang tampil tidak disimpan di peramban dan hilang begitu Anda keluar.</div>';
 
@@ -10974,9 +10974,15 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='cutisktab'){state.cutiSkTab=el.dataset.tab;render();}
   else if(a==='abksimtab'){state.abkSimTab=el.dataset.tab;render();}
   else if(a==='cutiuttab'){state.cutiUtTab=el.dataset.tab;render();}
-  else if(a==='sukkadermode'){state.sukKaderMode=el.dataset.m;render();}
+  else if(a==='sukregenmode'){state.sukRegenMode=el.dataset.m;render();}
   else if(a==='sukstepup'){
-    const pw=_nomVal('nomPw2'); if(!pw){state.nomMsg='Token akses belum diisi.';render();return;}
+    /* Klik kedua saat masih memeriksa dulu MENGOSONGKAN kotak isian, sehingga pesannya
+       berubah jadi "Token akses belum diisi" padahal token sudah diketik. Karena itu
+       klik saat sibuk diabaikan, dan isian baru dikosongkan setelah benar-benar dikirim. */
+    if(state.nomBusy)return;
+    const _el=document.getElementById('nomPw2'); const pw=_el?_el.value:'';
+    if(!pw){state.nomMsg='Token akses belum diisi.';render();return;}
+    if(_el)_el.value='';
     state.nomBusy=true;state.nomMsg='';render();
     apiUlang('stepup',{pw2:pw}).then(j=>{state.nomBusy=false;
       if(j&&j.ok){state.nomTok2=j.token2;state.nomExp=Date.now()+((j.ttl||600)*1000);state.nomMsg='';}
