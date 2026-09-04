@@ -1728,7 +1728,7 @@ const PETA={
 };  /* peta unit Eselon I lintas modul; ditanam di semua build */
 let TK=null;   /* Tata Kelola (TKPP, publik). LOKAL inline; REMOTE null -> muat via gerbang saat login; INTERNAL dari data/tkpp.json */
 /* ===== Proses Bisnis: embed mulus (sidebar Probis disembunyikan, menu kita yang mengendalikan) ===== */
-const PBV='1718885';
+const PBV='1724325';
 const PB_LBL={exec:'Dashboard',ringkasan:'Ringkasan',tree:'Tree Diagram',heatmap:'Heatmap Unit',tematik:'Analisis Tematik',jaringan:'Jaringan Unit',profil:'Profil Domain',spbe:'SPBE & Maturitas',gap:'Gap & Whitespace',layanan:'Layanan',aplikasi:'Aplikasi',monitoring:'Monitoring',katalog:'Proses Bisnis',validasi:'Validasi Probis',level:'Validasi Level',perubahan:'Perubahan'};
 function pbPost(msg){const f=document.getElementById('pbFrame');try{if(f&&f.contentWindow)f.contentWindow.postMessage(msg,'*');}catch(e){}}
 function _curTheme(){return document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';}

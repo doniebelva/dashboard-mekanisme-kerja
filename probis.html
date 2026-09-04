@@ -1302,6 +1302,9 @@ mergeLiveLayanan();
 .pb-embed .sidebar{display:none!important}
 .pb-embed .sb-backdrop{display:none!important}
 .pb-embed .topbar{display:none!important}
+/* Footer bawaan Probis ("Dashboard Proses Bisnis Kemenkeu ...") tak perlu di mode embed:
+   platform induk sudah punya footernya sendiri, jadi ini cuma bikin ruang kosong. */
+.pb-embed .appfoot{display:none!important}
 .pb-embed .app{height:auto!important;min-height:0!important;overflow:visible!important;display:block!important}
 .pb-embed .main{margin-left:0!important;width:100%!important;height:auto!important;min-height:0!important;overflow:visible!important}
 .pb-embed .wrap{max-width:none!important;padding-left:0!important;padding-right:0!important;padding-top:0!important}
@@ -1316,11 +1319,22 @@ html.pb-embed,.pb-embed body{background:transparent!important;height:auto!import
 .pb-embed #modalBg{position:absolute!important;left:0!important;right:0!important;bottom:auto!important;
   top:var(--pb-mtop,0px)!important;height:var(--pb-mh,600px)!important}
 .pb-embed #modalBg .modal{max-height:calc(var(--pb-mh,600px) - 56px)!important}
+/* ---- TAB per tema untuk halaman panjang (4 Sep 2026) ---- */
+.pb-embed .pb-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;padding:0 0 10px;border-bottom:1px solid #e2e8f0}
+.pb-embed .pb-tab{appearance:none;border:1px solid #dbe3ec;background:#fff;color:#33465e;
+  font:600 12px/1.2 inherit;padding:7px 13px;border-radius:999px;cursor:pointer;transition:.15s}
+.pb-embed .pb-tab:hover{border-color:#9db8d8;color:#14528f}
+.pb-embed .pb-tab.on{background:#1467c0;border-color:#1467c0;color:#fff}
+.pb-embed body.dark .pb-tabs{border-bottom-color:#293749}
+.pb-embed body.dark .pb-tab{background:#16212f;border-color:#293749;color:#c7d2e0}
+.pb-embed body.dark .pb-tab.on{background:#1467c0;border-color:#1467c0;color:#fff}
+@media print{.pb-embed .pb-tabs{display:none!important}.pb-embed .pb-sembunyi{display:block!important}}
+.pb-embed .pb-sembunyi{display:none!important}
 </style>
 <script id="pbEmbedShim">
 (function(){
   var T;
-  function embed(){document.documentElement.classList.add('pb-embed');taruhFresh();}
+  function embed(){document.documentElement.classList.add('pb-embed');taruhFresh();pbTabAmati();setTimeout(pbTabify,120);setTimeout(pbTabify,700);}
   /* Penanda kesegaran data, seragam dgn modul lain (yg dipasang platform induk).
      Probis berjangkar peraturan proses bisnis; tak ada tahun tunggal, jadi pakai dasar. */
   function taruhFresh(){
@@ -1339,8 +1353,107 @@ html.pb-embed,.pb-embed body{background:transparent!important;height:auto!import
   function theme(m){try{document.body.classList.toggle('dark',m==='dark');}catch(_){}}
   function postH(){try{var m=document.querySelector('.main');var h=m?(m.scrollHeight+10):document.body.scrollHeight;parent.postMessage({pbHeight:h},'*');}catch(_){}}
   function bump(){clearTimeout(T);T=setTimeout(postH,80);[300,800,1600].forEach(function(d){setTimeout(postH,d);});}
+
+  /* ================= TAB PER TEMA UNTUK HALAMAN PANJANG =================
+     Beberapa halaman Probis menumpuk empat sampai tujuh visual dalam satu gulungan
+     (Dashboard Pimpinan sempat 12.800px). Mesin ini memecahnya jadi tab, satu visual
+     satu tab, tanpa menyentuh kode aplikasinya sama sekali: yang disentuh hanya DOM
+     hasil render. Blok pendek di awal halaman tetap tampil sebagai konteks bersama.
+     Pilihan tab diingat per halaman selama sesi. Saat cetak, semua blok ditampilkan
+     lagi supaya kertas memuat seluruh isi, bukan cuma tab yang terbuka. */
+  var PB_TAB_MIN_TINGGI = 260;   /* blok lebih pendek dari ini dianggap konteks, bukan tema */
+  var PB_TAB_MIN_BLOK   = 2;     /* di bawah ini tidak perlu ditab */
+  var PB_TAB_MIN_PANEL  = 1500;  /* halaman lebih pendek dari ini biarkan menggulung */
+  var PB_TAB_LEWAT      = {pengaturan:1};
+  var pbTabPilih = {};
+  var pbSedangTabify = false;
+
+  function pbJudulBlok(el, ke){
+    var h = el.querySelector('h1,h2,h3,h4');
+    var t = h ? h.textContent : '';
+    t = String(t).replace(/\s+/g,' ').trim();
+    t = t.split(/[(·•]/)[0].trim();          /* buang keterangan dalam kurung/titik tengah */
+    if(t.length > 30) t = t.slice(0,29).replace(/[\s,;:-]+$/,'') + '…';
+    return t || ('Bagian ' + ke);
+  }
+
+  function pbTabify(){
+    if(pbSedangTabify) return;
+    var panel = document.querySelector('.wrap > .panel.active');
+    if(!panel) return;
+    pbSedangTabify = true;
+    try{ pbTabifyInti(panel); } finally { pbSedangTabify = false; }
+  }
+  function pbTabifyInti(panel){
+    var lama = panel.querySelector(':scope > .pb-tabs');
+    var blok = [];
+    var anak = panel.children, i;
+    for(i=0;i<anak.length;i++){
+      var c = anak[i];
+      if(c.classList.contains('pb-tabs')) continue;
+      blok.push(c);
+    }
+    /* pulihkan dulu, supaya perhitungan tinggi memakai keadaan asli */
+    for(i=0;i<blok.length;i++) blok[i].classList.remove('pb-sembunyi');
+    if(lama) lama.remove();
+
+    if(PB_TAB_LEWAT[panel.id]) { bump(); return; }
+    if(panel.scrollHeight < PB_TAB_MIN_PANEL) { bump(); return; }
+
+    /* Blok TANPA judul adalah konteks, bukan tema: di Probis itu pita angka ringkasan
+       (exec-strip) dan catatan cara baca. Dipatok tampil di semua tab, sama seperti aturan
+       ringkasan pada dashboard induk. Tema tanpa nama juga mustahil diberi label yang jujur. */
+    var tema = [], konteks = [];
+    for(i=0;i<blok.length;i++){
+      var punyaJudul = !!blok[i].querySelector('h1,h2,h3,h4');
+      var cukupTinggi = blok[i].scrollHeight >= PB_TAB_MIN_TINGGI;
+      (punyaJudul && cukupTinggi ? tema : konteks).push(blok[i]);
+    }
+    if(tema.length < PB_TAB_MIN_BLOK) { bump(); return; }
+
+    var pilih = pbTabPilih[panel.id];
+    if(pilih == null || pilih >= tema.length) pilih = 0;
+    pbTabPilih[panel.id] = pilih;
+
+    var bar = document.createElement('div');
+    bar.className = 'pb-tabs';
+    tema.forEach(function(el, k){
+      var b = document.createElement('button');
+      b.className = 'pb-tab' + (k === pilih ? ' on' : '');
+      b.type = 'button';
+      b.textContent = pbJudulBlok(el, k+1);
+      b.addEventListener('click', function(){
+        pbTabPilih[panel.id] = k;
+        pbTabify();
+        try{ panel.scrollIntoView({block:'nearest'}); }catch(_){}
+      });
+      bar.appendChild(b);
+    });
+    panel.insertBefore(bar, tema[0]);
+    tema.forEach(function(el, k){ el.classList.toggle('pb-sembunyi', k !== pilih); });
+    bump();
+  }
+  /* Grafik yang digambar setelah tab dipasang bisa mengubah tinggi; amati dan hitung ulang. */
+  function pbTabAmati(){
+    try{
+      var w = document.querySelector('.wrap'); if(!w) return;
+      var jeda;
+      var mo = new MutationObserver(function(){
+        if(pbSedangTabify) return;            /* abaikan perubahan yang kita buat sendiri */
+        clearTimeout(jeda);
+        jeda = setTimeout(pbTabify, 120);
+      });
+      /* Yang berubah saat ganti halaman adalah class pada TIAP .panel, bukan pada .wrap.
+         Karena itu yang diamati panel-panelnya, bukan wadahnya. */
+      var ps = w.querySelectorAll(':scope > .panel');
+      for(var i=0;i<ps.length;i++) mo.observe(ps[i], {attributes:true, attributeFilter:['class']});
+      mo.observe(w, {childList:true});
+    }catch(_){}
+  }
+
+  try{ window.pbTabify = pbTabify; }catch(_){}   /* kait untuk uji & pemicu dari induk */
   if((location.hash||'').indexOf('embed')>=0)embed();
-  window.addEventListener('message',function(e){var d=e&&e.data||{};if(d.pbEmbed)embed();if(d.pbTheme)theme(d.pbTheme);if(d.pbPanel){goto(d.pbPanel);bump();}});
+  window.addEventListener('message',function(e){var d=e&&e.data||{};if(d.pbEmbed)embed();if(d.pbTheme)theme(d.pbTheme);if(d.pbPanel){goto(d.pbPanel);setTimeout(pbTabify,60);bump();}});
   window.addEventListener('resize',bump);
 
   /* ---- Penempatan modal (lihat catatan di pbEmbedCss) ---- */
