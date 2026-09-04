@@ -2881,6 +2881,9 @@ function vKeahlian(){
   return h+`</div>`;}
 function vSkill(){
   const c=state.skill;
+  if(!c)return pilihDulu('keahlian',
+    'Halaman ini menampilkan daftar pegawai yang menguasai satu keahlian tertentu beserta ketersediaannya. Pilih keahliannya lebih dulu dari Expert Locator.',
+    'keahlian','Buka Expert Locator');
   let list=DATA.pegawai.map(p=>({p,st:availStatus(p),n:((pegSkills(p).find(s=>s.c===c))||{}).n||0})).filter(o=>o.n>=SKILL_TH);
   const total=list.length,avail=list.filter(o=>o.st==='tersedia').length;
   if(state.skillStat)list=list.filter(o=>o.st===state.skillStat);
@@ -5759,8 +5762,23 @@ function _vPegawaiBody(){
 }
 
 /* ===== Unit detail ===== */
+/* Halaman RINCIAN (unit, tim, pegawai, keahlian) hanya bermakna setelah ada yang dipilih.
+   Dulu, bila dibuka langsung lewat Ctrl+K, tautan tersimpan, atau sisa keadaan sesi, halaman
+   ini cuma menulis tiga kata seperti "Tim tidak ada." tanpa satu pun jalan keluar: pengguna
+   terjebak menatap layar kosong. Sekarang keadaannya dijelaskan DAN diberi pintu kembali. */
+function pilihDulu(apa, penjelasan, view, tombol){
+  var bisa = (typeof canView!=='function') || canView(view);
+  return '<div class="card" style="text-align:center;padding:var(--sp-10)">'+
+    '<div style="font-weight:700;font-size:var(--fs-lg);margin-bottom:var(--sp-3)">Belum ada '+esc(apa)+' yang dipilih</div>'+
+    '<p class="mini" style="margin:0 auto var(--sp-8);max-width:520px;line-height:1.5">'+esc(penjelasan)+'</p>'+
+    (bisa?('<span class="tag link" data-act="nav" data-view="'+esc(view)+'">'+esc(tombol)+' &rsaquo;</span>'):'')+
+    '</div>';
+}
 function vUnit1(){
-  const u=DATA.ue1[state.ue1];if(!u)return '<div class="empty">Data tidak ada.</div>';
+  const u=DATA.ue1[state.ue1];
+  if(!u)return pilihDulu('unit Eselon I',
+    'Halaman ini menampilkan rincian satu unit Eselon I beserta unit Eselon II dan tim kerja di dalamnya. Pilih unitnya lebih dulu dari pohon Profil Unit.',
+    'struktur','Buka Profil Unit');
   const ue2=Object.entries(DATA.ue2).filter(([k])=>k.startsWith(state.ue1+'||')).map(([k,v])=>({n:k.split('||')[1],...v})).sort((a,b)=>b.jml_tim-a.jml_tim);
   const mt=Math.max(1,...ue2.map(x=>x.jml_tim));
   const cU1=catCounts(t=>t.ue1===state.ue1);
@@ -5830,7 +5848,11 @@ function gantt(tasks){
 
 /* ===== Team detail ===== */
 function vTeam(){
-  const t=DATA.teams[state.teamIdx];if(!t)return '<div class="empty">Tim tidak ada.</div>';const tk=t.task;
+  const t=DATA.teams[state.teamIdx];
+  if(!t)return pilihDulu('tim',
+    'Halaman ini menampilkan rincian satu tim kerja: anggota, penugasan, dan capaiannya. Pilih timnya lebih dulu dari daftar Profil Tim.',
+    'tim','Buka Profil Tim');
+  const tk=t.task;
   let h=`<div class="kpis">
     <div class="kpi"><div class="lab">Jenis &amp; Status</div><div class="val" style="font-size:var(--fs-h)">${dispJenis(t.jenis)}</div><div class="note">${statusPill(t.status)}</div></div>
     <div class="kpi gold"><div class="lab">Anggota</div><div class="val">${fmt(t.jml_anggota)}</div><div class="note">${(t.anggota||[]).filter(a=>a.is_leader).length} ketua</div></div>
@@ -5850,7 +5872,10 @@ function vTeam(){
 
 /* ===== Employee detail ===== */
 function vEmp(){
-  const p=DATA.pegawai.find(x=>x.id===state.empId);if(!p)return '<div class="empty">Pegawai tidak ada.</div>';
+  const p=DATA.pegawai.find(x=>x.id===state.empId);
+  if(!p)return pilihDulu('pegawai',
+    'Halaman ini menampilkan rincian satu pegawai: tim yang diikuti, keahlian, dan ketepatan penyelesaian tugasnya. Pilih pegawainya lebih dulu dari daftar Profil Pegawai.',
+    'pegawai','Buka Profil Pegawai');
   let h=`<div class="kpis">
     <div class="kpi gold"><div class="lab">Tim Diikuti</div><div class="val">${fmt(p.jml_tim)}</div><div class="note">${p.is_leader?'pernah jadi ketua':'anggota'}</div></div>
     <div class="kpi"><div class="lab">Total Task</div><div class="val">${fmt(p.jml_task)}</div></div>
@@ -10459,12 +10484,16 @@ function pgnPrepare(root){
    nama kelas sama, supaya judul kelompok tidak ikut terpenggal dari anggotanya. */
 var PGN_LEWAT='.kpis,.toolbar,.seg,.legend,.lanjut,.tree,.grid3,.grid2,.bento,.modmenu,nav,select,thead,tbody,tr,svg';
 function pgnBlok(root){
-  var semua=root.querySelectorAll('*');
+  /* ROOT IKUT DIPERIKSA (4 Sep 2026). Dulu baris pertama loop ini melewati root, padahal
+     banyak view mencetak daftar kartunya LANGSUNG sebagai anak #view tanpa pembungkus.
+     Akibatnya halaman seperti Insight & Rekomendasi menumpuk 33 kartu sepanjang 4.200px
+     tanpa pernah kebagian paginasi, sementara daftar lain yang kebetulan punya pembungkus
+     mendapatkannya. Mesinnya sudah benar, cuma tidak pernah sampai ke wadah terluar. */
+  var semua=[root].concat([].slice.call(root.querySelectorAll('*')));
   for(var i=0;i<semua.length;i++){
     var p=semua[i];
-    if(p===root)continue;
     /* wadah bertanda data-pgn-ok memang daftar datar walau kelasnya masuk daftar kecuali */
-    if(!p.hasAttribute('data-pgn-ok')&&p.closest(PGN_LEWAT))continue;
+    if(p!==root&&!p.hasAttribute('data-pgn-ok')&&p.closest(PGN_LEWAT))continue;
     var c=p.children;
     if(c.length<=PGN_N)continue;
     /* deret bersambung terpanjang yang anaknya sekelas */
