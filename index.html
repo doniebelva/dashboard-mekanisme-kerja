@@ -9739,6 +9739,15 @@ function vSukTentang(){
    Token disimpan di memori halaman saja supaya penyaring bisa diubah tanpa mengetik
    ulang. Tidak pernah masuk localStorage, dan hilang saat tab ditutup atau keluar. */
 function nomAktif(){return !!state.nomTok;}
+/* Sumber TUNGGAL periode. Dulu nilai bawaannya cuma hidup di tampilan dan tidak pernah
+   masuk state, sehingga permintaan pertama mengirim tahun 0 dan server menolaknya
+   sebagai "Periode tidak sah" padahal di layar tahunnya jelas terisi. */
+function nomPeriode(){
+  const TH=(SUKSESI.pensiun&&SUKSESI.pensiun.tahun)||[];
+  const a=state.nomTh1||TH[0]||2026;
+  const b=state.nomTh2||a;
+  return {th1:a,th2:(b<a?a:b)};
+}
 function nomLupakan(){state.nomTok='';state.nomRows=null;state.nomInfo=null;}
 function _nomVal(id){var e=document.getElementById(id);if(!e)return '';var v=e.value;e.value='';return v;}
 
@@ -9769,7 +9778,7 @@ function vSukNominatif(){
   /* --- terbuka: penyaring + hasil --- */
   const TH=(SUKSESI.pensiun&&SUKSESI.pensiun.tahun)||[];
   const thAll=[];for(let y=TH[0]||2026;y<=(TH[TH.length-1]||2036)+18;y++)thAll.push(y);
-  const th1=state.nomTh1||TH[0]||2026, th2=state.nomTh2||th1;
+  const _p=nomPeriode(), th1=_p.th1, th2=_p.th2;
   const U1=((SUKSESI.populasi&&SUKSESI.populasi.perUnit)||[]).map(function(x){return x.unit;}).sort();
   const opt=function(arr,v){return arr.map(function(x){return '<option value="'+esc(String(x))+'"'+(String(v)===String(x)?' selected':'')+'>'+esc(String(x))+'</option>';}).join('');};
   h+='<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">'+
@@ -9819,7 +9828,8 @@ async function nomAmbil(nipPenuh){
   if(!nomAktif()){state.nomMsg='Masukkan token akses lebih dulu.';render();return;}
   state.nomBusy=true;state.nomMsg='';render();
   try{
-    const j=await api('suksesinom',{pw2:state.nomTok,th1:state.nomTh1,th2:state.nomTh2,
+    const _p=nomPeriode();
+    const j=await api('suksesinom',{pw2:state.nomTok,th1:_p.th1,th2:_p.th2,
       ue1:state.nomUe1||'',eselon:state.nomEs||'',q:state.nomQ||'',nipPenuh:!!nipPenuh});
     state.nomBusy=false;
     if(!j||!j.ok){
