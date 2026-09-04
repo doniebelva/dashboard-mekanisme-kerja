@@ -9827,7 +9827,11 @@ async function nomAmbil(nipPenuh){
          menghapus token yang sudah benar, supaya mengubah penyaring tidak menuntut
          pengguna mengetik tokennya berulang kali. */
       if(j&&j.tokenSalah)nomLupakan();
-      state.nomMsg=(j&&j.err)||'Gagal mengambil daftar.';
+      /* 'perlu-stepup' adalah balasan Code.gs versi lama, yang masih menuntut token
+         langkah kedua. Kode mentah seperti itu tidak boleh muncul di layar pengguna. */
+      var _e=(j&&j.err)||'Gagal mengambil daftar.';
+      if(_e==='perlu-stepup')_e='Gerbang data masih memakai Code.gs versi lama. Mintakan pengelola memperbarui berkasnya, lalu Deploy > Kelola deployment > New version.';
+      state.nomMsg=_e;
       render();return;}
     state.nomRows=j.baris||[];state.nomInfo={n:j.n,kelebihan:j.kelebihan,maks:j.maks,periode:j.periode,nipPenuh:j.nipPenuh};
     state.nomMsg='';render();
