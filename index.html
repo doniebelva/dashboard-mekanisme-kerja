@@ -1917,7 +1917,13 @@ function namaResmi(s){
 }
 function initials(s){const w=String(s||'').trim().split(/\s+/);return ((w[0]||'')[0]||'').toUpperCase()+((w[1]||'')[0]||'').toUpperCase()||'MK';}
 const fmt=n=>(n==null?'-':n.toLocaleString('id-ID'));
-const pct=n=>(n==null?'-':n+'%');
+/* Pemisah desimal Indonesia adalah KOMA. Dulu helper ini hanya menempel tanda persen
+   tanpa memformat angkanya, sehingga pecahan keluar bertitik ("30.5%") dan berdampingan
+   dengan angka berkoma dari modul yang memformat sendiri. Diperbaiki di helper supaya
+   SEMUA pemanggilnya ikut benar sekaligus. */
+const pct=n=>(n==null||n===''||isNaN(n)?'-':Number(n).toLocaleString('id-ID',{maximumFractionDigits:1})+'%');
+/* Angka pecahan satu desimal untuk TAMPILAN. JANGAN dipakai untuk koordinat SVG. */
+const d1=n=>(n==null||n===''||isNaN(n)?'-':Number(n).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1}));
 /* esc(): WAJIB escape kutip juga. esc() dipakai DI DALAM atribut (title="${esc(x)}", data-*),
    tanpa &quot;/&#39; data ber-kutip bisa keluar dari atribut lalu menyuntik handler (XSS).
    Aman utk teks biasa: entitas ini ter-render sebagai kutip normal. */
@@ -2479,7 +2485,7 @@ function vRingkasan(){
   <div class="grid2"><div class="card"><h3>Jumlah tim &amp; tingkat keaktifan</h3><div class="cap">Batang = jumlah tim (warna per kategori); angka = % tim aktif (hijau &ge;40, kuning &ge;10, merah &lt;10). Klik untuk menelusuri.</div>`;
   const catUe1={};DATA.teams.forEach(t=>{const k=t.ue1;(catUe1[k]=catUe1[k]||{'Squad':0,'Non-Squad':0,'Tim Lainnya':0})[timKategori(t)]++;});
   h+=catLegend();
-  ue1.forEach(u=>{const cc=catUe1[u.k]||{'Squad':0,'Non-Squad':0,'Tim Lainnya':0};h+=barCat(u.k,cc,maxTim,`<b style="color:${colorAdopt(u.adopsi_pct)}">${u.adopsi_pct}%</b> &middot; ${u.jml_tim}`,`data-act="ue1" data-ue1="${esc(u.k)}"`);});
+  ue1.forEach(u=>{const cc=catUe1[u.k]||{'Squad':0,'Non-Squad':0,'Tim Lainnya':0};h+=barCat(u.k,cc,maxTim,`<b style="color:${colorAdopt(u.adopsi_pct)}">${pct(u.adopsi_pct)}</b> &middot; ${u.jml_tim}`,`data-act="ue1" data-ue1="${esc(u.k)}"`);});
   h+=`</div><div class="card"><h3>Status siklus tim</h3><div class="cap">Komposisi seluruh tim.</div><div class="donut"><div>${donut(Object.entries(s.status_tim).map(([k,v])=>({v,c:{'Pelaksanaan':'var(--st-good)','Penetapan':'var(--brand)','Rekrutmen':'var(--st-warn)','Seleksi':'var(--muted)'}[k]||'var(--line)'})),158,{big:s.total_tim,small:'TIM'})}</div><div>`;
   const stc={'Pelaksanaan':'var(--st-good)','Penetapan':'var(--brand)','Rekrutmen':'var(--st-warn)','Seleksi':'var(--muted)'};
   Object.entries(s.status_tim).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>h+=`<div style="margin:5px 0"><span class="dot" style="background:${stc[k]||'var(--line)'}"></span>${k}: <b>${v}</b></div>`);
@@ -2509,11 +2515,11 @@ function vInsight(){
       add(tk.overdue>=20?'tinggi':'sedang','Overdue',t.nama,`${tk.overdue} task lewat tenggat (${Math.round(100*tk.overdue/tk.total)}% dari ${tk.total} task)`,rk,A);}
     if(t.tepat_pct!=null && t.tepat_pct<50 && done>=10){
       const u=unitOntime(t);const m=busiest(t);
-      const rk=`${u?`Ketepatan ${t.tepat_pct}% vs rata-rata ${esc(u.nama)} ${u.pct}%. `:''}Evaluasi estimasi waktu & beban${m?`; beban terberat di ${esc(m.nama)} (${m.jml_task} task)`:''}; perkuat monitoring mingguan.`;
-      add(t.tepat_pct<30?'tinggi':'sedang','Ketepatan',t.nama,`hanya ${t.tepat_pct}% selesai tepat waktu (dari ${done} task selesai)`,rk,A);}
+      const rk=`${u?`Ketepatan ${pct(t.tepat_pct)} vs rata-rata ${esc(u.nama)} ${pct(u.pct)}. `:''}Evaluasi estimasi waktu & beban${m?`; beban terberat di ${esc(m.nama)} (${m.jml_task} task)`:''}; perkuat monitoring mingguan.`;
+      add(t.tepat_pct<30?'tinggi':'sedang','Ketepatan',t.nama,`hanya ${pct(t.tepat_pct)} selesai tepat waktu (dari ${done} task selesai)`,rk,A);}
     else if(t.skor!=null && t.skor<40 && tk.total>=8){
       const m=busiest(t);
-      add('sedang','Skor rendah',t.nama,`skor indikatif ${t.skor} (penyelesaian ${comp}%, ketepatan ${t.tepat_pct==null?'-':t.tepat_pct+'%'})`,`Dampingi penyelesaian & cek pembagian beban ${t.jml_anggota} anggota${m?` (terberat: ${esc(m.nama)}, ${m.jml_task} task)`:''}.`,A);}
+      add('sedang','Skor rendah',t.nama,`skor indikatif ${t.skor} (penyelesaian ${comp}%, ketepatan ${t.tepat_pct==null?'-':pct(t.tepat_pct)})`,`Dampingi penyelesaian & cek pembagian beban ${t.jml_anggota} anggota${m?` (terberat: ${esc(m.nama)}, ${m.jml_task} task)`:''}.`,A);}
     if(tk.belum_mulai>=10 && tk.belum_mulai/tk.total>=0.4){
       const b=topBucket(t,'belum');
       add('sedang','Stagnan',t.nama,`${tk.belum_mulai} task belum dimulai (${Math.round(100*tk.belum_mulai/tk.total)}%)`,`${(b&&b.belum>=3)?`Terbanyak tertahan di bucket "${esc(b.nama)}" (${b.belum} belum mulai). `:''}Tetapkan PIC tiap task dan bagi ke ${t.jml_anggota} anggota agar mulai berjalan.`,A);}
@@ -2527,7 +2533,7 @@ function vInsight(){
       const pel=(u.status&&u.status['Pelaksanaan'])||0;
       add('sedang','Adopsi',k,`${u.jml_tim} tim & ${u.pegawai_unik} pegawai, namun 0% aktif di submodul penugasan`,`Mulai aktivasi dari ${pel||u.jml_tim} tim berstatus Pelaksanaan; tetapkan target pencatatan penugasan per tim.`,`data-act="ue1" data-ue1="${esc(k)}"`);}});
   DATA.pegawai.forEach(p=>{if(p.jml_tim>=3 && p.perf && p.perf.overdue>=3)
-    add('sedang','Beban',p.nama,`tergabung di ${p.jml_tim} tim, ${p.perf.overdue} task overdue, ketepatan ${p.perf.tepat_pct==null?'-':p.perf.tepat_pct+'%'}`,`Beban di atas wajar (${p.jml_tim} tim). Pertimbangkan kurangi keanggotaan atau redistribusi task ke rekan dengan beban lebih ringan.`,`data-act="emp" data-emp="${p.id}"`);});
+    add('sedang','Beban',p.nama,`tergabung di ${p.jml_tim} tim, ${p.perf.overdue} task overdue, ketepatan ${p.perf.tepat_pct==null?'-':pct(p.perf.tepat_pct)}`,`Beban di atas wajar (${p.jml_tim} tim). Pertimbangkan kurangi keanggotaan atau redistribusi task ke rekan dengan beban lebih ringan.`,`data-act="emp" data-emp="${p.id}"`);});
   const rank={tinggi:0,sedang:1,info:2};F.sort((a,b)=>rank[a.sev]-rank[b.sev]);
   let rows=F;if(state.insCat)rows=rows.filter(x=>x.cat===state.insCat);
   const nT=F.filter(x=>x.sev==='tinggi').length,nS=F.filter(x=>x.sev==='sedang').length;
@@ -2602,7 +2608,7 @@ function vAnalisis(){
   h+=`<div style="margin-top:10px"></div>`;const sd=s.size_dist,sm=Math.max(...Object.values(sd));['1-3','4-6','7-10','11-20','21+'].forEach(k=>{if(sd[k])h+=bar(k+' anggota',sd[k],sm,'',fmt(sd[k])+' tim');});
   h+=`</div></div><h2 class="sec">Keterlambatan per Unit Eselon I (aktif)</h2><div class="card">`;
   const ue1=Object.entries(DATA.ue1).map(([k,v])=>({k,...v})).filter(u=>u.telat_pct!=null).sort((a,b)=>b.telat_pct-a.telat_pct);
-  ue1.forEach(u=>h+=bar(u.k,u.telat_pct,100,'late',u.telat_pct+'% ('+fmt(u.task_total)+' task)',{a:'ue1',d:`data-ue1="${esc(u.k)}"`}));
+  ue1.forEach(u=>h+=bar(u.k,u.telat_pct,100,'late',pct(u.telat_pct)+' ('+fmt(u.task_total)+' task)',{a:'ue1',d:`data-ue1="${esc(u.k)}"`}));
   if(!ue1.length)h+=`<div class="empty">Belum ada unit dengan task.</div>`;
   return h+`</div>`;
 }
@@ -2620,7 +2626,7 @@ function vHeatmap(){
   <div class="card tblw"><table class="hm hm-fit"><tr><th class="ch" style="text-align:left;width:250px">Unit Eselon I</th>`;
   cols.forEach(c=>h+=`<th class="ch">${c.lab}</th>`);h+=`</tr>`;
   ue1.forEach(u=>{h+=`<tr><td class="rh" data-act="ue1" data-ue1="${esc(u.k)}" title="Buka detail ${esc(u.k)}">${esc(u.k)}</td>`;
-    cols.forEach(c=>{const v=u[c.k];h+=`<td class="cell" data-act="ue1" data-ue1="${esc(u.k)}" title="${esc(u.k)} &middot; ${c.lab}" style="cursor:pointer;background:${cc(c,v)}">${v==null?'-':(c.k.endsWith('pct')?v+'%':fmt(v))}</td>`;});h+=`</tr>`;});
+    cols.forEach(c=>{const v=u[c.k];h+=`<td class="cell" data-act="ue1" data-ue1="${esc(u.k)}" title="${esc(u.k)} &middot; ${c.lab}" style="cursor:pointer;background:${cc(c,v)}">${v==null?'-':(c.k.endsWith('pct')?pct(v):fmt(v))}</td>`;});h+=`</tr>`;});
   return h+`</table></div>`;
 }
 
@@ -2677,7 +2683,7 @@ function _vBebanBody(){
     <div class="kpi gold"><div class="lab">Pegawai Beban Kurang</div><div class="val">${fmt(tot.kur)}</div><div class="note">di bawah Pmin</div></div>
     <div class="kpi ${covPct<90?'alert':'good'}"><div class="lab">Cakupan Tim Aktif</div><div class="val">${covPct}%</div><div class="note">${tWith}/${tAll} tim Pelaksanaan</div></div></div>
   <div class="card tblw"><table><thead><tr><th>Unit Eselon II</th><th class="num-c">Tim (ada data)</th><th class="num-c">T</th><th class="num-c">J</th><th class="num-c">T/J</th><th class="num-c">Normal</th><th class="num-c">Kurang</th><th class="num-c">Lebih</th></tr></thead><tbody>`;
-  bn.forEach(r=>{h+=`<tr><td>${esc(r.u2)}</td><td class="num-c">${fmt(r.nwith)}/${fmt(r.nt)}</td><td class="num-c">${fmt(r.T)}</td><td class="num-c">${fmt(r.J)}</td><td class="num-c">${r.ratio.toFixed(1)}</td><td class="num-c"><b>${r.pmin}-${r.pmax}</b></td><td class="num-c">${r.kur?'<span class="pill warn">'+r.kur+'</span>':'0'}</td><td class="num-c">${r.leb?'<span class="pill off">'+r.leb+'</span>':'0'}</td></tr>`;});
+  bn.forEach(r=>{h+=`<tr><td>${esc(r.u2)}</td><td class="num-c">${fmt(r.nwith)}/${fmt(r.nt)}</td><td class="num-c">${fmt(r.T)}</td><td class="num-c">${fmt(r.J)}</td><td class="num-c">${r.ratio.toFixed(1).replace('.',',')}</td><td class="num-c"><b>${r.pmin}-${r.pmax}</b></td><td class="num-c">${r.kur?'<span class="pill warn">'+r.kur+'</span>':'0'}</td><td class="num-c">${r.leb?'<span class="pill off">'+r.leb+'</span>':'0'}</td></tr>`;});
   h+=`</tbody></table></div>`;
   return h;
 }
@@ -2725,7 +2731,7 @@ function vKatalog(){
   const byB={};rows.forEach(x=>{(byB[x.b]=byB[x.b]||{}); (byB[x.b][x.k]=byB[x.b][x.k]||[]).push(x);});
   h+=`<div class="card tblw"><table><thead><tr><th>Bidang</th><th>Sub Bidang</th><th>Keahlian</th><th>Sub Keahlian</th><th>Deskripsi</th></tr></thead><tbody>`;
   rows.forEach(x=>{h+=`<tr><td class="mini">${esc(x.b)}</td><td class="mini">${esc(x.sb)}</td><td style="font-weight:600">${esc(x.k)}</td><td>${esc(x.sk)}</td><td class="mini">${esc(x.d)}</td></tr>`;});
-  h+=`</tbody></table>${rows.length>400?'<div class="mini" style="padding:8px">Menampilkan 400 dari '+fmt(rows.length)+'. Persempit dengan pencarian/bidang.</div>':''}</div>`;
+  h+=`</tbody></table></div>`;
   return h;
 }
 
@@ -2777,7 +2783,7 @@ function _vTimAnalitikBody(){
     <div class="kpi alert"><div class="lab">Perlu Perhatian</div><div class="val">${lo}</div><div class="note">skor &lt; 40</div></div></div>
   <div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)"><div class="card"><h3>Peta Kinerja Tim</h3><div class="cap">X: % penyelesaian &middot; Y: % tepat waktu &middot; ukuran bulatan: jumlah task. Arahkan kursor untuk nama tim.</div>${quadrant(pts,'% Penyelesaian →','% Tepat waktu →',['Unggul','Tepat tapi lambat','Tuntas tapi telat','Perlu perhatian'],'task')}</div>
     <div class="card"><h3>🏆 Top 10 Tim Terbaik</h3><div class="cap">Berdasarkan skor (penyelesaian + ketepatan). Klik untuk detail.</div>`;
-  top.forEach((o,i)=>{const t=o.t;h+=rankRow(i,esc(t.nama),`skor ${t.skor}`,t.skor,skorColor(t.skor),`${t.task.total} task &middot; tepat ${t.tepat_pct}% &middot; ${esc(t.ue1)}`,`data-act="team" data-team="${o.i}"`);});
+  top.forEach((o,i)=>{const t=o.t;h+=rankRow(i,esc(t.nama),`skor ${t.skor}`,t.skor,skorColor(t.skor),`${t.task.total} task &middot; tepat ${pct(t.tepat_pct)} &middot; ${esc(t.ue1)}`,`data-act="team" data-team="${o.i}"`);});
   h+=`</div></div>
   <div class="grid2"><div class="card"><h3>⚠️ 10 Tim Perlu Perhatian</h3><div class="cap">Skor terendah di antara tim aktif. Klik untuk detail.</div>`;
   bot.forEach((o,i)=>{const t=o.t;h+=rankRow(i,esc(t.nama),`skor ${t.skor}`,t.skor,skorColor(t.skor),`${t.task.overdue} overdue &middot; ${t.task.total} task &middot; ${esc(t.ue1)}`,`data-act="team" data-team="${o.i}"`);});
@@ -2804,10 +2810,10 @@ function vPeople(){
     <div class="kpi"><div class="lab">Ketua Tim</div><div class="val">${fmt(leaders)}</div></div></div>
   <div class="grid2"><div class="card"><h3>Peta Kinerja Pegawai</h3><div class="cap">X: volume task (relatif) &middot; Y: % tepat waktu &middot; ukuran: task selesai. Arahkan kursor untuk nama.</div>${quadrant(pts,'Volume task →','% Tepat waktu →',['Andalan','Rapi &amp; teliti','Sibuk tapi telat','Perlu pembinaan'],'task selesai')}</div>
     <div class="card"><h3>🏆 Top 10 Pegawai Terbaik</h3><div class="cap">Skor = 60% penyelesaian + 40% ketepatan. Klik untuk detail.</div>`;
-  topSkor.forEach((p,i)=>h+=rankRow(i,esc(p.nama),`skor ${p.perf.skor}`,p.perf.skor,skorColor(p.perf.skor),`${p.perf.selesai}/${p.perf.total} task &middot; tepat ${p.perf.tepat_pct==null?'-':p.perf.tepat_pct+'%'}`,`data-act="emp" data-emp="${p.id}"`));
+  topSkor.forEach((p,i)=>h+=rankRow(i,esc(p.nama),`skor ${p.perf.skor}`,p.perf.skor,skorColor(p.perf.skor),`${p.perf.selesai}/${p.perf.total} task &middot; tepat ${p.perf.tepat_pct==null?'-':pct(p.perf.tepat_pct)}`,`data-act="emp" data-emp="${p.id}"`));
   h+=`</div></div>
   <div class="grid2"><div class="card"><h3>🔥 Top 10 Kontributor</h3><div class="cap">Jumlah task ditutup terbanyak. Klik untuk detail.</div>`;
-  topVol.forEach((p,i)=>h+=rankRow(i,esc(p.nama),`${fmt(p.perf.selesai)} task`,100*p.perf.selesai/maxClosed,'var(--brand)',`tepat ${p.perf.tepat_pct==null?'-':p.perf.tepat_pct+'%'} &middot; ${esc(p.ue1)}`,`data-act="emp" data-emp="${p.id}"`));
+  topVol.forEach((p,i)=>h+=rankRow(i,esc(p.nama),`${fmt(p.perf.selesai)} task`,100*p.perf.selesai/maxClosed,'var(--brand)',`tepat ${p.perf.tepat_pct==null?'-':pct(p.perf.tepat_pct)} &middot; ${esc(p.ue1)}`,`data-act="emp" data-emp="${p.id}"`));
   h+=`</div><div class="card"><h3>Keterlibatan Pegawai</h3><div class="cap">Sebaran pegawai per jumlah tim.</div>`;
   const wd=DATA.summary.work_dist;const wm=Math.max(...Object.values(wd));['1','2','3','4+'].forEach(k=>{if(wd[k])h+=bar(k+' tim',wd[k],wm,k>='3'?'gold':'',fmt(wd[k])+' org');});
   h+=`<div class="legend" style="margin-top:12px"><span><span class="dot" style="background:var(--st-good)"></span>andalan</span><span><span class="dot" style="background:#e0951a"></span>sibuk tapi telat</span><span><span class="dot" style="background:var(--cat-1)"></span>rapi &amp; teliti</span><span><span class="dot" style="background:var(--st-critical)"></span>perlu pembinaan</span></div></div></div>`;
@@ -2847,8 +2853,8 @@ function vAvail(){
     <select class="flt" id="avUE1"><option value="">Semua UE1</option>${ue1opts.map(u=>`<option ${state.avUE1===u?'selected':''}>${esc(u)}</option>`).join('')}</select>
     <span class="mini">${rows.length} pegawai</span></div>
   <div class="card tblw"><table><thead><tr><th>Nama</th><th>Unit (UE1)</th><th>Status</th><th class="num-c">Tim Aktif</th><th class="num-c">Belum Selesai</th><th class="num-c">Overdue</th><th class="num-c">On-time</th></tr></thead><tbody>`;
-  rows.forEach(o=>{const p=o.p;h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.ue1)}</td><td>${availPill(o.st)}</td><td class="num-c">${p.jml_tim}</td><td class="num-c">${o.open}</td><td class="num-c">${o.over?'<span style="color:var(--red)">'+o.over+'</span>':'0'}</td><td class="num-c">${p.perf&&p.perf.tepat_pct!=null?p.perf.tepat_pct+'%':'-'}</td></tr>`;});
-  h+=`</tbody></table>${rows.length>400?'<div class="mini" style="padding:8px">Menampilkan 400 dari '+rows.length+'.</div>':''}</div>`;
+  rows.forEach(o=>{const p=o.p;h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.ue1)}</td><td>${availPill(o.st)}</td><td class="num-c">${p.jml_tim}</td><td class="num-c">${o.open}</td><td class="num-c">${o.over?'<span style="color:var(--red)">'+o.over+'</span>':'0'}</td><td class="num-c">${p.perf&&p.perf.tepat_pct!=null?pct(p.perf.tepat_pct):'-'}</td></tr>`;});
+  h+=`</tbody></table></div>`;
   return h;}
 
 /* ===== Keahlian (Expert Locator) ===== */
@@ -2885,8 +2891,9 @@ function vSkill(){
     <div class="kpi"><div class="lab">Keahlian</div><div class="val" style="font-size:var(--fs-base);line-height:1.2">${esc(c)}</div></div></div>
   <div class="toolbar"><select class="flt" id="skStat"><option value="">Semua status</option>${[['tersedia','Tersedia'],['terbatas','Terbatas'],['sibuk','Sibuk']].map(s=>`<option value="${s[0]}" ${state.skillStat===s[0]?'selected':''}>${s[1]}</option>`).join('')}</select><span class="mini">${list.length} pegawai</span></div>
   <div class="card tblw"><table><thead><tr><th>Nama</th><th>NIP</th><th>Unit (UE1)</th><th>Status</th><th class="num-c">Task di keahlian</th><th class="num-c">Total Tim</th><th class="num-c">On-time</th></tr></thead><tbody>`;
-  list.forEach(o=>{const p=o.p;h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.nip)}</td><td class="mini">${esc(p.ue1)}</td><td>${availPill(o.st)}</td><td class="num-c">${o.n}</td><td class="num-c">${p.jml_tim}</td><td class="num-c">${p.perf&&p.perf.tepat_pct!=null?p.perf.tepat_pct+'%':'-'}</td></tr>`;});
-  return h+`</tbody></table>${list.length>400?'<div class="mini" style="padding:8px">Menampilkan 400 dari '+list.length+'.</div>':''}</div>`;}
+  if(!list.length)h+='<tr><td colspan="7" class="mini" style="padding:12px">Tidak ada pegawai yang memenuhi ambang keahlian ini pada penyaring yang dipilih.</td></tr>';
+  list.forEach(o=>{const p=o.p;h+=`<tr><td class="link" data-act="emp" data-emp="${p.id}">${esc(p.nama)}</td><td class="mini">${esc(p.nip)}</td><td class="mini">${esc(p.ue1)}</td><td>${availPill(o.st)}</td><td class="num-c">${o.n}</td><td class="num-c">${p.jml_tim}</td><td class="num-c">${p.perf&&p.perf.tepat_pct!=null?pct(p.perf.tepat_pct):'-'}</td></tr>`;});
+  return h+`</tbody></table></div>`;}
 
 /* ===== Repositori Uraian Jabatan (referensi ANJAB, lazy-load) ===== */
 const ES_LBL={1:'Eselon I',2:'Eselon II',3:'Eselon III',4:'Eselon IV'};
@@ -3043,7 +3050,7 @@ function vUrjabKaitan(){
   h+=rows.map(r=>{const p=Math.round(100*r.pct);const col=p>=80?'var(--st-good)':p>=50?'var(--st-warn)':'var(--st-critical)';
     const abkCells=abkOn?(r.eu1!=null?`<td class="num-c">${fmt(Math.round(r.beban))}</td><td class="num-c" style="color:${r.sel<0?'var(--st-critical)':r.sel>0?'var(--st-good)':'var(--muted)'};font-weight:${r.sel<0?'700':'400'}">${r.sel>0?'+'+fmt(r.sel):fmt(r.sel)}</td><td class="num-c">${(+r.eu1).toFixed(2)}</td>`:'<td class="num-c mini">-</td><td class="num-c mini">-</td><td class="num-c mini">-</td>'):'';
     return `<tr><td class="link" data-act="otkopen" data-id="${r.id}">${esc(r.nama)}</td><td class="mini">${esc(r.e1)}</td><td class="num-c">${r.nF}</td><td class="num-c">${r.cov}</td><td><div style="display:flex;align-items:center;gap:6px"><div class="track" style="flex:1"><div class="fill" style="width:${p}%;background:${col}"></div></div><span class="mini">${p}%</span></div></td><td class="num-c">${r.orph||'<span class="mini">-</span>'}</td>${abkCells}</tr>`;}).join('')||`<tr><td colspan="${abkOn?9:6}" class="mini">Belum ada unit dengan uraian tugas tertaut pada filter ini.</td></tr>`;
-  h+=`</tbody></table></div>${rows.length>400?`<div class="mini" style="padding:8px">Menampilkan 400 dari ${fmt(rows.length)} unit.</div>`:''}</div>`;
+  h+=`</tbody></table></div></div>`;
   return h;
 }
 function vUrjabDetail(){
@@ -3430,12 +3437,12 @@ function vUrjabAnalisis(){
     <div class="kpi"><div class="lab">Jabatan</div><div class="val">${fmt(tot)}</div></div>
     <div class="kpi"><div class="lab">Eselon II / III / IV</div><div class="val" style="font-size:var(--fs-xl)">${ce[2]} / ${ce[3]} / ${ce[4]}</div></div>
     <div class="kpi gold"><div class="lab">Rata-rata Span ES3/ES2</div><div class="val">${sp2.length?uAvg(sp2.map(x=>x.n)).toFixed(1):'-'}</div><div class="note">ES4/ES3: ${sp3.length?uAvg(sp3.map(x=>x.n)).toFixed(1):'-'}</div></div>
-    <div class="kpi good"><div class="lab">Rata-rata Butir/Jabatan</div><div class="val">${uAvg(list.map(j=>(j.uraian_tugas||[]).length)).toFixed(1)}</div></div></div>
+    <div class="kpi good"><div class="lab">Rata-rata Butir/Jabatan</div><div class="val">${uAvg(list.map(j=>(j.uraian_tugas||[]).length)).toFixed(1).replace('.',',')}</div></div></div>
   <div class="grid2">
     <div class="card"><h2 class="sec" style="margin-top:0">Komposisi Jenjang Eselon</h2>
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div>${donut(dparts,160,{big:fmt(tot),small:'JABATAN'})}</div>
       <div style="flex:1;min-width:170px">${[1,2,3,4,0].filter(e=>ce[e]).map(e=>`<div class="bar-row"><div class="name">${ES_LBL[e]||'Fungsional/Pelaksana'}</div><div class="track"><div class="fill" style="width:${Math.round(100*ce[e]/Math.max(1,tot))}%;background:${U_ESCOL[e]}"></div></div><div class="num">${ce[e]}</div></div>`).join('')}</div></div></div>
-    <div class="card"><h2 class="sec" style="margin-top:0">Rata-rata Butir Uraian Tugas per Eselon</h2>${[1,2,3,4].map(e=>bar(ES_LBL[e],avgEs[e],maxAvg,'gold',avgEs[e].toFixed(1))).join('')}<div class="mini" style="margin-top:6px">Angka ini mencerminkan <b>kerincian dan cakupan</b> penulisan uraian tugas, <b>bukan beban kerja</b>. Beban kerja diukur dari volume kegiatan &times; norma waktu di modul Analisis Beban Kerja.</div></div></div>`;
+    <div class="card"><h2 class="sec" style="margin-top:0">Rata-rata Butir Uraian Tugas per Eselon</h2>${[1,2,3,4].map(e=>bar(ES_LBL[e],avgEs[e],maxAvg,'gold',avgEs[e].toFixed(1).replace('.',','))).join('')}<div class="mini" style="margin-top:6px">Angka ini mencerminkan <b>kerincian dan cakupan</b> penulisan uraian tugas, <b>bukan beban kerja</b>. Beban kerja diukur dari volume kegiatan &times; norma waktu di modul Analisis Beban Kerja.</div></div></div>`;
   if(!u){const cu={};all.forEach(j=>cu[j.unit_kode]=(cu[j.unit_kode]||0)+1);const mx=Math.max.apply(null,Object.values(cu));
     h+=`<div class="card"><h2 class="sec" style="margin-top:0">Jumlah Jabatan per Unit Eselon I</h2>${Object.entries(cu).sort((a,b)=>b[1]-a[1]).map(([k,v])=>bar(k,v,mx,'',fmt(v))).join('')}</div>`;}
   h+=`<div class="grid2">
@@ -4015,7 +4022,7 @@ function vOtkAnalisis(){
   h+=`<div class="kpis">
     <div class="kpi"><div class="lab">Total Unit</div><div class="val">${fmt(tot)}</div></div>
     <div class="kpi"><div class="lab">Kedalaman</div><div class="val">${maxd} tingkat</div></div>
-    <div class="kpi gold"><div class="lab">Rata-rata Span ES2</div><div class="val">${span2.length?uAvg(span2).toFixed(1):'-'}</div><div class="note">anak per Eselon II</div></div>
+    <div class="kpi gold"><div class="lab">Rata-rata Span ES2</div><div class="val">${span2.length?uAvg(span2).toFixed(1).replace('.',','):'-'}</div><div class="note">anak per Eselon II</div></div>
     <div class="kpi good"><div class="lab">ES I-II tanpa fungsi</div><div class="val">${noF}</div></div></div>
   <div class="grid2">
     <div class="card"><h2 class="sec" style="margin-top:0">Komposisi Jenjang</h2><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div>${donut(dparts,160,{big:fmt(tot),small:'UNIT'})}</div><div style="flex:1;min-width:160px">${[1,2,3,4].filter(l=>ce[l]).map(l=>`<div class="bar-row"><div class="name">${['','Eselon I','Eselon II','Eselon III','Eselon IV'][l]}</div><div class="track"><div class="fill" style="width:${Math.round(100*ce[l]/Math.max(1,tot))}%;background:${U_ESCOL[l]}"></div></div><div class="num">${ce[l]}</div></div>`).join('')}</div></div></div>
@@ -4190,7 +4197,7 @@ function vOtkHealth(){
     <div class="kpi good"><div class="lab">Sudah delayering</div><div class="val">${fmt(delayered.length)}</div><div class="note">dari ${fmt(es2.length)} unit Eselon II</div></div>
     <div class="kpi" style="border:1px solid var(--red)"><div class="lab">Belum ada tim kerja</div><div class="val">${fmt(noTeam)}</div><div class="note">prioritas aktivasi matriks</div></div>
     <div class="kpi"><div class="lab">Span lebar (Eselon I)</div><div class="val">${fmt(es1wide.length)}</div><div class="note">&ge;12 unit Eselon II</div></div>
-    <div class="kpi gold"><div class="lab">Rata-rata sub-unit ES III</div><div class="val">${spanAvg.toFixed(1)}</div><div class="note">per Eselon II</div></div></div>`;
+    <div class="kpi gold"><div class="lab">Rata-rata sub-unit ES III</div><div class="val">${spanAvg.toFixed(1).replace('.',',')}</div><div class="note">per Eselon II</div></div></div>`;
   if(tab==='span'){
     let rows=delayRows.slice();
     if(state.shGap==='noteam')rows=rows.filter(r=>r.covered&&r.tim===0);
@@ -4721,7 +4728,7 @@ function vAbkRingkasan(){
   <table><thead><tr><th>Unit Eselon I</th><th>Status</th><th class="num-c">Unit</th><th class="num-c">Bezetting</th><th class="num-c">Kebutuhan</th><th class="num-c">Selisih</th><th class="num-c">Efisiensi (EU.1)</th><th class="num-c">Efektivitas (EU.2)</th></tr></thead><tbody>`;
   roots.forEach(nm=>{const e=fed[abkNorm(nm)];
     if(!e){h+=`<tr style="opacity:.55"><td>${esc(nm)}</td><td><span class="pill neu">Belum ada data</span></td><td class="num-c">-</td><td class="num-c">-</td><td class="num-c">-</td><td class="num-c">-</td><td class="num-c">-</td><td class="num-c">-</td></tr>`;return;}
-    const t=e.total;h+=`<tr style="cursor:pointer" data-act="abkpick" data-k="${e.kode}"><td class="link">${esc(e.nama)} <span class="mini">(${esc(e.tahun)})</span></td><td><span class="pill on">Terisi</span></td><td class="num-c">${fmt(e.units.length)}</td><td class="num-c">${fmt(t.ada)}</td><td class="num-c">${fmt(t.butuh)}</td><td class="num-c" style="color:${t.selisih<0?'var(--st-critical)':'var(--st-good)'}">${(t.selisih>0?'+':'')+fmt(t.selisih)}</td><td class="num-c">${abkPill(t.eu1)}</td><td class="num-c">${(+t.eu2).toFixed(1)}%</td></tr>`;});
+    const t=e.total;h+=`<tr style="cursor:pointer" data-act="abkpick" data-k="${e.kode}"><td class="link">${esc(e.nama)} <span class="mini">(${esc(e.tahun)})</span></td><td><span class="pill on">Terisi</span></td><td class="num-c">${fmt(e.units.length)}</td><td class="num-c">${fmt(t.ada)}</td><td class="num-c">${fmt(t.butuh)}</td><td class="num-c" style="color:${t.selisih<0?'var(--st-critical)':'var(--st-good)'}">${(t.selisih>0?'+':'')+fmt(t.selisih)}</td><td class="num-c">${abkPill(t.eu1)}</td><td class="num-c">${(+t.eu2).toFixed(1).replace('.',',')}%</td></tr>`;});
   h+=`</tbody></table><div class="mini" style="margin-top:8px">Klik baris Eselon I yang terisi untuk menelusuri beban per unit Eselon II. Eselon I lain menyusul seiring pemasukan data ABK secara bertahap.</div></div>`;
   return h;
 }
@@ -4737,7 +4744,7 @@ function vAbkUnitTab(){
     <div class="kpi"><div class="lab">Bezetting</div><div class="val">${fmt(t.ada)}</div></div>
     <div class="kpi"><div class="lab">Kebutuhan</div><div class="val">${fmt(t.butuh)}</div></div>
     <div class="kpi"><div class="lab">Selisih</div><div class="val" style="color:${t.selisih<0?'var(--st-critical)':'var(--st-good)'}">${(t.selisih>0?'+':'')+fmt(t.selisih)}</div></div>
-    <div class="kpi gold"><div class="lab">Efisiensi Unit (EU.1)</div><div class="val" style="font-size:var(--fs-num)">${abkPill(t.eu1)}</div><div class="note">Efektivitas ${(+t.eu2).toFixed(1)}%</div></div>
+    <div class="kpi gold"><div class="lab">Efisiensi Unit (EU.1)</div><div class="val" style="font-size:var(--fs-num)">${abkPill(t.eu1)}</div><div class="note">Efektivitas ${(+t.eu2).toFixed(1).replace('.',',')}%</div></div>
   </div>`;
   h+=`<div class="note-box">Sebaran zona efisiensi: <b>${z.wajar}</b> unit di zona wajar (0,75-1,25), <b>${z.tinggi}</b> beban tinggi (&gt;1,25), <b>${z.rendah}</b> beban rendah (&lt;0,75). ${(z.tinggi+z.rendah)===0?'Seluruh unit berada di zona wajar menurut kriteria PMK.':'Unit di luar zona wajar perlu penjelasan sesuai PMK.'}</div>`;
   // treemap
@@ -4748,7 +4755,7 @@ function vAbkUnitTab(){
   const th=(k,l,n)=>`<th class="${n?'num-c':''}" data-act="abksort" data-k="${k}" style="cursor:pointer">${l}${S.k===k?(S.d<0?' &darr;':' &uarr;'):''}</th>`;
   h+=`<div class="card"><h2 class="sec" style="margin-top:0">Beban dan Efektivitas per Unit Eselon II</h2>
   <table><thead><tr>${th('nama','Unit')}${th('beban','Beban (jam)',1)}${th('ada','Bezetting',1)}${th('butuh','Kebutuhan',1)}${th('selisih','Selisih',1)}${th('eu1','Efisiensi',1)}${th('eu2','Efektivitas',1)}${th('jml_jabatan','Jabatan',1)}</tr></thead><tbody>`;
-  sorted.forEach(u=>{h+=`<tr style="cursor:pointer" data-act="abkunit" data-k="${u.kode}"><td class="link">${esc(u.nama)}</td><td class="num-c">${fmt(Math.round(u.beban))}</td><td class="num-c">${fmt(u.ada)}</td><td class="num-c">${fmt(u.butuh)}</td><td class="num-c" style="color:${u.selisih<0?'var(--st-critical)':'var(--st-good)'}">${(u.selisih>0?'+':'')+fmt(u.selisih)}</td><td class="num-c">${abkPill(u.eu1)}</td><td class="num-c">${(+u.eu2).toFixed(1)}%</td><td class="num-c">${fmt(u.jml_jabatan)}</td></tr>`;});
+  sorted.forEach(u=>{h+=`<tr style="cursor:pointer" data-act="abkunit" data-k="${u.kode}"><td class="link">${esc(u.nama)}</td><td class="num-c">${fmt(Math.round(u.beban))}</td><td class="num-c">${fmt(u.ada)}</td><td class="num-c">${fmt(u.butuh)}</td><td class="num-c" style="color:${u.selisih<0?'var(--st-critical)':'var(--st-good)'}">${(u.selisih>0?'+':'')+fmt(u.selisih)}</td><td class="num-c">${abkPill(u.eu1)}</td><td class="num-c">${(+u.eu2).toFixed(1).replace('.',',')}%</td><td class="num-c">${fmt(u.jml_jabatan)}</td></tr>`;});
   h+=`</tbody></table></div>`;
   return h;
 }
@@ -4794,7 +4801,7 @@ function vAbkDiag(){
   svg+=`<text x="${PL}" y="${PT-14}" font-size="10" font-weight="700" fill="var(--cat-1)">Ringan, sesuai tugas dan fungsi</text>`;
   svg+=`<text x="${W-PR}" y="${PT-14}" font-size="10" font-weight="700" fill="var(--st-good)" text-anchor="end">Berat, sesuai tugas dan fungsi</text>`;
   // titik dulu
-  us.forEach(u=>{const zc=abkZona(u.eu1);svg+=`<g style="cursor:pointer" data-act="abkunit" data-k="${u.kode}"><circle cx="${px(u.eu1).toFixed(1)}" cy="${py(u.eu2).toFixed(1)}" r="6" fill="${zc.bg}" stroke="${zc.c}" stroke-width="1.6"/><title>${esc(u.nama)}: EU.1 ${(+u.eu1).toFixed(2)}, EU.2 ${(+u.eu2).toFixed(1)}%</title></g>`;});
+  us.forEach(u=>{const zc=abkZona(u.eu1);svg+=`<g style="cursor:pointer" data-act="abkunit" data-k="${u.kode}"><circle cx="${px(u.eu1).toFixed(1)}" cy="${py(u.eu2).toFixed(1)}" r="6" fill="${zc.bg}" stroke="${zc.c}" stroke-width="1.6"/><title>${esc(u.nama)}: EU.1 ${(+u.eu1).toFixed(2)}, EU.2 ${(+u.eu2).toFixed(1).replace('.',',')}%</title></g>`;});
   // label kuadran BAWAH di dalam plot (area kosong) + latar tipis supaya kebaca bila ada titik
   svg+=qbg(PL,H-PB-7,'Ringan, banyak tugas tambahan','start')+`<text x="${PL}" y="${H-PB-7}" font-size="10" font-weight="700" fill="var(--muted)">Ringan, banyak tugas tambahan</text>`;
   svg+=qbg(W-PR,H-PB-7,'Berat, banyak tugas tambahan','end')+`<text x="${W-PR}" y="${H-PB-7}" font-size="10" font-weight="700" fill="var(--st-critical)" text-anchor="end">Berat, banyak tugas tambahan</text>`;
@@ -4851,7 +4858,7 @@ function vAbkUnit(){
     <div class="kpi"><div class="lab">Bezetting</div><div class="val">${fmt(u.ada)}</div></div>
     <div class="kpi"><div class="lab">Kebutuhan</div><div class="val">${fmt(u.butuh)}</div></div>
     <div class="kpi"><div class="lab">Selisih</div><div class="val" style="color:${u.selisih<0?'var(--st-critical)':'var(--st-good)'}">${(u.selisih>0?'+':'')+fmt(u.selisih)}</div></div>
-    <div class="kpi gold"><div class="lab">Efisiensi (EU.1)</div><div class="val" style="font-size:var(--fs-num)">${abkPill(u.eu1)}</div><div class="note">Efektivitas ${(+u.eu2).toFixed(1)}%</div></div>
+    <div class="kpi gold"><div class="lab">Efisiensi (EU.1)</div><div class="val" style="font-size:var(--fs-num)">${abkPill(u.eu1)}</div><div class="note">Efektivitas ${(+u.eu2).toFixed(1).replace('.',',')}%</div></div>
   </div>`;
   // produk
   const pcard=(title,list,empty)=>`<div style="flex:1;min-width:280px"><h2 class="sec" style="margin-top:0">${title}</h2>${list.length?`<table><tbody>${list.map(p=>`<tr><td>${esc(p.nama)}</td><td class="num-c" style="white-space:nowrap">${fmt(Math.round(p.beban))} jam</td></tr>`).join('')}</tbody></table>`:`<div class="mini">${empty}</div>`}</div>`;
@@ -4863,7 +4870,7 @@ function vAbkUnit(){
   const CAP=300, jb=jbAll.slice(0,CAP);
   h+=`<div class="card"><h2 class="sec" style="margin-top:0">Beban per Jabatan <span class="mini">(${fmt(jbAll.length)}${jbAll.length>CAP?`, menampilkan ${CAP} terbesar`:''})</span></h2>
   <table><thead><tr><th>Jabatan</th><th>Sub-unit</th><th class="num-c">Beban (jam)</th><th class="num-c">Bezetting</th><th class="num-c">Kebutuhan</th><th class="num-c">Selisih</th><th class="num-c">EJ.1</th><th class="num-c">EJ.2</th></tr></thead><tbody>`;
-  jb.forEach(j=>{h+=`<tr><td>${esc(j.jab)}</td><td class="mini">${esc(j.org||'')}</td><td class="num-c">${fmt(Math.round(j.beban))}</td><td class="num-c">${fmt(j.ada)}</td><td class="num-c">${(+j.butuh).toFixed(1)}</td><td class="num-c" style="color:${j.selisih<0?'var(--st-critical)':'var(--st-good)'}">${(+j.selisih).toFixed(1)}</td><td class="num-c">${abkPill(j.ej1)}</td><td class="num-c">${(+j.ej2).toFixed(1)}%</td></tr>`;});
+  jb.forEach(j=>{h+=`<tr><td>${esc(j.jab)}</td><td class="mini">${esc(j.org||'')}</td><td class="num-c">${fmt(Math.round(j.beban))}</td><td class="num-c">${fmt(j.ada)}</td><td class="num-c">${(+j.butuh).toFixed(1).replace('.',',')}</td><td class="num-c" style="color:${j.selisih<0?'var(--st-critical)':'var(--st-good)'}">${(+j.selisih).toFixed(1).replace('.',',')}</td><td class="num-c">${abkPill(j.ej1)}</td><td class="num-c">${(+j.ej2).toFixed(1).replace('.',',')}%</td></tr>`;});
   h+=`</tbody></table><div class="mini" style="margin-top:6px">EJ.1 (efisiensi jabatan) di zona wajar 0,75-1,25; jabatan struktural dipatok formasi sehingga EJ.1 menunjukkan tingkat beban. EJ.2 = porsi beban sesuai tusi.</div></div>`;
   return h;
 }
@@ -4877,9 +4884,9 @@ function abkExport(){
   H+='<p><b>Tanggal:</b> '+tgl+'<br><i>'+esc(abkPedoman())+'. Jam Kerja Efektif '+fmt((ABK.meta||{}).jke||1476)+' jam/tahun. Dihasilkan otomatis dari Dashboard Pengelolaan Organisasi, Biro Organisasi dan Ketatalaksanaan.</i></p>';
   (ABK.eselon1||[]).forEach(e=>{const t=e.total;
     H+='<h2 style="color:#1467c0">'+esc(e.nama)+' (Tahun '+esc(e.tahun)+')</h2>';
-    H+='<p>Beban kerja unit '+fmt(Math.round(t.beban))+' jam. Bezetting '+fmt(t.ada)+', kebutuhan '+fmt(t.butuh)+', selisih '+(t.selisih>0?'+':'')+fmt(t.selisih)+'. Efisiensi unit (EU.1) '+(+t.eu1).toFixed(2)+', efektivitas (EU.2) '+(+t.eu2).toFixed(1)+'%.</p>';
+    H+='<p>Beban kerja unit '+fmt(Math.round(t.beban))+' jam. Bezetting '+fmt(t.ada)+', kebutuhan '+fmt(t.butuh)+', selisih '+(t.selisih>0?'+':'')+fmt(t.selisih)+'. Efisiensi unit (EU.1) '+(+t.eu1).toFixed(2)+', efektivitas (EU.2) '+(+t.eu2).toFixed(1).replace('.',',')+'%.</p>';
     H+='<h3>Tabel FP.4 - Rekap per Unit Eselon II</h3>';
-    H+=tbl(['Unit Eselon II','Tahun','Beban (jam)','Bezetting','Kebutuhan','Selisih','EU.1','EU.2 (%)'],e.units.map(u=>[u.nama,e.tahun,Math.round(u.beban),u.ada,u.butuh,(u.selisih>0?'+':'')+u.selisih,(+u.eu1).toFixed(2),(+u.eu2).toFixed(1)]));
+    H+=tbl(['Unit Eselon II','Tahun','Beban (jam)','Bezetting','Kebutuhan','Selisih','EU.1','EU.2 (%)'],e.units.map(u=>[u.nama,e.tahun,Math.round(u.beban),u.ada,u.butuh,(u.selisih>0?'+':'')+u.selisih,(+u.eu1).toFixed(2),(+u.eu2).toFixed(1).replace('.',',')]));
   });
   H+='<h2 style="color:#1467c0">Catatan Metodologi</h2><p style="font-size:10pt">Beban Kerja = Volume x Norma Waktu. Kebutuhan = Beban / Jam Kerja Efektif. Efisiensi (EU.1) = Beban / (Jumlah pegawai x JKE); zona wajar 0,75-1,25, di luar zona perlu penjelasan. Efektivitas (EU.2) = persentase beban sesuai tugas dan fungsi. Produk Tusi dari Form A, produk Non-Tusi dari Form B. Sumber: aplikasi ABK Kemenkeu (Form A, Form B, FP.3, FP.4).</p>';
   const doc='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Aptos,Calibri,Arial,sans-serif;font-size:11pt;color:#222}h1{font-size:18pt}h2{font-size:13pt;margin-top:18px}h3{font-size:11.5pt}table{margin:8px 0}td,th{border:1px solid #9bb}</style></head><body>'+H+'</body></html>';
@@ -4997,7 +5004,7 @@ function _kalKualitas(K){
   </div>
   <div class="note-box">Anomali berikut sebaiknya dikembalikan ke unit untuk verifikasi sebelum data ABK dipakai. Sebagian besar berindikasi pengisian data yang belum lengkap, bukan kondisi riil.</div>`;
   h+=sec('Beban Tanpa Pegawai','Jabatan dengan beban kerja tercatat namun jumlah pegawai nol. Bisa berarti formasi kosong yang menanggung kerja, atau bezetting belum diisi.',K.bebanNoPeg,['Jabatan','Unit','Beban (jam)','Kebutuhan'],
-    x=>`<tr style="cursor:pointer" data-act="abkunit" data-k="${x.kode}"><td>${esc(x.jab)}</td><td class="mini link">${esc(x.unit)}</td><td class="num-c">${fmt(Math.round(x.beban))}</td><td class="num-c">${(+x.butuh).toFixed(1)}</td></tr>`);
+    x=>`<tr style="cursor:pointer" data-act="abkunit" data-k="${x.kode}"><td>${esc(x.jab)}</td><td class="mini link">${esc(x.unit)}</td><td class="num-c">${fmt(Math.round(x.beban))}</td><td class="num-c">${(+x.butuh).toFixed(1).replace('.',',')}</td></tr>`);
   h+=sec('Unit dengan EU.2 = 0%','Unit yang seluruh bebannya tercatat di luar tugas dan fungsi (efektivitas nol). Hampir pasti penandaan tusi belum diisi.',K.eu2zero,['Unit','Eselon I','Beban (jam)','Bezetting'],
     x=>`<tr style="cursor:pointer" data-act="abkunit" data-k="${x.kode}"><td class="link">${esc(x.nama)}</td><td class="mini">${esc(x.es1)}</td><td class="num-c">${fmt(Math.round(x.beban))}</td><td class="num-c">${fmt(x.ada)}</td></tr>`);
   h+=sec('Unit EU.1 di Luar Zona','Unit dengan efisiensi di luar 0,75 - 1,25 (perlu penjelasan menurut PMK).',K.eu1ext,['Unit','Eselon I','EU.1','Bezetting'],
@@ -5040,11 +5047,11 @@ function _kalProduk(){
   <table><thead><tr><th>Unit</th><th class="num-c">Non-Tusi di A</th><th class="num-c">Tusi di B</th><th class="num-c">EU.2</th><th class="num-c">EU.2 Koreksi</th></tr></thead><tbody>`;
   units.forEach(u=>{const open=state.kalProdU===u.kode;
     const eu2k=u.beban?Math.max(0,Math.min(100,(u.beban_tusi-(u.val_a_beban||0)+(u.val_b_beban||0))/u.beban*100)):0;
-    h+=`<tr style="cursor:pointer" data-act="kalprodu" data-k="${u.kode}"><td class="link">${open?'&#9662; ':'&#9656; '}${esc(u.nama)}${u.val_ref===0?' <span class="pill" style="background:var(--soft-red);color:var(--st-critical)">tanpa referensi</span>':''}</td><td class="num-c">${u.val_a_n?`${fmt(u.val_a_n)} <span class="mini">(${fmt(Math.round(u.val_a_beban))}j)</span>`:'<span class="mini">-</span>'}</td><td class="num-c">${u.val_b_n?`${fmt(u.val_b_n)} <span class="mini">(${fmt(Math.round(u.val_b_beban))}j)</span>`:'0'}</td><td class="num-c">${(+u.eu2).toFixed(1)}%</td><td class="num-c">${eu2k.toFixed(1)}%</td></tr>`;
+    h+=`<tr style="cursor:pointer" data-act="kalprodu" data-k="${u.kode}"><td class="link">${open?'&#9662; ':'&#9656; '}${esc(u.nama)}${u.val_ref===0?' <span class="pill" style="background:var(--soft-red);color:var(--st-critical)">tanpa referensi</span>':''}</td><td class="num-c">${u.val_a_n?`${fmt(u.val_a_n)} <span class="mini">(${fmt(Math.round(u.val_a_beban))}j)</span>`:'<span class="mini">-</span>'}</td><td class="num-c">${u.val_b_n?`${fmt(u.val_b_n)} <span class="mini">(${fmt(Math.round(u.val_b_beban))}j)</span>`:'0'}</td><td class="num-c">${(+u.eu2).toFixed(1).replace('.',',')}%</td><td class="num-c">${eu2k.toFixed(1).replace('.',',')}%</td></tr>`;
     if(open){
       const lst=(arr,empty)=>(arr&&arr.length)?`<table><tbody>${arr.map(p=>`<tr><td>${esc(p.nama)}${p.k?' <span class="pill" style="background:var(--soft-red);color:var(--st-critical)">keluarkan</span>':''}</td><td class="num-c" style="white-space:nowrap">${fmt(Math.round(p.beban))} jam</td></tr>`).join('')}</tbody></table>`:`<div class="mini">${empty}</div>`;
       const jke=(ABK.meta&&ABK.meta.jke)||1476;
-      const keluarNote=(u.val_keluar_beban>0)?`<div class="mini" style="margin-top:6px;color:#b45309">Termasuk pengembangan diri (tugas belajar / mengikuti diklat) <b>${fmt(Math.round(u.val_keluar_beban))} jam (~${(u.val_keluar_beban/jke).toFixed(1)} orang)</b> yang idealnya dikeluarkan dari beban unit.</div>`:'';
+      const keluarNote=(u.val_keluar_beban>0)?`<div class="mini" style="margin-top:6px;color:#b45309">Termasuk pengembangan diri (tugas belajar / mengikuti diklat) <b>${fmt(Math.round(u.val_keluar_beban))} jam (~${(u.val_keluar_beban/jke).toFixed(1).replace('.',',')} orang)</b> yang idealnya dikeluarkan dari beban unit.</div>`:'';
       h+=`<tr><td colspan="5" style="background:var(--side);padding:10px 14px">${u.val_ref?'':`<div class="note-box" style="margin:0 0 8px;border-left-color:var(--st-critical);background:var(--soft-red)"><b style="color:var(--st-critical)">Data OTK dan URJAB ${esc(u.nama)} belum tersedia.</b> Segera upload agar validasi optimal; tanpa itu validasi hanya dilakukan berdasarkan pengetahuan umum.</div>`}<div style="display:flex;gap:20px;flex-wrap:wrap"><div style="flex:1;min-width:280px"><div class="mini" style="font-weight:700;margin-bottom:4px;color:var(--st-critical)">Non-Tusi di Form A &rarr; usul pindah ke Form B (tag "keluarkan" = pengembangan diri, hapus dari beban)</div>${lst(u.val_a,(u.produk_top_a&&u.produk_top_a.length)?'Tidak ada.':'Form A belum tersedia untuk unit ini.')}</div><div style="flex:1;min-width:280px"><div class="mini" style="font-weight:700;margin-bottom:4px;color:var(--st-critical)">Tusi di Form B &rarr; usul pindah ke Form A</div>${lst(u.val_b,'Tidak ada.')}</div></div>${keluarNote}${(u.val_a_n>15||u.val_b_n>15)?`<div class="mini" style="margin-top:4px">Menampilkan maksimal 15 teratas per sisi.</div>`:''}</td></tr>`;
     }});
   h+=`</tbody></table><div class="mini" style="margin-top:6px">EU.2 Koreksi = perkiraan efektivitas bila produk dipindah ke form yang benar (indikatif). Klik unit untuk rincian.</div></div>`;
@@ -5113,7 +5120,7 @@ function vKatAkt(){
     <div style="${_kluBuka?'':'display:none'}">
   <table><thead><tr><th>Kode</th><th>Kluster</th><th class="num-c">Aktivitas Standar</th><th class="num-c">Total Kandidat</th><th class="num-c">% Beban</th>${adaJangkar?'<th class="num-c" title="Jumlah tugas/fungsi resmi OTK yang selaras kluster ini">Jangkar Struktur (OTK)</th><th class="num-c" title="Jumlah teks uraian jabatan yang selaras kluster ini">Jangkar Jabatan (URJAB)</th>':''}</tr></thead><tbody>`;
   KT.klusters.slice().sort((a,b)=>(a.kode==='XXX')-(b.kode==='XXX')||b.beban-a.beban).forEach(k=>{const sel=state.kataktKlus===k.kode;
-    h+=`<tr style="cursor:pointer;${sel?'outline:2px solid #2563eb;outline-offset:-2px':''}" data-act="kataktklus" data-k="${k.kode}"><td style="white-space:nowrap"><b>${k.kode}</b></td><td class="link">${esc(k.nama)}</td><td class="num-c">${fmt(k.n_std)}</td><td class="num-c">${fmt(k.n_akt)}</td><td class="num-c">${(100*k.beban/totB).toFixed(1)}%</td>${adaJangkar?`<td class="num-c">${k.kode==='XXX'?'-':fmt(k.otk_j||0)}</td><td class="num-c">${k.kode==='XXX'?'-':fmt(k.ur_j||0)}</td>`:''}</tr>`;});
+    h+=`<tr style="cursor:pointer;${sel?'outline:2px solid #2563eb;outline-offset:-2px':''}" data-act="kataktklus" data-k="${k.kode}"><td style="white-space:nowrap"><b>${k.kode}</b></td><td class="link">${esc(k.nama)}</td><td class="num-c">${fmt(k.n_std)}</td><td class="num-c">${fmt(k.n_akt)}</td><td class="num-c">${(100*k.beban/totB).toFixed(1).replace('.',',')}%</td>${adaJangkar?`<td class="num-c">${k.kode==='XXX'?'-':fmt(k.otk_j||0)}</td><td class="num-c">${k.kode==='XXX'?'-':fmt(k.ur_j||0)}</td>`:''}</tr>`;});
   h+=`</tbody></table></div><div class="mini" style="margin-top:6px">Klik kluster untuk memfilter daftar di bawah, atau pakai penyaring Kluster di bawah. Kluster inti bidang mengikuti tusi UE1 teknis; kluster generik berlaku lintas kantor.${adaJangkar?' Kolom jangkar = validasi silang taksonomi terhadap tugas/fungsi resmi (OTK) dan uraian jabatan (URJAB): tiap kluster terbukti berakar pada struktur, bukan sekadar pola nama produk.':''}</div></div>`;
   h+=`
   <div class="toolbar"><input class="search" id="kataktQ" placeholder="Cari kode / nama aktivitas..." value="${esc(state.kataktQ||'')}" style="max-width:300px">
@@ -5144,7 +5151,7 @@ function vKatPeta(){
     h+=`<tr><td class="mini" style="position:sticky;left:0;background:var(--card);max-width:200px">${esc(u.nama)}</td>`;
     used.forEach(k=>{const p=100*(row[k]||0)/tot;
       const bg=p<=0?'':(k==='XXX'?`background:rgba(148,163,184,${Math.min(.85,.15+p/40)})`:`background:rgba(19,91,236,${Math.min(.85,.08+p/40).toFixed(2)})`);
-      h+=`<td class="num-c" style="${bg}${p>28?';color:#fff':''}" title="${esc(u.nama)} - ${k}: ${p.toFixed(1)}% (${fmt(Math.round(row[k]||0))} jam)">${p>=0.5?p.toFixed(0):(p>0?'&middot;':'')}</td>`;});
+      h+=`<td class="num-c" style="${bg}${p>28?';color:#fff':''}" title="${esc(u.nama)} - ${k}: ${p.toFixed(1).replace('.',',')}% (${fmt(Math.round(row[k]||0))} jam)">${p>=0.5?p.toFixed(0):(p>0?'&middot;':'')}</td>`;});
     h+=`</tr>`;});
   h+=`</tbody></table></div><div class="mini" style="margin-top:6px">Angka = % beban kantor. Titik (&middot;) = ada tapi &lt;0,5%. Kosong = tidak ada aktivitas kluster itu. Arahkan kursor untuk detail jam.</div></div>`;
   return h;
@@ -5649,7 +5656,7 @@ function vAbkSimulasi(){
     h+=`<div class="card"><h2 class="sec" style="margin-top:0">Usulan Pengurangan per Jabatan</h2><div class="mini" style="margin-bottom:6px">Kelebihan unit ini${D.calOn?' (setelah kalibrasi)':''}: <b>${fmt(ured)}</b> orang (Bezetting ${fmt(u.ada||0)} - Kebutuhan ${fmt(D.calOn?(D.rows[0]||{}).butuhCal:(u.butuh||0))}). Pengurangan diambil dari jabatan yang kelebihan kapasitas.</div>`;
     if(!D.jabAlloc.length){h+=`<div class="mini">${ured>0?'Tidak ada jabatan yang dapat dialokasikan.':'Unit ini tidak memiliki kelebihan (bezetting ≤ kebutuhan); pengurangan justru menambah beban. Fokuskan pada redistribusi internal dan intervensi.'}</div></div>`;}
     else{h+=`<table><thead><tr><th>Jabatan</th><th class="num-c">Bezetting</th><th class="num-c">Kebutuhan</th><th class="num-c">Usul Kurangi</th><th class="num-c">EJ.1</th></tr></thead><tbody>`;
-      D.jabAlloc.forEach(c=>{h+=`<tr><td>${esc(c.jab)}</td><td class="num-c">${fmt(c.ada)}</td><td class="num-c">${(+c.butuh).toFixed(1)}</td><td class="num-c"><b style="color:var(--st-critical)">${fmt(c.take)}</b></td><td class="num-c">${abkPill(c.ej1)}</td></tr>`;});
+      D.jabAlloc.forEach(c=>{h+=`<tr><td>${esc(c.jab)}</td><td class="num-c">${fmt(c.ada)}</td><td class="num-c">${(+c.butuh).toFixed(1).replace('.',',')}</td><td class="num-c"><b style="color:var(--st-critical)">${fmt(c.take)}</b></td><td class="num-c">${abkPill(c.ej1)}</td></tr>`;});
       h+=`</tbody></table></div>`;}
   }
   if(!state.simUnit&&D.jabTop.length){
@@ -5684,12 +5691,12 @@ function vStruktur(){
   let h=`<div class="toolbar"><span class="mini">Klik &#9656; untuk membuka Kemenkeu &rarr; UE1 &rarr; UE2 &rarr; Tim. Klik nama tim untuk detail.</span>
     <span class="tag" data-act="expandAll" style="cursor:pointer;margin-left:auto">Buka semua UE1</span><span class="tag" data-act="collapseAll" style="cursor:pointer">Tutup semua</span></div><div class="card tree">`;
   const ue1=Object.entries(DATA.ue1).map(([k,v])=>({k,...v})).sort((a,b)=>b.jml_tim-a.jml_tim);
-  h+=`<div class="trow"><span class="tw">&#9679;</span><span class="tname" style="font-weight:800;color:var(--brand-d)">Kementerian Keuangan</span><span class="tmet"><span class="tag">${s.total_tim} tim</span><span class="tag" style="color:${colorAdopt(s.adopsi_pct)}">${s.adopsi_pct}% aktif</span></span></div>`;
+  h+=`<div class="trow"><span class="tw">&#9679;</span><span class="tname" style="font-weight:800;color:var(--brand-d)">Kementerian Keuangan</span><span class="tmet"><span class="tag">${s.total_tim} tim</span><span class="tag" style="color:${colorAdopt(s.adopsi_pct)}">${pct(s.adopsi_pct)} aktif</span></span></div>`;
   ue1.forEach(u=>{const ek='u:'+u.k;const open=state.expanded[ek];
-    h+=`<div class="tchild"><div class="lvl-ue1"><div class="trow" data-act="exp" data-key="${esc(ek)}"><span class="tw">${open?'&#9662;':'&#9656;'}</span><span class="tname" title="${esc(u.k)}">${esc(u.k)}</span><span class="tmet"><span class="tag">${u.jml_tim} tim</span><span class="tag" style="color:${colorAdopt(u.adopsi_pct)}">${u.adopsi_pct}%</span>${u.telat_pct!=null?`<span class="tag" style="color:var(--red)">${u.telat_pct}% telat</span>`:''}</span></div>`;
+    h+=`<div class="tchild"><div class="lvl-ue1"><div class="trow" data-act="exp" data-key="${esc(ek)}"><span class="tw">${open?'&#9662;':'&#9656;'}</span><span class="tname" title="${esc(u.k)}">${esc(u.k)}</span><span class="tmet"><span class="tag">${u.jml_tim} tim</span><span class="tag" style="color:${colorAdopt(u.adopsi_pct)}">${pct(u.adopsi_pct)}</span>${u.telat_pct!=null?`<span class="tag" style="color:var(--red)">${pct(u.telat_pct)} telat</span>`:''}</span></div>`;
     if(open){const ue2=Object.entries(DATA.ue2).filter(([k])=>k.startsWith(u.k+'||')).map(([k,v])=>({n:k.split('||')[1],...v})).sort((a,b)=>b.jml_tim-a.jml_tim);
       ue2.forEach(x=>{const ek2='d:'+u.k+'||'+x.n;const o2=state.expanded[ek2];
-        h+=`<div class="tchild"><div class="lvl-ue2"><div class="trow" data-act="exp" data-key="${esc(ek2)}"><span class="tw">${o2?'&#9662;':'&#9656;'}</span><span class="tname" title="${esc(x.n)}">${esc(x.n)}</span><span class="tmet"><span class="tag">${x.jml_tim} tim</span><span class="tag" style="color:${colorAdopt(x.adopsi_pct)}">${x.adopsi_pct}%</span></span></div>`;
+        h+=`<div class="tchild"><div class="lvl-ue2"><div class="trow" data-act="exp" data-key="${esc(ek2)}"><span class="tw">${o2?'&#9662;':'&#9656;'}</span><span class="tname" title="${esc(x.n)}">${esc(x.n)}</span><span class="tmet"><span class="tag">${x.jml_tim} tim</span><span class="tag" style="color:${colorAdopt(x.adopsi_pct)}">${pct(x.adopsi_pct)}</span></span></div>`;
         if(o2){const tms=DATA.teams.map((t,i)=>({t,i})).filter(o=>o.t.ue1===u.k&&o.t.ue2===x.n).sort((a,b)=>(b.t.task?b.t.task.total:0)-(a.t.task?a.t.task.total:0));
           tms.forEach(o=>{const t=o.t;h+=`<div class="tchild"><div class="lvl-team"><div class="trow" data-act="team" data-team="${o.i}"><span class="tw">&#9678;</span><span class="tname" title="${esc(t.nama)}">${esc(t.nama)}</span><span class="tmet">${statusPill(t.status)}<span class="tag">${t.jml_anggota} org</span>${t.punya_task?'<span class="pill on">aktif</span>':'<span class="pill off">pasif</span>'}</span></div></div></div>`;});}
         h+=`</div></div>`;});}
@@ -5722,9 +5729,9 @@ function vTim(){
   rows.forEach(o=>{const t=o.t,tk=t.task;const done=tk?Math.round(100*(tk.selesai_tepat+tk.telat)/Math.max(1,tk.total)):null;
     h+=`<tr><td class="link" data-act="team" data-team="${o.i}">${esc(t.nama)}</td><td class="mini">${esc(t.ue1)}</td><td>${statusPill(t.status)}</td>
       <td class="num-c">${tk?fmt(tk.total):'<span class="mini">-</span>'}</td><td class="num-c">${done==null?'<span class="mini">-</span>':done+'%'}</td>
-      <td class="num-c">${t.tepat_pct==null?'<span class="mini">-</span>':t.tepat_pct+'%'}</td><td class="num-c">${t.penting_pct==null?'<span class="mini">-</span>':t.penting_pct+'%'}</td>
+      <td class="num-c">${t.tepat_pct==null?'<span class="mini">-</span>':pct(t.tepat_pct)}</td><td class="num-c">${t.penting_pct==null?'<span class="mini">-</span>':pct(t.penting_pct)}</td>
       <td class="num-c">${skorCell(t.skor)}</td></tr>`;});
-  return h+`</tbody></table>${rows.length>400?'<div class="mini" style="padding:8px">Menampilkan 400 dari '+rows.length+'.</div>':''}</div>`;
+  return h+`</tbody></table></div>`;
 }
 
 /* ===== Penjelajah Pegawai ===== */
@@ -5748,7 +5755,7 @@ function _vPegawaiBody(){
     <td class="num-c">${p.jml_tim}${p.jml_tim>=3?' <span class="pill warn">padat</span>':''}</td><td class="num-c">${fmt(p.jml_task)}</td><td class="num-c">${fmt(p.task_selesai)}</td>
     <td class="num-c"><div class="track" style="width:80px;display:inline-block;vertical-align:middle"><div class="fill" style="width:${Math.max(2,p.persen)}%"></div></div> ${p.persen}%</td>
     <td>${p.is_leader?'<span class="pill on">Ketua</span>':'<span class="pill neu">Anggota</span>'}</td></tr>`);
-  return h+`</tbody></table>${rows.length>400?'<div class="mini" style="padding:8px">Menampilkan 400 dari '+rows.length+'.</div>':''}</div>`;
+  return h+`</tbody></table></div>`;
 }
 
 /* ===== Unit detail ===== */
@@ -5765,7 +5772,7 @@ function vUnit1(){
   <h2 class="sec">Unit Eselon II &middot; klik untuk menelusuri</h2><div class="card">`;
   h+=catLegend();
   const catU2={};DATA.teams.forEach(t=>{if(t.ue1!==state.ue1)return;const k=t.ue2;(catU2[k]=catU2[k]||{'Squad':0,'Non-Squad':0,'Tim Lainnya':0})[timKategori(t)]++;});
-  ue2.forEach(x=>{const cc=catU2[x.n]||{'Squad':0,'Non-Squad':0,'Tim Lainnya':0};h+=barCat(x.n,cc,mt,`<b style="color:${colorAdopt(x.adopsi_pct)}">${x.adopsi_pct}%</b> &middot; ${x.jml_tim}`,`data-act="ue2" data-ue1="${esc(state.ue1)}" data-ue2="${esc(x.n)}"`);});
+  ue2.forEach(x=>{const cc=catU2[x.n]||{'Squad':0,'Non-Squad':0,'Tim Lainnya':0};h+=barCat(x.n,cc,mt,`<b style="color:${colorAdopt(x.adopsi_pct)}">${pct(x.adopsi_pct)}</b> &middot; ${x.jml_tim}`,`data-act="ue2" data-ue1="${esc(state.ue1)}" data-ue2="${esc(x.n)}"`);});
   h+=`</div>`;if(u.tim_aktif===0)h+=`<div class="note-box">Unit ini sudah membentuk <b>${u.jml_tim} tim</b> namun <b>belum ada aktivitas penugasan</b> (adopsi 0%). Target dorongan.</div>`;
   return h;
 }
@@ -5784,8 +5791,9 @@ function vUnit2(){
   <div class="seg" style="margin-bottom:12px">${segb('','Semua')}${segb('Squad','Squad ('+cU2['Squad']+')')}${segb('Non-Squad','Non-Squad ('+cU2['Non-Squad']+')')}${segb('Tim Lainnya','Lainnya ('+cU2['Tim Lainnya']+')')}</div>
   <div class="card tblw"><table><thead><tr>
     <th>Nama Tim</th><th>Kategori</th><th>Pengelola</th><th>Status</th><th class="num-c">Total Tugas</th><th class="num-c">Progres</th><th class="num-c">Tepat</th><th class="num-c">Skor</th></tr></thead><tbody>`;
+  if(!teamsF.length)h+='<tr><td colspan="9" class="mini" style="padding:12px">Tidak ada tim yang cocok dengan penyaring pada unit ini.</td></tr>';
   teamsF.forEach(o=>{const t=o.t,tk=t.task;const done=tk?Math.round(100*(tk.selesai_tepat+tk.telat)/Math.max(1,tk.total)):null;const ct=timKategori(t);
-    h+=`<tr><td class="link" data-act="team" data-team="${o.i}">${esc(t.nama)}</td><td><span class="pill ${ct==='Squad'?'vio':ct==='Non-Squad'?'blue':'on'}">${ct}</span></td><td class="mini">${esc(t.peng_ue2||t.peng_ue1||t.pengelola||'-')}</td><td>${statusPill(t.status)}</td><td class="num-c">${tk?fmt(tk.total):'-'}</td><td class="num-c">${done==null?'-':done+'%'}</td><td class="num-c">${t.tepat_pct==null?'-':t.tepat_pct+'%'}</td><td class="num-c">${skorCell(t.skor)}</td></tr>`;});
+    h+=`<tr><td class="link" data-act="team" data-team="${o.i}">${esc(t.nama)}</td><td><span class="pill ${ct==='Squad'?'vio':ct==='Non-Squad'?'blue':'on'}">${ct}</span></td><td class="mini">${esc(t.peng_ue2||t.peng_ue1||t.pengelola||'-')}</td><td>${statusPill(t.status)}</td><td class="num-c">${tk?fmt(tk.total):'-'}</td><td class="num-c">${done==null?'-':done+'%'}</td><td class="num-c">${t.tepat_pct==null?'-':pct(t.tepat_pct)}</td><td class="num-c">${skorCell(t.skor)}</td></tr>`;});
   h+=`</tbody></table></div>`;
   // Tim yang DIKELOLA unit ini tetapi pemilik kinerjanya di unit lain (umumnya Eselon I)
   const dikelola=DATA.teams.map((t,i)=>({t,i})).filter(o=>o.t.peng_ue2===state.ue2 && !(o.t.ue1===state.ue1&&o.t.ue2===state.ue2));
@@ -5827,7 +5835,7 @@ function vTeam(){
     <div class="kpi"><div class="lab">Jenis &amp; Status</div><div class="val" style="font-size:var(--fs-h)">${dispJenis(t.jenis)}</div><div class="note">${statusPill(t.status)}</div></div>
     <div class="kpi gold"><div class="lab">Anggota</div><div class="val">${fmt(t.jml_anggota)}</div><div class="note">${(t.anggota||[]).filter(a=>a.is_leader).length} ketua</div></div>
     <div class="kpi"><div class="lab">Total Task</div><div class="val">${tk?fmt(tk.total):'-'}</div><div class="note">${tk?fmt(tk.selesai_tepat+tk.telat)+' selesai':'belum ada penugasan'}</div></div>
-    <div class="kpi ${t.skor!=null&&t.skor<40?'alert':t.skor>=70?'good':''}"><div class="lab">Skor Indikatif</div><div class="val">${t.skor==null?'-':t.skor}</div><div class="note">${t.tepat_pct==null?'':'tepat '+t.tepat_pct+'% &middot; penting '+t.penting_pct+'%'}</div></div></div>
+    <div class="kpi ${t.skor!=null&&t.skor<40?'alert':t.skor>=70?'good':''}"><div class="lab">Skor Indikatif</div><div class="val">${t.skor==null?'-':t.skor}</div><div class="note">${t.tepat_pct==null?'':'tepat '+pct(t.tepat_pct)+' &middot; penting '+pct(t.penting_pct)+''}</div></div></div>
   <div class="card" style="margin-top:6px"><div class="cap"><b>Pemilik kinerja:</b> ${esc(t.owner)||'-'} &middot; <b>Pengelola:</b> ${esc(t.pengelola)||'-'} &middot; <b>UE1:</b> ${esc(t.ue1)} &middot; <b>Periode:</b> ${t.mulai||'?'} &rarr; ${t.selesai||'?'}</div>`;
   if(tk)h+=`<div class="legend"><span><span class="dot" style="background:var(--green)"></span>tepat ${fmt(tk.selesai_tepat)}</span><span><span class="dot" style="background:var(--red)"></span>telat ${fmt(tk.telat)}</span><span><span class="dot" style="background:var(--cat-1)"></span>berjalan ${fmt(tk.berjalan)}</span><span><span class="dot" style="background:var(--slate)"></span>belum mulai ${fmt(tk.belum_mulai)}</span><span><span class="dot" style="background:var(--amber)"></span>overdue ${fmt(tk.overdue)}</span><span><span class="dot" style="background:#c7d2e8"></span>strategic ${fmt(tk.strategic)} / operational ${fmt(tk.operational)}</span></div>`;
   h+=`</div>`;
@@ -6175,7 +6183,7 @@ function _tkDot(c,l){return `<span style="display:inline-flex;align-items:center
 function _tkLeg(items){return `<div style="display:flex;flex-wrap:wrap;gap:2px 0;margin-top:8px">${items.map(i=>_tkDot(i.c,i.l)).join('')}</div>`;}
 /* batang bertumpuk horizontal: segs=[{v,c,name}] */
 function _tkStack(name,segs,max,num,act){const a=act?`data-act="${act.a}" ${act.d||''}`:'';
-  const fills=segs.map(s=>{const w=max?Math.max(0,100*s.v/max):0;return `<div style="width:${w.toFixed(1)}%;background:${s.c};height:100%;box-shadow:2px 0 0 var(--surface)" title="${esc(s.name||'')}: ${s.v}"></div>`;}).join('');
+  const fills=segs.map(s=>{const w=max?Math.max(0,100*s.v/max):0;return `<div style="width:${w.toFixed(1).replace('.',',')}%;background:${s.c};height:100%;box-shadow:2px 0 0 var(--surface)" title="${esc(s.name||'')}: ${s.v}"></div>`;}).join('');
   return `<div class="bar-row"><div class="name ${act?'clk':''}" ${a} title="${esc(name)}">${esc(name)}</div><div class="track" style="display:flex;overflow:hidden">${fills}</div><div class="num">${num}</div></div>`;}
 /* ---- filter global (Eselon I + Tahun) untuk semua fitur Tata Kelola ---- */
 const TK_ORD=['Setjen','DJA','DJP','DJBC','DJPb','DJKN','DJPK','DJPPR','DJSEF','DJSPSK','Itjen','BPPK','LNSW','LPDP'];
@@ -6489,7 +6497,7 @@ function vTkMonev(){const g=tkGuard();if(g)return g;const M=TK.monev,f=tkF();
     <div class="kpi"><div class="lab">Perlu Perhatian</div><div class="val" style="color:var(--st-serious)">${fmt(bermasalah)}</div><div class="note">merah / peringatan / pencabutan</div></div>
     <div class="kpi"><div class="lab">Pencabutan Predikat</div><div class="val" style="color:var(--st-critical)">${fmt(cabut.length)}</div><div class="note">predikat dicabut</div></div></div>`;
   h+=`<div class="card"><div class="mini" style="line-height:1.7"><b>Monev</b> (monitoring &amp; evaluasi) menguji apakah unit yang sudah meraih predikat masih layak mempertahankannya. Hasil "Keberlanjutan Predikat" dan "Hijau" berarti predikat terjaga; "Kuning", "Merah", dan "Peringatan" menandakan penurunan; "Pencabutan Predikat" berarti predikat ditarik kembali.</div></div>`;
-  h+=`<div class="card"><h3>Sebaran hasil monev</h3>${pe.map(([k,v])=>`<div class="bar-row"><div class="name" title="${esc(k)}">${esc(k)}</div><div class="track" style="display:flex;overflow:hidden"><div style="width:${(100*v/mx).toFixed(1)}%;background:${col(k)};height:100%"></div></div><div class="num">${v}</div></div>`).join('')||'<div class="mini">Tidak ada data pada filter ini.</div>'}</div>`;
+  h+=`<div class="card"><h3>Sebaran hasil monev</h3>${pe.map(([k,v])=>`<div class="bar-row"><div class="name" title="${esc(k)}">${esc(k)}</div><div class="track" style="display:flex;overflow:hidden"><div style="width:${(100*v/mx).toFixed(1).replace('.',',')}%;background:${col(k)};height:100%"></div></div><div class="num">${v}</div></div>`).join('')||'<div class="mini">Tidak ada data pada filter ini.</div>'}</div>`;
   if(cabut.length)h+=`<div class="card"><h3>Pencabutan predikat</h3><div class="tblw"><table><thead><tr><th class="num-c">Tahun</th><th>Unit Kerja</th><th>Eselon I</th><th>Provinsi</th></tr></thead><tbody>${cabut.map(r=>`<tr><td class="num-c">${r.tahun||''}</td><td>${esc(r.unit)}</td><td>${esc(namaResmi(r.ue1||''))}</td><td class="mini">${esc(r.provinsi||'')}</td></tr>`).join('')}</tbody></table></div></div>`;
   if((M.riwayat||[]).length)h+=`<div class="card"><h3>Catatan riwayat khusus</h3>${M.riwayat.filter(r=>!f.u||r.ue1===f.u).map(r=>`<div style="padding:6px 0;border-top:1px solid var(--line)"><b>${esc(r.unit)}</b> <span class="mini">${esc(namaResmi(r.ue1||''))}</span><div class="mini">${esc(r.catatan)}</div></div>`).join('')}</div>`;
   h+=`<div class="card"><h3>Daftar hasil monev</h3><div class="tblw"><table><thead><tr><th class="num-c">Tahun</th><th>Unit Kerja</th><th>Eselon I</th><th>Hasil</th></tr></thead><tbody>`;
@@ -8801,7 +8809,7 @@ function vCuti(){
       'rata-rata '+String(_u.rataHk||0).replace('.',',')+' dari '+((CUTI.utilisasi||{}).hakHk||24)+' hari kerja ('+_thP+')','cutiutilisasi','Dorong pemanfaatan hak istirahat')+
     _kpiFokus('Hak Tidak Terpakai',fmt(_u.sisaHakHk||0),'hari kerja hangus sepanjang '+_thP,'cutiutilisasi','Setara istirahat yang tidak diambil')+
     _kpiFokus('Cuti Sakit '+_thP,fmt(_sk.rekaman),(_skA.rekaman?(String(Math.round(10*_sk.rekaman/_skA.rekaman)/10).replace('.',',')+' kali lipat dibanding 2020'):''),'cutisakit','Siapkan intervensi kesehatan')+
-    _kpiFokus('Puncak Cuti',_puncak,(_pPct>0?('sekitar '+_pPct+'% di atas bulan biasa'):'bulan tersibuk'),'cutipola','Jaga kapasitas layanan')+
+    _kpiFokus('Puncak Cuti',_puncak,(_pPct>0?('sekitar '+pct(_pPct)+' di atas bulan biasa'):'bulan tersibuk'),'cutipola','Jaga kapasitas layanan')+
     '</div>';
   /* komposisi jenis: bar bertumpuk 100% (komposisinya timpang 88/11/0,5 - donut tak terbaca) */
   const jpartsR=J.map(x=>({v:perJ[x].rekaman,c:CUTI_JCOL[x],name:x}));
@@ -8868,7 +8876,7 @@ function vCutiTren(){
       return '<td class="cell" style="background:'+mofRamp(tt)+';color:'+mofRampInk(tt)+(anom?';outline:2px solid var(--st-critical);outline-offset:-2px':'')+'" title="'+CUTI_BLNF[b-1]+' '+t+': '+fmt(v)+' pengajuan'+(anom?' (sekitar '+Math.round(100*(naik-1))+'% di atas kebiasaan bulan ini)':'')+'">'+fmt(v)+'</td>';}).join('')+'</tr>';}
   hm+='</tbody></table></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Heatmap Pengajuan '+esc(j)+' (Bulan x Tahun)</h2>'+hm+'<div class="mini" style="margin-top:6px">Semakin gelap semakin banyak pengajuan. Sel berbingkai merah berarti jumlahnya jauh di atas kebiasaan bulan tersebut. Periode April 2020 s.d. pertengahan 2021 rendah karena pembatasan masa pandemi; 2026 baru sampai Juni.</div>'+
-    (lonjakan.length?'<div class="note-box warn" style="margin-top:10px"><b>Lonjakan tak wajar terdeteksi:</b> '+lonjakan.sort((a,b2)=>b2.pct-a.pct).slice(0,5).map(x=>CUTI_BLNF[x.b-1]+' '+x.t+' ('+fmt(x.v)+' pengajuan, sekitar '+x.pct+'% di atas kebiasaan)').join('; ')+'. Lonjakan seperti ini layak dicek penyebabnya: wabah penyakit, kebijakan baru, atau perubahan cara input data.</div>':'')+'</div>';
+    (lonjakan.length?'<div class="note-box warn" style="margin-top:10px"><b>Lonjakan tak wajar terdeteksi:</b> '+lonjakan.sort((a,b2)=>b2.pct-a.pct).slice(0,5).map(x=>CUTI_BLNF[x.b-1]+' '+x.t+' ('+fmt(x.v)+' pengajuan, sekitar '+pct(x.pct)+' di atas kebiasaan)').join('; ')+'. Lonjakan seperti ini layak dicek penyebabnya: wabah penyakit, kebijakan baru, atau perubahan cara input data.</div>':'')+'</div>';
   /* dekomposisi frekuensi vs durasi */
   const T=CUTI.tahunan.filter(x=>x.jenis===j);
   const mxr=Math.max(1,...T.map(x=>x.rekaman));
@@ -9016,7 +9024,7 @@ function vCutiUtilisasi(){
     UU.map(x=>{const par=cutiParsial(x.nama);
       return '<tr><td>'+esc(x.nama)+(par?' <span class="tag" title="Data unit ini baru sebagian masuk HRIS">parsial</span>':'')+'</td>'+
       '<td class="num-c">'+fmt(x.pegawai)+'</td><td class="num-c">'+String(x.rataHk).replace('.',',')+'</td>'+
-      '<td>'+cutiMiniBar(x.utilisasiPct,mxU,'var(--cat-1)')+'</td><td class="num-c"><b>'+x.utilisasiPct+'%</b></td>'+
+      '<td>'+cutiMiniBar(x.utilisasiPct,mxU,'var(--cat-1)')+'</td><td class="num-c"><b>'+pct(x.utilisasiPct)+'</b></td>'+
       '<td class="num-c">'+(x.lewatHak||0)+'</td></tr>';}).join('')+
     '</tbody></table></div><div class="mini" style="margin-top:6px">Unit bertanda parsial datanya belum lengkap; angka utilisasinya belum menggambarkan kondisi sebenarnya. Hanya unit dengan sekurangnya 50 pegawai yang ditampilkan.</div></div>';
   /* cuti besar & pola sakit: kategori lain, ambang sendiri */
@@ -9767,7 +9775,7 @@ function mofRadar(vals,ref,labs,size,showRef){var cx=size/2,cy=size/2,R=size/2-5
       /* angka nilai digeser KE ARAH PUSAT (radial) supaya tidak menabrak label dimensi di tepi */
       var lx=q[0]-9*Math.cos(a), ly=q[1]-9*Math.sin(a);
       s+='<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="2.6" fill="'+col+'"/>'
-        +'<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" font-size="10" font-weight="700" fill="'+col+'" text-anchor="middle" dy=".32em">'+arr[i].toFixed(1)+'</text>';}}
+        +'<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" font-size="10" font-weight="700" fill="'+col+'" text-anchor="middle" dy=".32em">'+arr[i].toFixed(1).replace('.',',')+'</text>';}}
     return s;};
   if(showRef)g+=poly(ref,'var(--muted)','color-mix(in srgb, var(--muted) 12%, transparent)',false);
   g+=poly(vals,'var(--brand)','color-mix(in srgb, var(--brand) 16%, transparent)',true);
@@ -9784,9 +9792,9 @@ function vMofin(){
     +card('mofheatmap','Skor MOFIN Kemenkeu',km.skor_total,'agregat organisasi, skala 0-100',BLUE)
     +card('mofheatmap','Unit Dinilai',U.length,'12 Eselon I + Kemenkeu',VIO)
     +card('moftl','Rekomendasi UE1',fmt(MOFIN.meta.total_rekomendasi_ue1),pct+'% selesai &middot; +'+MOFIN.meta.total_rekomendasi_kemenkeu+' rek level Kemenkeu',TEAL)
-    +card('mofprofil','Dimensi Terlemah',esc(wdim),'skor '+nd[wdim].toFixed(1)+' (Kemenkeu)',ORANGE)
+    +card('mofprofil','Dimensi Terlemah',esc(wdim),'skor '+nd[wdim].toFixed(1).replace('.',',')+' (Kemenkeu)',ORANGE)
     +'</div>';
-  h+='<div class="note-box" style="margin-top:12px;background:var(--soft-amber);color:var(--ink)"><b>Temuan utama:</b> Kapabilitas adalah titik lemah sistemik. Dua indikator terlemah Kemenkeu: <b>Perolehan Talenta</b> ('+(km.skor_indikator['Perolehan Talenta']||0).toFixed(1)+') dan <b>Penggunaan Keahlian Eksternal</b> ('+(km.skor_indikator['Penggunaan Keahlian Eksternal']||0).toFixed(1)+') dan keduanya berada di dimensi Kapabilitas, yang sekaligus paling lambat ditindaklanjuti.</div>';
+  h+='<div class="note-box" style="margin-top:12px;background:var(--soft-amber);color:var(--ink)"><b>Temuan utama:</b> Kapabilitas adalah titik lemah sistemik. Dua indikator terlemah Kemenkeu: <b>Perolehan Talenta</b> ('+(km.skor_indikator['Perolehan Talenta']||0).toFixed(1).replace('.',',')+') dan <b>Penggunaan Keahlian Eksternal</b> ('+(km.skor_indikator['Penggunaan Keahlian Eksternal']||0).toFixed(1).replace('.',',')+') dan keduanya berada di dimensi Kapabilitas, yang sekaligus paling lambat ditindaklanjuti.</div>';
   var nav=(v,t,d)=>'<div class="card" data-act="nav" data-view="'+v+'" style="cursor:pointer"><h3 style="margin:0">'+t+'</h3><div class="mini" style="margin-top:4px">'+d+'</div><div class="mini" style="margin-top:6px;color:var(--brand)">Buka &rsaquo;</div></div>';
   h+='<h2 class="sec">Telusuri modul MOFIN</h2><div class="grid3">'
     +nav('mofheatmap','Heatmap Skor Organisasi','Peta 15 unit &times; 9 dimensi; klik unit untuk drill ke 37 indikator.')
@@ -9840,7 +9848,7 @@ function vMofinProfil(){
   var vv=dims.map(d=>u.skor_dimensi[d]||0),rv=dims.map(d=>km.skor_dimensi[d]||0);
   var isKk=(sel==='Kemenkeu');
   var byScore=dims.map(function(d){return {d:d,v:u.skor_dimensi[d]||0,r:km.skor_dimensi[d]||0};}).sort((a,b)=>b.v-a.v);
-  var infoRow=function(x){var dl=x.v-x.r;return '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)"><span style="color:var(--tag-ink)">'+esc(x.d)+'</span><span style="font-weight:700;white-space:nowrap">'+x.v.toFixed(1)+(isKk?'':' <span style="color:'+(dl>=0?'var(--st-good)':'var(--st-critical)')+';font-weight:600">('+(dl>=0?'+':'')+dl.toFixed(1)+')</span>')+'</span></div>';};
+  var infoRow=function(x){var dl=x.v-x.r;return '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)"><span style="color:var(--tag-ink)">'+esc(x.d)+'</span><span style="font-weight:700;white-space:nowrap">'+x.v.toFixed(1).replace('.',',')+(isKk?'':' <span style="color:'+(dl>=0?'var(--st-good)':'var(--st-critical)')+';font-weight:600">('+(dl>=0?'+':'')+dl.toFixed(1).replace('.',',')+')</span>')+'</span></div>';};
   var refLbl=isKk?'':' &nbsp; <span style="color:var(--muted);font-weight:700">&#9632; Kemenkeu</span>';
   h+='<div class="grid2"><div class="card"><div class="slab">Skor 9 Dimensi: '+esc(namaResmi(u.kode))+(isKk?'':' vs Kementerian Keuangan')+'</div>'
     +'<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:6px">'
@@ -9868,15 +9876,15 @@ function vMofinProfil(){
     var ds=u.skor_dimensi[dg.nama],dn=km.skor_dimensi[dg.nama];
     var tl=u.ada_tl&&u.tl_dimensi[dg.nama]?u.tl_dimensi[dg.nama].skor_tl:null;
     h+='<tr style="background:var(--brand-l)"'+(u.ada_tl?' data-act="mofdrill" data-unit="'+u.kode+'" data-dim="'+esc(dg.nama)+'" title="Klik untuk detail rekomendasi dimensi ini"':'')+'><td style="padding:7px 8px;font-weight:800;color:var(--brand-d)'+(u.ada_tl?';cursor:pointer':'')+'">'+esc(dg.nama)+(u.ada_tl?' &rsaquo;':'')+'</td>'
-      +'<td class="num-c" style="padding:7px 8px;font-weight:700">'+(ds!=null?ds.toFixed(1):'-')+'</td>'
-      +'<td class="num-c" style="padding:7px 8px">'+(dn!=null?dn.toFixed(1):'-')+'</td>'
-      +'<td class="num-c" style="padding:7px 8px;font-weight:700;color:'+((ds-dn)>=0?'var(--st-good)':'var(--st-critical)')+'">'+(ds!=null?((ds-dn>=0?'+':'')+(ds-dn).toFixed(1)):'-')+'</td>'
+      +'<td class="num-c" style="padding:7px 8px;font-weight:700">'+(ds!=null?ds.toFixed(1).replace('.',','):'-')+'</td>'
+      +'<td class="num-c" style="padding:7px 8px">'+(dn!=null?dn.toFixed(1).replace('.',','):'-')+'</td>'
+      +'<td class="num-c" style="padding:7px 8px;font-weight:700;color:'+((ds-dn)>=0?'var(--st-good)':'var(--st-critical)')+'">'+(ds!=null?((ds-dn>=0?'+':'')+(ds-dn).toFixed(1).replace('.',',')):'-')+'</td>'
       +(u.ada_tl?'<td class="num-c" style="padding:7px 8px;font-weight:700">'+(tl!=null?Math.round(tl*100):'-')+'</td>':'')+'</tr>';
     dg.indikator.forEach(ind=>{var vs=u.skor_indikator[ind],vn=km.skor_indikator[ind];
       h+='<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px 8px 6px 22px;color:var(--tag-ink)">'+esc(ind)+'</td>'
-        +'<td class="num-c" style="padding:6px 8px">'+(vs!=null?vs.toFixed(1):'-')+'</td>'
-        +'<td class="num-c" style="padding:6px 8px;color:var(--muted)">'+(vn!=null?vn.toFixed(1):'-')+'</td>'
-        +'<td class="num-c" style="padding:6px 8px;color:'+((vs-vn)>=0?'var(--st-good)':'var(--st-critical)')+'">'+(vs!=null?((vs-vn>=0?'+':'')+(vs-vn).toFixed(1)):'-')+'</td>'
+        +'<td class="num-c" style="padding:6px 8px">'+(vs!=null?vs.toFixed(1).replace('.',','):'-')+'</td>'
+        +'<td class="num-c" style="padding:6px 8px;color:var(--muted)">'+(vn!=null?vn.toFixed(1).replace('.',','):'-')+'</td>'
+        +'<td class="num-c" style="padding:6px 8px;color:'+((vs-vn)>=0?'var(--st-good)':'var(--st-critical)')+'">'+(vs!=null?((vs-vn>=0?'+':'')+(vs-vn).toFixed(1).replace('.',',')):'-')+'</td>'
         +(u.ada_tl?'<td class="num-c" style="padding:6px 8px"></td>':'')+'</tr>';});
   });
   h+='</table></div>';
@@ -9945,7 +9953,7 @@ function mofScatter(cells,xt){var W=1040,H=460,mL=56,mR=22,mT=20,mB=48;
   g+='<text x="'+(xR-6)+'" y="'+(yB-8)+'" font-size="10" fill="#d98a0b" font-weight="800" text-anchor="end">TL TERTUNDA</text>';
   g+='<text x="'+(xR-6)+'" y="'+(yT+14)+'" font-size="10" fill="var(--brand)" font-weight="800" text-anchor="end">TERJAGA</text>';
   cells.forEach(function(c){var q=mofQuad(c.x,c.y,xt),r=4+Math.min(6,c.n/6);
-    g+='<g data-act="mofdrill" data-unit="'+c.unit+'" data-dim="'+c.dim+'" style="cursor:pointer"><circle cx="'+px(c.x).toFixed(1)+'" cy="'+py(c.y).toFixed(1)+'" r="'+r.toFixed(1)+'" fill="'+MOF_QCOL[q]+'" fill-opacity="0.72" stroke="#fff" stroke-width="1"><title>'+esc(c.unit)+' / '+esc(c.dim)+' · skor '+c.x.toFixed(1)+' · indeks TL '+Math.round(c.y)+' · '+c.n+' rekomendasi</title></circle></g>';});
+    g+='<g data-act="mofdrill" data-unit="'+c.unit+'" data-dim="'+c.dim+'" style="cursor:pointer"><circle cx="'+px(c.x).toFixed(1)+'" cy="'+py(c.y).toFixed(1)+'" r="'+r.toFixed(1)+'" fill="'+MOF_QCOL[q]+'" fill-opacity="0.72" stroke="#fff" stroke-width="1"><title>'+esc(c.unit)+' / '+esc(c.dim)+' · skor '+c.x.toFixed(1).replace('.',',')+' · indeks TL '+Math.round(c.y)+' · '+c.n+' rekomendasi</title></circle></g>';});
   return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" style="width:100%;max-width:'+Math.round(W*1.1)+'px;height:auto;display:block">'+g+'</svg>';}
 
 function vMofinKuadran(){
@@ -9956,11 +9964,11 @@ function vMofinKuadran(){
   var h='<div class="note-box" style="margin:0 0 12px">Tiap titik = satu <b>unit × dimensi</b> yang punya rekomendasi. Sumbu X = skor kapabilitas (makin kiri makin lemah), sumbu Y = indeks tindak lanjut (makin bawah makin mandek). Kuadran kiri-bawah <b style="color:var(--st-critical)">Perlu Perhatian</b> = kelemahan yang belum ditindaklanjuti, prioritas utama. Klik titik untuk detail rekomendasi.</div>';
   var kc=q=>'<div class="kpi" data-act="nav" data-view="mofgap" style="cursor:pointer;min-height:auto;border:1px solid '+MOF_QCOL[q]+'"><div class="lab">'+MOF_QLAB[q]+'</div><div class="val" style="color:'+MOF_QCOL[q]+';font-size:var(--fs-num)">'+cnt[q]+'</div><div class="note">unit × dimensi</div></div>';
   h+='<div class="kpis" style="margin-bottom:12px">'+kc('buta')+kc('responsif')+kc('tertunda')+kc('terjaga')+'</div>';
-  h+='<div class="card tblw">'+mofScatter(cells,xt)+'<div class="mini" style="margin-top:6px">Garis putus-putus: ambang skor (median '+xt.toFixed(1)+') dan indeks TL 50. Ukuran titik sebanding jumlah rekomendasi.</div></div>';
+  h+='<div class="card tblw">'+mofScatter(cells,xt)+'<div class="mini" style="margin-top:6px">Garis putus-putus: ambang skor (median '+xt.toFixed(1).replace('.',',')+') dan indeks TL 50. Ukuran titik sebanding jumlah rekomendasi.</div></div>';
   var buta=cells.filter(c=>mofQuad(c.x,c.y,xt)==='buta').sort((a,b)=>(a.x+a.y)-(b.x+b.y));
   h+='<h2 class="sec">Daftar Perlu Perhatian: kelemahan yang belum ditindaklanjuti</h2><div class="card tblw"><table style="width:100%;border-collapse:collapse;font-size:var(--fs-md)"><tr style="text-align:left;color:var(--muted)"><th style="padding:6px 8px">Unit</th><th style="padding:6px 8px">Dimensi</th><th class="num-c" style="padding:6px 8px">Skor</th><th class="num-c" style="padding:6px 8px">Indeks TL</th><th class="num-c" style="padding:6px 8px">Rekomendasi</th><th class="num-c" style="padding:6px 8px">Belum mulai</th></tr>';
   if(!buta.length)h+='<tr><td colspan="6" style="padding:12px;color:var(--muted)">Tidak ada yang perlu perhatian pada ambang ini.</td></tr>';
-  buta.forEach(function(c){h+='<tr data-act="mofdrill" data-unit="'+c.unit+'" data-dim="'+c.dim+'" style="cursor:pointer;border-bottom:1px solid var(--line)"><td style="padding:7px 8px;font-weight:700" title="'+esc(c.unitNama)+'">'+c.unit+' &rsaquo;</td><td style="padding:7px 8px">'+esc(c.dim)+'</td><td class="num-c" style="padding:7px 8px;color:var(--st-critical);font-weight:700">'+c.x.toFixed(1)+'</td><td class="num-c" style="padding:7px 8px;color:var(--st-critical);font-weight:700">'+Math.round(c.y)+'</td><td class="num-c" style="padding:7px 8px">'+c.n+'</td><td class="num-c" style="padding:7px 8px;color:var(--st-critical)">'+c.not+'</td></tr>';});
+  buta.forEach(function(c){h+='<tr data-act="mofdrill" data-unit="'+c.unit+'" data-dim="'+c.dim+'" style="cursor:pointer;border-bottom:1px solid var(--line)"><td style="padding:7px 8px;font-weight:700" title="'+esc(c.unitNama)+'">'+c.unit+' &rsaquo;</td><td style="padding:7px 8px">'+esc(c.dim)+'</td><td class="num-c" style="padding:7px 8px;color:var(--st-critical);font-weight:700">'+c.x.toFixed(1).replace('.',',')+'</td><td class="num-c" style="padding:7px 8px;color:var(--st-critical);font-weight:700">'+Math.round(c.y)+'</td><td class="num-c" style="padding:7px 8px">'+c.n+'</td><td class="num-c" style="padding:7px 8px;color:var(--st-critical)">'+c.not+'</td></tr>';});
   h+='</table></div>';
   h+=mofDrillPanel();
   return h;}
@@ -9979,7 +9987,7 @@ function vMofinGap(){
   var pill=(col,txt)=>'<span class="pill" style="background:'+col+'1a;color:'+col+';border:1px solid '+col+'55;font-weight:700">'+txt+'</span>';
   var h='<div class="note-box" style="margin:0 0 12px">Untuk tiap unit diambil <b>dimensi dengan skor terlemah</b> (yang memiliki rekomendasi), lalu dinilai seberapa jauh ditindaklanjuti. <b>Gap</b> = besar kelemahan (90 &minus; skor) &times; kurangnya respons (100 &minus; indeks TL). Makin atas makin prioritas. Klik baris untuk detail rekomendasi &amp; tindak lanjut.</div>';
   h+='<div class="card tblw"><table style="width:100%;border-collapse:collapse;font-size:var(--fs-md)"><tr style="text-align:left;color:var(--muted)"><th style="padding:6px 8px">#</th><th style="padding:6px 8px">Unit</th><th style="padding:6px 8px">Dimensi Terlemah</th><th class="num-c" style="padding:6px 8px">Skor</th><th class="num-c" style="padding:6px 8px">Indeks TL</th><th class="num-c" style="padding:6px 8px">Rekomendasi</th><th style="padding:6px 8px">Respons</th><th class="num-c" style="padding:6px 8px">Gap</th></tr>';
-  rows.forEach(function(r,i){var v=verdict(r.tl);h+='<tr data-act="mofdrill" data-unit="'+r.unit+'" data-dim="'+r.dim+'" style="cursor:pointer;border-bottom:1px solid var(--line)"><td style="padding:7px 8px;font-weight:800;color:var(--muted)">'+(i+1)+'</td><td style="padding:7px 8px;font-weight:700" title="'+esc(r.unitNama)+'">'+r.unit+' &rsaquo;</td><td style="padding:7px 8px">'+esc(r.dim)+'</td><td class="num-c" style="padding:7px 8px;font-weight:700">'+r.score.toFixed(1)+'</td><td class="num-c" style="padding:7px 8px;font-weight:700;color:'+v[0]+'">'+Math.round(r.tl)+'</td><td class="num-c" style="padding:7px 8px">'+r.n+'</td><td style="padding:7px 8px">'+pill(v[0],v[1])+'</td><td class="num-c" style="padding:7px 8px;font-weight:800">'+r.gap.toFixed(1)+'</td></tr>';});
+  rows.forEach(function(r,i){var v=verdict(r.tl);h+='<tr data-act="mofdrill" data-unit="'+r.unit+'" data-dim="'+r.dim+'" style="cursor:pointer;border-bottom:1px solid var(--line)"><td style="padding:7px 8px;font-weight:800;color:var(--muted)">'+(i+1)+'</td><td style="padding:7px 8px;font-weight:700" title="'+esc(r.unitNama)+'">'+r.unit+' &rsaquo;</td><td style="padding:7px 8px">'+esc(r.dim)+'</td><td class="num-c" style="padding:7px 8px;font-weight:700">'+r.score.toFixed(1).replace('.',',')+'</td><td class="num-c" style="padding:7px 8px;font-weight:700;color:'+v[0]+'">'+Math.round(r.tl)+'</td><td class="num-c" style="padding:7px 8px">'+r.n+'</td><td style="padding:7px 8px">'+pill(v[0],v[1])+'</td><td class="num-c" style="padding:7px 8px;font-weight:800">'+r.gap.toFixed(1).replace('.',',')+'</td></tr>';});
   h+='</table><div class="mini" style="margin-top:6px">Gap tinggi = kelemahan besar yang belum banyak ditindaklanjuti. Baris merah (Perlu perhatian) = prioritas intervensi.</div></div>';
   h+=mofDrillPanel();
   return h;}
@@ -10320,7 +10328,7 @@ function vPelAnalisis(){
   var h='<div class="note-box" style="margin-bottom:12px">Diagnostik struktur delegasi: seberapa terpusat mandat, sedalam apa diturunkan, dan sekuat apa sifatnya. <span class="mini">Sifat ditentukan produk hukum: KMK/PMK = Penetapan/Regulatif; selain itu Administratif.</span></div>';
   h+='<div class="kpis">'
     +card('Butir Kewenangan',fmt(totB),A.konsentrasi_kum.n_jabatan+' jabatan penerima (unit)',BLUE)
-    +card('Wewenang Formal',formalN,'menghasilkan KMK/PMK ('+formalPct+'%)',VIO)
+    +card('Wewenang Formal',formalN,'menghasilkan KMK/PMK ('+pct(formalPct)+')',VIO)
     +card('Konsentrasi',A.konsentrasi_kum.share_top8+'%','dipegang 8 jabatan teratas',ORANGE)
     +card('Administratif',Math.round(100*(S.global.Administratif||0)/totB)+'%','sisanya penetapan & regulatif',TEAL)
     +'</div>';
@@ -10358,7 +10366,7 @@ function vPelAnalisis(){
   var mxs=Math.max.apply(null,subs.map(function(k){return (S.global_sub||{})[k]||0;}));
   subs.forEach(function(k){h+=bar(k,(S.global_sub||{})[k]||0,mxs,'',(S.global_sub||{})[k]||0);});
   h+='</div>';
-  h+='<div class="note-box" style="margin-top:10px;background:#f6f2fd;color:#4c2f7a"><b>Insight:</b> Mandat yang dilimpahkan didominasi tindakan <b>administratif</b> ('+Math.round(100*(S.global.Administratif||0)/totB)+'%). Wewenang "berat" yang menghasilkan <b>KMK/PMK hanya '+formalN+' butir ('+formalPct+'%)</b>, terpusat di Setjen dan DJP. Artinya sebagian besar yang dilimpahkan adalah eksekusi administratif, bukan pembentukan keputusan/norma.</div>';
+  h+='<div class="note-box" style="margin-top:10px;background:#f6f2fd;color:#4c2f7a"><b>Insight:</b> Mandat yang dilimpahkan didominasi tindakan <b>administratif</b> ('+Math.round(100*(S.global.Administratif||0)/totB)+'%). Wewenang "berat" yang menghasilkan <b>KMK/PMK hanya '+formalN+' butir ('+pct(formalPct)+')</b>, terpusat di Setjen dan DJP. Artinya sebagian besar yang dilimpahkan adalah eksekusi administratif, bukan pembentukan keputusan/norma.</div>';
 
   // Tabel wewenang formal (KMK/PMK)
   h+='<h2 class="sec">Wewenang Formal (menghasilkan KMK/PMK)</h2><div class="card"><div class="tblw"><table style="width:100%;border-collapse:collapse;font-size:var(--fs-md)"><thead><tr style="text-align:left;border-bottom:2px solid var(--line)"><th style="padding:6px 8px">Unit</th><th style="padding:6px 8px">Sifat</th><th style="padding:6px 8px">Jabatan</th><th style="padding:6px 8px">Materi</th></tr></thead><tbody>';
@@ -11457,7 +11465,7 @@ function exportKajian(){
 }
 /* progress bar (ala NProgress): trickle ke 90%, lalu 100% saat selesai */
 let _np=0,_npT=null;
-function progStart(){const w=document.getElementById('nprog'),b=document.getElementById('nprogBar');if(!w)return;_np=10;w.classList.add('on');b.style.width='10%';clearInterval(_npT);_npT=setInterval(function(){_np+=Math.max(.4,(92-_np)*0.09);if(_np>92)_np=92;b.style.width=_np.toFixed(1)+'%';},200);}
+function progStart(){const w=document.getElementById('nprog'),b=document.getElementById('nprogBar');if(!w)return;_np=10;w.classList.add('on');b.style.width='10%';clearInterval(_npT);_npT=setInterval(function(){_np+=Math.max(.4,(92-_np)*0.09);if(_np>92)_np=92;b.style.width=_np.toFixed(1).replace('.',',')+'%';},200);}
 function progDone(){const w=document.getElementById('nprog'),b=document.getElementById('nprogBar');if(!w)return;clearInterval(_npT);b.style.width='100%';setTimeout(function(){w.classList.remove('on');setTimeout(function(){b.style.width='0';},320);},260);}
 async function doLogin(){
   const u=document.getElementById('luser').value.trim().toLowerCase();const p=document.getElementById('lpass').value;
