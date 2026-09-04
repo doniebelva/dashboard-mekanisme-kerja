@@ -2350,7 +2350,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   mkLoading:false,mkErr:false,
   sukLoading:false,sukErr:false,sukRegenMode:'gabungan',sukEs2Q:'',sukEs2UE1:'',sukUnitSel:'',sukPirJalur:'semua',
   /* Daftar nominatif: seluruhnya hanya di memori. Password TIDAK PERNAH masuk state. */
-  nomTok:'',nomRows:null,nomInfo:null,nomTh1:0,nomTh2:0,nomUe1:'',nomEs:'',nomQ:'',
+  nomTok:'',nomRows:null,nomInfo:null,nomNipPenuh:true,nomTh1:0,nomTh2:0,nomUe1:'',nomEs:'',nomQ:'',
   nomBusy:false,nomMsg:'',nomSetMode:false,
   cutiLoading:false,cutiErr:false,cutiTrJenis:'Cuti Tahunan',cutiUnitJenis:'',cutiUnitTahun:'',cutiUnitMode:'abs',cutiDemoJenis:'Cuti Sakit',cutiPolaJenis:'Cuti Tahunan',cutiPredJenis:'Cuti Sakit',cutiSimHari:10,cutiUnitSel:null,cutiWilQ:'',cutiUtilTahun:'',
   paretoUE1:'',paretoF:'',paretoSort:{k:'produk_total',d:-1},
@@ -9759,7 +9759,7 @@ function vSukNominatif(){
   let h=pgHead('Daftar Pejabat yang Akan Pensiun',
     '<p>Halaman ini menampilkan nama, jabatan, unit, dan tanggal pensiun pejabat pada periode yang Anda pilih. Gunakan untuk menyusun rencana pengisian jabatan dan usulan mutasi.</p>'+
     '<p>Karena memuat data pribadi, halaman ini terkunci: masukkan token akses dari pengelola dashboard, lalu daftarnya langsung terbuka. Penyaringan dilakukan di server, sehingga yang terkirim hanya baris pada periode yang diminta.</p>');
-  h+='<div class="note-box warn"><b>Setiap pembukaan dicatat.</b> Waktu, nama pengguna, periode yang diminta, dan jumlah baris yang keluar tersimpan pada jejak sistem. Permintaan menampilkan NIP secara penuh dicatat tersendiri. Data yang tampil tidak disimpan di peramban dan hilang begitu Anda keluar.</div>';
+  h+='<div class="note-box warn"><b>Setiap pembukaan dicatat.</b> Waktu, nama pengguna, periode yang diminta, dan jumlah baris yang keluar tersimpan pada jejak sistem. NIP ditampilkan utuh karena halaman ini sudah dikunci token, dan setiap pembukaannya dicatat tersendiri. Gunakan tombol NIP disamarkan bila layar Anda sedang dibagikan. Data yang tampil tidak disimpan di peramban dan hilang begitu Anda keluar.</div>';
 
   /* Panel pemasangan sandi kedua per pengguna DIHAPUS (3 Sep 2026, keputusan Donny):
      kini dipakai satu TOKEN AKSES bersama, dikelola admin lewat NOM_TOKEN di Code.gs lalu
@@ -9803,8 +9803,8 @@ function vSukNominatif(){
   h+='<div class="card"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">'+
     '<h2 class="sec" style="margin:0">'+fmt(I.n||R.length)+' pejabat, pensiun '+(I.periode?I.periode.join(' s.d. '):'')+'</h2>'+
     '<span class="seg" style="margin-left:auto">'+
-    '<span class="segb '+(I.nipPenuh?'':'on')+'" data-act="suknip" data-v="0">NIP disamarkan</span>'+
-    '<span class="segb '+(I.nipPenuh?'on':'')+'" data-act="suknip" data-v="1">NIP penuh</span></span></div>'+
+    '<span class="segb '+(state.nomNipPenuh?'':'on')+'" data-act="suknip" data-v="0">NIP disamarkan</span>'+
+    '<span class="segb '+(state.nomNipPenuh?'on':'')+'" data-act="suknip" data-v="1">NIP penuh</span></span></div>'+
     (I.kelebihan?('<div class="note-box warn">Hasil dipotong pada '+fmt(I.maks)+' baris pertama. Persempit periode atau unitnya supaya daftarnya utuh.</div>'):'')+
     '<div class="tblw"><table><thead><tr>'+
     '<th style="text-align:left">Nama</th><th style="text-align:left">NIP</th><th style="text-align:left">Jabatan</th>'+
@@ -9825,6 +9825,10 @@ function vSukNominatif(){
 
 /* Ambil daftar dari gerbang. Seluruh penyaringan terjadi di server. */
 async function nomAmbil(nipPenuh){
+  /* Bawaannya NIP utuh. Halaman ini sudah dikunci token, dan NIP justru yang
+     dipakai menyusun usulan mutasi, jadi menyamarkannya cuma menambah satu klik. */
+  if(nipPenuh===undefined)nipPenuh=state.nomNipPenuh;
+  state.nomNipPenuh=!!nipPenuh;
   if(!nomAktif()){state.nomMsg='Masukkan token akses lebih dulu.';render();return;}
   state.nomBusy=true;state.nomMsg='';render();
   try{
@@ -10998,9 +11002,9 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
     if(_el)_el.value='';
     /* Satu klik saja: token langsung dikirim bersama permintaan datanya. Kalau benar,
        daftarnya keluar di layar yang sama; kalau salah, kotak isian muncul lagi. */
-    state.nomTok=pw;state.nomRows=null;state.nomInfo=null;nomAmbil(false);}
+    state.nomTok=pw;state.nomRows=null;state.nomInfo=null;nomAmbil();}
   else if(a==='sukkunci'){nomLupakan();state.nomMsg='Daftar dikunci lagi.';render();}
-  else if(a==='suknomcari'){state.nomRows=null;nomAmbil(state.nomInfo&&state.nomInfo.nipPenuh);}
+  else if(a==='suknomcari'){state.nomRows=null;nomAmbil();}
   else if(a==='suknip'){nomAmbil(el.dataset.v==='1');}
 
   else if(a==='cutiunitmode'){state.cutiUnitMode=el.dataset.k;render();}
