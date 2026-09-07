@@ -435,11 +435,17 @@ td.num-c,th.num-c{font-variant-numeric:tabular-nums}
 .pgn .pgn-h{font-size:var(--fs-mini);font-weight:700;color:var(--ink);min-width:96px;text-align:center;font-variant-numeric:tabular-nums}
 
 /* -- bar horizontal -- */
-.bar-row{display:grid;grid-template-columns:200px 1fr 96px;align-items:center;gap:var(--sp-5);margin:9px 0;font-size:var(--fs-md)}
+/* Kolom BOLEH menyusut. Ukuran pasti 200px/96px ditambah bawaan min-width:auto pada anak
+   grid membuat baris ini menolak mengecil di dalam kartu sempit, lalu menyeret seluruh
+   halaman bergulir mendatar. minmax(0,...) menjaga tampilan lebarnya tetap sama sambil
+   memberi izin menyusut saat ruangnya memang tidak cukup. */
+.bar-row{display:grid;grid-template-columns:minmax(0,200px) minmax(24px,1fr) minmax(0,auto);align-items:center;gap:var(--sp-5);margin:9px 0;font-size:var(--fs-md)}
+.bar-row>*{min-width:0}
 .bar-row .name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar-row .name.clk{cursor:pointer;transition:all var(--t-fast) ease}
 .bar-row .name.clk:hover{color:var(--brand);text-decoration:underline}
-.bar-row .num{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:var(--fs-sm)}
+.bar-row .num{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:var(--fs-sm);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* bar kategori HTML (pengganti SVG _temaBars): font token, lebar penuh, klik = saring */
 .tbars{display:flex;flex-direction:column;gap:4px}
 .tbar{display:grid;grid-template-columns:minmax(140px,240px) 1fr 48px;align-items:center;gap:var(--sp-5);padding:3px var(--sp-3);border-radius:var(--rad-xs);cursor:pointer}
@@ -886,6 +892,10 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 /* -48px = tinggi .appfoot yg melayang (fixed) + sedikit napas. Tanpa ini, tepi bawah tabel
    panjang berhenti TEPAT di bawah footer sehingga baris terakhir terkubur & tak bisa diklik
    (ditemukan smoke test 20 Jul 2026: baris di y 735-796 sedangkan footer mulai y 755). */
+/* Jaring pengaman: tabel lebar yang lupa dibungkus .tblw tetap bergulir di dalam kartunya,
+   bukan mendorong seluruh halaman. Penyeleksi anak langsung, jadi tabel yang sudah benar
+   terbungkus .tblw sama sekali tidak tersentuh. */
+.card>table{display:block;overflow-x:auto;max-width:100%}
 .tblw{overflow:auto;max-height:calc(72vh - 48px)}
 /* Tabel Uraian Tugas & Hasil Kerja disandingkan: rata ATAS supaya tugas & hasilnya sejajar. */
 .th-pair td{vertical-align:top;line-height:1.55;font-size:var(--fs-md)}
@@ -2324,10 +2334,11 @@ function freshBar(){
 }
 /* fitur akses: FEATURES = 'all' atau array view-id yang diizinkan */
 function featOK(v){
-  /* Daftar nominatif TIDAK mengikuti daftar fitur biasa. Haknya ditandai per akun di
-     sheet Akun (kolom nom_akses) dan dibawa pada balasan login. Menaruh gerbangnya di
-     sini membuat sidebar, canMod, canView, halaman Panduan, dan Ctrl+K ikut menghormati
-     hak itu tanpa perlu ditambal satu per satu. */
+  /* Daftar nominatif TIDAK mengikuti daftar fitur biasa. Sejak 4 Sep 2026 gerbangnya
+     cukup dua lapis, yaitu sesi login yang sah dan TOKEN AKSES yang diperiksa di server,
+     sehingga di sisi peramban syaratnya tinggal satu: hanya ada pada versi terkendali.
+     Menaruhnya di sini membuat sidebar, canMod, canView, halaman Panduan, dan Ctrl+K
+     ikut menghormatinya tanpa perlu ditambal satu per satu. */
   if(v==='suknominatif')return !!REMOTE;   /* gerbangnya token, bukan penanda akun */
   return FEATURES==='all'||(Array.isArray(FEATURES)&&FEATURES.indexOf(v)>=0);}
 function canMod(mid){if(mid==='beranda')return true;const m=MODULES.find(x=>x.id===mid);return !!(m&&m.groups.some(g=>g.items.some(it=>featOK(it.v))));}
@@ -5494,6 +5505,14 @@ function _tabelSemuaTab(kunciState, daftarTab, fnView, label){
   return hasil;
 }
 const _EXPORT_FULL={
+  /* Tiga halaman ini bertab jauh sebelum mesin tab dibakukan, dan sempat terlewat:
+     tanpa entri di sini Unduh Excel dan PDF hanya menangkap tab yang sedang terbuka. */
+  timanalitik:function(){return _tabelSemuaTab('timAnTab',['tim','kategori'],vTimAnalitik,
+    ['Tim Analytic','Kategori Tim']);},
+  beban:function(){return _tabelSemuaTab('bebanTab',['beban','heatmap'],vBeban,
+    ['Beban Tim & Pegawai','Heatmap Adopsi']);},
+  pegawai:function(){return _tabelSemuaTab('pegView',['profil','avail'],vPegawai,
+    ['Profil Pegawai','Ketersediaan Pegawai']);},
   sukantrean:function(){return _tabelSemuaTab('sukAntTab',['jenjang','angkatan'],vSukAntrean,
     ['Antrean Antarjenjang','Angkatan Terbesar']);},
   suksimulasi:function(){return _tabelSemuaTab('sukSimTab',['kurva','rinci'],vSukSimulasi,
@@ -6638,10 +6657,10 @@ function vTkKegagalan(){const g=tkGuard();if(g)return g;const K=TK.kegagalan,N=T
   h+=`<div class="kpis">
     <div class="kpi"><div class="lab">Kegagalan</div><div class="val" style="color:var(--st-critical)">${fmt(rows.length)}</div><div class="note">usulan tidak lolos</div></div>
     <div class="kpi"><div class="lab">Keberhasilan</div><div class="val" style="color:var(--st-good)">${fmt(lolos)}</div><div class="note">predikat diraih</div></div>
-    <div class="kpi"><div class="lab">Rasio Lolos</div><div class="val">${rasio}%</div><div class="note">dari total usulan dinilai</div></div>
+    <div class="kpi"><div class="lab">Rasio Lolos</div><div class="val">${d1(rasio)}%</div><div class="note">dari total usulan dinilai</div></div>
     <div class="kpi"><div class="lab">Unit Pernah Gagal</div><div class="val">${fmt(K.unit_pernah_gagal)}</div><div class="note">sebelum/tanpa berhasil</div></div></div>`;
   h+=`<div class="card"><h3>Lolos vs Gagal per tahun${f.u?' &middot; '+esc(f.u):''}${pen?' &middot; '+pen:''}</h3>${cats.length?_tkCols(cats,{h:280,hlYear:f.y}):'<div class="mini">-</div>'}${_tkLeg([{c:'var(--st-good)',l:'Lolos'},{c:'var(--st-critical)',l:'Gagal'}])}
-    <div class="mini" style="margin-top:8px">Zona Integritas bukan jalan mulus: dari seluruh usulan yang dinilai, hanya ${rasio}% yang lolos. Kegagalan justru menandakan proses seleksi berjalan ketat.</div></div>`;
+    <div class="mini" style="margin-top:8px">Zona Integritas bukan jalan mulus: dari seluruh usulan yang dinilai, hanya ${d1(rasio)}% yang lolos. Kegagalan justru menandakan proses seleksi berjalan ketat.</div></div>`;
   const pp=Object.entries(K.per_predikat||{}),mxp=Math.max(1,...pp.map(x=>x[1]));
   h+=`<div class="grid2 eq"><div class="card"><h3>Kegagalan per predikat</h3>${pp.map(([k,v])=>bar(k,v,mxp,'warn',String(v))).join('')}</div>`;
   const pn=Object.entries(K.per_penilai||{}),mxn=Math.max(1,...pn.map(x=>x[1]));
