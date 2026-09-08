@@ -2187,7 +2187,7 @@ const MENUTAB={
   otkeval:['Dimensi Evaluasi','Peta Ukuran Struktur','Ringkasan per Eselon I'],
   tkintegritas:['Perolehan per Tahun','Sebaran per Eselon I','Jejak Naik Kelas','Daftar Perolehan'],
   kjrumpun:['Peta Luasan','Taksonomi Berlaku','Rancangan Penataan','Yang Dipakai Data'],
-  cutisakit:['Komposisi Kategori','Heatmap per Tahun','Kategori x Usia','Kategori per Unit','Contoh Teks Alasan'],
+  cutisakit:['Komposisi Kategori','Heatmap per Tahun','Kategori x Usia','Kategori per Unit','Contoh Teks Alasan','Pola Sakit per Unit'],
   abksimulasi:['Kalibrasi Beban','Usulan per Unit','Usulan per Jabatan','Jenis Paling Efisien','Rekomendasi'],
   cutiutilisasi:['Pemakaian Hak','Sebaran Pemakaian','Tren per Tahun','Per Unit Eselon I','Cuti Besar'],
   beranda:['Beranda','Profil Eselon I','Panduan Navigasi'],
@@ -5525,7 +5525,7 @@ const _EXPORT_FULL={
   otkeval:function(){return _tabelSemuaTab('otkEvTab',['dimensi','peta','ringkas'],vOtkEval,['Dimensi Evaluasi','Peta Ukuran Struktur','Ringkasan per Eselon I']);},
   tkintegritas:function(){return _tabelSemuaTab('tkIntTab',['tahun','unit','jejak','daftar'],vTkIntegritas,['Perolehan per Tahun','Sebaran per Eselon I','Jejak Naik Kelas','Daftar Perolehan']);},
   kjrumpun:function(){return _tabelSemuaTab('kjRumTab',['peta','asis','tobe','dipakai'],vKjRumpun,['Peta Luasan','Taksonomi Berlaku','Rancangan Penataan','Yang Dipakai Data']);},
-  cutisakit:function(){return _tabelSemuaTab('cutiSkTab',['komposisi','heatmap','usia','unit','teks'],vCutiSakit,['Komposisi Kategori','Heatmap per Tahun','Kategori x Usia','Kategori per Unit','Contoh Teks Alasan']);},
+  cutisakit:function(){return _tabelSemuaTab('cutiSkTab',['komposisi','heatmap','usia','unit','teks','polaunit'],vCutiSakit,['Komposisi Kategori','Heatmap per Tahun','Kategori x Usia','Kategori per Unit','Contoh Teks Alasan','Pola Sakit per Unit']);},
   abksimulasi:function(){return _tabelSemuaTab('abkSimTab',['kalibrasi','unit','jabatan','jenis','rekom'],vAbkSimulasi,['Kalibrasi Beban','Usulan per Unit','Usulan per Jabatan','Jenis Paling Efisien','Rekomendasi']);},
   cutiutilisasi:function(){return _tabelSemuaTab('cutiUtTab',['pakai','sebaran','tren','unit','besar'],vCutiUtilisasi,['Pemakaian Hak','Sebaran Pemakaian','Tren per Tahun','Per Unit Eselon I','Cuti Besar']);},
   katjab:function(){const KJ=KATREF&&KATREF.katjab;if(!KJ)return null;
@@ -9325,14 +9325,72 @@ function vCutiSakit(){
     if(!c.length)return '';
     return '<div style="margin-bottom:8px"><span class="mini"><b>'+esc(k.label)+':</b></span> '+c.map(x=>'<span class="tag">'+esc(x.teks)+' ('+fmt(x.n)+')</span>').join(' ')+'</div>';}).join('')+
     '<div class="mini">Teks apa adanya dari isian pegawai (huruf kecil), ditampilkan untuk transparansi metode klasifikasi.</div></div>';
-  h+=cutiLanjut([{v:'cutidemografi',t:'Demografi & Gender',d:'Profil risiko menurut usia'},{v:'cutiprediksi',t:'Proyeksi Beban Cuti',d:'Peringatan dini musim penyakit'},{v:'cutiunit',t:'Profil Unit',d:'Unit mana yang perlu perhatian'}]);
+  var _pg5=h.length;
+  /* ---- Pola sakit per unit ----
+     Memakai CUTI.polaUnit, satu-satunya bagian cuti.json yang belum pernah ditampilkan.
+     Nilai -1 dan kunci yang tidak ada berarti sel DITAHAN demi privasi, bukan nol, jadi
+     tidak pernah ikut dihitung. Kategori pemulihan panjang digabung supaya sel terkecil
+     tidak terbuka lewat penjumlahan. */
+  const _pnas=(CUTI.polaSakit||{}), _pu=(CUTI.polaUnit||[]);
+  const _ada=function(x){return typeof x==='number'&&x>=0;};
+  const _nas={};(_pnas.pola||[]).forEach(function(x){_nas[x.kode]=x.pegawai;});
+  const _basisNas=_pnas.pegawai||0;
+  const _bagNas=function(k){return _basisNas?100*((_nas[k]||0)/_basisNas):0;};
+  const _panjangNas=_basisNas?100*(((_nas.panjang||0)+(_nas.panjang_sangat||0))/_basisNas):0;
+  const _baris=_pu.map(function(u){
+    const n=u.pegawai||0;
+    const pj=_ada(u.panjang)?u.panjang:null, pjs=_ada(u.panjang_sangat)?u.panjang_sangat:null;
+    /* gabungan pemulihan panjang: penuh bila keduanya diketahui, "minimal" bila salah satu ditahan */
+    let pjNilai=null, pjPenuh=false;
+    if(pj!==null&&pjs!==null){pjNilai=pj+pjs;pjPenuh=true;}
+    else if(pj!==null){pjNilai=pj;pjPenuh=false;}
+    return {nama:u.nama,n:n,
+      sesekali:_ada(u.sesekali)?u.sesekali:null,
+      singkat:_ada(u.sering_singkat)?u.sering_singkat:null,
+      sering:_ada(u.sering)?u.sering:null,
+      panjang:pjNilai,panjangPenuh:pjPenuh,
+      parsial:cutiParsial(u.nama),
+      bagPanjang:(pjNilai!==null&&n&&!cutiParsial(u.nama))?100*pjNilai/n:null,
+      bagSering:(_ada(u.sering)&&n)?100*u.sering/n:null};
+  }).sort(function(a,b){
+    if(a.bagPanjang==null&&b.bagPanjang==null)return b.n-a.n;
+    if(a.bagPanjang==null)return 1; if(b.bagPanjang==null)return -1;
+    return b.bagPanjang-a.bagPanjang;});
+  const _sel=function(v,penuh){
+    if(v===null)return '<td style="text-align:right"><span class="mini">ditahan</span></td>';
+    return '<td style="text-align:right">'+(penuh===false?'<span class="mini">minimal </span>':'')+fmt(v)+'</td>';};
+  const _mxPj=Math.max.apply(null,_baris.map(function(x){return x.bagPanjang||0;}).concat([0.1]));
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Bagian Pemulihan Panjang, Unit demi Unit</h2>'+
+    _baris.filter(function(x){return x.bagPanjang!=null;}).map(function(x){
+      return bar(x.nama,x.bagPanjang,_mxPj,'',d1(x.bagPanjang)+'% &middot; '+fmt(x.panjang)+' dari '+fmt(x.n)+' pegawai');}).join('')+
+    '<div class="mini" style="margin-top:6px">Pembandingnya angka Kementerian, yaitu '+d1(_panjangNas)+' persen pegawai bercuti sakit menjalani pemulihan tiga puluh hari ke atas pada '+(_pnas.tahun||'')+
+    '. Proporsi dihitung terhadap pegawai bercuti sakit di unit masing-masing, bukan terhadap seluruh pegawai unit itu. '+
+    'Yang digambar hanya unit yang angkanya utuh dan datanya lengkap; unit dengan sel ditahan atau bertanda parsial ada pada tabel di bawah tanpa batang.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Rincian Pola per Unit Eselon I</h2><div class="tblw"><table><thead><tr>'+
+    '<th style="text-align:left;min-width:215px">Unit Eselon I</th><th style="text-align:right">Pegawai bercuti sakit</th>'+
+    '<th style="text-align:right">Sesekali</th><th style="text-align:right">Sering dan singkat</th><th style="text-align:right">Sering</th>'+
+    '<th style="text-align:right">Pemulihan panjang</th><th style="text-align:right">Bagiannya</th>'+
+    '<th style="text-align:right">Selisih thd Kementerian</th></tr></thead><tbody>'+
+    _baris.map(function(x){
+      const d=(x.bagPanjang==null)?null:(x.bagPanjang-_panjangNas);
+      const warna=(d==null)?'':(d>=2?'color:var(--st-critical);font-weight:600':(d<=-2?'color:var(--st-good)':''));
+      return '<tr><td>'+esc(x.nama)+(x.parsial?' <span class="tag" title="Data unit ini baru sebagian masuk HRIS">parsial</span>':'')+'</td><td style="text-align:right">'+fmt(x.n)+'</td>'+
+        _sel(x.sesekali,true)+_sel(x.singkat,true)+_sel(x.sering,true)+_sel(x.panjang,x.panjangPenuh)+
+        '<td style="text-align:right">'+(x.bagPanjang==null?'-':d1(x.bagPanjang)+'%')+'</td>'+
+        '<td style="text-align:right;'+warna+'">'+(d==null?'-':((d>0?'+':'')+d1(d)+' poin'))+'</td></tr>';}).join('')+
+    '</tbody></table></div><div class="mini" style="margin-top:6px">Sel bertulis <b>ditahan</b> berisi terlalu sedikit pegawai untuk ditampilkan tanpa membuka identitas, jadi memang tidak ada angkanya dan bukan berarti nol. Bila salah satu bagian pemulihan panjang ditahan, kolomnya ditandai <b>minimal</b> karena angka sebenarnya sedikit lebih besar, dan kolom bagian serta selisihnya ikut menjadi angka terendah. Unit bertanda <b>parsial</b> datanya baru sebagian masuk HRIS, sehingga sengaja tidak dibandingkan dan tidak digambar batangnya; jumlah kecilnya menunjukkan cakupan data, bukan pegawainya jarang sakit. Empat kategori pertama saling lepas, sehingga jumlahnya sama dengan pegawai bercuti sakit di unit itu.</div></div>';
+  h+='<div class="note-box" style="margin-top:14px">Dua pola ini menuntut tindakan yang berbeda, jadi jangan disamakan. <b>Pemulihan panjang</b> yang menumpuk adalah soal kapasitas: pekerjaannya perlu dialihkan berbulan-bulan, dan pengisian sementara layak disiapkan. <b>Sering dan singkat</b> lebih dekat ke soal beban dan lingkungan kerja, dan biasanya terbaca berdampingan dengan pola hari pada menu Pola Hari & Kalender. Selisih terhadap angka Kementerian ditulis dalam poin persentase, bukan persen, supaya tidak salah dibaca sebagai kenaikan relatif.</div>';
   var _pgE=h.length;
   /* Dipecah per tema supaya tidak jadi gulungan panjang. Seluruh tema TETAP dihitung
      di atas, jadi lingkup variabelnya utuh; di sini hasilnya tinggal dipotong dan hanya
      tema aktif yang ditampilkan. Ringkasan sebelum tab sengaja tetap tampil di semua tab. */
   var _tab=state.cutiSkTab||'komposisi';
-  var _bag={komposisi:h.slice(_pg0,_pg1),heatmap:h.slice(_pg1,_pg2),usia:h.slice(_pg2,_pg3),unit:h.slice(_pg3,_pg4),teks:h.slice(_pg4,_pgE)};
-  h = h.slice(0,_pg0) + '<div class="pgtabs">'+'<button class="pgtab'+(_tab==='komposisi'?' on':'')+'" data-act="cutisktab" data-tab="komposisi">Komposisi Kategori</button>'+'<button class="pgtab'+(_tab==='heatmap'?' on':'')+'" data-act="cutisktab" data-tab="heatmap">Heatmap per Tahun</button>'+'<button class="pgtab'+(_tab==='usia'?' on':'')+'" data-act="cutisktab" data-tab="usia">Kategori x Usia</button>'+'<button class="pgtab'+(_tab==='unit'?' on':'')+'" data-act="cutisktab" data-tab="unit">Kategori per Unit</button>'+'<button class="pgtab'+(_tab==='teks'?' on':'')+'" data-act="cutisktab" data-tab="teks">Contoh Teks Alasan</button>'+'</div>' + (_bag[_tab]!==undefined?_bag[_tab]:_bag['komposisi']);
+  var _bag={komposisi:h.slice(_pg0,_pg1),heatmap:h.slice(_pg1,_pg2),usia:h.slice(_pg2,_pg3),unit:h.slice(_pg3,_pg4),teks:h.slice(_pg4,_pg5),polaunit:h.slice(_pg5,_pgE)};
+  h = h.slice(0,_pg0) + '<div class="pgtabs">'+'<button class="pgtab'+(_tab==='komposisi'?' on':'')+'" data-act="cutisktab" data-tab="komposisi">Komposisi Kategori</button>'+'<button class="pgtab'+(_tab==='heatmap'?' on':'')+'" data-act="cutisktab" data-tab="heatmap">Heatmap per Tahun</button>'+'<button class="pgtab'+(_tab==='usia'?' on':'')+'" data-act="cutisktab" data-tab="usia">Kategori x Usia</button>'+'<button class="pgtab'+(_tab==='unit'?' on':'')+'" data-act="cutisktab" data-tab="unit">Kategori per Unit</button>'+'<button class="pgtab'+(_tab==='teks'?' on':'')+'" data-act="cutisktab" data-tab="teks">Contoh Teks Alasan</button>'+'<button class="pgtab'+(_tab==='polaunit'?' on':'')+'" data-act="cutisktab" data-tab="polaunit">Pola Sakit per Unit</button>'+'</div>' + (_bag[_tab]!==undefined?_bag[_tab]:_bag['komposisi']);
+  /* Kartu navigasi ditaruh DI LUAR daerah pemotongan. Sebelumnya ia ikut terpotong ke
+     dalam tab terakhir sehingga hanya muncul di satu tab, padahal isinya penunjuk arah,
+     bukan salah satu tema. */
+  h+=cutiLanjut([{v:'cutidemografi',t:'Demografi & Gender',d:'Profil risiko menurut usia'},{v:'cutiprediksi',t:'Proyeksi Beban Cuti',d:'Peringatan dini musim penyakit'},{v:'cutiunit',t:'Profil Unit',d:'Unit mana yang perlu perhatian'}]);
   return h;
 }
 
