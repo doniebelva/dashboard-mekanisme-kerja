@@ -9505,6 +9505,50 @@ function sukOtkId(nama){
   return u?u.id:null;}
 
 /* ---------- Ikhtisar ---------- */
+/* ---------- Kurva bertumpuk struktural/fungsional untuk Ikhtisar Suksesi ----------
+   Dibuat mengikuti pola grid/koordinat cutiLine (modul Cuti), bukan gaya baru: garis kisi
+   tipis, sumbu Y berskala bulat, sumbu X per tahun, titik dengan <title> untuk tooltip.
+   Yang membedakannya cuma dua: area DITUMPUK (bukan satu garis polos), dan jendela lima
+   tahun diberi bayangan lembut alih-alih meredupkan opacity batang seperti sebelumnya. */
+function sukKurvaSvg(T,bt){
+  if(!T||!T.length)return '';
+  var W=760,H=232,pL=40,pR=14,pT=18,pB=26,n=T.length;
+  var mx=Math.max(1,Math.max.apply(null,T.map(function(x){return x.total;})));
+  var p10=Math.pow(10,Math.floor(Math.log10(mx)));mx=Math.ceil(mx/(p10/2))*(p10/2);
+  var X=function(i){return pL+(W-pL-pR)*(n<=1?0.5:i/(n-1));};
+  var Y=function(v){return H-pB-(Math.max(0,Math.min(mx,v))/mx)*(H-pT-pB);};
+  var idxJendela=0;T.forEach(function(x,i){if(x.tahun<=bt)idxJendela=i;});
+  var xBatas=(idxJendela+1<n)?(X(idxJendela)+X(idxJendela+1))/2:X(idxJendela);
+  var pita='<rect x="'+X(0).toFixed(1)+'" y="'+pT+'" width="'+Math.max(0,xBatas-X(0)).toFixed(1)+
+    '" height="'+(H-pT-pB)+'" fill="var(--brand)" opacity="0.08"/>';
+  var kisi='',labelY='';
+  for(var k=0;k<=3;k++){var val=mx*k/3,gy=Y(val);
+    kisi+='<line x1="'+pL+'" y1="'+gy.toFixed(1)+'" x2="'+(W-pR)+'" y2="'+gy.toFixed(1)+'" stroke="var(--line)" stroke-opacity="0.45" stroke-width="1"/>';
+    labelY+='<text x="'+(pL-8)+'" y="'+(gy+3.5).toFixed(1)+'" font-size="10" fill="var(--muted)" text-anchor="end">'+fmt(Math.round(val))+'</text>';}
+  var bawah=T.map(function(x,i){return [X(i),Y(x.struktural)];});
+  var atas=T.map(function(x,i){return [X(i),Y(x.struktural+x.fungsional)];});
+  var dasar=(H-pB).toFixed(1);
+  var areaStruk='<polygon points="'+X(0).toFixed(1)+','+dasar+' '+
+    bawah.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+' '+
+    X(n-1).toFixed(1)+','+dasar+'" fill="var(--brand)" opacity="0.36"/>';
+  /* Opasitas fungsional sengaja LEBIH RENDAH meski warnanya sendiri (--seq-2) sedikit lebih
+     pekat daripada --brand di mode gelap. Tanpa penyeimbangan ini, pita tipis fungsional di
+     puncak malah terlihat lebih tebal daripada wilayah struktural yang jumlahnya jauh lebih
+     besar, sehingga bobot visualnya berbalik dari bobot datanya. */
+  var areaFung='<polygon points="'+bawah.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+' '+
+    atas.slice().reverse().map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+
+    '" fill="var(--seq-2)" opacity="0.30"/>';
+  var garis='<polyline points="'+atas.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+
+    '" fill="none" stroke="var(--brand-d)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>';
+  var titik=T.map(function(x,i){return '<circle cx="'+atas[i][0].toFixed(1)+'" cy="'+atas[i][1].toFixed(1)+
+    '" r="2.8" fill="var(--surface)" stroke="var(--brand-d)" stroke-width="1.6"><title>'+x.tahun+': '+fmt(x.total)+
+    ' kursi (struktural '+fmt(x.struktural)+', fungsional '+fmt(x.fungsional)+')</title></circle>';}).join('');
+  var labelX=T.map(function(x,i){return '<text x="'+X(i).toFixed(1)+'" y="'+(H-8)+'" font-size="10" fill="var(--muted)" text-anchor="middle">'+x.tahun+'</text>';}).join('');
+  var batas='<line x1="'+xBatas.toFixed(1)+'" y1="'+pT+'" x2="'+xBatas.toFixed(1)+'" y2="'+(H-pB)+'" stroke="var(--st-critical)" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.65"/>'+
+    '<text x="'+xBatas.toFixed(1)+'" y="'+(pT+10)+'" font-size="9.5" font-weight="700" fill="var(--st-critical)" text-anchor="middle">'+bt+'</text>';
+  return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" style="max-width:100%">'+pita+kisi+labelY+areaStruk+areaFung+garis+titik+batas+labelX+'</svg>';
+}
+
 function vSuksesi(){
   const g=sukGuard();if(g)return g;
   const P=SUKSESI.pensiun, L=P.lima, M=SUKSESI.meta, bt=sukBatas();
@@ -9540,11 +9584,20 @@ function vSuksesi(){
     kpiBox('Eselon II berganti',sukNum(es2.pensiun5Pct)+'%',fmt(es2.pensiun5)+' dari '+fmt(es2.n)+' kursi','','data-act="nav" data-view="sukpopulasi"')+
     kpiBox('Unit besar paling terekspos',sukNum(unitTop.pensiun5Pct||0)+'%',esc(unitTop.unit||'-'),'','data-act="nav" data-view="sukunit"')+
     '</div>';
-  /* kurva ringkas: cukup memberi bentuk, rinciannya ada di menu Gelombang Pensiun */
-  const T=P.tahunan||[], mx=Math.max(1,...T.map(function(x){return x.total;}));
+  /* kurva sungguhan: area struktural+fungsional bertumpuk, rinciannya ada di menu Gelombang
+     Pensiun. Donut di samping cuma memvisualkan L.struktural/L.fungsian yang sudah dihitung
+     di atas, tidak ada data baru yang ditarik di sini. */
+  const T=P.tahunan||[];
+  const dKohort=[{v:L.struktural,c:'var(--brand)'},{v:L.fungsional,c:'var(--seq-2)'}];
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Kurva Pensiun Sepuluh Tahun</h2>'+
-    T.map(function(x){return '<div'+(x.tahun<=bt?'':' style="opacity:.45"')+'>'+bar(String(x.tahun),x.total,mx,'',fmt(x.total))+'</div>';}).join('')+
-    '<div class="mini" style="margin-top:6px">Batang penuh berada dalam jendela lima tahun (sampai akhir '+bt+'); batang redup adalah tahun sesudahnya.</div>'+
+    '<div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-bottom:6px">'+
+    '<div style="flex:0 0 auto">'+donut(dKohort,132,{big:fmt(L.total),small:'KURSI 5 THN'})+'</div>'+
+    '<div style="flex:1;min-width:300px">'+sukKurvaSvg(T,bt)+'</div>'+
+    '</div>'+
+    '<div class="mini"><span style="display:inline-block;width:10px;height:10px;background:var(--brand);border-radius:2px"></span> jalur struktural &nbsp; '+
+    '<span style="display:inline-block;width:10px;height:10px;background:var(--seq-2);border-radius:2px"></span> jalur fungsional setara &nbsp; '+
+    '<span style="display:inline-block;width:13px;border-top:2px dashed var(--st-critical);vertical-align:middle"></span> akhir jendela lima tahun ('+bt+')</div>'+
+    '<div class="mini" style="margin-top:4px">Wilayah berbayang menandai jendela lima tahun yang dipakai di seluruh modul; area ditumpuk supaya bagian tiap jalur terlihat, dan garis di puncaknya adalah total.</div>'+
     sukCatatanBup()+'</div>';
   h+='<div class="note-box" style="margin-top:14px">Modul ini tidak memuat nama maupun NIP pegawai. Seluruh angka adalah agregat pada level unit atau jabatan, dan sel yang isinya sangat sedikit tidak ditampilkan. Rincian asumsi dan mutu data ada pada menu Tentang Data.</div>';
   return h;}
