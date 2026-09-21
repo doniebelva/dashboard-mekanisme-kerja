@@ -350,6 +350,12 @@ td,th,.kpi .val,svg text,.bar-row,.gt-row,.mono,time{font-variant-numeric:tabula
 .skel.sk-judul{height:18px;width:38%;margin-bottom:16px}
 .skel-note{font-size:var(--fs-md);color:var(--muted);margin-top:var(--sp-7);text-align:center}
 
+/* JARAK ANTARKOTAK (21 Sep 2026). Kartu tidak pernah punya margin bawaan, sehingga tiap view
+   harus menambah jarak sendiri, dan 69 dari 125 halaman lupa: kartu menempel kartu. Kini
+   apa pun yang berdiri langsung di #view sesudah sebuah kartu diberi jarak, kecuali bilah
+   paginasi yang memang sengaja menempel di bawah kartunya. Kartu di dalam grid dan flex
+   tidak tersentuh, sebab aturan ini hanya untuk anak langsung #view. */
+#view>.card+:not(.pgn):not(.navpager){margin-top:14px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--rad-lg);padding:17px 18px;
   box-shadow:var(--sh-sm);transition:all var(--t-fast) ease;animation:rise .24s ease both}
 /* Hanya kartu yang memang bisa diklik yang terangkat saat disentuh kursor. Kartu biasa
