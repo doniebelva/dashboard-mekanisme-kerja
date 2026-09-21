@@ -1106,13 +1106,13 @@ function ensureCuti(){if(CUTI||state.cutiLoading)return;state.cutiLoading=true;s
 let SUKSESI=null;const SUKSESI_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?suksesi=1';
 let PENGHARGAAN=null;const PENGHARGAAN_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?penghargaan=1';
 async function loadPenghargaan(){if(PENGHARGAAN)return PENGHARGAAN;let d=null;if(REMOTE){d=await apiUnduh('penghargaan',{});}else if(PENGHARGAAN_URL){const r=await fetch(PENGHARGAAN_URL);d=await r.json();}else{return PENGHARGAAN;}
-  if(!d||!d.cakupan)throw new Error('penghargaan-unavailable');PENGHARGAAN=d;return PENGHARGAAN;}
+  if(!d||!d.cakupan)throw new Error((d&&d.err)||'penghargaan-unavailable');PENGHARGAAN=d;return PENGHARGAAN;}
 function ensurePenghargaan(){if(PENGHARGAAN||state.phLoading)return;state.phLoading=true;state.phErr=false;progStart();
-  loadPenghargaan().then(()=>{state.phLoading=false;progDone();render();}).catch(()=>{state.phLoading=false;progDone();state.phErr=true;render();});}
+  loadPenghargaan().then(()=>{state.phLoading=false;progDone();render();}).catch((e)=>{state.phLoading=false;progDone();state.phErr=true;state.phErrMsg=String((e&&e.message)||'');render();});}
 async function loadSuksesi(){if(SUKSESI)return SUKSESI;let d=null;if(REMOTE){d=await apiUnduh('suksesi',{});}else if(SUKSESI_URL){const r=await fetch(SUKSESI_URL);d=await r.json();}else{return SUKSESI;}
-  if(!d||!d.pensiun)throw new Error('suksesi-unavailable');SUKSESI=d;return SUKSESI;}
+  if(!d||!d.pensiun)throw new Error((d&&d.err)||'suksesi-unavailable');SUKSESI=d;return SUKSESI;}
 function ensureSuksesi(){if(SUKSESI||state.sukLoading)return;state.sukLoading=true;state.sukErr=false;progStart();
-  loadSuksesi().then(()=>{state.sukLoading=false;progDone();render();}).catch(()=>{state.sukLoading=false;progDone();state.sukErr=true;render();});}
+  loadSuksesi().then(()=>{state.sukLoading=false;progDone();render();}).catch((e)=>{state.sukLoading=false;progDone();state.sukErr=true;state.sukErrMsg=String((e&&e.message)||'');render();});}
 /* ===== Data Mekanisme Kerja (tim & pegawai) DITUNDA sampai modulnya dibuka =====
    Dulu login mengirim SELURUH dashboard_data.json (1,82 MB), padahal Beranda hanya memakai
    summary + ue1/ue2 + trend (0,004 MB). Sisanya, teams (1,46 MB) & pegawai (0,47 MB), cuma
@@ -7641,8 +7641,12 @@ function render(){
   if(state.view==='jabkomposisi'&&!ABK&&!state.abkLoading)ensureAbk();
   /* Modul Mekanisme Kerja: data tim & pegawai baru diambil di sini, bukan saat login. */
   if(curMod()==='mk'&&!mkSiap()&&!state.mkLoading)ensureMkFull();
-  if(state.view.indexOf('suk')===0&&!SUKSESI&&!state.sukLoading)ensureSuksesi();
-  if(state.view.indexOf('ph')===0&&!PENGHARGAAN&&!state.phLoading)ensurePenghargaan();
+  /* Pemicu TIDAK boleh berjalan saat tanda galat masih menyala. Sebelumnya, gerbang yang
+     menjawab galat membuat ensure() dipanggil lagi oleh render(), ensure() menghapus tanda
+     galat, render() lagi, dan seterusnya: kerangka "Memuat" tak pernah berganti pesan galat.
+     Baru kelihatan 21 Sep 2026 saat rute penghargaan belum terpasang di Apps Script. */
+  if(state.view.indexOf('suk')===0&&!SUKSESI&&!state.sukLoading&&!state.sukErr)ensureSuksesi();
+  if(state.view.indexOf('ph')===0&&!PENGHARGAAN&&!state.phLoading&&!state.phErr)ensurePenghargaan();
   if(state.view.indexOf('cuti')===0&&!CUTI&&!state.cutiLoading)ensureCuti();
   if(state.view.indexOf('kj')===0&&!KOMJ&&!state.kompLoading)ensureKomjab();
   if(/^kj(detail|kamus|mansos|keahlian|jf)$/.test(state.view)&&!KOMK&&!state.kamLoading)ensureKamus();
@@ -9505,7 +9509,9 @@ function vCutiTentang(){
    Keputusan Donny 21 Sep 2026: tidak ada daftar penerima per orang dan tidak ada skor individu. */
 const PH_WARNA={otomatis:'var(--seq-2)',resmi:'var(--st-warn)',diskresi:'var(--brand)'};
 function phGuard(){
-  if(state.phErr)return '<div class="empty">Gagal memuat data penghargaan. Buka menu ini sekali lagi.</div>';
+  if(state.phErr)return '<div class="empty">Gagal memuat data penghargaan'+(state.phErrMsg?': '+esc(state.phErrMsg):'')+'.'+
+    (/aksi tidak dikenal/i.test(state.phErrMsg||'')?' Gerbang Apps Script belum memuat rute <b>penghargaan</b>; periksa baris rute di doPost dan pastikan deploy memakai New version.':'')+
+    ' <span class="tag link" data-act="phulang">Coba lagi &rsaquo;</span></div>';
   if(!PENGHARGAAN)return skelMemuat('Memuat data penghargaan...');
   return null;}
 function phTahan(v){return (v===-1||v==null)?'<span class="mini">ditahan</span>':fmt(v);}
@@ -9741,7 +9747,7 @@ function vPhTentang(){
    ATURAN TAMPILAN: jangan pernah menayangkan identitas orang, dan jangan menampilkan skor
    profesionalitas per orang dari kajian Biro SDM (yang dipakai hanya rubriknya). */
 function sukGuard(){
-  if(state.sukErr)return '<div class="empty">Gagal memuat data suksesi. Buka menu ini sekali lagi.</div>';
+  if(state.sukErr)return '<div class="empty">Gagal memuat data suksesi'+(state.sukErrMsg?': '+esc(state.sukErrMsg):'')+'. <span class="tag link" data-act="sukulang">Coba lagi &rsaquo;</span></div>';
   if(!SUKSESI)return skelMemuat('Memuat data pejabat...');
   return null;}
 function sukPct(a,b){return b?String(Math.round(1000*a/b)/10).replace('.',','):'0';}
@@ -11708,6 +11714,8 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
        daftarnya keluar di layar yang sama; kalau salah, kotak isian muncul lagi. */
     state.nomTok=pw;state.nomRows=null;state.nomInfo=null;nomAmbil();}
   else if(a==='suktempotab'){state.sukTempoTab=el.dataset.tab;render();}
+  else if(a==='phulang'){state.phErr=false;state.phErrMsg='';ensurePenghargaan();render();}
+  else if(a==='sukulang'){state.sukErr=false;state.sukErrMsg='';ensureSuksesi();render();}
   else if(a==='phunittab'){state.phUnitTab=el.dataset.tab;render();}
   else if(a==='phprofiltab'){state.phProfilTab=el.dataset.tab;render();}
   else if(a==='phjenistab'){state.phJenisTab=el.dataset.tab;render();}
