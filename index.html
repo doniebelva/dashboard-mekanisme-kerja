@@ -449,8 +449,11 @@ td.num-c,th.num-c{font-variant-numeric:tabular-nums}
 .bar-row>*{min-width:0}
 /* Modul Penghargaan: nama unit dan kelas panjang ("Direktorat Jenderal Pengelolaan Pembiayaan
    dan Risiko", "Satyalancana Karya Satya 30 tahun"), jadi kolom namanya diberi ruang lebih. */
-.ph-lebar .bar-row{grid-template-columns:minmax(0,300px) minmax(24px,1fr) minmax(0,auto)}
-.ph-lebar .bar-row .name{white-space:normal;line-height:1.25}   /* nama 50+ huruf boleh dua baris, jangan dipotong */
+/* Berlaku untuk seluruh kluster SDM lewat kelas .nama-lebar yang dipasang render() pada #view:
+   nama unit dan kelas di modul-modul SDM panjang, dan memotongnya bikin halaman terbaca
+   berantakan (temuan Donny 21 Sep 2026). Nama boleh pindah ke baris kedua. */
+.ph-lebar .bar-row,.nama-lebar .bar-row{grid-template-columns:minmax(0,300px) minmax(24px,1fr) minmax(0,auto)}
+.ph-lebar .bar-row .name,.nama-lebar .bar-row .name{white-space:normal;line-height:1.25}
 .bar-row .name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar-row .name.clk{cursor:pointer;transition:all var(--t-fast) ease}
 .bar-row .name.clk:hover{color:var(--brand);text-decoration:underline}
@@ -2114,6 +2117,9 @@ MODULES.forEach(m=>{MODDEF[m.id]=(m.groups[0]&&m.groups[0].items[0]&&m.groups[0]
   m.groups.forEach(g=>g.items.forEach(it=>VIEW2MOD[it.v]=m.id));});
 VIEW2MOD['tema']='otk';   // Penelusuran Tematik: rumah tetap di Struktur (juga ada pintasan di menu Jabatan)
 function curMod(){return VIEW2MOD[state.view]||'beranda';}
+/* Kelas nama-lebar dipasang pada #view untuk modul domain SDM, supaya seluruh daftar batang
+   di kluster itu memberi ruang lebih pada nama unit/kelas yang panjang tanpa ditambal per view. */
+function pasangNamaLebar(){var v=document.getElementById('view');if(!v)return;v.classList.toggle('nama-lebar',(MODDOMAIN[curMod()]||'')==='sdm');}
 
 /* ====================== DOMAIN (arsitektur OSDM Tahap 1) ======================
    Sidebar dipecah per DOMAIN supaya tetap pendek walau modul terus bertambah.
@@ -3815,7 +3821,7 @@ function vBeranda(){
   const dl=prev?Math.round((last-prev)/prev*100):0;
   const dtxt=tr.length>1?`<span style="color:${dl>=0?'var(--st-good)':'var(--st-critical)'};font-weight:700">${dl>=0?'&#9650;':'&#9660;'} ${Math.abs(dl)}%</span> <span style="color:var(--muted)">vs bulan lalu</span>`:'';
   h+=`<div class="stat" style="grid-column:span 8"><div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px"><div class="slab">Tren Penyelesaian Penugasan (bulanan)</div><div style="font-size:var(--fs-sm)"><b style="font-size:var(--fs-h);color:var(--brand-d)">${fmt(last)}</b> bulan terakhir &nbsp;${dtxt}</div></div>${trendChart(tr,[{f:thru,c:'var(--brand)',area:true}],tmax)}</div>`;
-  h+=`<div class="stat" style="grid-column:span 4"><div class="slab">Adopsi Modul Mekanisme Kerja</div><div style="text-align:center">${gaugeSemi(ad,ad+'%','ADOPSI')}<div style="font-size:var(--fs-md);color:var(--muted);margin-top:2px"><b style="color:var(--brand-d)">${fmt(s.tim_aktif||0)}</b> tim aktif dari ${fmt(s.total_tim||0)}</div></div></div>`;
+  h+=`<div class="stat" style="grid-column:span 4"><div class="slab">Adopsi Modul Mekanisme Kerja</div><div style="text-align:center">${gaugeSemi(ad,d1(ad)+'%','ADOPSI')}<div style="font-size:var(--fs-md);color:var(--muted);margin-top:2px"><b style="color:var(--brand-d)">${fmt(s.tim_aktif||0)}</b> tim aktif dari ${fmt(s.total_tim||0)}</div></div></div>`;
   // Donut komposisi (span 4) + Leaderboard unit (span 8)
   h+=`<div class="stat" style="grid-column:span 4"><div class="slab" style="margin:0 0 8px">Komposisi Jenjang</div>
     <div style="display:flex;align-items:center;gap:12px"><div>${donut(dparts,150,{big:fmt(otkN),small:'UNIT'})}</div>
@@ -7675,6 +7681,7 @@ function render(){
   var _al=VIEW_ALIAS[state.view];
   if(_al){bukaTab(_al[0],_al[1]);state.view=_al[0];}
   if(!canView(state.view))state.view='beranda';
+  pasangNamaLebar();
   const _prev=_lastView;
   const _sv=(_lastView===state.view);_lastView=state.view;
   if(!_sv)state.pgn={};       /* pindah menu -> paginasi tiap tabel kembali ke halaman pertama */
@@ -9396,13 +9403,13 @@ function vCutiSakit(){
   let ku=unitList.map(u=>{
     const cells=kUrut.map(k=>{
       const r=KU.find(x=>x.nama===u&&x.kat===k.kat);const v=r?r.rekaman:0;
-      if(v>0&&v<10)return '<td class="cell" style="background:var(--track);color:var(--muted)" title="Angka ditahan karena jumlahnya kecil (menjaga privasi)">&lt;10</td>';
+      if(v>0&&v<10)return '<td class="cell" style="background:var(--track);color:var(--muted)" title="Dirahasiakan karena jumlahnya kurang dari sepuluh, demi privasi">&lt;10</td>';
       const sh=Math.min(1,(v/unitTot[u])/0.6);
       return '<td class="cell" style="background:'+mofRamp(sh)+';color:'+mofRampInk(sh)+'" title="'+esc(k.label)+': '+fmt(v)+' pengajuan ('+cutiPct(v,unitTot[u])+'%)">'+cutiPct(v,unitTot[u])+'%</td>';});
     return '<tr><td class="rh" title="'+esc(u)+'">'+esc(u)+'</td>'+cells.join('')+'</tr>';}).join('');
   var _pg3=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori per Unit Eselon I</h2><div class="tblw"><table class="hm hm-fit"><thead><tr><th style="width:250px;text-align:left">Unit</th>'+kUrut.map(k=>'<th style="text-align:center" title="'+esc(k.label)+'">'+(KLBL[k.kat]||k.label)+'</th>').join('')+'</tr></thead><tbody>'+ku+'</tbody></table></div>'+
-    '<div class="mini" style="margin-top:6px">Angka = persen dari pengajuan terkategori pada unit itu (satu baris berjumlah 100%). Bacaan praktisnya: unit dengan proporsi cedera otot tinggi cocok jadi sasaran program ergonomi; proporsi kesehatan mental yang menonjol layak ditindaklanjuti dengan hati-hati dan rahasia. Sel bertanda &lt;10 ditahan demi menjaga privasi; unit dengan total di bawah 50 pengajuan terkategori tidak ditampilkan.</div></div>';
+    '<div class="mini" style="margin-top:6px">Angka = persen dari pengajuan terkategori pada unit itu (satu baris berjumlah 100%). Bacaan praktisnya: unit dengan proporsi cedera otot tinggi cocok jadi sasaran program ergonomi; proporsi kesehatan mental yang menonjol layak ditindaklanjuti dengan hati-hati dan rahasia. Sel bertanda &lt;10 dirahasiakan demi menjaga privasi; unit dengan total di bawah 50 pengajuan terkategori tidak ditampilkan.</div></div>';
   /* contoh teks per kategori (transparansi) */
   var _pg4=h.length;
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Contoh Teks Alasan Terbanyak per Kategori</h2>'+kats.map(k=>{
@@ -9442,7 +9449,7 @@ function vCutiSakit(){
     if(a.bagPanjang==null)return 1; if(b.bagPanjang==null)return -1;
     return b.bagPanjang-a.bagPanjang;});
   const _sel=function(v,penuh){
-    if(v===null)return '<td style="text-align:right"><span class="mini">ditahan</span></td>';
+    if(v===null)return '<td style="text-align:right"><span class="mini" title="Dirahasiakan: isinya kurang dari lima orang">&lt; 5 orang</span></td>';
     return '<td style="text-align:right">'+(penuh===false?'<span class="mini">minimal </span>':'')+fmt(v)+'</td>';};
   const _mxPj=Math.max.apply(null,_baris.map(function(x){return x.bagPanjang||0;}).concat([0.1]));
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Bagian Pemulihan Panjang, Unit demi Unit</h2>'+
@@ -9450,7 +9457,7 @@ function vCutiSakit(){
       return bar(x.nama,x.bagPanjang,_mxPj,'',d1(x.bagPanjang)+'% &middot; '+fmt(x.panjang)+' dari '+fmt(x.n)+' pegawai');}).join('')+
     '<div class="mini" style="margin-top:6px">Pembandingnya angka Kementerian, yaitu '+d1(_panjangNas)+' persen pegawai bercuti sakit menjalani pemulihan tiga puluh hari ke atas pada '+(_pnas.tahun||'')+
     '. Proporsi dihitung terhadap pegawai bercuti sakit di unit masing-masing, bukan terhadap seluruh pegawai unit itu. '+
-    'Yang digambar hanya unit yang angkanya utuh dan datanya lengkap; unit dengan sel ditahan atau bertanda parsial ada pada tabel di bawah tanpa batang.</div></div>';
+    'Yang digambar hanya unit yang angkanya utuh dan datanya lengkap; unit dengan sel yang dirahasiakan atau bertanda parsial ada pada tabel di bawah tanpa batang.</div></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Rincian Pola per Unit Eselon I</h2><div class="tblw"><table><thead><tr>'+
     '<th style="text-align:left;min-width:215px">Unit Eselon I</th><th style="text-align:right">Pegawai bercuti sakit</th>'+
     '<th style="text-align:right">Sesekali</th><th style="text-align:right">Sering dan singkat</th><th style="text-align:right">Sering</th>'+
@@ -9463,7 +9470,7 @@ function vCutiSakit(){
         _sel(x.sesekali,true)+_sel(x.singkat,true)+_sel(x.sering,true)+_sel(x.panjang,x.panjangPenuh)+
         '<td style="text-align:right">'+(x.bagPanjang==null?'-':d1(x.bagPanjang)+'%')+'</td>'+
         '<td style="text-align:right;'+warna+'">'+(d==null?'-':((d>0?'+':'')+d1(d)+' poin'))+'</td></tr>';}).join('')+
-    '</tbody></table></div><div class="mini" style="margin-top:6px">Sel bertulis <b>ditahan</b> berisi terlalu sedikit pegawai untuk ditampilkan tanpa membuka identitas, jadi memang tidak ada angkanya dan bukan berarti nol. Bila salah satu bagian pemulihan panjang ditahan, kolomnya ditandai <b>minimal</b> karena angka sebenarnya sedikit lebih besar, dan kolom bagian serta selisihnya ikut menjadi angka terendah. Unit bertanda <b>parsial</b> datanya baru sebagian masuk HRIS, sehingga sengaja tidak dibandingkan dan tidak digambar batangnya; jumlah kecilnya menunjukkan cakupan data, bukan pegawainya jarang sakit. Empat kategori pertama saling lepas, sehingga jumlahnya sama dengan pegawai bercuti sakit di unit itu.</div></div>';
+    '</tbody></table></div><div class="mini" style="margin-top:6px">Sel bertanda <b>&lt; 5 orang</b> dirahasiakan karena berisi terlalu sedikit pegawai untuk ditampilkan tanpa membuka identitas, jadi memang tidak ada angkanya dan bukan berarti nol. Bila salah satu bagian pemulihan panjang dirahasiakan, kolomnya ditandai <b>minimal</b> karena angka sebenarnya sedikit lebih besar, dan kolom bagian serta selisihnya ikut menjadi angka terendah. Unit bertanda <b>parsial</b> datanya baru sebagian masuk HRIS, sehingga sengaja tidak dibandingkan dan tidak digambar batangnya; jumlah kecilnya menunjukkan cakupan data, bukan pegawainya jarang sakit. Empat kategori pertama saling lepas, sehingga jumlahnya sama dengan pegawai bercuti sakit di unit itu.</div></div>';
   h+='<div class="note-box" style="margin-top:14px">Dua pola ini menuntut tindakan yang berbeda, jadi jangan disamakan. <b>Pemulihan panjang</b> yang menumpuk adalah soal kapasitas: pekerjaannya perlu dialihkan berbulan-bulan, dan pengisian sementara layak disiapkan. <b>Sering dan singkat</b> lebih dekat ke soal beban dan lingkungan kerja, dan biasanya terbaca berdampingan dengan pola hari pada menu Pola Hari & Kalender. Selisih terhadap angka Kementerian ditulis dalam poin persentase, bukan persen, supaya tidak salah dibaca sebagai kenaikan relatif.</div>';
   var _pgE=h.length;
   /* Dipecah per tema supaya tidak jadi gulungan panjang. Seluruh tema TETAP dihitung
@@ -10708,7 +10715,7 @@ function vSukTentang(){
     ((K.angkatanTerbesar&&K.angkatanTerbesar.length)?('<div class="mini" style="margin-top:8px">Angkatan CPNS terbesar: '+
       K.angkatanTerbesar.slice(0,6).map(function(a){return a.tahun+' ('+fmt(a.n)+' orang)';}).join(', ')+
       '. Penumpukan angkatan inilah yang kelak muncul kembali sebagai gelombang pensiun.</div>'):'')+'</div>';
-  h+='<div class="note-box" style="margin-top:14px"><b>Privasi.</b> '+esc(M.privasi||'')+
+  h+='<div class="note-box" style="margin-top:14px"><b>Privasi.</b> '+esc(String(M.privasi||'').replace(/sel bermuatan di bawah (\d+) ditahan/,'sel yang isinya kurang dari $1 orang dirahasiakan'))+
     ' Kajian yang menjadi rujukan instrumen memuat skor lima pejabat Eselon I yang disebut namanya; skor individual itu sengaja tidak dibawa ke dashboard, dan yang dipakai hanya rubrik penilaiannya.</div>';
   h+='<div class="note-box warn" style="margin-top:14px"><b>Batasan yang perlu diingat.</b> Proyeksi ini murni demografis. Perpanjangan batas usia pensiun, promosi ke Eselon I, pengunduran diri, mutasi keluar Kementerian, dan penataan organisasi tidak diperhitungkan. Angka pensiun juga bukan angka kebutuhan rekrutmen, karena sebagian besar kursi akan terisi oleh promosi dari dalam.</div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Pengembangan Berikutnya</h2><p style="margin:0">Prioritas permintaan data berikutnya kepada Biro SDM: riwayat jabatan dan mutasi (untuk menghitung dimensi Riwayat Jabatan secara otomatis), riwayat penghargaan (dimensi Prestasi atau Pengakuan), pendidikan terakhir, serta nilai kinerja. Dengan empat tambahan itu, sebagian besar rubrik profesionalitas dapat dihitung dari basis data tanpa penilaian manual.</p></div>';
