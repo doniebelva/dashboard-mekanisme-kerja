@@ -11,7 +11,7 @@
      taruh woff2 di fonts/, tambahkan @font-face, lalu ganti --font-display saja -- jangan menyebar font-family ke aturan lain. -->
 <style>
 /* =========================================================================
-   Dashboard Pengelolaan Organisasi - Kementerian Keuangan
+   Dashboard Analitik Pengelolaan Organisasi dan SDM - Kementerian Keuangan
    Lembar gaya tunggal. Disusun berlapis menurut peran, bukan menurut
    urutan tambalan. Aturan: hanya blok TOKEN yang boleh memuat nilai warna
    mentah. Semua blok di bawahnya wajib memakai var(--...).
@@ -2513,7 +2513,12 @@ function donut(parts,size,center){const tot=parts.reduce((s,p)=>s+p.v,0)||1;cons
   parts.forEach(p=>{const ang=2*Math.PI*p.v/tot;const x1=cx+r*Math.cos(a),y1=cy+r*Math.sin(a);a+=ang;const x2=cx+r*Math.cos(a),y2=cy+r*Math.sin(a);const lg=ang>Math.PI?1:0;
     segs+=`<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${lg} 1 ${x2},${y2} Z" fill="${p.c}" stroke="var(--side)" stroke-width="1.5"/>`;});
   let ctr='';
-  if(center){ctr=`<text x="${cx}" y="${cy-1}" text-anchor="middle" font-size="${(size*0.2).toFixed(0)}" font-weight="800" fill="var(--brand-d)">${center.big}</text><text x="${cx}" y="${(cy+size*0.13).toFixed(0)}" text-anchor="middle" font-size="${(size*0.078).toFixed(0)}" fill="var(--muted)" letter-spacing="1">${center.small}</text>`;}
+  /* Huruf di tengah MENYESUAIKAN lubang. Dulu ukurannya tetap size*0,2, sehingga angka enam
+     digit seperti 106.900 meluber keluar cincin (terlihat 21 Sep 2026 di modul Penghargaan).
+     Lebar teks ditaksir 0,62em per huruf untuk angka tebal; label kecil 0,68em karena berjarak. */
+  if(center){const lubang=2*r*0.62;const nb=String(center.big).length||1,ns=String(center.small||'').length||1;
+    const fb=Math.min(size*0.2,0.9*lubang/(0.62*nb)),fs=Math.min(size*0.078,0.9*lubang/(0.68*ns));
+    ctr=`<text x="${cx}" y="${cy-1}" text-anchor="middle" font-size="${fb.toFixed(1)}" font-weight="800" fill="var(--brand-d)">${center.big}</text><text x="${cx}" y="${(cy+size*0.13).toFixed(0)}" text-anchor="middle" font-size="${fs.toFixed(1)}" fill="var(--muted)" letter-spacing="1">${center.small}</text>`;}
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${segs}<circle cx="${cx}" cy="${cy}" r="${r*0.62}" fill="var(--side)"/>${ctr}</svg>`;}
 
 /* ===== Dashboard Pimpinan ===== */
@@ -3768,7 +3773,7 @@ function vBeranda(){
     [fmt(s.total_tim||0),'Tim Kerja','mk','var(--cat-2)',chipBg('var(--cat-2)'),'data-act="mod" data-mod="mk"'],
     [fmt(s.total_pegawai||0),'Pegawai dalam Tim','mk','var(--cat-5)',chipBg('var(--cat-5)'),'data-act="mod" data-mod="mk"'],
   ];
-  let h=_berandaTabs('beranda')+`<div style="margin-bottom:14px"><div style="font-size:var(--fs-h);font-weight:800;color:var(--brand-d)">Dashboard Pengelolaan Organisasi</div><div class="mini" style="margin-top:3px">Lingkup ${esc(scopeLab)} &middot; diolah ${esc(s.tanggal_olah||'')}</div></div>
+  let h=_berandaTabs('beranda')+`<div style="margin-bottom:14px"><div style="font-size:var(--fs-h);font-weight:800;color:var(--brand-d)">Dashboard Analitik Pengelolaan Organisasi dan SDM</div><div class="mini" style="margin-top:3px">Lingkup ${esc(scopeLab)} &middot; diolah ${esc(s.tanggal_olah||'')}</div></div>
   <div class="bento">`;
   kpis.forEach(k=>{h+=`<div class="stat" style="grid-column:span 2;display:flex;align-items:center;gap:12px;cursor:pointer" ${k[5]}>
     <div style="width:44px;height:44px;border-radius:12px;background:${k[4]};color:${k[3]};display:flex;align-items:center;justify-content:center;flex-shrink:0">${svgIcon(k[2],22)}</div>
@@ -4936,7 +4941,7 @@ function abkExport(){
   const tgl=now.getDate()+' '+bln[now.getMonth()]+' '+now.getFullYear();
   function tbl(head,rows){return '<table border="1" cellspacing="0" cellpadding="5" style="border-collapse:collapse;width:100%;font-size:10pt"><tr>'+head.map(x=>'<th style="background:#1467c0;color:#fff;text-align:left">'+esc(x)+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map((c,i)=>'<td'+(i>=2?' align="right"':'')+'>'+esc(String(c))+'</td>').join('')+'</tr>').join('')+'</table>';}
   let H='<h1 style="color:#0f3d6e">LAPORAN ANALISIS BEBAN KERJA</h1>';
-  H+='<p><b>Tanggal:</b> '+tgl+'<br><i>'+esc(abkPedoman())+'. Jam Kerja Efektif '+fmt((ABK.meta||{}).jke||1476)+' jam/tahun. Dihasilkan otomatis dari Dashboard Pengelolaan Organisasi, Biro Organisasi dan Ketatalaksanaan.</i></p>';
+  H+='<p><b>Tanggal:</b> '+tgl+'<br><i>'+esc(abkPedoman())+'. Jam Kerja Efektif '+fmt((ABK.meta||{}).jke||1476)+' jam/tahun. Dihasilkan otomatis dari Dashboard Analitik Pengelolaan Organisasi dan SDM, Biro Organisasi dan Ketatalaksanaan.</i></p>';
   (ABK.eselon1||[]).forEach(e=>{const t=e.total;
     H+='<h2 style="color:#1467c0">'+esc(e.nama)+' (Tahun '+esc(e.tahun)+')</h2>';
     H+='<p>Beban kerja unit '+fmt(Math.round(t.beban))+' jam. Bezetting '+fmt(t.ada)+', kebutuhan '+fmt(t.butuh)+', selisih '+(t.selisih>0?'+':'')+fmt(t.selisih)+'. Efisiensi unit (EU.1) '+(+t.eu1).toFixed(2)+', efektivitas (EU.2) '+(+t.eu2).toFixed(1).replace('.',',')+'%.</p>';
@@ -11285,6 +11290,9 @@ h+='<h2 class="sec">4. Beban Penandatanganan</h2><div class="card">';
    Tabel yang barisnya saling bergantung, yaitu memuat baris rincian ber-colspan, sengaja
    TIDAK dipenggal supaya baris induk tidak terpisah dari rinciannya. */
 const PGN_N=10;
+/* Daftar yang cuma lebih panjang sedikit dari batas TIDAK dipenggal: sebelas batang dipecah
+   jadi sepuluh plus satu itu mengganggu, bukan membantu (temuan Donny 21 Sep 2026). */
+const PGN_TOLERAN=3;
 function pgnKey(jenis,ti){return (state.view||'')+'#'+jenis+ti;}
 /* Potong di tingkat DATA. Dipakai daftar yang sangat panjang, supaya yang dipasang ke
    halaman cukup satu halaman saja, bukan puluhan ribu baris yang lalu disembunyikan. */
@@ -11330,7 +11338,7 @@ function pgnPrepare(root){
       sd.parentNode.insertBefore(pgnBilah('D#'+tb.getAttribute('data-pgn-key'),totD,'baris',false),sd.nextSibling);
       continue;
     }
-    if(rows.length<=PGN_N)continue;
+    if(rows.length<=PGN_N+PGN_TOLERAN)continue;
     var bergantung=false;
     for(var i=0;i<rows.length;i++){
       var c=rows[i].cells;
@@ -11363,13 +11371,13 @@ function pgnBlok(root){
     /* wadah bertanda data-pgn-ok memang daftar datar walau kelasnya masuk daftar kecuali */
     if(p!==root&&!p.hasAttribute('data-pgn-ok')&&p.closest(PGN_LEWAT))continue;
     var c=p.children;
-    if(c.length<=PGN_N)continue;
+    if(c.length<=PGN_N+PGN_TOLERAN)continue;
     /* deret bersambung terpanjang yang anaknya sekelas */
     var best=null,run=1,j;
     for(j=1;j<=c.length;j++){
       var sama=j<c.length&&c[j].tagName===c[j-1].tagName&&String(c[j].className)===String(c[j-1].className);
       if(sama){run++;}
-      else{if(run>PGN_N&&(!best||run>best.n))best={akhir:j-1,n:run};run=1;}
+      else{if(run>PGN_N+PGN_TOLERAN&&(!best||run>best.n))best={akhir:j-1,n:run};run=1;}
     }
     if(!best)continue;
     var anak=[];
@@ -11386,7 +11394,7 @@ function pgnBlok(root){
    yang sudah ada tetap bekerja. Bilah disisipkan setelah `sesudah`, atau di ujung `dalam`. */
 function pgnTerap(anak,sesudah,dalam,key,satuan,lepas){
   var total=anak.length;
-  if(total<=PGN_N)return;
+  if(total<=PGN_N+PGN_TOLERAN)return;
   var hal=Math.ceil(total/PGN_N);
   state.pgn=state.pgn||{};
   var cur=Math.min(Math.max(1,state.pgn[key]||1),hal);
@@ -11424,7 +11432,7 @@ function pgnBatang(root){
   for(i=0;i<induk.length;i++){
     var p=induk[i],baris=[],c=p.children,j;
     for(j=0;j<c.length;j++)if(c[j].classList&&c[j].classList.contains('bar-row'))baris.push(c[j]);
-    if(baris.length<=PGN_N)continue;
+    if(baris.length<=PGN_N+PGN_TOLERAN)continue;
     pgnTerap(baris,baris[baris.length-1],null,pgnKey('b',i),'baris',true);
   }
 }
@@ -11434,7 +11442,7 @@ function pgnKartu(root){
   for(var i=0;i<gr.length;i++){
     var g=gr[i],anak=[],c=g.children,j;
     for(j=0;j<c.length;j++)anak.push(c[j]);
-    if(anak.length<=PGN_N)continue;
+    if(anak.length<=PGN_N+PGN_TOLERAN)continue;
     pgnTerap(anak,g,null,pgnKey('g',i),'kartu',true);
   }
 }
@@ -11814,7 +11822,7 @@ function setFooters(){
   const fb=document.getElementById('freshBadge');if(fb)fb.textContent=s.tanggal_olah?('Diperbarui '+fmtTgl(s.tanggal_olah)):'';
   document.getElementById('sideFoot').innerHTML='';
   const YR=(s.tanggal_olah||'2026').slice(0,4);
-  document.getElementById('appfoot').innerHTML=`<span>&copy; ${YR} &middot; Prototipe</span><span class="r">Dashboard Pengelolaan Organisasi &middot; Sekretariat Jenderal</span>`;
+  document.getElementById('appfoot').innerHTML=`<span>&copy; ${YR} &middot; Prototipe</span><span class="r">Dashboard Analitik Pengelolaan Organisasi dan SDM &middot; Sekretariat Jenderal</span>`;
 }
 // Catatan metodologi kontekstual: beda untuk modul kinerja vs modul URJAB
 function setFootNote(){
@@ -12344,7 +12352,7 @@ function exportKajian(){
     +'<div style="font-size:9pt;color:#555">Gedung Djuanda I, Jalan Dr. Wahidin Raya Nomor 1, Jakarta 10710</div></div>';
   H+='<h1 style="color:#0f3d6e;text-align:center;margin:14px 0 2px">KAJIAN PENATAAN ORGANISASI</h1>';
   H+='<p style="text-align:center;margin:0 0 12px"><b>Lingkup:</b> '+esc(lingkup)+' &middot; <b>Tanggal:</b> '+tgl+'</p>';
-  H+='<p><i>Dihasilkan otomatis dari Dashboard Pengelolaan Organisasi, Biro Organisasi dan Ketatalaksanaan. Bersifat penyaring/usulan awal untuk ditelaah, bukan keputusan final. Tiap usulan disusun berpola dasar data, tindakan, penanggung jawab, dan status tindak lanjut.</i></p>';
+  H+='<p><i>Dihasilkan otomatis dari Dashboard Analitik Pengelolaan Organisasi dan SDM, Biro Organisasi dan Ketatalaksanaan. Bersifat penyaring/usulan awal untuk ditelaah, bukan keputusan final. Tiap usulan disusun berpola dasar data, tindakan, penanggung jawab, dan status tindak lanjut.</i></p>';
   /* Posisi data: kajian strategis wajib menyebut kondisi datanya (jangan mengarang tanggal). */
   var pd=[];
   try{if(typeof OTK==='object'&&OTK&&OTK.meta)pd.push('Struktur organisasi (OTK): struktur berjalan, '+((OTK.meta.total_unit||0).toLocaleString('id-ID'))+' unit terpetakan.');}catch(e){}
