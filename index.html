@@ -1104,6 +1104,11 @@ function ensureCuti(){if(CUTI||state.cutiLoading)return;state.cutiLoading=true;s
   loadCuti().then(()=>{state.cutiLoading=false;progDone();render();}).catch(()=>{state.cutiLoading=false;progDone();state.cutiErr=true;render();});}
 /* Modul Suksesi & Regenerasi (domain SDM): agregat pejabat Eselon II-IV - lazy-load spt Cuti */
 let SUKSESI=null;const SUKSESI_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?suksesi=1';
+let PENGHARGAAN=null;const PENGHARGAAN_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?penghargaan=1';
+async function loadPenghargaan(){if(PENGHARGAAN)return PENGHARGAAN;let d=null;if(REMOTE){d=await apiUnduh('penghargaan',{});}else if(PENGHARGAAN_URL){const r=await fetch(PENGHARGAAN_URL);d=await r.json();}else{return PENGHARGAAN;}
+  if(!d||!d.cakupan)throw new Error('penghargaan-unavailable');PENGHARGAAN=d;return PENGHARGAAN;}
+function ensurePenghargaan(){if(PENGHARGAAN||state.phLoading)return;state.phLoading=true;state.phErr=false;progStart();
+  loadPenghargaan().then(()=>{state.phLoading=false;progDone();render();}).catch(()=>{state.phLoading=false;progDone();state.phErr=true;render();});}
 async function loadSuksesi(){if(SUKSESI)return SUKSESI;let d=null;if(REMOTE){d=await apiUnduh('suksesi',{});}else if(SUKSESI_URL){const r=await fetch(SUKSESI_URL);d=await r.json();}else{return SUKSESI;}
   if(!d||!d.pensiun)throw new Error('suksesi-unavailable');SUKSESI=d;return SUKSESI;}
 function ensureSuksesi(){if(SUKSESI||state.sukLoading)return;state.sukLoading=true;state.sukErr=false;progStart();
@@ -1983,6 +1988,7 @@ const ICONP={
  remote:'<rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8 20.5h8M12 16.5v4"/><path d="M6.5 8.2h5M6.5 11h8"/>',
  cuti:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 9.5h18"/><path d="m9 15.5 2 2 4-4.5"/>',
  /* Suksesi: dua sosok bertumpuk (alih generasi) dengan anak panah naik = generasi berikut menggantikan. */
+ penghargaan:'<circle cx="12" cy="14.5" r="5"/><path d="M9 10.2 6.5 3h3.8l1.7 4.2L13.7 3h3.8L15 10.2"/><path d="m10.3 14.2 1.2 1.2 2.4-2.4"/>',
  suksesi:'<circle cx="7.5" cy="7" r="2.8"/><path d="M3 19a4.5 4.5 0 0 1 9 0"/><circle cx="16.5" cy="10.5" r="2.4"/><path d="M12.5 19a4 4 0 0 1 8 0"/><path d="M19 7.5V3m0 0-1.8 1.8M19 3l1.8 1.8"/>',
  komjab:'<path d="M12 3 4 6.8v5c0 4.6 3.2 8.4 8 9.2 4.8-.8 8-4.6 8-9.2v-5z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/>',
  pgAwal:'<path d="M17 5 10 12l7 7"/><path d="M7 5v14"/>',
@@ -2042,6 +2048,14 @@ const MODULES=[
    {grp:'Daftar Nominatif',items:[{v:'suknominatif',lab:'Pejabat Akan Pensiun'}]},
    {grp:'Rujukan',items:[{v:'sukinstrumen',lab:'Instrumen Profesionalitas'},{v:'suktentang',lab:'Tentang Data'}]},
  ]},
+ /* Modul ketiga domain SDM (21 Sep 2026). Sudut pandangnya PEMERATAAN dan TATA KELOLA
+    penghargaan, bukan prestasi per orang: tidak ada daftar penerima, tidak ada skor individu. */
+ {id:'penghargaan',icn:'penghargaan',lab:'Penghargaan & Apresiasi',groups:[
+   {grp:'',items:[{v:'ph',lab:'Ikhtisar'}]},
+   {grp:'Pemerataan',items:[{v:'phunit',lab:'Peta per Unit Eselon I'},{v:'phprofil',lab:'Profil Penerima'}]},
+   {grp:'Jenis & Tata Kelola',items:[{v:'phjenis',lab:'Komposisi Jenis'},{v:'phtren',lab:'Tren Tahunan'}]},
+   {grp:'Rujukan',items:[{v:'phrujukan',lab:'Sistem Penghargaan KMK 325'},{v:'phtentang',lab:'Tentang Data'}]},
+ ]},
  {id:'takelola',icn:'govern',lab:'Tata Kelola',groups:[
    {grp:'Pelimpahan Wewenang',items:[{v:'pelwen',lab:'Ikhtisar Pelimpahan'},{v:'pelunit',lab:'Per Unit Eselon I'},{v:'pellintas',lab:'Lintas Unit'},{v:'pelcari',lab:'Daftar Butir Kewenangan'},{v:'pelanalisis',lab:'Analisis Delegasi'},{v:'pelinsight',lab:'Keterkaitan & Insight'},{v:'peltentang',lab:'Dasar Hukum & Ketentuan'}]},
  ]},
@@ -2096,6 +2110,7 @@ const MODDOMAIN={
   katref:'katalog',   /* seluruh register acuan berkumpul di kluster Katalog */
   cuti:'sdm',   /* modul pertama domain SDM (14 Ago 2026); modul lain menyusul via kontrak modul */
   suksesi:'sdm',   /* modul kedua domain SDM (2 Sep 2026), mengisi kartu Karier & Talenta */
+  penghargaan:'sdm',   /* modul ketiga domain SDM (21 Sep 2026), pemerataan dan tata kelola penghargaan */
   takelola:'tatakelola', layanan:'tatakelola', unitremote:'tatakelola'
 };
 function domOf(modId){return MODDOMAIN[modId]||'organisasi';}   /* modul lintas -> default Organisasi */
@@ -2118,6 +2133,7 @@ const MODKET={
   katalog:'Katalog keahlian baku: 3.217 sub-keahlian dalam 22 bidang.',
   katref:'Katalog referensi baku ber-kode: Produk ABK, Jabatan, Proses Bisnis, Norma Waktu, Unit & Kantor, Layanan, Aplikasi, Kewenangan.',
   cuti:'Pola pemanfaatan cuti pegawai: tren, musiman, unit, demografi, kategori sakit, proyeksi, hingga simulasi kebijakan.',
+  penghargaan:'Pemerataan dan tata kelola penghargaan: seberapa merata penghargaan prestasi sampai ke pegawai, unit dan lapisan mana yang jarang tersentuh, dan seberapa jauh sistem resmi KMK 325 sudah dipakai.',
   suksesi:'Kesiapan regenerasi kepemimpinan: gelombang pensiun pejabat Eselon II sampai IV, jabatan pimpinan yang paling terekspos, dan seberapa dalam ketersediaan calon pengganti di tiap unit.',
   unitremote:'Aplikasi unit remote (UKDR) tertanam di dalam dashboard.'
 };
@@ -2147,6 +2163,7 @@ const MENUKET={
   kj:'Ikhtisar standar kompetensi jabatan dan cakupannya.',kjrumpun:'Taksonomi rumpun jabatan tiga tingkat beserta konsep penataannya.',kjstandar:'Daftar standar kompetensi tiap posisi jabatan, dapat disaring dan dicari.',kjdetail:'Rincian kompetensi teknis, manajerial dan sosial kultural, serta KSA satu jabatan.',kjksa:'Keahlian yang dibutuhkan jabatan, dipadankan dengan Katalog Kompetensi.',kjkamus:'Kamus kompetensi teknis dan mansoskul beserta indikator perilaku tiap level.',kjtentang:'Sumber, cakupan, batasan, dan mutu data standar kompetensi.',
   cuti:'Ringkasan pemanfaatan cuti pegawai lintas jenis dan tahun.',cutitren:'Tren bulanan dan pola musiman pengajuan cuti.',cutiunit:'Cuti tiap unit Eselon I, dapat ditelusuri sampai Eselon II.',cutiwilayah:'Sebaran cuti menurut kota tempat kantor berada.',cutiutilisasi:'Pemakaian hak cuti tahunan dibanding hak 24 hari kerja.',cutikualitas:'Kepatuhan terhadap ketentuan hak cuti dan mutu rekaman data.',cutidemografi:'Sebaran cuti menurut kelompok usia dan gender.',cutipola:'Pola hari mulai/selesai cuti dan kalender kapasitas kehadiran.',cutisakit:'Kategori alasan cuti sakit hasil pengolahan teks.',cutiprediksi:'Proyeksi beban cuti berbasis pola musiman historis.',cutisimulasi:'Simulasi dampak perubahan ambang potongan tunjangan (PMK 221/PMK.01/2021).',cutitentang:'Sumber, cakupan, kualitas, dan batasan data cuti.',
   // Suksesi & Regenerasi (domain SDM)
+  ph:'Potret pemerataan penghargaan di seluruh Kementerian dalam satu halaman.',phunit:'Cakupan dan intensitas penghargaan prestasi di tiap unit Eselon I.',phprofil:'Siapa yang pernah menerima penghargaan prestasi menurut jenjang, jenis kelamin, dan masa kerja.',phjenis:'Komposisi jenis penghargaan dan tingkat pemberinya.',phtren:'Perkembangan jumlah penghargaan per tahun, dipisah antara yang otomatis dan yang berbasis keputusan.',phrujukan:'Sebelas jenis penghargaan resmi, kriteria, kategori prestasi, dan alur pengusulannya.',phtentang:'Sumber, cara membersihkan, mutu data, dan rambu privasi.',
   suksesi:'Potret kesiapan regenerasi kepemimpinan Eselon II sampai IV dalam satu halaman.',sukpensiun:'Jumlah kursi pejabat yang kosong karena pensiun, tahun demi tahun sampai sepuluh tahun ke depan.',sukunit:'Unit Eselon I mana yang paling banyak kehilangan pejabat dalam lima tahun.',suktempo:'Kapan gelombang pensiun tiap unit memuncak, dan unit mana yang paling sedikit sisa waktunya.',suksimulasi:'Seberapa jauh gelombang bergeser apabila batas usia pensiun dinaikkan satu sampai tiga tahun.',sukantrean:'Sisa waktu sebelum batas usia pada tiap jenjang, dan berapa lama satu kenaikan tingkat biasanya ditempuh.',sukkritikal:'Jabatan pimpinan satuan kerja yang pemangkunya paling banyak segera pensiun.',sukregen:'Perbandingan kursi yang akan kosong dengan jumlah kandidat di satu tingkat di bawahnya.',sukpopulasi:'Komposisi pejabat menurut eselon, jalur, gender, dan piramida usia.',sukes2:'Kesinambungan pejabat sampai level unit Eselon II, penghubung ke modul Struktur Organisasi.',sukinstrumen:'Rubrik penilaian profesionalitas dan personalitas pemimpin sebagai rujukan penilaian talenta.',suktentang:'Sumber, cara hitung batas usia pensiun, mutu data, dan rambu privasi.',suknominatif:'Daftar nama pejabat yang akan pensiun pada periode tertentu, dibuka dengan token akses dari pengelola dashboard.',
   // Kompetensi
   katalog:'Merujuk keahlian baku untuk pemetaan keahlian tim dan pegawai.',
@@ -2170,6 +2187,7 @@ const MENUOBJ={
   ringkasan:'Memantau adopsi mekanisme kerja bagi pimpinan.',analisis:'Menilai kinerja penyelesaian penugasan tim.',insight:'Mendapat rekomendasi tindak lanjut otomatis.',timanalitik:'Memetakan tim berkinerja tinggi dan yang perlu dibantu.',kategoritim:'Memahami komposisi tim menurut jenis kerja.',people:'Menilai keahlian, ketersediaan, dan beban pegawai.',heatmap:'Membandingkan tingkat adopsi antar unit.',beban:'Menemukan tim atau pegawai dengan beban berlebih.',struktur:'Menelusuri unit beserta tim di dalamnya.',tim:'Mendalami detail satu tim kerja.',pegawai:'Mendalami keanggotaan dan kontribusi pegawai.',keahlian:'Menemukan pegawai dengan keahlian tertentu.',avail:'Menilai siapa yang tersedia untuk penugasan baru.',
   kj:'Mengetahui sejauh mana jabatan sudah punya standar kompetensi.',kjrumpun:'Memahami pengelompokan bidang tugas yang menaungi kompetensi.',kjstandar:'Menemukan standar kompetensi jabatan tertentu dengan cepat.',kjdetail:'Membaca kompetensi satu jabatan sampai indikator perilakunya.',kjksa:'Menemukan jabatan yang membutuhkan suatu keahlian.',kjkamus:'Merujuk definisi dan tingkatan tiap kompetensi secara baku.',kjtentang:'Memahami batasan data sebelum memakainya untuk keputusan.',
   cuti:'Memantau pemanfaatan cuti pegawai secara menyeluruh.',cutitren:'Mengantisipasi lonjakan pengajuan cuti pada periode tertentu.',cutiunit:'Membandingkan intensitas cuti antar unit secara adil.',cutiwilayah:'Melihat perbedaan pola cuti antar wilayah kerja.',cutiutilisasi:'Memastikan hak istirahat pegawai benar-benar dimanfaatkan.',cutikualitas:'Menemukan rekaman cuti yang perlu diperiksa dan diperbaiki.',cutidemografi:'Memahami profil risiko cuti menurut usia dan gender.',cutipola:'Merencanakan kapasitas kehadiran dan jadwal kegiatan besar.',cutisakit:'Memahami penyebab cuti sakit untuk intervensi kesehatan.',cutiprediksi:'Memperkirakan beban cuti mendatang untuk perencanaan.',cutisimulasi:'Menguji dampak usulan revisi kebijakan potongan tunjangan.',cutitentang:'Memahami sumber, cakupan, dan batasan data cuti.',
+  ph:'Menilai seberapa merata sistem penghargaan menjangkau pegawai.',phunit:'Menemukan unit yang jarang memberi atau mencatat penghargaan.',phprofil:'Mengenali lapisan pegawai yang jarang tersentuh penghargaan.',phjenis:'Membaca seberapa besar penghargaan yang berbasis keputusan dibanding yang otomatis.',phtren:'Memantau apakah sistem resmi mulai menggantikan penghargaan tidak resmi.',phrujukan:'Rujukan cepat kriteria dan alur pengusulan penghargaan.',phtentang:'Memahami batas pembacaan data pencatatan PILAR.',
   suksesi:'Menilai kesiapan Kementerian menghadapi pergantian pemimpin.',sukpensiun:'Merencanakan kebutuhan pengisian jabatan tahun per tahun.',sukunit:'Menentukan unit mana yang perlu didahulukan penyiapan penggantinya.',suktempo:'Menjadwalkan penyiapan calon menurut kapan gelombang tiap unit datang.',suksimulasi:'Menakar dampak wacana kenaikan batas usia pensiun terhadap beban pengisian jabatan.',sukantrean:'Mengenali sumbatan antrean promosi sebelum menyusun rencana pengembangan karier.',sukkritikal:'Mengamankan kepemimpinan satuan kerja yang segera berganti.',sukregen:'Mengetahui unit yang tidak punya cukup calon pengganti sendiri.',sukpopulasi:'Memahami struktur usia dan komposisi pejabat hari ini.',sukes2:'Menelusuri kesinambungan pejabat sampai unit Eselon II.',sukinstrumen:'Menyeragamkan dasar penilaian talenta untuk promosi dan mutasi.',suktentang:'Memahami asumsi, mutu, dan batasan data pejabat.',suknominatif:'Menyusun rencana pengisian jabatan dan usulan mutasi atas nama orang.',
   katalog:'Merujuk standar kompetensi jabatan.',
   mofin:'Menilai kapabilitas kelembagaan tiap unit.',mofheatmap:'Membandingkan skor kapabilitas antar unit dan dimensi.',mofprofil:'Mendalami kapabilitas satu unit.',moftl:'Memantau tindak lanjut rekomendasi kapabilitas.',mofkuadran:'Memprioritaskan area lemah dengan respons rendah.',mofgap:'Menentukan tindak lanjut kapabilitas yang paling mendesak.',
@@ -2180,6 +2198,10 @@ const MENUOBJ={
    Ditampilkan di Panduan sbg baris "Tab:" dan ikut jadi kata kunci pencarian, supaya
    menu yang "hilang" dari sidebar tetap ketemu (mis. cari "Kategori Tim" atau "Mapping"). */
 const MENUTAB={
+  phunit:['Cakupan per Unit','Intensitas per Unit','Tabel Lengkap'],
+  phprofil:['Menurut Jenjang','Menurut Jenis Kelamin','Menurut Masa Kerja'],
+  phjenis:['Tiga Kelompok','Rincian Kelas','Tingkat Pemberi'],
+  phtren:['Kurva Tahunan','Nagara Dana','Rincian per Tahun'],
   suktempo:['Heatmap Unit dan Tahun','Tahun Puncak','Urutan Penanganan'],
   suksimulasi:['Kurva Sebelum dan Sesudah','Rincian per Tahun'],
   sukantrean:['Antrean Antarjenjang','Angkatan Terbesar'],
@@ -2362,6 +2384,7 @@ let state={navOpen:{},mofUnit:null,mofMode:'skor',mofUE1:'',mofDrill:null,mofTlT
   kalTab:'jabatan',kalJab:null,kalMin:8,kalQ:'',kalProdU:null,kalProdUE1:'',normaQ:'',normaExp:null,normaUE1:'',normaUE2:'',kataktQ:'',kataktKlus:'',katpetaUE1:'',kjQ:'',kjUE1:'',kjLvl:'',kpbQ:'',kpbDom:'',kpbLvl:'',katrefLoading:false,katrefErr:false,nwQ:'',nwKlus:'',kuQ:'',kuUE1:'',kuTipe:'',ksQ:'',ksUE1:'',ksDig:'',kaQ:'',kaUE1:'',kwQ:'',kwUnit:'',kwJenis:'',
   pwAnTab:'konsentrasi',otkEvTab:'dimensi',tkIntTab:'tahun',kjRumTab:'peta',cutiSkTab:'komposisi',abkSimTab:'kalibrasi',cutiUtTab:'pakai',
   mkLoading:false,mkErr:false,
+  phLoading:false,phErr:false,phUnitTab:'cakupan',phProfilTab:'jenjang',phJenisTab:'kelompok',phTrenTab:'kurva',
   sukLoading:false,sukErr:false,sukRegenMode:'gabungan',sukEs2Q:'',sukEs2UE1:'',sukUnitSel:'',sukPirJalur:'semua',
   /* Daftar nominatif: seluruhnya hanya di memori. Password TIDAK PERNAH masuk state. */
   sukAntTab:'jenjang',sukAntJalur:'struktural',
@@ -2454,6 +2477,7 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'List Dataset',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',hub_katalog:'Katalog',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Katalog Keahlian',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
   tk:'Ikhtisar Tata Kelola',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   cuti:'Ringkasan Cuti Pegawai',cutitren:'Tren & Musiman Cuti',cutiunit:'Profil Unit',cutiwilayah:'Sebaran Wilayah',cutiutilisasi:'Utilisasi Hak Cuti Tahunan',cutikualitas:'Kepatuhan & Mutu Data',cutidemografi:'Demografi & Gender Cuti',cutipola:'Pola Hari & Kalender Kapasitas',cutisakit:'Kategori Cuti Sakit',cutiprediksi:'Proyeksi Beban Cuti',cutisimulasi:'Simulasi Kebijakan PMK 221',cutitentang:'Tentang Data Cuti',
+  ph:'Ikhtisar Penghargaan & Apresiasi',phunit:'Pemerataan Penghargaan per Unit Eselon I',phprofil:'Profil Penerima Penghargaan',phjenis:'Komposisi Jenis Penghargaan',phtren:'Tren Penghargaan Tahunan',phrujukan:'Sistem Penghargaan Kementerian (KMK 325)',phtentang:'Tentang Data Penghargaan',
   suksesi:'Ikhtisar Suksesi & Regenerasi',sukpensiun:'Gelombang Pensiun',sukunit:'Eksposur Pensiun per Unit',suktempo:'Waktu Gelombang Pensiun per Unit',suksimulasi:'Simulasi Kenaikan Batas Usia Pensiun',sukantrean:'Antrean dan Jenjang Karier Pejabat',sukkritikal:'Risiko Jabatan Pimpinan',sukregen:'Regenerasi Pejabat',sukpopulasi:'Komposisi & Piramida Usia Pejabat',sukes2:'Kesinambungan Unit Eselon II',sukinstrumen:'Instrumen Profesionalitas Pemimpin',suktentang:'Tentang Data Pejabat',suknominatif:'Pejabat Akan Pensiun (Daftar Nominatif)',
   kj:'Ikhtisar Kompetensi Jabatan',kjstandar:'Standar Kompetensi Jabatan',kjdetail:'Standar Kompetensi Satu Jabatan',kjksajpt:'KSA Jabatan Pimpinan Tinggi',kjjf:'Standar Kompetensi Jabatan Fungsional',kjrumpun:'Taksonomi Rumpun Jabatan',kjkamus:'Kamus Kompetensi Teknis',kjmansos:'Kamus Manajerial dan Sosial Kultural',kjkeahlian:'Kamus Keahlian',kjcakupan:'Cakupan Standar Jabatan',kjrantai:'Rantai Proses Bisnis ke Kompetensi',kjtaksonomi:'Kesesuaian Taksonomi Rumpun',kjubah:'Perubahan Antar Generasi Standar',kjproyeksi:'Proyeksi Pemenuhan Standar',kjprioritas:'Prioritas Penyusunan Standar',kjtentang:'Tentang Data Kompetensi',
   mofin:'Skor Kapabilitas',mofheatmap:'Heatmap Skor Organisasi (Unit \u00d7 Dimensi)',mofprofil:'Profil Unit MOFIN',moftl:'Status Tindak Lanjut Rekomendasi',mofkuadran:'Kuadran Kelemahan \u00d7 Respons Tindak Lanjut',mofgap:'Prioritas Tindak Lanjut (Gap-to-Action)',pelwen:'Ikhtisar Pelimpahan',pelunit:'Pelimpahan Wewenang per Unit Eselon I',pellintas:'Pelimpahan Wewenang Lintas Unit',pelcari:'Daftar Butir Kewenangan',pelanalisis:'Analisis Delegasi Wewenang',pelinsight:'Keterkaitan & Insight Lintas Modul',peltentang:'Dasar Hukum dan Ketentuan Pelimpahan',tkdiagintegritas:'Diagnosa Integritas (Konversi WBBM)',tkkuadran:'Kuadran Tata Kelola',tkpanutan:'Unit Unggul Lintas Program',tkindeks:'Indeks Komposit Tata Kelola'};
@@ -5505,6 +5529,10 @@ function _tabelSemuaTab(kunciState, daftarTab, fnView, label){
   return hasil;
 }
 const _EXPORT_FULL={
+  phunit:function(){return _tabelSemuaTab('phUnitTab',['cakupan','intensitas','tabel'],vPhUnit,['Cakupan per Unit','Intensitas per Unit','Tabel Lengkap']);},
+  phprofil:function(){return _tabelSemuaTab('phProfilTab',['jenjang','gender','masakerja'],vPhProfil,['Menurut Jenjang','Menurut Jenis Kelamin','Menurut Masa Kerja']);},
+  phjenis:function(){return _tabelSemuaTab('phJenisTab',['kelompok','kelas','pemberi'],vPhJenis,['Tiga Kelompok','Rincian Kelas','Tingkat Pemberi']);},
+  phtren:function(){return _tabelSemuaTab('phTrenTab',['kurva','nagara','tabel'],vPhTren,['Kurva Tahunan','Nagara Dana','Rincian per Tahun']);},
   /* Tiga halaman ini bertab jauh sebelum mesin tab dibakukan, dan sempat terlewat:
      tanpa entri di sini Unduh Excel dan PDF hanya menangkap tab yang sedang terbuka. */
   timanalitik:function(){return _tabelSemuaTab('timAnTab',['tim','kategori'],vTimAnalitik,
@@ -6982,6 +7010,9 @@ function vKatData(){
     {d:'Pejabat Eselon II-IV (Suksesi)',f:'suksesi.json',m:'Suksesi & Regenerasi (domain SDM)',a:'Gerbang · saat menu dibuka · sensitif',
      s:()=>!!(typeof SUKSESI==='object'&&SUKSESI&&SUKSESI.pensiun),p:()=>{var a=(SUKSESI&&SUKSESI.meta&&SUKSESI.meta.posisiData)||'';return a?('Data per '+a+' · agregat tanpa NIP'):'Agregat pejabat Eselon II-IV (anonim)';},
      u:'build_suksesi.py lalu ganti isi file di Drive (File ID tetap)',o:'Sumber Biro Sumber Daya Manusia · data pejabat Agustus 2026'},
+    {d:'Riwayat Penghargaan Pegawai',f:'penghargaan.json',m:'Penghargaan & Apresiasi (domain SDM)',a:'Gerbang · saat menu dibuka · sensitif',
+     s:()=>!!(typeof PENGHARGAAN==='object'&&PENGHARGAAN&&PENGHARGAAN.cakupan),p:()=>{var a=(PENGHARGAAN&&PENGHARGAAN.meta&&PENGHARGAAN.meta.posisiData)||'';return a?('Data per '+a+' · agregat tanpa identitas'):'Agregat riwayat penghargaan (anonim)';},
+     u:'build_penghargaan.py lalu ganti isi file di Drive (File ID tetap)',o:'Sumber ekspor PILAR · Biro Sumber Daya Manusia · September 2026'},
     {d:'Standar Kompetensi Jabatan',f:'komjab.json',m:'Kompetensi Jabatan; panel standar kompetensi di Detail Uraian Jabatan',a:'Gerbang · saat menu dibuka',
      s:()=>!!(typeof KOMJ==='object'&&KOMJ&&KOMJ.jabatan),p:()=>{var n=(KOMJ&&KOMJ.jabatan&&KOMJ.jabatan.length)||0;return n?(fmt(n)+' posisi jabatan · PMK 124 dan PMK 118/135'):'Database SKTJ';},
      u:'build_komjab.py lalu ganti isi file di Drive (File ID tetap)',o:'Biro Sumber Daya Manusia · Biro Organisasi dan Ketatalaksanaan'},
@@ -7611,6 +7642,7 @@ function render(){
   /* Modul Mekanisme Kerja: data tim & pegawai baru diambil di sini, bukan saat login. */
   if(curMod()==='mk'&&!mkSiap()&&!state.mkLoading)ensureMkFull();
   if(state.view.indexOf('suk')===0&&!SUKSESI&&!state.sukLoading)ensureSuksesi();
+  if(state.view.indexOf('ph')===0&&!PENGHARGAAN&&!state.phLoading)ensurePenghargaan();
   if(state.view.indexOf('cuti')===0&&!CUTI&&!state.cutiLoading)ensureCuti();
   if(state.view.indexOf('kj')===0&&!KOMJ&&!state.kompLoading)ensureKomjab();
   if(/^kj(detail|kamus|mansos|keahlian|jf)$/.test(state.view)&&!KOMK&&!state.kamLoading)ensureKamus();
@@ -7636,6 +7668,7 @@ function render(){
     beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,katakt:vKatAkt,katpeta:vKatPeta,katjab:vKatJab,katpb:vKatPb,katnw:vKatNw,katunit:vKatUnit,katsvc:vKatSvc,katapp:vKatApp,katwen:vKatWen,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,hub_katalog:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     kj:vKj,kjstandar:vKjStandar,kjdetail:vKjDetail,kjksajpt:vKjKsaJpt,kjjf:vKjJf,kjrumpun:vKjRumpun,kjkamus:vKjKamus,kjmansos:vKjMansos,kjkeahlian:vKjKeahlian,kjcakupan:vKjCakupan,kjrantai:vKjRantai,kjtaksonomi:vKjTaksonomi,kjubah:vKjUbah,kjproyeksi:vKjProyeksi,kjprioritas:vKjPrioritas,kjtentang:vKjTentang,
     suknominatif:vSukNominatif,
+    ph:vPh,phunit:vPhUnit,phprofil:vPhProfil,phjenis:vPhJenis,phtren:vPhTren,phrujukan:vPhRujukan,phtentang:vPhTentang,
     suksesi:vSuksesi,sukpensiun:vSukPensiun,sukunit:vSukUnit,suktempo:vSukTempo,suksimulasi:vSukSimulasi,sukantrean:vSukAntrean,sukkritikal:vSukKritikal,sukregen:vSukRegen,sukpopulasi:vSukPopulasi,sukes2:vSukEs2,sukinstrumen:vSukInstrumen,suktentang:vSukTentang,
     cuti:vCuti,cutitren:vCutiTren,cutiunit:vCutiUnit,cutiwilayah:vCutiWilayah,cutiutilisasi:vCutiUtilisasi,cutikualitas:vCutiKualitas,cutidemografi:vCutiDemografi,cutipola:vCutiPola,cutisakit:vCutiSakit,cutiprediksi:vCutiPrediksi,cutisimulasi:vCutiSimulasi,cutitentang:vCutiTentang,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
@@ -9461,6 +9494,244 @@ function vCutiTentang(){
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Pengembangan Berikutnya</h2><p style="margin:0">Prioritas permintaan data ke Biro SDM: (1) identitas pegawai tersamar yang konsisten antar rekaman untuk analisis utilisasi, (2) jenis cuti yang belum tersedia, (3) atribut jabatan dan unit Eselon II. Kajian lengkap: output/Modul Cuti/Kajian_Awal_Modul_Cuti.docx.</p></div>';
   return h;
 }
+
+/* ==================== MODUL PENGHARGAAN & APRESIASI (domain SDM) ====================
+   Data: penghargaan.json (build_penghargaan.py) - AGREGAT riwayat penghargaan seluruh pegawai
+   dari ekspor PILAR, tanpa nama, NIP, maupun nomor SK. Kajian: output/ANALISIS_DATA_PENGHARGAAN.md
+   dan output/LAPORAN_CLEANSING_PENGHARGAAN.md.
+   DUA RAMBU yang WAJIB terbaca di setiap halaman: (1) PILAR mencatat yang DILAPORKAN, bukan yang
+   DIBERIKAN, jadi seluruh cakupan adalah cakupan pencatatan; (2) Satyalancana Karya Satya
+   diberikan otomatis menurut masa kerja, sehingga pembacaan prestasi selalu menyisihkannya.
+   Keputusan Donny 21 Sep 2026: tidak ada daftar penerima per orang dan tidak ada skor individu. */
+const PH_WARNA={otomatis:'var(--seq-2)',resmi:'var(--st-warn)',diskresi:'var(--brand)'};
+function phGuard(){
+  if(state.phErr)return '<div class="empty">Gagal memuat data penghargaan. Buka menu ini sekali lagi.</div>';
+  if(!PENGHARGAAN)return skelMemuat('Memuat data penghargaan...');
+  return null;}
+function phTahan(v){return (v===-1||v==null)?'<span class="mini">ditahan</span>':fmt(v);}
+function phPct(v){return (v==null)?'<span class="mini">ditahan</span>':(d1(v)+'%');}
+function phKelas(k){var x=(PENGHARGAAN.kelas||[]).find(function(y){return y.kode===k;});return x?x.label:k;}
+function phCatatanBaca(){
+  return '<div class="note-box" style="margin-top:14px"><b>Dua rambu membaca angka di modul ini.</b> Pertama, PILAR mencatat penghargaan yang <b>dilaporkan</b> pegawai, bukan yang diberikan; pegawai yang tidak pernah mengunggah riwayatnya tampak seolah tidak pernah menerima apa pun, sehingga seluruh cakupan adalah cakupan pencatatan. Kedua, Satyalancana Karya Satya diberikan otomatis menurut masa kerja, sehingga setiap pembacaan prestasi menyisihkannya.</div>';}
+function phTabBar(act,pilih,daftar){
+  return '<div class="pgtabs">'+daftar.map(function(x){return '<button class="pgtab'+(pilih===x[0]?' on':'')+'" data-act="'+act+'" data-tab="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>';}
+
+/* ---------- Ikhtisar ---------- */
+function vPh(){
+  const g=phGuard();if(g)return g;
+  const M=PENGHARGAAN.meta, C=PENGHARGAAN.cakupan, KG=PENGHARGAAN.kelompok||[];
+  const kel=function(k){return KG.find(function(x){return x.kode===k;})||{n:0,pct:0};};
+  const U=(PENGHARGAAN.perUnit||[]).filter(function(x){return !x.gabungan&&x.pegawai>=1000;});
+  const uTop=U[0]||{}, uBawah=U[U.length-1]||{};
+  const J=PENGHARGAAN.perJenjang||[];
+  const jEs2=J.find(function(x){return x.kelompok==='Eselon II';})||{}, jPel=J.find(function(x){return x.kelompok==='Pelaksana';})||{};
+  let h=pgHead('Penghargaan dan Apresiasi Pegawai',
+    '<p>Modul ini membaca sistem penghargaan dari sisi yang jarang dilihat: bukan siapa yang berprestasi, melainkan seberapa merata penghargaan sampai ke pegawai, unit dan lapisan mana yang jarang tersentuh, dan seberapa jauh sistem resmi Kementerian sudah dipakai. Dasarnya riwayat penghargaan '+fmt(M.pegawai)+' pegawai dari ekspor PILAR, '+fmt(M.riwayat)+' riwayat setelah dibersihkan, posisi '+esc(M.posisiData)+'.</p>'+
+    '<p>Seluruh angka agregat tanpa identitas. Modul ini sengaja tidak memuat daftar penerima maupun skor per orang, sebab data sumbernya tidak membedakan sertifikat kehadiran dari tanda jasa nasional, dan menjumlahkannya akan menghasilkan angka yang terlihat meyakinkan tetapi tidak berarti.</p>');
+  h+=sorotanCard('Sorotan',
+    '<b>Tujuh puluh satu persen riwayat adalah penghargaan otomatis.</b> Satyalancana Karya Satya, tanda kehormatan Presiden berdasarkan masa kerja sepuluh, dua puluh, dan tiga puluh tahun, menyumbang '+d1(kel('otomatis').pct)+' persen riwayat. Bila disisihkan, hanya <b>'+d1(C.pctPrestasi)+' persen</b> pegawai yang pernah tercatat menerima penghargaan berbasis prestasi dalam bentuk apa pun.'+
+    '</p><p style="margin:0 0 10px"><b>Sangat tidak merata.</b> Di '+esc(uTop.unit||'')+' '+d1(uTop.pctPrestasi||0)+' persen pegawai pernah menerimanya, di '+esc(uBawah.unit||'')+' hanya '+d1(uBawah.pctPrestasi||0)+' persen. Menurut jenjang, Eselon II '+d1(jEs2.pctPrestasi||0)+' persen dan Pelaksana '+d1(jPel.pctPrestasi||0)+' persen. Selisih antarunit sebesar itu hampir pasti bukan selisih prestasi, melainkan selisih budaya memberi dan mencatat penghargaan.'+
+    '</p><p style="margin:0 0 10px"><b>Sistem resmi masih kecil.</b> Keluarga Nagara Dana menurut KMK 325 baru '+fmt(kel('resmi').n)+' riwayat, atau '+d1(kel('resmi').pct)+' persen, sementara ribuan penghargaan tingkat kantor dan unit yang namanya ditulis bebas menggerakkan seluruh kenaikan sejak 2021. Buku manual penghargaan lahir justru untuk menyeragamkannya, dan modul ini menjadi alat ukur apakah penyeragaman itu berjalan.',
+    [{v:'phunit',t:'Peta per Unit'},{v:'phprofil',t:'Profil Penerima'},{v:'phtren',t:'Tren Tahunan'}]);
+  h+='<div class="kpis">'+
+    kpiBox('Pernah menerima penghargaan prestasi',d1(C.pctPrestasi)+'%',fmt(C.prestasi)+' dari '+fmt(M.pegawai)+' pegawai','','data-act="nav" data-view="phprofil"')+
+    kpiBox('Bagian penghargaan otomatis',d1(kel('otomatis').pct)+'%','Satyalancana Karya Satya, '+fmt(kel('otomatis').n)+' riwayat','','data-act="nav" data-view="phjenis"')+
+    kpiBox('Bagian sistem resmi KMK 325',d1(kel('resmi').pct)+'%',fmt(kel('resmi').n)+' riwayat Nagara Dana','','data-act="nav" data-view="phtren"')+
+    kpiBox('Belum pernah tercatat apa pun',d1(C.pctBelum)+'%',fmt(C.belum)+' pegawai, sebagian besar masa kerja di bawah sepuluh tahun','','data-act="nav" data-view="phprofil"')+
+    '</div>';
+  const dKel=['otomatis','resmi','diskresi'].map(function(k){return {v:kel(k).n,c:PH_WARNA[k]};});
+  const KLS=(PENGHARGAAN.kelas||[]).filter(function(x){return x.kelompok==='diskresi'&&x.kode!=='lainnya';}).slice().sort(function(a,b){return b.n-a.n;}).slice(0,8);
+  const mxK=Math.max.apply(null,KLS.map(function(x){return x.n;}).concat([1]));
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Tiga Kelompok Penghargaan</h2>'+
+    '<div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">'+
+    '<div style="flex:0 0 auto">'+donut(dKel,150,{big:fmt(M.riwayat),small:'RIWAYAT'})+'</div>'+
+    '<div style="flex:1;min-width:300px">'+
+    KG.map(function(x){return '<div class="bar-row"><div class="name" title="'+esc(x.label)+'">'+esc(x.label)+'</div><div class="track"><div class="fill" style="width:'+Math.max(2,Math.round(x.pct))+'%;background:'+PH_WARNA[x.kode]+'"></div></div><div class="num">'+d1(x.pct)+'% &middot; '+fmt(x.n)+'</div></div>';}).join('')+
+    '<div class="mini" style="margin-top:8px">Delapan kelas penghargaan prestasi terbanyak:</div>'+
+    KLS.map(function(x){return bar(x.label,x.n,mxK,'',fmt(x.n)+' riwayat');}).join('')+
+    '</div></div>'+
+    '<div class="mini" style="margin-top:6px">Kelompok otomatis diberikan menurut masa kerja tanpa penilaian. Kelompok resmi adalah penghargaan Kementerian menurut KMK 325. Kelompok prestasi dan apresiasi mencakup segala penghargaan yang melibatkan keputusan, dari tingkat kantor sampai internasional.</div></div>';
+  h+=phCatatanBaca();
+  return h;}
+
+/* ---------- Peta per unit ---------- */
+function vPhUnit(){
+  const g=phGuard();if(g)return g;
+  const U=(PENGHARGAAN.perUnit||[]).slice(), C=PENGHARGAAN.cakupan;
+  const tab=state.phUnitTab||'cakupan';
+  let h=phTabBar('phunittab',tab,[['cakupan','Cakupan per Unit'],['intensitas','Intensitas per Unit'],['tabel','Tabel Lengkap']]);
+  if(tab==='intensitas'){
+    const R=U.slice().sort(function(a,b){return b.riwayatPer100-a.riwayatPer100;});
+    const mx=Math.max.apply(null,R.map(function(x){return x.riwayatPer100;}).concat([1]));
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Riwayat Penghargaan Prestasi per Seratus Pegawai</h2>'+
+      R.map(function(x){return bar(x.unit,x.riwayatPer100,mx,'',d1(x.riwayatPer100)+' &middot; '+fmt(x.riwayatPrestasi)+' riwayat');}).join('')+
+      '<div class="mini" style="margin-top:6px">Ukuran ini menghitung riwayat, bukan orang, sehingga satu pegawai yang menerima sepuluh kali dihitung sepuluh. Ia melengkapi cakupan: unit dengan cakupan serupa bisa berbeda jauh intensitasnya bila penghargaannya menumpuk pada orang yang sama.</div></div>';
+  } else if(tab==='tabel'){
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Rincian per Unit Eselon I</h2><div class="tblw"><table><thead><tr>'+
+      '<th style="text-align:left;min-width:215px">Unit Eselon I</th><th style="text-align:right">Pegawai</th><th style="text-align:right">Pernah apa pun</th>'+
+      '<th style="text-align:right">Pernah prestasi</th><th style="text-align:right">Cakupan prestasi</th><th style="text-align:right">Selisih thd Kementerian</th>'+
+      '<th style="text-align:right">Pernah Nagara Dana</th><th style="text-align:right">Riwayat prestasi</th><th style="text-align:right">Per 100 pegawai</th><th style="text-align:left">Kelas terbanyak</th></tr></thead><tbody>'+
+      U.map(function(x){const d=x.pctPrestasi-C.pctPrestasi;
+        return '<tr><td>'+esc(x.unit)+'</td><td style="text-align:right">'+fmt(x.pegawai)+'</td><td style="text-align:right">'+fmt(x.punyaApaPun)+'</td>'+
+        '<td style="text-align:right">'+fmt(x.punyaPrestasi)+'</td><td style="text-align:right"><b>'+d1(x.pctPrestasi)+'%</b></td>'+
+        '<td style="text-align:right;'+(d>=5?'color:var(--st-good)':(d<=-5?'color:var(--st-critical)':''))+'">'+(d>0?'+':'')+d1(d)+' poin</td>'+
+        '<td style="text-align:right">'+phTahan(x.punyaResmi)+'</td><td style="text-align:right">'+fmt(x.riwayatPrestasi)+'</td><td style="text-align:right">'+d1(x.riwayatPer100)+'</td>'+
+        '<td>'+(x.kelasTeratas||[]).map(function(k){return esc(phKelas(k.kode))+' ('+fmt(k.n)+')';}).join(', ')+'</td></tr>';}).join('')+
+      '</tbody></table></div><div class="mini" style="margin-top:6px">Satuan kecil di bawah '+PENGHARGAAN.meta.minUnit+' pegawai digabung menjadi satu baris. Sel bertulis ditahan berisi kurang dari '+PENGHARGAAN.meta.minSel+' orang. Pembanding Kementerian adalah '+d1(C.pctPrestasi)+' persen.</div></div>';
+  } else {
+    const mx=Math.max.apply(null,U.map(function(x){return x.pctPrestasi;}).concat([1]));
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Bagian Pegawai yang Pernah Menerima Penghargaan Prestasi</h2>'+
+      U.map(function(x){return bar(x.unit,x.pctPrestasi,mx,'',d1(x.pctPrestasi)+'% &middot; '+fmt(x.punyaPrestasi)+' dari '+fmt(x.pegawai));}).join('')+
+      '<div class="mini" style="margin-top:6px">Pembanding Kementerian '+d1(C.pctPrestasi)+' persen. Satyalancana Karya Satya disisihkan karena diberikan otomatis menurut masa kerja. Dua unit terbesar berada di ujung yang berlawanan, dan selisih sebesar itu hampir pasti mencerminkan budaya memberi dan mencatat penghargaan, bukan perbedaan prestasi pegawainya.</div></div>';
+  }
+  h+=phCatatanBaca();
+  return h;}
+
+/* ---------- Profil penerima ---------- */
+function vPhProfil(){
+  const g=phGuard();if(g)return g;
+  const C=PENGHARGAAN.cakupan, tab=state.phProfilTab||'jenjang';
+  let h=phTabBar('phprofiltab',tab,[['jenjang','Menurut Jenjang'],['gender','Menurut Jenis Kelamin'],['masakerja','Menurut Masa Kerja']]);
+  if(tab==='gender'){
+    const G=PENGHARGAAN.perGender||[], JG=PENGHARGAAN.jenjangGender||[];
+    const mx=Math.max.apply(null,G.map(function(x){return x.pctPrestasi;}).concat([1]));
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Cakupan Penghargaan Prestasi menurut Jenis Kelamin</h2>'+
+      G.map(function(x){return bar(x.kelompok,x.pctPrestasi,mx,'',d1(x.pctPrestasi)+'% dari '+fmt(x.pegawai)+' pegawai');}).join('')+'</div>';
+    const jen=[];JG.forEach(function(x){if(jen.indexOf(x.jenjang)<0)jen.push(x.jenjang);});
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Selisihnya Ada di Lapisan Mana</h2><div class="tblw"><table><thead><tr>'+
+      '<th style="text-align:left;min-width:150px">Jenjang</th><th style="text-align:right">Laki-laki</th><th style="text-align:right">Cakupan</th>'+
+      '<th style="text-align:right">Perempuan</th><th style="text-align:right">Cakupan</th><th style="text-align:right">Selisih</th></tr></thead><tbody>'+
+      jen.map(function(j){
+        const L=JG.find(function(x){return x.jenjang===j&&x.jk==='Laki-laki';})||{}, Pp=JG.find(function(x){return x.jenjang===j&&x.jk==='Perempuan';})||{};
+        const d=(L.pctPrestasi!=null&&Pp.pctPrestasi!=null)?(L.pctPrestasi-Pp.pctPrestasi):null;
+        return '<tr><td>'+esc(j)+'</td><td style="text-align:right">'+phTahan(L.pegawai)+'</td><td style="text-align:right">'+phPct(L.pctPrestasi)+'</td>'+
+          '<td style="text-align:right">'+phTahan(Pp.pegawai)+'</td><td style="text-align:right">'+phPct(Pp.pctPrestasi)+'</td>'+
+          '<td style="text-align:right;'+(d!=null&&Math.abs(d)>=3?'font-weight:600':'')+'">'+(d==null?'-':((d>0?'+':'')+d1(d)+' poin'))+'</td></tr>';}).join('')+
+      '</tbody></table></div><div class="mini" style="margin-top:6px">Selisih dihitung laki-laki dikurangi perempuan, dalam poin persentase. Sel bertulis ditahan berisi kurang dari '+PENGHARGAAN.meta.minSel+' orang.</div></div>';
+    h+='<div class="note-box" style="margin-top:14px"><b>Pemecahan per jenjang mengubah cara membaca angka totalnya.</b> Selisih pada angka keseluruhan tidak berasal dari lapisan pimpinan: di Eselon II dan III cakupan laki-laki dan perempuan praktis setara. Selisihnya menumpuk di lapisan Pelaksana dan Fungsional. Data ini tidak bisa menjelaskan sebabnya; salah satu dugaan yang layak ditelusuri adalah penghargaan tingkat kantor lebih banyak diberikan pada fungsi yang kebetulan didominasi laki-laki, misalnya penindakan dan pengawasan.</div>';
+  } else if(tab==='masakerja'){
+    const MK=PENGHARGAAN.perMasaKerja||[];
+    const mx=Math.max.apply(null,MK.map(function(x){return x.pctApaPun;}).concat([1]));
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Pernah Menerima Apa Pun, menurut Masa Kerja</h2>'+
+      MK.map(function(x){return bar(x.kelompok+' tahun',x.pctApaPun,mx,'',d1(x.pctApaPun)+'% dari '+fmt(x.pegawai));}).join('')+
+      '<div class="mini" style="margin-top:6px">Lonjakan tepat di ambang sepuluh tahun adalah jejak Satyalancana Karya Satya: tanda kehormatan itu diberikan menurut masa kerja, bukan prestasi.</div></div>';
+    const mx2=Math.max.apply(null,MK.map(function(x){return x.pctPrestasi;}).concat([1]));
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Pernah Menerima Penghargaan Prestasi, menurut Masa Kerja</h2>'+
+      MK.map(function(x){return bar(x.kelompok+' tahun',x.pctPrestasi,mx2,'',d1(x.pctPrestasi)+'% dari '+fmt(x.pegawai));}).join('')+
+      '<div class="mini" style="margin-top:6px">Begitu Satyalancana disisihkan, kurvanya datar: pegawai yang bekerja tiga puluh tahun tidak lebih mungkin pernah menerima penghargaan prestasi daripada yang bekerja tujuh tahun. Penghargaan prestasi tidak menumpuk seiring lamanya bekerja.</div></div>';
+  } else {
+    const J=PENGHARGAAN.perJenjang||[];
+    const mx=Math.max.apply(null,J.map(function(x){return x.pctPrestasi;}).concat([1]));
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Cakupan Penghargaan Prestasi menurut Jenjang Jabatan</h2>'+
+      J.map(function(x){return bar(x.kelompok,x.pctPrestasi,mx,'',d1(x.pctPrestasi)+'% dari '+fmt(x.pegawai)+' pegawai');}).join('')+
+      '<div class="mini" style="margin-top:6px">Pembanding Kementerian '+d1(C.pctPrestasi)+' persen. Cakupan menanjak rapi ke atas: makin tinggi jenjang, makin besar peluang pernah tercatat menerima penghargaan prestasi. Eselon I hanya enam belas orang, sehingga angkanya mudah berayun.</div></div>';
+  }
+  h+=phCatatanBaca();
+  return h;}
+
+/* ---------- Komposisi jenis ---------- */
+function vPhJenis(){
+  const g=phGuard();if(g)return g;
+  const tab=state.phJenisTab||'kelompok', KG=PENGHARGAAN.kelompok||[], KLS=PENGHARGAAN.kelas||[];
+  let h=phTabBar('phjenistab',tab,[['kelompok','Tiga Kelompok'],['kelas','Rincian Kelas'],['pemberi','Tingkat Pemberi']]);
+  if(tab==='kelas'){
+    const R=KLS.slice().sort(function(a,b){return b.n-a.n;});
+    const mx=Math.max.apply(null,R.map(function(x){return x.n;}).concat([1]));
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Dua Puluh Satu Kelas Hasil Pembakuan</h2>'+
+      R.map(function(x){return '<div class="bar-row"><div class="name" title="'+esc(x.label)+'">'+esc(x.label)+'</div><div class="track"><div class="fill" style="width:'+Math.max(2,Math.round(100*x.n/mx))+'%;background:'+PH_WARNA[x.kelompok]+'"></div></div><div class="num">'+fmt(x.n)+' &middot; '+fmt(x.pegawai)+' org</div></div>';}).join('')+
+      '<div class="mini" style="margin-top:6px">Nama penghargaan di sumber ditulis dalam '+fmt(PENGHARGAAN.kualitas.ragamNamaAwal)+' ragam ejaan, lalu dibakukan lewat kata kunci ke kelas-kelas ini. Yang tidak terkenali tinggal '+d1(PENGHARGAAN.kualitas.pctLainnya)+' persen. Warna mengikuti kelompoknya.</div></div>';
+  } else if(tab==='pemberi'){
+    const T=PENGHARGAAN.tingkatPemberi||[];
+    const mx=Math.max.apply(null,T.map(function(x){return x.n;}).concat([1]));
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Siapa yang Memberi Penghargaan Prestasi</h2>'+
+      T.map(function(x){return bar(x.label,x.n,mx,'',d1(x.pct)+'% &middot; '+fmt(x.n));}).join('')+
+      '<div class="mini" style="margin-top:6px">Hanya penghargaan non-otomatis yang dihitung, sebab Satyalancana selalu dari Presiden. Pemberi dibakukan ke tingkatnya, bukan nama pejabatnya. Lebih dari separuh berasal dari pimpinan Eselon I dan kepala kantor, yang menegaskan bahwa sistem penghargaan yang hidup adalah sistem tingkat unit.</div></div>';
+  } else {
+    const dKel=['otomatis','resmi','diskresi'].map(function(k){var x=KG.find(function(y){return y.kode===k;})||{n:0};return {v:x.n,c:PH_WARNA[k]};});
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Otomatis, Resmi, dan Berbasis Keputusan</h2>'+
+      '<div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap"><div style="flex:0 0 auto">'+donut(dKel,160,{big:fmt(PENGHARGAAN.meta.riwayat),small:'RIWAYAT'})+'</div><div style="flex:1;min-width:280px">'+
+      KG.map(function(x){return '<div style="display:flex;align-items:center;gap:8px;margin:6px 0"><span style="width:12px;height:12px;border-radius:3px;background:'+PH_WARNA[x.kode]+';display:inline-block"></span><span style="flex:1">'+esc(x.label)+'</span><b>'+fmt(x.n)+'</b><span class="mini">'+d1(x.pct)+'%</span></div>';}).join('')+
+      '</div></div>'+
+      '<div class="mini" style="margin-top:6px">Tiga kelompok ini bobotnya tidak setara dan tidak boleh dijumlahkan sebagai ukuran prestasi. Yang otomatis mengukur masa kerja, yang resmi mengukur seleksi Kementerian, dan yang berbasis keputusan mencampur segala tingkat dari sertifikat kantor sampai penghargaan internasional.</div></div>';
+  }
+  h+=phCatatanBaca();
+  return h;}
+
+/* ---------- Tren tahunan ---------- */
+function vPhTren(){
+  const g=phGuard();if(g)return g;
+  const T=(PENGHARGAAN.tahunan||[]).filter(function(x){return x.tahun>=2015;}), tab=state.phTrenTab||'kurva';
+  const lbl=T.map(function(x){return String(x.tahun)+(x.berjalan?'*':'');});
+  let h=phTabBar('phtrentab',tab,[['kurva','Kurva Tahunan'],['nagara','Nagara Dana'],['tabel','Rincian per Tahun']]);
+  if(tab==='nagara'){
+    const ND=PENGHARGAAN.nagaraDana||[], th=[];
+    ND.forEach(function(x){Object.keys(x.perTahun).forEach(function(y){if(th.indexOf(y)<0)th.push(y);});});th.sort();
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Penghargaan Resmi KMK 325 per Tahun</h2><div class="tblw"><table><thead><tr><th style="text-align:left;min-width:200px">Jenis</th>'+
+      th.map(function(y){return '<th style="text-align:right">'+y+(String(y)==='2026'?'*':'')+'</th>';}).join('')+'<th style="text-align:right">Jumlah</th></tr></thead><tbody>'+
+      ND.map(function(x){var tot=0;return '<tr><td>'+esc(x.label)+'</td>'+th.map(function(y){var v=x.perTahun[y]||0;tot+=v;return '<td style="text-align:right">'+(v?fmt(v):'<span class="mini">0</span>')+'</td>';}).join('')+'<td style="text-align:right"><b>'+fmt(tot)+'</b></td></tr>';}).join('')+
+      '</tbody></table></div><div class="mini" style="margin-top:6px">Tanda bintang menandai tahun berjalan yang datanya belum utuh. Nagara Dana Abyakta ditujukan pada unit kerja, sehingga baris pegawai yang mencatatnya adalah anggota unit penerima.</div></div>';
+    h+='<div class="note-box" style="margin-top:14px">Sistem resmi baru berjalan sejak 2022 dan jumlahnya masih ratusan setahun, sementara penghargaan berbasis keputusan secara keseluruhan sudah ribuan. Modul ini bisa dipakai memantau apakah bagian sistem resmi membesar dari tahun ke tahun, yang menjadi ukuran apakah penyeragaman menurut buku manual berjalan.</div>';
+  } else if(tab==='tabel'){
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Jumlah Riwayat per Tahun</h2><div class="tblw"><table><thead><tr><th style="text-align:left">Tahun</th>'+
+      '<th style="text-align:right">Otomatis</th><th style="text-align:right">Resmi KMK 325</th><th style="text-align:right">Prestasi dan apresiasi</th><th style="text-align:right">Total</th><th style="text-align:right">Bagian berbasis keputusan</th></tr></thead><tbody>'+
+      T.map(function(x){var bk=x.total?100*(x.resmi+x.diskresi)/x.total:0;return '<tr'+(x.berjalan?' style="opacity:.7"':'')+'><td>'+x.tahun+(x.berjalan?' <span class="mini">(berjalan, belum utuh)</span>':'')+'</td><td style="text-align:right">'+fmt(x.otomatis)+'</td><td style="text-align:right">'+fmt(x.resmi)+'</td><td style="text-align:right">'+fmt(x.diskresi)+'</td><td style="text-align:right"><b>'+fmt(x.total)+'</b></td><td style="text-align:right">'+d1(bk)+'%</td></tr>';}).join('')+
+      '</tbody></table></div><div class="mini" style="margin-top:6px">Tahun mengikuti tahun penghargaan yang dicatat pegawai, bukan tahun pengunggahan. Satyalancana 2026 baru dua baris karena pemrosesannya berjalan berbatch dan belum masuk PILAR.</div></div>';
+  } else {
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Otomatis dan Berbasis Keputusan, Tahun demi Tahun</h2>'+
+      cutiLine(lbl,[{n:'Otomatis',v:T.map(function(x){return x.otomatis;}),c:PH_WARNA.otomatis,area:true},{n:'Prestasi dan apresiasi',v:T.map(function(x){return x.diskresi;}),c:PH_WARNA.diskresi,area:true}],{w:760,h:250,pR:120})+
+      '<div class="mini" style="margin-top:6px">Tanda bintang menandai tahun berjalan yang datanya belum utuh. Penghargaan berbasis keputusan naik belasan kali lipat sejak 2015, dan lonjakannya sejak 2021 bertepatan dengan makin rutinnya pengunggahan riwayat ke PILAR, sehingga sebagian kenaikan adalah kenaikan pencatatan, bukan pemberian.</div></div>';
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Sistem Resmi KMK 325 pada Skalanya Sendiri</h2>'+
+      cutiLine(lbl,[{n:'Nagara Dana',v:T.map(function(x){return x.resmi;}),c:PH_WARNA.resmi,area:true}],{w:760,h:200,pR:90})+
+      '<div class="mini" style="margin-top:6px">Digambar terpisah karena skalanya ratusan, bukan ribuan; bila disatukan dengan kurva di atas garisnya nyaris tidak terlihat. Rinciannya per jenis ada pada tab Nagara Dana.</div></div>';
+  }
+  h+=phCatatanBaca();
+  return h;}
+
+/* ---------- Rujukan KMK 325 ---------- */
+function vPhRujukan(){
+  const g=phGuard();if(g)return g;
+  const R=PENGHARGAAN.rujukan||{};
+  let h=pgHead('Sistem Penghargaan Kementerian Keuangan',
+    '<p>Rujukan ini disarikan dari Buku Manual Penghargaan Biro SDM 2026, yang menyusun panduan pelaksanaan penilaian dan pengusulan berdasarkan '+esc((R.dasar||[]).join(' dan '))+'. Halaman ini pembanding bagi apa yang terjadi di lapangan: sistem resmi yang diatur di sini baru menyumbang sebagian kecil riwayat, dan modul ini mengukur apakah bagian itu membesar.</p>');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Sebelas Jenis Penghargaan</h2><div class="tblw"><table><thead><tr>'+
+    '<th style="text-align:left;min-width:180px">Jenis</th><th style="text-align:left">Sasaran</th><th style="text-align:left">Kriteria utama</th><th style="text-align:left">Syarat disiplin</th><th style="text-align:left">Syarat kinerja</th></tr></thead><tbody>'+
+    (R.jenis||[]).map(function(x){return '<tr><td><b>'+esc(x.nama)+'</b></td><td>'+esc(x.sasaran)+'</td><td>'+esc(x.kriteria)+'</td><td>'+esc(x.disiplin||'-')+'</td><td>'+esc(x.kinerja||'-')+'</td></tr>';}).join('')+
+    '</tbody></table></div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Delapan Kategori Prestasi atau Inovasi</h2><div class="tblw"><table><thead><tr><th style="text-align:left;min-width:220px">Kategori</th><th style="text-align:left">Cakupan</th></tr></thead><tbody>'+
+    (R.kategoriPrestasi||[]).map(function(x){return '<tr><td><b>'+esc(x[0])+'</b></td><td>'+esc(x[1])+'</td></tr>';}).join('')+
+    '</tbody></table></div><div class="mini" style="margin-top:6px">Bila pegawai atau tim memiliki beberapa prestasi, dipilih satu kategori dengan dampak terbesar.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Aspek Penilaian dan Alur Pengusulan</h2>'+
+    '<p style="margin:0 0 8px"><b>Tujuh aspek penilaian umum:</b> '+esc((R.aspekPenilaian||[]).join('; '))+'. Penilaian khusus mengukur dampak sesuai kategorinya, berbasis bukti melalui Kertas Kerja Penilaian.</p>'+
+    (R.alur||[]).map(function(x,i){return '<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)"><span style="min-width:24px;font-weight:800;color:var(--brand)">'+(i+1)+'</span><span>'+esc(x)+'</span></div>';}).join('')+
+    '<div class="mini" style="margin-top:8px">Tenggat penyampaian usulan dari Unit Eselon I kepada Kepala Biro SDM selaku Sekretaris Komite Penghargaan: <b>'+esc(R.tenggat||'')+'</b>. Dokumen pendukung: Kertas Kerja Penilaian, ringkasan prestasi, video paling lama tiga menit, dan bukti capaian.</div></div>';
+  return h;}
+
+/* ---------- Tentang data ---------- */
+function vPhTentang(){
+  const g=phGuard();if(g)return g;
+  const M=PENGHARGAAN.meta, Q=PENGHARGAAN.kualitas||{}, S=PENGHARGAAN.status||[];
+  let h='<div class="card"><h2 class="sec" style="margin-top:0">Sumber dan Cakupan</h2>'+
+    '<p style="margin:0 0 6px">'+esc(M.sumber||'')+'. Masa kerja dihitung per '+esc(M.posisiData)+'.</p>'+
+    '<p style="margin:0">Berkas sumber adalah ekspor induk seluruh '+fmt(M.pegawai)+' pegawai, masing-masing dengan sepuluh slot riwayat penghargaan. Justru karena memuat semua orang, termasuk yang tidak pernah menerima apa pun, ia bisa menjawab seberapa merata penghargaan sampai, yang tidak terjawab oleh daftar penerima biasa.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Pembersihan dan Mutu Data</h2><div class="tblw"><table><tbody>'+
+    '<tr><td>Slot penghargaan terisi</td><td style="text-align:right">'+fmt(Q.slotTerisi)+'</td></tr>'+
+    '<tr><td>Slot berisi teks NULL, dibuang</td><td style="text-align:right">'+fmt(Q.slotNull)+'</td></tr>'+
+    '<tr><td>Duplikat persis dalam satu orang, dibuang</td><td style="text-align:right">'+fmt(Q.duplikatDibuang)+'</td></tr>'+
+    '<tr><td>Riwayat bersih yang dipakai</td><td style="text-align:right"><b>'+fmt(M.riwayat)+'</b></td></tr>'+
+    '<tr><td>Tahun tidak sah, dikosongkan</td><td style="text-align:right">'+fmt(Q.tahunTidakSah)+'</td></tr>'+
+    '<tr><td>Pemberi tidak terisi</td><td style="text-align:right">'+fmt(Q.pemberiKosong)+'</td></tr>'+
+    '<tr><td>Pegawai dengan riwayat terpotong pada sepuluh slot</td><td style="text-align:right">'+fmt(Q.terpotong)+'</td></tr>'+
+    '<tr><td>Ragam ejaan nama penghargaan sebelum dibakukan</td><td style="text-align:right">'+fmt(Q.ragamNamaAwal)+'</td></tr>'+
+    '<tr><td>Ragam ejaan pemberi sebelum dibakukan</td><td style="text-align:right">'+fmt(Q.ragamPemberiAwal)+'</td></tr>'+
+    '<tr><td>Riwayat yang tidak terkenali kelasnya</td><td style="text-align:right">'+fmt(Q.kelasLainnya)+' ('+d1(Q.pctLainnya)+'%)</td></tr>'+
+    '<tr><td>Pemberi yang tidak terkenali tingkatnya</td><td style="text-align:right">'+fmt(Q.tingkatTidakDikenali)+' ('+d1(Q.pctTingkatTidakDikenali)+'%)</td></tr>'+
+    '</tbody></table></div><div class="mini" style="margin-top:6px">Status pegawai pada berkas: '+S.map(function(x){return esc(x.status)+' '+fmt(x.n);}).join('; ')+'.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Cara Membakukan</h2>'+
+    '<p style="margin:0 0 6px">Nama penghargaan dibakukan menjadi kelas lewat kata kunci, diurutkan dari yang paling khusus ke yang paling umum, supaya misalnya Piagam Penghargaan Prestasi Kategori Amat Baik jatuh ke kelas Amat Baik dan bukan ke Piagam. Singkatan SLKS dan salah ketik Negara Dana dibakukan lebih dulu. Pemberi dibakukan ke tingkatnya, bukan nama pejabatnya.</p>'+
+    '<p style="margin:0">Kelas dikelompokkan menjadi tiga: otomatis (Satyalancana dan tanda kehormatan lain yang berbasis masa kerja), resmi (Nagara Dana menurut KMK 325), dan prestasi atau apresiasi (segala yang melibatkan keputusan). Ketiganya tidak pernah dijumlahkan sebagai ukuran prestasi.</p></div>';
+  h+='<div class="note-box warn" style="margin-top:14px"><b>Batasan yang perlu diingat.</b> '+esc(M.prinsip||'')+' Riwayat '+fmt(Q.terpotong)+' pegawai terpotong pada sepuluh slot dan tidak bisa dipulihkan dari berkas ini. Tahun berjalan belum utuh.</div>'+
+    '<div class="note-box" style="margin-top:14px"><b>Privasi.</b> '+esc(M.privasi||'')+' Modul ini sengaja tidak memuat daftar penerima maupun skor per orang.</div>';
+  return h;}
 
 /* ==================== MODUL SUKSESI & REGENERASI (domain SDM) ====================
    Data: suksesi.json (build_suksesi.py) - AGREGAT pejabat Eselon II sampai IV per 1 Agustus
@@ -11437,6 +11708,10 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
        daftarnya keluar di layar yang sama; kalau salah, kotak isian muncul lagi. */
     state.nomTok=pw;state.nomRows=null;state.nomInfo=null;nomAmbil();}
   else if(a==='suktempotab'){state.sukTempoTab=el.dataset.tab;render();}
+  else if(a==='phunittab'){state.phUnitTab=el.dataset.tab;render();}
+  else if(a==='phprofiltab'){state.phProfilTab=el.dataset.tab;render();}
+  else if(a==='phjenistab'){state.phJenisTab=el.dataset.tab;render();}
+  else if(a==='phtrentab'){state.phTrenTab=el.dataset.tab;render();}
   else if(a==='suksimtab'){state.sukSimTab=el.dataset.tab;render();}
   else if(a==='suksimgeser'){state.sukSimGeser=+el.dataset.m;render();}
   else if(a==='suksimsasaran'){state.sukSimSasaran=el.dataset.m;render();}
@@ -11562,7 +11837,8 @@ const MUAT_INFO={
   pw     :{lab:'Pelimpahan Wewenang',   byte:  580000, detik:[2,8]},
   mofin  :{lab:'Kapabilitas Kelembagaan',byte: 680000, detik:[2,8]},
   cuti   :{lab:'Analitik Cuti',         byte:  180000, detik:[2,6]},
-  suksesi:{lab:'Suksesi & Regenerasi',  byte:   80000, detik:[2,6]}
+  suksesi:{lab:'Suksesi & Regenerasi',  byte:   80000, detik:[2,6]},
+  penghargaan:{lab:'Penghargaan & Apresiasi', byte: 18000, detik:[1,4]}
 };
 let MUAT={aktif:false,lab:'',fase:'',mulai:0,byte:0,perkiraan:0,rentang:null,_t:null};
 function _mb(n){return (n/1048576).toFixed(1).replace('.',',');}
