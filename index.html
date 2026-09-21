@@ -441,6 +441,10 @@ td.num-c,th.num-c{font-variant-numeric:tabular-nums}
    memberi izin menyusut saat ruangnya memang tidak cukup. */
 .bar-row{display:grid;grid-template-columns:minmax(0,200px) minmax(24px,1fr) minmax(0,auto);align-items:center;gap:var(--sp-5);margin:9px 0;font-size:var(--fs-md)}
 .bar-row>*{min-width:0}
+/* Modul Penghargaan: nama unit dan kelas panjang ("Direktorat Jenderal Pengelolaan Pembiayaan
+   dan Risiko", "Satyalancana Karya Satya 30 tahun"), jadi kolom namanya diberi ruang lebih. */
+.ph-lebar .bar-row{grid-template-columns:minmax(0,300px) minmax(24px,1fr) minmax(0,auto)}
+.ph-lebar .bar-row .name{white-space:normal;line-height:1.25}   /* nama 50+ huruf boleh dua baris, jangan dipotong */
 .bar-row .name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar-row .name.clk{cursor:pointer;transition:all var(--t-fast) ease}
 .bar-row .name.clk:hover{color:var(--brand);text-decoration:underline}
@@ -9507,15 +9511,21 @@ function vCutiTentang(){
    DIBERIKAN, jadi seluruh cakupan adalah cakupan pencatatan; (2) Satyalancana Karya Satya
    diberikan otomatis menurut masa kerja, sehingga pembacaan prestasi selalu menyisihkannya.
    Keputusan Donny 21 Sep 2026: tidak ada daftar penerima per orang dan tidak ada skor individu. */
-const PH_WARNA={otomatis:'var(--seq-2)',resmi:'var(--st-warn)',diskresi:'var(--brand)'};
+/* Abu untuk yang otomatis (tidak melibatkan keputusan), emas untuk yang resmi (seremonial
+   Kementerian), biru merek untuk yang berbasis keputusan. Sebelumnya otomatis memakai
+   --seq-2 yang di mode terang pucat, sehingga kelompok TERBESAR justru tampak paling lemah. */
+const PH_WARNA={otomatis:'var(--slate)',resmi:'var(--gold)',diskresi:'var(--brand)'};
+const PH_PENDEK={otomatis:'Otomatis (masa kerja)',resmi:'Resmi KMK 325',diskresi:'Prestasi dan apresiasi'};
 function phGuard(){
   if(state.phErr)return '<div class="empty">Gagal memuat data penghargaan'+(state.phErrMsg?': '+esc(state.phErrMsg):'')+'.'+
     (/aksi tidak dikenal/i.test(state.phErrMsg||'')?' Gerbang Apps Script belum memuat rute <b>penghargaan</b>; periksa baris rute di doPost dan pastikan deploy memakai New version.':'')+
     ' <span class="tag link" data-act="phulang">Coba lagi &rsaquo;</span></div>';
   if(!PENGHARGAAN)return skelMemuat('Memuat data penghargaan...');
   return null;}
-function phTahan(v){return (v===-1||v==null)?'<span class="mini">ditahan</span>':fmt(v);}
-function phPct(v){return (v==null)?'<span class="mini">ditahan</span>':(d1(v)+'%');}
+/* Sel berjumlah kurang dari lima orang dirahasiakan supaya tidak mengarah ke orang tertentu.
+   Di layar ditulis "< 5 orang", bukan istilah dapur seperti "ditahan". */
+function phTahan(v){return (v===-1||v==null)?'<span class="mini" title="Dirahasiakan: isinya kurang dari lima orang">&lt; 5 orang</span>':fmt(v);}
+function phPct(v){return (v==null)?'<span class="mini" title="Tidak dihitung: isinya kurang dari lima orang">-</span>':(d1(v)+'%');}
 function phKelas(k){var x=(PENGHARGAAN.kelas||[]).find(function(y){return y.kode===k;});return x?x.label:k;}
 function phCatatanBaca(){
   return '<div class="note-box" style="margin-top:14px"><b>Dua rambu membaca angka di modul ini.</b> Pertama, PILAR mencatat penghargaan yang <b>dilaporkan</b> pegawai, bukan yang diberikan; pegawai yang tidak pernah mengunggah riwayatnya tampak seolah tidak pernah menerima apa pun, sehingga seluruh cakupan adalah cakupan pencatatan. Kedua, Satyalancana Karya Satya diberikan otomatis menurut masa kerja, sehingga setiap pembacaan prestasi menyisihkannya.</div>';}
@@ -9551,8 +9561,8 @@ function vPh(){
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Tiga Kelompok Penghargaan</h2>'+
     '<div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">'+
     '<div style="flex:0 0 auto">'+donut(dKel,150,{big:fmt(M.riwayat),small:'RIWAYAT'})+'</div>'+
-    '<div style="flex:1;min-width:300px">'+
-    KG.map(function(x){return '<div class="bar-row"><div class="name" title="'+esc(x.label)+'">'+esc(x.label)+'</div><div class="track"><div class="fill" style="width:'+Math.max(2,Math.round(x.pct))+'%;background:'+PH_WARNA[x.kode]+'"></div></div><div class="num">'+d1(x.pct)+'% &middot; '+fmt(x.n)+'</div></div>';}).join('')+
+    '<div style="flex:1;min-width:300px" class="ph-lebar">'+
+    KG.map(function(x){return '<div class="bar-row"><div class="name" title="'+esc(x.label)+'">'+esc(PH_PENDEK[x.kode]||x.label)+'</div><div class="track"><div class="fill" style="width:'+Math.max(2,Math.round(x.pct))+'%;background:'+PH_WARNA[x.kode]+'"></div></div><div class="num">'+d1(x.pct)+'% &middot; '+fmt(x.n)+'</div></div>';}).join('')+
     '<div class="mini" style="margin-top:8px">Delapan kelas penghargaan prestasi terbanyak:</div>'+
     KLS.map(function(x){return bar(x.label,x.n,mxK,'',fmt(x.n)+' riwayat');}).join('')+
     '</div></div>'+
@@ -9569,24 +9579,23 @@ function vPhUnit(){
   if(tab==='intensitas'){
     const R=U.slice().sort(function(a,b){return b.riwayatPer100-a.riwayatPer100;});
     const mx=Math.max.apply(null,R.map(function(x){return x.riwayatPer100;}).concat([1]));
-    h+='<div class="card"><h2 class="sec" style="margin-top:0">Riwayat Penghargaan Prestasi per Seratus Pegawai</h2>'+
+    h+='<div class="card ph-lebar"><h2 class="sec" style="margin-top:0">Riwayat Penghargaan Prestasi per Seratus Pegawai</h2>'+
       R.map(function(x){return bar(x.unit,x.riwayatPer100,mx,'',d1(x.riwayatPer100)+' &middot; '+fmt(x.riwayatPrestasi)+' riwayat');}).join('')+
       '<div class="mini" style="margin-top:6px">Ukuran ini menghitung riwayat, bukan orang, sehingga satu pegawai yang menerima sepuluh kali dihitung sepuluh. Ia melengkapi cakupan: unit dengan cakupan serupa bisa berbeda jauh intensitasnya bila penghargaannya menumpuk pada orang yang sama.</div></div>';
   } else if(tab==='tabel'){
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Rincian per Unit Eselon I</h2><div class="tblw"><table><thead><tr>'+
-      '<th style="text-align:left;min-width:215px">Unit Eselon I</th><th style="text-align:right">Pegawai</th><th style="text-align:right">Pernah apa pun</th>'+
-      '<th style="text-align:right">Pernah prestasi</th><th style="text-align:right">Cakupan prestasi</th><th style="text-align:right">Selisih thd Kementerian</th>'+
-      '<th style="text-align:right">Pernah Nagara Dana</th><th style="text-align:right">Riwayat prestasi</th><th style="text-align:right">Per 100 pegawai</th><th style="text-align:left">Kelas terbanyak</th></tr></thead><tbody>'+
+      '<th style="text-align:left;min-width:260px">Unit Eselon I</th><th style="text-align:right">Pegawai</th><th style="text-align:right">Pernah menerima</th>'+
+      '<th style="text-align:right">Pernah prestasi</th><th style="text-align:right">Cakupan</th><th style="text-align:right">Selisih</th>'+
+      '<th style="text-align:right">Nagara Dana</th><th style="text-align:right">Riwayat</th><th style="text-align:right">Per 100</th></tr></thead><tbody>'+
       U.map(function(x){const d=x.pctPrestasi-C.pctPrestasi;
         return '<tr><td>'+esc(x.unit)+'</td><td style="text-align:right">'+fmt(x.pegawai)+'</td><td style="text-align:right">'+fmt(x.punyaApaPun)+'</td>'+
         '<td style="text-align:right">'+fmt(x.punyaPrestasi)+'</td><td style="text-align:right"><b>'+d1(x.pctPrestasi)+'%</b></td>'+
         '<td style="text-align:right;'+(d>=5?'color:var(--st-good)':(d<=-5?'color:var(--st-critical)':''))+'">'+(d>0?'+':'')+d1(d)+' poin</td>'+
-        '<td style="text-align:right">'+phTahan(x.punyaResmi)+'</td><td style="text-align:right">'+fmt(x.riwayatPrestasi)+'</td><td style="text-align:right">'+d1(x.riwayatPer100)+'</td>'+
-        '<td>'+(x.kelasTeratas||[]).map(function(k){return esc(phKelas(k.kode))+' ('+fmt(k.n)+')';}).join(', ')+'</td></tr>';}).join('')+
-      '</tbody></table></div><div class="mini" style="margin-top:6px">Satuan kecil di bawah '+PENGHARGAAN.meta.minUnit+' pegawai digabung menjadi satu baris. Sel bertulis ditahan berisi kurang dari '+PENGHARGAAN.meta.minSel+' orang. Pembanding Kementerian adalah '+d1(C.pctPrestasi)+' persen.</div></div>';
+        '<td style="text-align:right">'+phTahan(x.punyaResmi)+'</td><td style="text-align:right">'+fmt(x.riwayatPrestasi)+'</td><td style="text-align:right">'+d1(x.riwayatPer100)+'</td></tr>';}).join('')+
+      '</tbody></table></div><div class="mini" style="margin-top:6px"><b>Pernah menerima</b> = pegawai yang pernah tercatat menerima penghargaan apa pun, termasuk Satyalancana. <b>Pernah prestasi</b> = pegawai yang pernah menerima penghargaan berbasis prestasi, tanpa Satyalancana. <b>Cakupan</b> = pernah prestasi dibagi pegawai. <b>Selisih</b> = cakupan unit dikurangi cakupan Kementerian ('+d1(C.pctPrestasi)+' persen), dalam poin. <b>Nagara Dana</b> = pegawai yang pernah menerima penghargaan resmi KMK 325. <b>Riwayat</b> = jumlah riwayat penghargaan prestasi. <b>Per 100</b> = riwayat per seratus pegawai. Satuan kecil di bawah '+PENGHARGAAN.meta.minUnit+' pegawai digabung menjadi satu baris; sel bertanda &lt; 5 orang dirahasiakan.</div></div>';
   } else {
     const mx=Math.max.apply(null,U.map(function(x){return x.pctPrestasi;}).concat([1]));
-    h+='<div class="card"><h2 class="sec" style="margin-top:0">Bagian Pegawai yang Pernah Menerima Penghargaan Prestasi</h2>'+
+    h+='<div class="card ph-lebar"><h2 class="sec" style="margin-top:0">Bagian Pegawai yang Pernah Menerima Penghargaan Prestasi</h2>'+
       U.map(function(x){return bar(x.unit,x.pctPrestasi,mx,'',d1(x.pctPrestasi)+'% &middot; '+fmt(x.punyaPrestasi)+' dari '+fmt(x.pegawai));}).join('')+
       '<div class="mini" style="margin-top:6px">Pembanding Kementerian '+d1(C.pctPrestasi)+' persen. Satyalancana Karya Satya disisihkan karena diberikan otomatis menurut masa kerja. Dua unit terbesar berada di ujung yang berlawanan, dan selisih sebesar itu hampir pasti mencerminkan budaya memberi dan mencatat penghargaan, bukan perbedaan prestasi pegawainya.</div></div>';
   }
@@ -9605,15 +9614,15 @@ function vPhProfil(){
       G.map(function(x){return bar(x.kelompok,x.pctPrestasi,mx,'',d1(x.pctPrestasi)+'% dari '+fmt(x.pegawai)+' pegawai');}).join('')+'</div>';
     const jen=[];JG.forEach(function(x){if(jen.indexOf(x.jenjang)<0)jen.push(x.jenjang);});
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Selisihnya Ada di Lapisan Mana</h2><div class="tblw"><table><thead><tr>'+
-      '<th style="text-align:left;min-width:150px">Jenjang</th><th style="text-align:right">Laki-laki</th><th style="text-align:right">Cakupan</th>'+
-      '<th style="text-align:right">Perempuan</th><th style="text-align:right">Cakupan</th><th style="text-align:right">Selisih</th></tr></thead><tbody>'+
+      '<th style="text-align:left;min-width:150px">Jenjang</th><th style="text-align:right">Laki-laki (orang)</th><th style="text-align:right">Laki-laki (%)</th>'+
+      '<th style="text-align:right">Perempuan (orang)</th><th style="text-align:right">Perempuan (%)</th><th style="text-align:right">Selisih (poin)</th></tr></thead><tbody>'+
       jen.map(function(j){
         const L=JG.find(function(x){return x.jenjang===j&&x.jk==='Laki-laki';})||{}, Pp=JG.find(function(x){return x.jenjang===j&&x.jk==='Perempuan';})||{};
         const d=(L.pctPrestasi!=null&&Pp.pctPrestasi!=null)?(L.pctPrestasi-Pp.pctPrestasi):null;
         return '<tr><td>'+esc(j)+'</td><td style="text-align:right">'+phTahan(L.pegawai)+'</td><td style="text-align:right">'+phPct(L.pctPrestasi)+'</td>'+
           '<td style="text-align:right">'+phTahan(Pp.pegawai)+'</td><td style="text-align:right">'+phPct(Pp.pctPrestasi)+'</td>'+
           '<td style="text-align:right;'+(d!=null&&Math.abs(d)>=3?'font-weight:600':'')+'">'+(d==null?'-':((d>0?'+':'')+d1(d)+' poin'))+'</td></tr>';}).join('')+
-      '</tbody></table></div><div class="mini" style="margin-top:6px">Selisih dihitung laki-laki dikurangi perempuan, dalam poin persentase. Sel bertulis ditahan berisi kurang dari '+PENGHARGAAN.meta.minSel+' orang.</div></div>';
+      '</tbody></table></div><div class="mini" style="margin-top:6px">Persen = bagian pegawai pada jenjang dan jenis kelamin itu yang pernah menerima penghargaan prestasi. Selisih = laki-laki dikurangi perempuan, dalam poin persentase. Sel bertanda &lt; 5 orang dirahasiakan karena isinya terlalu sedikit.</div></div>';
     h+='<div class="note-box" style="margin-top:14px"><b>Pemecahan per jenjang mengubah cara membaca angka totalnya.</b> Selisih pada angka keseluruhan tidak berasal dari lapisan pimpinan: di Eselon II dan III cakupan laki-laki dan perempuan praktis setara. Selisihnya menumpuk di lapisan Pelaksana dan Fungsional. Data ini tidak bisa menjelaskan sebabnya; salah satu dugaan yang layak ditelusuri adalah penghargaan tingkat kantor lebih banyak diberikan pada fungsi yang kebetulan didominasi laki-laki, misalnya penindakan dan pengawasan.</div>';
   } else if(tab==='masakerja'){
     const MK=PENGHARGAAN.perMasaKerja||[];
@@ -9628,7 +9637,7 @@ function vPhProfil(){
   } else {
     const J=PENGHARGAAN.perJenjang||[];
     const mx=Math.max.apply(null,J.map(function(x){return x.pctPrestasi;}).concat([1]));
-    h+='<div class="card"><h2 class="sec" style="margin-top:0">Cakupan Penghargaan Prestasi menurut Jenjang Jabatan</h2>'+
+    h+='<div class="card ph-lebar"><h2 class="sec" style="margin-top:0">Cakupan Penghargaan Prestasi menurut Jenjang Jabatan</h2>'+
       J.map(function(x){return bar(x.kelompok,x.pctPrestasi,mx,'',d1(x.pctPrestasi)+'% dari '+fmt(x.pegawai)+' pegawai');}).join('')+
       '<div class="mini" style="margin-top:6px">Pembanding Kementerian '+d1(C.pctPrestasi)+' persen. Cakupan menanjak rapi ke atas: makin tinggi jenjang, makin besar peluang pernah tercatat menerima penghargaan prestasi. Eselon I hanya enam belas orang, sehingga angkanya mudah berayun.</div></div>';
   }
@@ -9643,13 +9652,13 @@ function vPhJenis(){
   if(tab==='kelas'){
     const R=KLS.slice().sort(function(a,b){return b.n-a.n;});
     const mx=Math.max.apply(null,R.map(function(x){return x.n;}).concat([1]));
-    h+='<div class="card"><h2 class="sec" style="margin-top:0">Dua Puluh Satu Kelas Hasil Pembakuan</h2>'+
+    h+='<div class="card ph-lebar"><h2 class="sec" style="margin-top:0">Dua Puluh Satu Kelas Hasil Pembakuan</h2>'+
       R.map(function(x){return '<div class="bar-row"><div class="name" title="'+esc(x.label)+'">'+esc(x.label)+'</div><div class="track"><div class="fill" style="width:'+Math.max(2,Math.round(100*x.n/mx))+'%;background:'+PH_WARNA[x.kelompok]+'"></div></div><div class="num">'+fmt(x.n)+' &middot; '+fmt(x.pegawai)+' org</div></div>';}).join('')+
       '<div class="mini" style="margin-top:6px">Nama penghargaan di sumber ditulis dalam '+fmt(PENGHARGAAN.kualitas.ragamNamaAwal)+' ragam ejaan, lalu dibakukan lewat kata kunci ke kelas-kelas ini. Yang tidak terkenali tinggal '+d1(PENGHARGAAN.kualitas.pctLainnya)+' persen. Warna mengikuti kelompoknya.</div></div>';
   } else if(tab==='pemberi'){
     const T=PENGHARGAAN.tingkatPemberi||[];
     const mx=Math.max.apply(null,T.map(function(x){return x.n;}).concat([1]));
-    h+='<div class="card"><h2 class="sec" style="margin-top:0">Siapa yang Memberi Penghargaan Prestasi</h2>'+
+    h+='<div class="card ph-lebar"><h2 class="sec" style="margin-top:0">Siapa yang Memberi Penghargaan Prestasi</h2>'+
       T.map(function(x){return bar(x.label,x.n,mx,'',d1(x.pct)+'% &middot; '+fmt(x.n));}).join('')+
       '<div class="mini" style="margin-top:6px">Hanya penghargaan non-otomatis yang dihitung, sebab Satyalancana selalu dari Presiden. Pemberi dibakukan ke tingkatnya, bukan nama pejabatnya. Lebih dari separuh berasal dari pimpinan Eselon I dan kepala kantor, yang menegaskan bahwa sistem penghargaan yang hidup adalah sistem tingkat unit.</div></div>';
   } else {
@@ -9667,7 +9676,11 @@ function vPhJenis(){
 function vPhTren(){
   const g=phGuard();if(g)return g;
   const T=(PENGHARGAAN.tahunan||[]).filter(function(x){return x.tahun>=2015;}), tab=state.phTrenTab||'kurva';
-  const lbl=T.map(function(x){return String(x.tahun)+(x.berjalan?'*':'');});
+  /* Kurva memakai tahun yang UTUH saja. Tahun berjalan baru berisi sebagian (Satyalancana 2026
+     bahkan baru dua baris), sehingga bila ikut digambar garisnya menukik ke nol dan terbaca
+     seolah penghargaan berhenti. Tahun berjalan tetap tampil di tabel dengan penanda. */
+  const TK=T.filter(function(x){return !x.berjalan;});
+  const lbl=TK.map(function(x){return String(x.tahun);});
   let h=phTabBar('phtrentab',tab,[['kurva','Kurva Tahunan'],['nagara','Nagara Dana'],['tabel','Rincian per Tahun']]);
   if(tab==='nagara'){
     const ND=PENGHARGAAN.nagaraDana||[], th=[];
@@ -9684,10 +9697,10 @@ function vPhTren(){
       '</tbody></table></div><div class="mini" style="margin-top:6px">Tahun mengikuti tahun penghargaan yang dicatat pegawai, bukan tahun pengunggahan. Satyalancana 2026 baru dua baris karena pemrosesannya berjalan berbatch dan belum masuk PILAR.</div></div>';
   } else {
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Otomatis dan Berbasis Keputusan, Tahun demi Tahun</h2>'+
-      cutiLine(lbl,[{n:'Otomatis',v:T.map(function(x){return x.otomatis;}),c:PH_WARNA.otomatis,area:true},{n:'Prestasi dan apresiasi',v:T.map(function(x){return x.diskresi;}),c:PH_WARNA.diskresi,area:true}],{w:760,h:250,pR:120})+
-      '<div class="mini" style="margin-top:6px">Tanda bintang menandai tahun berjalan yang datanya belum utuh. Penghargaan berbasis keputusan naik belasan kali lipat sejak 2015, dan lonjakannya sejak 2021 bertepatan dengan makin rutinnya pengunggahan riwayat ke PILAR, sehingga sebagian kenaikan adalah kenaikan pencatatan, bukan pemberian.</div></div>';
+      cutiLine(lbl,[{n:'Otomatis',v:TK.map(function(x){return x.otomatis;}),c:PH_WARNA.otomatis,area:true},{n:'Prestasi dan apresiasi',v:TK.map(function(x){return x.diskresi;}),c:PH_WARNA.diskresi,area:true}],{w:760,h:250,pR:130})+
+      '<div class="mini" style="margin-top:6px">Kurva memuat tahun yang datanya utuh saja; tahun berjalan ada pada tab Rincian per Tahun. Penghargaan berbasis keputusan naik belasan kali lipat sejak 2015, dan lonjakannya sejak 2021 bertepatan dengan makin rutinnya pengunggahan riwayat ke PILAR, sehingga sebagian kenaikan adalah kenaikan pencatatan, bukan pemberian.</div></div>';
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Sistem Resmi KMK 325 pada Skalanya Sendiri</h2>'+
-      cutiLine(lbl,[{n:'Nagara Dana',v:T.map(function(x){return x.resmi;}),c:PH_WARNA.resmi,area:true}],{w:760,h:200,pR:90})+
+      cutiLine(lbl,[{n:'Nagara Dana',v:TK.map(function(x){return x.resmi;}),c:PH_WARNA.resmi,area:true}],{w:760,h:200,pR:90})+
       '<div class="mini" style="margin-top:6px">Digambar terpisah karena skalanya ratusan, bukan ribuan; bila disatukan dengan kurva di atas garisnya nyaris tidak terlihat. Rinciannya per jenis ada pada tab Nagara Dana.</div></div>';
   }
   h+=phCatatanBaca();
