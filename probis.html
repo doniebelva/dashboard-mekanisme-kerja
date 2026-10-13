@@ -82,6 +82,20 @@ body{margin:0;font-family:'Aptos','Segoe UI',system-ui,-apple-system,sans-serif;
 .bar-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-l));border-radius:6px}
 .bar-row .val{font-weight:700;color:var(--navy)}
 .bar-row.zero .bar-fill{background:#cbd5e1}
+.bar-fill.stk{display:flex;background:none;border-radius:0}
+.bar-fill.stk .seg{height:100%}
+.bar-fill.stk .seg.l1{background:#0d3b66}
+.bar-fill.stk .seg.l2{background:#1f86b4}
+.bar-fill.stk .seg.l3{background:#5ec5a8}
+.pb-leg{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 15px;font-size:12px;color:var(--muted)}
+.pb-leg .lg{display:inline-flex;align-items:center;gap:7px}
+.pb-leg .sw{width:13px;height:13px;border-radius:3px;display:inline-block;flex:none}
+.pb-leg .sw.l1{background:#0d3b66}.pb-leg .sw.l2{background:#1f86b4}.pb-leg .sw.l3{background:#5ec5a8}
+.pb-leg b{color:var(--navy);font-weight:700;margin-left:2px}
+.lvtag{display:inline-block;font-size:10px;font-weight:700;color:#fff;border-radius:3px;padding:1px 5px;margin-right:7px;vertical-align:middle}
+.lvtag.l1{background:#0d3b66}.lvtag.l2{background:#1f86b4}.lvtag.l3{background:#5ec5a8;color:#0b3b30}
+body.dark .bar-fill.stk .seg.l1{background:#3a74ad}
+body.dark .pb-leg .sw.l1,body.dark .lvtag.l1{background:#3a74ad}
 .tree-ctrl{margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap}
 .btn{background:var(--teal-bg);color:var(--teal);border:1px solid #b7e0db;border-radius:7px;padding:6px 14px;font-size:12.5px;font-weight:600;cursor:pointer}
 .btn:hover{background:#d6efeb}
@@ -415,8 +429,8 @@ body.dark .howto{background:#0e302d;color:#a7efe0}
       <div class="hm-legend"><span>Rendah</span><i style="background:#e6f5f3"></i><i style="background:#9ed8d0"></i><i style="background:#43b3a6"></i><i style="background:#0d9488"></i><i style="background:#0a5f59"></i><span>Tinggi</span><span style="margin-left:16px;color:#94a3b8">|</span><i style="background:#0d9488;margin-left:6px"></i><span>Sel terisi pada baris proses = unit terlibat</span></div></div>
   </div>
   <div class="panel" id="tematik">
-    <div class="card"><h2>Distribusi Jenis Aktivitas</h2><p class="sub">Klasifikasi berdasarkan kata kerja awal nama proses. Klik batang untuk daftar prosesnya.</p><div id="actBars"></div></div>
-    <div class="card"><h2>Distribusi Tema</h2><p class="sub">Klasifikasi berdasarkan kata kunci topik (multi-label).</p><div id="themeBars"></div></div>
+    <div class="card"><h2>Distribusi Jenis Aktivitas</h2><p class="sub">Klasifikasi berdasarkan kata kerja awal nama proses, dipecah per tingkat peta proses (Level 1 sampai 3). Klik batang untuk daftar itemnya.</p><div id="actBars"></div></div>
+    <div class="card"><h2>Distribusi Tema</h2><p class="sub">Klasifikasi berdasarkan kata kunci topik (multi-label), dipecah per tingkat peta proses (Level 1 sampai 3). Klik batang untuk daftar itemnya.</p><div id="themeBars"></div></div>
     <div class="card"><h2>Matriks Tema &times; Domain</h2><p class="sub">Klik angka untuk daftar prosesnya.</p><div class="hm-wrap"><table class="hm" id="tdTable"></table></div></div>
     <div class="card"><h2>Matriks Tema &times; Unit</h2><p class="sub">Klik angka untuk daftar prosesnya.</p><div class="hm-wrap"><table class="hm" id="tuTable"></table></div></div>
   </div>
@@ -558,7 +572,20 @@ function coGet(a,b){if(a===b)return 0;return coMap[[a,b].sort().join('|')]||0;}
 function classify(){
  flat=[];
  DATA.domains.forEach(d=>d.subs.forEach(s=>s.groups.forEach(g=>g.procs.forEach(p=>{flat.push({domk:d.kode,dom:d.nama,subk:s.kode,sub:s.nama,grp:g.nama,kode:p.kode,nama:p.nama,units:p.units||[],maturity:p.maturity,owner:p.owner,dasar:p.dasar,asis:p.asis});}))));
- flat.forEach(p=>{let a=(p.nama.trim().split(/\s+/)[0]||'-');if(/^monitoring$/i.test(a))a='Pemantauan';p.act=a;p.themes=themeKeys.filter(t=>THEMES[t].test(p.nama));if(!p.themes.length)p.themes=['Lainnya'];});
+ flat.forEach(p=>{var c=pbClassify(p.nama);p.act=c.act;p.themes=c.themes;p.lvl=3;});
+ pbBuildLvl();
+}
+function pbClassify(nama){var a=(String(nama).trim().split(/\s+/)[0]||'-');if(/^monitoring$/i.test(a))a='Pemantauan';var th=themeKeys.filter(t=>THEMES[t].test(nama));if(!th.length)th=['Lainnya'];return{act:a,themes:th};}
+/* Klasifikasi aktivitas & tema diterapkan ke NAMA pada tiap tingkat peta proses bisnis,
+   bukan hanya Business Process (Level 3). pbLvlItems menyimpan item per level supaya
+   distribusi bisa dipecah Level 1 (Process Areas) / Level 2 (Process Groups) / Level 3. */
+let pbLvlItems={1:[],2:[],3:[]};
+function pbBuildLvl(){
+ pbLvlItems={1:[],2:[],3:flat};
+ DATA.domains.forEach(d=>d.subs.forEach(s=>{
+  var cs=pbClassify(s.nama);pbLvlItems[1].push({lvl:1,kode:s.kode,nama:s.nama,domk:d.kode,act:cs.act,themes:cs.themes,units:[]});
+  s.groups.forEach(g=>{var cg=pbClassify(g.nama);pbLvlItems[2].push({lvl:2,kode:g.kode,nama:g.nama,domk:d.kode,act:cg.act,themes:cg.themes,units:[]});});
+ }));
 }
 function computeRelations(){
  coMap={};units.forEach(a=>units.forEach(b=>{if(a<b)coMap[a+'|'+b]=0;}));
@@ -1062,14 +1089,33 @@ function hmExpandAll(open){
 function drillHeat(code,unit){var list=flat.filter(p=>p.kode.indexOf(code+'.')===0&&p.units.indexOf(unit)>=0);openList(unit+' · '+(UNAMES[unit]||unit),list.length+' proses pada '+code+' yang melibatkan unit ini',list);}
 function drillHM(subk,unit){const list=flat.filter(p=>p.subk===subk&&p.units.includes(unit));const s=list[0];openList(unit+' · '+(UNAMES[unit]||unit),list.length+' proses pada sub-domain '+subk+(s?' '+s.sub:''),list);}
 function barBlock(entries,fn){const max=Math.max.apply(null,entries.map(e=>e[1]).concat([1]));return entries.map(e=>'<div class="bar-row" style="cursor:pointer" onclick="'+fn+'(\''+String(e[0]).replace(/'/g,"\\'")+'\')"><div class="lbl">'+e[0]+'</div><div class="bar-track"><div class="bar-fill" style="width:'+(e[1]/max*100)+'%"></div></div><div class="val">'+e[1]+'</div></div>').join('');}
+/* Versi batang BERTUMPUK per level: tiap entri = [nama,[nL1,nL2,nL3]]. Lebar tiap ruas
+   proporsional terhadap total terbesar; nilai di kanan = jumlah seluruh level. */
+function pbLegend(tot){return '<div class="pb-leg">'+
+  '<span class="lg"><i class="sw l1"></i>Level 1 &middot; Process Areas <b>'+tot[0]+'</b></span>'+
+  '<span class="lg"><i class="sw l2"></i>Level 2 &middot; Process Groups <b>'+tot[1]+'</b></span>'+
+  '<span class="lg"><i class="sw l3"></i>Level 3 &middot; Business Processes <b>'+tot[2]+'</b></span></div>';}
+function barBlockLv(entries,fn){
+ var max=Math.max.apply(null,entries.map(e=>e[1][0]+e[1][1]+e[1][2]).concat([1]));
+ var tot=[0,0,0];entries.forEach(e=>{tot[0]+=e[1][0];tot[1]+=e[1][1];tot[2]+=e[1][2];});
+ var rows=entries.map(function(e){
+  var v=e[1],sum=v[0]+v[1]+v[2];
+  var segs=[0,1,2].map(function(i){var cls=['l1','l2','l3'][i];return v[i]>0?'<span class="seg '+cls+'" style="width:'+(v[i]/max*100)+'%"></span>':'';}).join('');
+  var ttl='Level 1: '+v[0]+'  Level 2: '+v[1]+'  Level 3: '+v[2]+'  (total '+sum+')';
+  return '<div class="bar-row" style="cursor:pointer" title="'+ttl+'" onclick="'+fn+'(\''+String(e[0]).replace(/'/g,"\\'")+'\')"><div class="lbl">'+e[0]+'</div><div class="bar-track"><div class="bar-fill stk">'+segs+'</div></div><div class="val">'+sum+'</div></div>';
+ }).join('');
+ return pbLegend(tot)+rows;
+}
 function renderTematik(){
- const ac={};flat.forEach(p=>ac[p.act]=(ac[p.act]||0)+1);const at=Object.keys(ac).map(k=>[k,ac[k]]).sort((a,b)=>b[1]-a[1]).slice(0,12);document.getElementById('actBars').innerHTML=barBlock(at,'drillAct');
- const tc={};allThemes.forEach(t=>tc[t]=0);flat.forEach(p=>p.themes.forEach(t=>tc[t]++));const ts=Object.keys(tc).map(k=>[k,tc[k]]).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]);document.getElementById('themeBars').innerHTML=barBlock(ts,'drillTheme');
+ var acts={};[1,2,3].forEach(L=>pbLvlItems[L].forEach(p=>{(acts[p.act]=acts[p.act]||[0,0,0])[L-1]++;}));
+ var at=Object.keys(acts).map(k=>[k,acts[k]]).sort((a,b)=>(b[1][0]+b[1][1]+b[1][2])-(a[1][0]+a[1][1]+a[1][2])).slice(0,12);document.getElementById('actBars').innerHTML=barBlockLv(at,'drillAct');
+ var th={};[1,2,3].forEach(L=>pbLvlItems[L].forEach(p=>p.themes.forEach(t=>{(th[t]=th[t]||[0,0,0])[L-1]++;})));var ts=Object.keys(th).map(k=>[k,th[k]]).filter(e=>(e[1][0]+e[1][1]+e[1][2])>0).sort((a,b)=>(b[1][0]+b[1][1]+b[1][2])-(a[1][0]+a[1][1]+a[1][2]));document.getElementById('themeBars').innerHTML=barBlockLv(ts,'drillTheme');
  matrix('tdTable',DATA.domains.map(d=>d.kode),k=>k,(t,dk)=>flat.filter(p=>p.themes.includes(t)&&p.domk===dk).length,'drillTD',dk=>{const d=DATA.domains.find(x=>x.kode===dk);return d?d.nama:dk;});
  matrix('tuTable',units,u=>u,(t,u)=>flat.filter(p=>p.themes.includes(t)&&p.units.includes(u)).length,'drillTU',u=>UNAMES[u]||u);
 }
-function drillAct(a){openList('Jenis aktivitas: '+a,flat.filter(p=>p.act===a).length+' proses',flat.filter(p=>p.act===a));}
-function drillTheme(t){openList('Tema: '+t,flat.filter(p=>p.themes.includes(t)).length+' proses',flat.filter(p=>p.themes.includes(t)));}
+function pbAcross(pred){var out=[];[1,2,3].forEach(function(L){pbLvlItems[L].forEach(function(p){if(pred(p))out.push({kode:p.kode,nama:'<span class="lvtag l'+L+'">L'+L+'</span>'+p.nama,units:p.units||[]});});});return out;}
+function drillAct(a){var l=pbAcross(function(p){return p.act===a;});openList('Jenis aktivitas: '+a,l.length+' item (semua level)',l);}
+function drillTheme(t){var l=pbAcross(function(p){return p.themes.indexOf(t)>=0;});openList('Tema: '+t,l.length+' item (semua level)',l);}
 function drillTD(t,dk){const list=flat.filter(p=>p.themes.includes(t)&&p.domk===dk);const d=DATA.domains.find(x=>x.kode===dk);openList('Tema: '+t+' · Domain '+dk,(d?d.nama:'')+' · '+list.length+' proses',list);}
 function drillTU(t,u){const list=flat.filter(p=>p.themes.includes(t)&&p.units.includes(u));openList('Tema: '+t+' · '+u,(UNAMES[u]||u)+' · '+list.length+' proses',list);}
 function matrix(id,cols,colLabel,cellFn,fn,colTitle){let max=0;const rows=allThemes.map(t=>{const c=cols.map(cv=>cellFn(t,cv));max=Math.max.apply(null,[max].concat(c));return{t,c};});let h='<thead><tr><th class="row">Tema</th>'+cols.map(cv=>'<th title="'+(colTitle?colTitle(cv):cv)+'">'+colLabel(cv)+'</th>').join('')+'<th class="tot">&Sigma;</th></tr></thead><tbody>';rows.forEach(r=>{const tot=r.c.reduce((a,b)=>a+b,0);h+='<tr><td class="row">'+r.t+'</td>'+r.c.map((v,i)=>{const cc=hmColor(v,max);const tcl=v>0&&v/max>.6?'#fff':'#1f2937';return '<td class="'+(v>0?'hc':'')+'" '+(v>0?'onclick="'+fn+'(\''+r.t.replace(/'/g,"\\'")+'\',\''+cols[i]+'\')"':'')+' style="background:'+cc+';color:'+tcl+'">'+(v||'')+'</td>';}).join('')+'<td class="tot">'+tot+'</td></tr>';});h+='</tbody>';document.getElementById(id).innerHTML=h;}
