@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-OI5Md8o2oNNweb+3MIEdjV5GtGAmE0GCF3Os7poDuG0='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-hLcf9KY7rKzh6Wp6RGMQRXic5KqCwMu1BparcqJxe7o='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -9495,13 +9495,24 @@ function inkGuard(){
 
 
 function inkNil(v){
+  
+
+
+
   if(v===-1)return '<span class="mini" title="Dirahasiakan: isinya kurang dari lima orang">&lt; 5 orang</span>';
-  return fmt(v||0);
+  if(v===null||v===undefined)return '<span class="mini" title="Tidak dirinci: rombongannya terlalu kecil, merincinya akan menunjuk orang">tidak dirinci</span>';
+  return fmt(v);
 }
 function inkTabBar(aksi,aktif,daftar){
   return '<div class="pgtabs">'+daftar.map(function(x){
     return '<button class="pgtab'+(aktif===x[0]?' on':'')+'" data-act="'+aksi+'" data-tab="'+x[0]+'">'+esc(x[1])+'</button>';
   }).join('')+'</div>';
+}
+
+
+function inkKecil(n){
+  if(!n)return '';
+  return '<div class="mini" style="margin-top:8px">'+n+' unit lain tidak digambarkan di sini karena catatannya kurang dari 20 orang; merinci rombongan sekecil itu akan menunjuk orang. Jumlahnya tetap ada pada tab Jumlah &amp; Kelengkapan.</div>';
 }
 function inkCatatan(){
   var M=INKLUSI.meta||{};
@@ -9548,7 +9559,9 @@ function vInkSurvei(){
     h+='<div class="card"><table><thead><tr><th>Butir penilaian</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>Rerata</th></tr></thead><tbody>'+
       (S.likert||[]).map(function(x){
         return '<tr><td>'+esc(x.label)+'</td>'+x.sebaran.map(function(n,i){
-          return '<td style="text-align:right"'+(i<2&&n?' class="warn"':'')+'>'+fmt(n)+'</td>';}).join('')+
+          
+
+          return '<td style="text-align:right'+(i<2&&n?';color:var(--st-warn);font-weight:700':'')+'">'+fmt(n)+'</td>';}).join('')+
           '<td style="text-align:right"><b>'+d1(x.rerata)+'</b></td></tr>';
       }).join('')+'</tbody></table></div>';
   }else{
@@ -9592,10 +9605,11 @@ function vInkProfil(){
   }else{
     const JN=S.jenis||[], PB=S.penyebab||[];
     const dJ=JN.map(function(x,i){return {lab:x.k,v:x.n,c:'var(--seq-'+((i%7)+1)+')'};});
-    h+='<div class="card"><div class="row2"><div>'+
+    h+='<div class="card nama-lebar"><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">'+
+      '<div style="flex:1 1 320px;min-width:0">'+
       '<h2 class="sec" style="margin-top:0">Komposisi jenis</h2>'+
       JN.map(function(x){return bar(x.k,x.n,JN[0].n,'',fmt(x.n)+' ('+d1(x.pct||0)+'%)');}).join('')+
-      '</div><div style="text-align:center">'+donut(dJ,150,{big:fmt(S.n),small:'RESPONDEN'})+'</div></div></div>';
+      '</div><div>'+donut(dJ,150,{big:fmt(S.n),small:'RESPONDEN'})+'</div></div></div>';
     h+='<div class="card nama-lebar"><h2 class="sec" style="margin-top:0">Penyebab</h2>'+
       PB.map(function(x){return bar(x.k,x.n,PB[0].n,'',fmt(x.n)+' ('+d1(x.pct||0)+'%)');}).join('')+
       '<div class="note-box" style="margin-top:10px">Mayoritas disabilitas muncul <b>setelah</b> pegawai bekerja, bukan sejak lahir. Karena itu kebijakan yang paling berdampak adalah kebijakan mempertahankan dan mengakomodasi pegawai yang kondisinya berubah, bukan sekadar kebijakan merekrut.</div></div>';
@@ -9617,9 +9631,14 @@ function vInkRekrut(){
   const maks=Math.max.apply(null,B.map(function(x){return x.formasi;}).concat([1]));
   h+='<div class="card nama-lebar"><h2 class="sec" style="margin-top:0">Formasi dibanding pengangkatan per periode</h2>'+
     B.map(function(x){
+      
+
+
+      const wF=Math.max(2,Math.round(100*x.formasi/maks));
+      const wA=x.formasi?Math.round(100*x.angkat/x.formasi):0;
       return '<div class="bar-row"><div class="name">'+esc(x.jalur+' '+x.tahun)+'</div>'+
-        '<div class="track"><div class="fill" style="width:'+Math.round(100*x.formasi/maks)+'%;opacity:.35"></div>'+
-        '<div class="fill" style="width:'+Math.round(100*x.angkat/maks)+'%;position:absolute;left:0;top:0"></div></div>'+
+        '<div class="track"><div class="fill" style="width:'+wF+'%;opacity:.35">'+
+        '<div class="fill" style="width:'+wA+'%;background:var(--brand-d);opacity:1"></div></div></div>'+
         '<div class="num">'+fmt(x.angkat)+' / '+fmt(x.formasi)+'</div></div>';
     }).join('')+
     '<div class="mini" style="margin-top:8px">Batang pucat adalah formasi yang disediakan, batang pekat adalah pengangkatan yang terjadi. Jarak di antaranya belum pernah tertutup pada periode mana pun.</div></div>';
@@ -9657,15 +9676,19 @@ function vInkUnit(){
       kpiBox('Bekerja bukan di homebase',d1(KM.nonHomebasePct||0)+'%',fmt(tot.nonHomebase||0)+' dari '+fmt((tot.homebase||0)+(tot.nonHomebase||0))+' pegawai tercatat')+
       kpiBox('Bekerja di homebase',d1(100-(KM.nonHomebasePct||0))+'%',fmt(tot.homebase||0)+' pegawai')+
     '</div>';
+    const rinciHB=ok.filter(function(x){return x.rinci&&x.nonHomebasePct!=null;});
     h+='<div class="card nama-lebar"><h2 class="sec" style="margin-top:0">Porsi yang bekerja bukan di homebase</h2>'+
-      ok.slice().sort(function(a,b){return (b.nonHomebasePct||0)-(a.nonHomebasePct||0);}).map(function(x){
-        return bar(x.unit,x.nonHomebasePct||0,100,'',d1(x.nonHomebasePct||0)+'%');}).join('')+
+      rinciHB.slice().sort(function(a,b){return b.nonHomebasePct-a.nonHomebasePct;}).map(function(x){
+        return bar(x.unit,x.nonHomebasePct,100,'',d1(x.nonHomebasePct)+'%');}).join('')+
+      inkKecil(ok.length-rinciHB.length)+
       '<div class="mini" style="margin-top:8px">Inilah sisi yang paling langsung menjadi urusan penataan organisasi. Tiga perempat pegawai berkondisi kesehatan khusus bekerja jauh dari rumah, dan itu dapat ditata lewat penempatan serta pola kerja.</div></div>';
   }else if(tab==='kapasitas'){
     h+='<div class="note-box" style="margin-bottom:14px"><b>Hati-hati membandingkan.</b> Penilaian ini memakai pertanyaan yang ternyata ditafsirkan berbeda antarunit, dan pada berkas sumber kolomnya memang memuat dua skala berbeda. Unit bertanda bintang menyimpang jauh dari pola unit lain, sehingga selisihnya lebih mungkin berasal dari perbedaan tafsir daripada perbedaan keadaan pegawai.</div>';
+    const rinciPot=ok.filter(function(x){return x.rinci&&x.potensiPct!=null;});
     h+='<div class="card nama-lebar"><h2 class="sec" style="margin-top:0">Dinilai masih berpotensi bekerja normal</h2>'+
-      ok.slice().sort(function(a,b){return (b.potensiPct||0)-(a.potensiPct||0);}).map(function(x){
-        return bar(x.unit+(x.tafsirBeda?' *':''),x.potensiPct||0,100,'',d1(x.potensiPct||0)+'%');}).join('')+
+      rinciPot.slice().sort(function(a,b){return b.potensiPct-a.potensiPct;}).map(function(x){
+        return bar(x.unit+(x.tafsirBeda?' *':''),x.potensiPct,100,'',d1(x.potensiPct)+'%');}).join('')+
+      inkKecil(ok.length-rinciPot.length)+
       '<div class="mini" style="margin-top:8px">Rerata Kementerian '+d1(KM.potensiPct||0)+'%.</div></div>';
   }else{
     h+='<div class="note-box" style="margin-bottom:14px"><b>Yang terukur di sini adalah kelengkapan pendataan, bukan keadaan kesehatan.</b> Rentang antarunit terlalu lebar untuk dijelaskan oleh perbedaan kesehatan. Unit yang belum mengirim data ditulis belum melapor, bukan nol, dan angka ini tidak boleh dipakai memeringkat unit.</div>';
@@ -9683,6 +9706,7 @@ function vInkUnit(){
           '<td style="text-align:right">'+(x.status==='ok'?inkNil(x.wanita):'-')+'</td>'+
           '<td>'+(x.status==='ok'?'<span class="tag">lengkap</span>':'<span class="tag warn">belum melapor</span>')+'</td></tr>';
       }).join('')+'</tbody></table></div>';
+    h+='<div class="mini" style="margin-top:10px">Kolom jenis kelamin ditulis <b>tidak dirinci</b> bila merincinya memungkinkan sel lain dihitung balik dari jumlah total, dan untuk unit yang catatannya kurang dari 20 orang seluruh rinciannya memang tidak diterbitkan.</div>';
   }
   return h;
 }
