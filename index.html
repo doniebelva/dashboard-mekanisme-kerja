@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-kHxvtJSuqhXBD8Cz6VDrkqwlgPgNRvfqXug30L1M7Fc='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-WSdynoUKgtTbj5Gw+yFru5PSwfoWCM1mYh7Z1C/+Xqc='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -16,6 +16,7 @@
 :root{
   
   --brand:#1467c0;--brand-d:#0f5aa8;--brand-l:#e8f1fc;--brand-l2:#d6e7fa;
+  --on-brand:#ffffff;--on-brand-soft:rgba(255,255,255,.20);   
   --gold:#f0a93f;--gold2:#e8951a;--gold-l:rgba(232,149,26,.10);
 
   
@@ -748,13 +749,23 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 .hubcard.soon .hubn{color:var(--gold2)}
 
 
-.domsw{display:flex;flex-wrap:wrap;gap:3px;background:var(--surface-2);border:1px solid var(--line);
-  border-radius:var(--rad-sm);padding:3px;margin:12px 0 6px}
-.domsw-b{flex:1 1 auto;border:none;background:transparent;cursor:pointer;font-family:var(--font-ui);
-  font-size:var(--fs-micro);font-weight:700;color:var(--ink-grp);padding:5px 6px;border-radius:var(--rad-xs);
-  white-space:nowrap;transition:all var(--t-fast) ease}
-.domsw-b.on{background:var(--brand);color:#fff}
-.domsw-b:not(.on):hover{color:var(--brand)}
+.domsw{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--rad-md);
+  padding:6px;margin:12px 0 8px;display:flex;flex-direction:column;gap:2px}
+.domsw-h{font-size:var(--fs-micro);font-weight:800;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--ink-grp);padding:3px 8px 5px}
+.domsw-b{display:flex;align-items:center;gap:10px;width:100%;border:none;background:transparent;
+  cursor:pointer;font-family:var(--font-ui);font-size:var(--fs-md);font-weight:600;color:var(--ink);
+  padding:7px 8px;border-radius:var(--rad-sm);text-align:left;
+  transition:background var(--t-fast) ease,color var(--t-fast) ease}
+.domsw-b .dsi{display:inline-flex;align-items:center;justify-content:center;flex:0 0 26px;
+  width:26px;height:26px;border-radius:var(--rad-xs);background:var(--brand-l);color:var(--brand-d)}
+.domsw-b .dsl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.domsw-b .dsn{font-size:var(--fs-micro);font-weight:700;color:var(--muted);background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--rad-pill);min-width:20px;padding:1px 6px;text-align:center}
+.domsw-b:not(.on):hover{background:var(--surface);color:var(--brand-d)}
+.domsw-b.on{background:var(--brand);color:var(--on-brand);box-shadow:var(--sh-sm)}
+.domsw-b.on .dsi{background:var(--on-brand-soft);color:var(--on-brand)}
+.domsw-b.on .dsn{background:var(--on-brand-soft);border-color:transparent;color:var(--on-brand)}
 .nav-empty{font-size:var(--fs-sm);color:var(--muted);line-height:1.55;padding:14px 11px;
   border:1px dashed var(--line);border-radius:var(--rad-sm);margin-top:4px}
 .sidebar.collapsed .domsw,.sidebar.collapsed .nav-empty{display:none}
@@ -1920,6 +1931,7 @@ const ICONP={
  cuti:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 9.5h18"/><path d="m9 15.5 2 2 4-4.5"/>',
  
  pemberhentian:'<path d="M13 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h7"/><path d="M16 8l4 4-4 4"/><path d="M9 12h11"/>',
+ orang:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.4A5 5 0 0 1 21 19.5"/>',
  inklusi:'<circle cx="12" cy="5" r="2"/><path d="M12 8v6"/><path d="M8.5 10.5L12 9l3.5 1.5"/><path d="M9.5 21l2.5-7 2.5 7"/><path d="M4 17a8 8 0 0 1 2-5"/>',
  penghargaan:'<circle cx="12" cy="14.5" r="5"/><path d="M9 10.2 6.5 3h3.8l1.7 4.2L13.7 3h3.8L15 10.2"/><path d="m10.3 14.2 1.2 1.2 2.4-2.4"/>',
  suksesi:'<circle cx="7.5" cy="7" r="2.8"/><path d="M3 19a4.5 4.5 0 0 1 9 0"/><circle cx="16.5" cy="10.5" r="2.4"/><path d="M12.5 19a4 4 0 0 1 8 0"/><path d="M19 7.5V3m0 0-1.8 1.8M19 3l1.8 1.8"/>',
@@ -2047,13 +2059,16 @@ function pasangNamaLebar(){var v=document.getElementById('view');if(!v)return;v.
 
 
 const DOMAINS=[
-  {k:'organisasi',lab:'Organisasi'},
-  {k:'sdm',lab:'SDM'},
-  {k:'tatakelola',lab:'Tata Kelola & Layanan'},
+  {k:'organisasi',lab:'Organisasi',icn:'otk'},
+  {k:'sdm',lab:'SDM',icn:'orang'},
+  
+
+  {k:'tatakelola',lab:'Tata Kelola',icn:'govern'},
+  {k:'layananpublik',lab:'Layanan Publik',icn:'tk'},
   
 
 
-  {k:'katalog',lab:'Katalog'}
+  {k:'katalog',lab:'Katalog',icn:'katalog'}
 ];
 const MODDOMAIN={
   probis:'organisasi', otk:'organisasi', urjab:'organisasi', abk:'organisasi',
@@ -2064,7 +2079,8 @@ const MODDOMAIN={
   penghargaan:'sdm',   
   pemberhentian:'sdm',   
   inklusi:'sdm',         
-  takelola:'tatakelola', layanan:'tatakelola', unitremote:'tatakelola'
+  takelola:'tatakelola', unitremote:'tatakelola',
+  layanan:'layananpublik'
 };
 function domOf(modId){return MODDOMAIN[modId]||'organisasi';}   
 function domLab(k){var d=DOMAINS.find(function(x){return x.k===k;});return d?d.lab:k;}
@@ -2095,7 +2111,8 @@ const MODKET={
 const DOMDESC={
   organisasi:'Analitik struktur, jabatan, beban kerja, dan kapabilitas organisasi.',
   sdm:'Analitik siklus SDM Hire-to-Retire, dari perencanaan sampai pemberhentian. Modul disiapkan bertahap sesuai kesiapan data dari SI-OSDM.',
-  tatakelola:'Tata kelola, integritas, dan mutu layanan publik.'
+  tatakelola:'Tata kelola kewenangan dan perangkat pendukung kerja lintas unit.',
+  layananpublik:'Integritas dan mutu layanan publik: Zona Integritas, kepuasan layanan, pengaduan, inovasi, dan kantor terbaik.'
 };
 
 
@@ -2405,8 +2422,14 @@ function renderNav(){
   h+=`<div class="nvm ${curV==='beranda'?'cur':''}" data-act="navmod" data-mod="beranda"><span class="nvi">${svgIcon(bm.icn)}</span><span class="nvl">${bm.lab}</span></div>`;
   h+='</div>';
   
-  h+='<div class="domsw">'+DOMAINS.map(function(d){
-    return `<button class="domsw-b ${d.k===dom?'on':''}" data-act="domsel" data-dom="${d.k}">${esc(d.lab)}</button>`;
+  
+
+
+  h+='<div class="domsw"><div class="domsw-h">Kluster</div>'+DOMAINS.map(function(d){
+    const n=MODULES.filter(m=>m.id!=='beranda'&&domOf(m.id)===d.k&&canMod(m.id)).length;
+    if(!n&&d.k!==dom)return '';
+    return `<button class="domsw-b ${d.k===dom?'on':''}" data-act="domsel" data-dom="${d.k}" title="${esc(DOMDESC[d.k]||d.lab)}">`+
+      `<span class="dsi">${svgIcon(d.icn||'home',14)}</span><span class="dsl">${esc(d.lab)}</span><span class="dsn">${n}</span></button>`;
   }).join('')+'</div>';
   
   h+='<div class="navtree">';
@@ -2438,7 +2461,7 @@ function renderNav(){
   document.getElementById('nav').innerHTML=h;a11yPrepare(document.getElementById('nav'));}
 const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan:'Dashboard Pimpinan',analisis:'Analisis Kinerja',insight:'Insight & Rekomendasi',timanalitik:'Tim Analytic',people:'People Analytics',heatmap:'Heatmap Adopsi',beban:'Beban Tim & Pegawai',tema:'Penelusuran Tematik',
   struktur:'Profil Unit',tim:'Profil Tim',pegawai:'Profil Pegawai',keahlian:'Expert Locator',skill:'Pegawai per Keahlian',avail:'Ketersediaan Pegawai',unit1:'Unit Eselon I',unit2:'Unit Eselon II',team:'Detail Tim',emp:'Detail Pegawai',urjab:'Repositori Jabatan',urjabdetail:'Detail Uraian Jabatan',urjabanalisis:'Analisis Jabatan',urjabkaitan:'Keterkaitan Fungsi & Tugas',urjabinsight:'Insight Jabatan',urjabcompare:'Komparasi Jabatan',urjabredun:'Replikasi Jabatan',abk:'Profil ABK',abkkalibrasi:'Kalibrasi',abknorma:'Norma Waktu',abkstruktur:'Beban vs Struktur',abkpareto:'Pareto Produk',abksimulasi:'Simulasi Efisiensi',abkunit:'Detail Beban Unit',katakt:'Katalog Produk ABK',katpeta:'Peta Aktivitas Kantor',katjab:'Katalog Jabatan',katpb:'Katalog Proses Bisnis',katnw:'Katalog Norma Waktu',katunit:'Katalog Unit & Kantor',katsvc:'Katalog Layanan',katapp:'Katalog Aplikasi',katwen:'Katalog Kewenangan',
-  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'List Dataset',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola & Layanan',hub_katalog:'Katalog',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Katalog Keahlian',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
+  beranda:'Beranda',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'List Dataset',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola',hub_layananpublik:'Layanan Publik',hub_katalog:'Katalog',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Katalog Keahlian',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
   tk:'Ikhtisar Tata Kelola',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   cuti:'Ringkasan Cuti Pegawai',cutitren:'Tren & Musiman Cuti',cutiunit:'Profil Unit',cutiwilayah:'Sebaran Wilayah',cutiutilisasi:'Pemakaian Hak Cuti Tahunan',cutikualitas:'Kepatuhan & Mutu Data',cutidemografi:'Demografi & Gender Cuti',cutipola:'Pola Hari & Kalender Kapasitas',cutisakit:'Kategori Cuti Sakit',cutiprediksi:'Proyeksi Beban Cuti',cutisimulasi:'Simulasi Kebijakan PMK 221',cutitentang:'Tentang Data Cuti',
   pmb:'Ikhtisar Pemberhentian & Retensi',pmbtren:'Tren Pemberhentian Tahunan',pmbunit:'Tingkat Keluar per Unit Eselon I',pmbprofil:'Profil Pegawai yang Berhenti',pmbalasan:'Alasan Berhenti',pmbintegrasi:'Kaitan Pemberhentian dengan Modul Lain',pmbtentang:'Tentang Data Pemberhentian',
@@ -7129,7 +7152,9 @@ addEventListener('resize',function(){if(state.view==='otkremote')remoteFit();});
 function vDomainHub(){
   const dom=(state.view.indexOf('hub_')===0)?state.view.slice(4):'organisasi';
   const mods=MODULES.filter(m=>m.id!=='beranda'&&domOf(m.id)===dom&&canMod(m.id));
-  let h=pgHead(domLab(dom), '<p>'+esc(DOMDESC[dom]||'')+'</p>');
+  const nMenu=mods.reduce(function(s,m){return s+(m.groups||[]).reduce(function(x,g){return x+g.items.filter(function(i){return featOK(i.v);}).length;},0);},0);
+  let h=pgHead(domLab(dom), '<p>'+esc(DOMDESC[dom]||'')+'</p>',
+    mods.length?('Kluster '+esc(domLab(dom))+' &middot; '+mods.length+' modul &middot; '+nMenu+' menu'):'');
   h+='<div class="hubgrid">';
   mods.forEach(function(m){
     const n=(m.groups||[]).reduce((s,g)=>s+g.items.filter(i=>featOK(i.v)).length,0);
@@ -7652,7 +7677,7 @@ function render(){
   if(isPb){viewEl.style.display='none';if(footEl)footEl.style.display='none';setFootNote();if(!_sv)window.scrollTo({top:0});return;}
   viewEl.style.display='';if(footEl)footEl.style.display='';
   const map={ringkasan:vRingkasan,analisis:vAnalisis,insight:vInsight,timanalitik:vTimAnalitik,people:vPeople,heatmap:vHeatmap,beban:vBeban,struktur:vStruktur,tim:vTim,pegawai:vPegawai,keahlian:vKeahlian,skill:vSkill,avail:vAvail,unit1:vUnit1,unit2:vUnit2,team:vTeam,emp:vEmp,urjab:vUrjab,urjabdetail:vUrjabDetail,urjabanalisis:vUrjabAnalisis,urjabkaitan:vUrjabKaitan,urjabinsight:vUrjabInsight,urjabcompare:vUrjabCompare,
-    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,katakt:vKatAkt,katpeta:vKatPeta,katjab:vKatJab,katpb:vKatPb,katnw:vKatNw,katunit:vKatUnit,katsvc:vKatSvc,katapp:vKatApp,katwen:vKatWen,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,hub_katalog:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
+    beranda:vBeranda,otk:vOtk,otkdetail:vOtkDetail,otkvdetail:vOtkVDetail,otkanalisis:vOtkAnalisis,otkhealth:vOtkHealth,otkorg:vOtkOrg,urjabredun:vUrjabRedun,otkcompare:vOtkCompare,otkindeks:vOtkIndeks,otkshare:vOtkShare,otkkaitan:vOtkKaitan,otkoverlap:vOtkOverlap,otkeval:vOtkEval,jfmap:vJfMap,abk:vAbk,abkkalibrasi:vAbkKalibrasi,abknorma:vAbkNorma,abkstruktur:vAbkStruktur,abkpareto:vAbkPareto,abksimulasi:vAbkSimulasi,abkunit:vAbkUnit,katakt:vKatAkt,katpeta:vKatPeta,katjab:vKatJab,katpb:vKatPb,katnw:vKatNw,katunit:vKatUnit,katsvc:vKatSvc,katapp:vKatApp,katwen:vKatWen,usermgmt:vUserMgmt,statistik:vStatistik,katdata:vKatData,profil:vProfil,profilunit:vProfilUnit,panduan:vPanduan,otkremote:vUnitRemote,hub_organisasi:vDomainHub,hub_sdm:vDomainHub,hub_tatakelola:vDomainHub,hub_layananpublik:vDomainHub,hub_katalog:vDomainHub,kategoritim:vKategoriTim,katalog:vKatalog,tema:vTema,jf:vJf,jfprofil:vJfProfil,jffungsi:vJfFungsi,jabkomposisi:vJabKomposisi,
     kj:vKj,kjstandar:vKjStandar,kjdetail:vKjDetail,kjksajpt:vKjKsaJpt,kjjf:vKjJf,kjrumpun:vKjRumpun,kjkamus:vKjKamus,kjmansos:vKjMansos,kjkeahlian:vKjKeahlian,kjcakupan:vKjCakupan,kjrantai:vKjRantai,kjtaksonomi:vKjTaksonomi,kjubah:vKjUbah,kjproyeksi:vKjProyeksi,kjprioritas:vKjPrioritas,kjtentang:vKjTentang,
     suknominatif:vSukNominatif,
     pmb:vPmb,pmbtren:vPmbTren,pmbunit:vPmbUnit,pmbprofil:vPmbProfil,pmbalasan:vPmbAlasan,pmbintegrasi:vPmbIntegrasi,pmbtentang:vPmbTentang,
