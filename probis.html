@@ -985,7 +985,7 @@ function execAksiRender(){
  if(red.length)chips+='<div class="act-chip" onclick="aksiRed()">Lihat proses '+red.length+' sub-domain prioritas &rarr;</div>';
  chips+='<div class="act-chip" onclick="goTab(\'profil\')">Profil Domain &rarr;</div>';
  chips+='<div class="act-chip" onclick="goTab(\'spbe\')">SPBE &amp; Maturitas &rarr;</div>';
- document.getElementById('execAksi').innerHTML='<h2>Aksi &amp; Temuan Utama</h2><div class="act-grid">'+fc('Ketimpangan Beban',f1)+fc('Ketergantungan Unit',f2)+fc('Prioritas Risiko',f3)+'</div><div class="act-actions">'+chips+'</div>';
+ document.getElementById('execAksi').innerHTML='<h2>Temuan Utama</h2><div class="act-grid">'+fc('Ketimpangan Beban',f1)+fc('Ketergantungan Unit',f2)+fc('Prioritas Risiko',f3)+'</div><div class="act-actions">'+chips+'</div>';
 }
 function computeSubRisk(){
  const subs=[];
