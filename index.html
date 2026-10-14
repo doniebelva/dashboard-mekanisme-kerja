@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-A9MxAX8LcLgkm7iC9lDQhr0LO+CNfCpnePNhSlP3IWo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-uCFBlWmkVgQNJ3HwLhc1Q8sW1x5cRL+NfQnfRfmb96Y='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -4575,15 +4575,6 @@ function vBeranda(){
   }else if(!B)h+=ketB;
   else h+='<div class="empty" style="padding:14px">Belum ada modul lintas Eselon I yang dapat Anda akses.</div>';
   h+='</div>';
-
-  
-  const abkReady=canM('abk')&&(typeof ABK!=='undefined')&&!!ABK;
-  if(canM('urjab')&&abkReady){const rk=_kokpitPrioritas();
-    if(rk.length)h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 3px">Fungsi Berat, Pegawai Kurang</div>'+
-      '<div class="mini" style="margin:0 0 10px">Unit yang sebagian fungsinya belum dijalankan uraian tugas jabatan <b>dan</b> kekurangan pegawai menurut ABK 2024. Diurutkan dari kekurangan terbesar.</div>'+
-      '<div class="tblw"><table><thead><tr><th>Unit</th><th>Eselon I</th><th class="num-c">Fungsi belum didukung</th><th class="num-c">Kurang pegawai</th><th class="num-c">EU.1</th></tr></thead><tbody>'+
-      rk.map(r=>'<tr><td class="link" data-act="otkopen" data-id="'+r.id+'">'+esc(r.nama)+'</td><td class="mini">'+esc(r.e1)+'</td><td class="num-c">'+r.gap+' / '+r.nF+'</td><td class="num-c" style="color:var(--st-critical);font-weight:700">'+fmt(r.kurang)+'</td><td class="num-c">'+(+r.eu1).toFixed(2).replace('.',',')+'</td></tr>').join('')+
-      '</tbody></table></div><div class="mini" style="margin-top:8px"><span class="tag link" data-act="nav" data-view="urjabkaitan">Lihat analisis lengkap &rsaquo;</span></div></div>';}
 
   
   const seg=[];
