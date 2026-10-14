@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-57TE1zNGRyJwJ6fMoxw5w+SO/z6r2yhDtOqYiMHoPgA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-pfaqzDeIwHBoU4mO90emPjVwJ5uzAYopeHqwZQ731o0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -2508,7 +2508,7 @@ const PETA={
 };  
 let TK=null;   
 
-const PBV='1728076';
+const PBV='1730421';
 const PB_LBL={exec:'Dashboard',ringkasan:'Ringkasan',tree:'Tree Diagram',heatmap:'Heatmap Unit',tematik:'Analisis Tematik',jaringan:'Jaringan Unit',profil:'Profil Domain',spbe:'SPBE & Maturitas',gap:'Gap & Whitespace',layanan:'Layanan',aplikasi:'Aplikasi',monitoring:'Monitoring',katalog:'Proses Bisnis',validasi:'Validasi Probis',level:'Validasi Level',perubahan:'Perubahan'};
 const ASAL_SENDIRI=(location.protocol==='file:')?'*':location.origin;
 function pbPost(msg){const f=document.getElementById('pbFrame');try{if(f&&f.contentWindow)f.contentWindow.postMessage(msg,ASAL_SENDIRI);}catch(e){}}
