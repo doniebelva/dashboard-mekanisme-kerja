@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-pfaqzDeIwHBoU4mO90emPjVwJ5uzAYopeHqwZQ731o0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-Q9AnQO00Ms8kIEfonyghyEf41iKw6LjCYLAw56LTrdk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -2767,6 +2767,7 @@ const ICONP={
  pemberhentian:'<path d="M13 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h7"/><path d="M16 8l4 4-4 4"/><path d="M9 12h11"/>',
  bencana:'<path d="M12 3l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/>',
  orang:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.4A5 5 0 0 1 21 19.5"/>',
+ kronis:'<path d="M3 12h4l2-5 4 10 2-5h6"/>',
  inklusi:'<circle cx="12" cy="5" r="2"/><path d="M12 8v6"/><path d="M8.5 10.5L12 9l3.5 1.5"/><path d="M9.5 21l2.5-7 2.5 7"/><path d="M4 17a8 8 0 0 1 2-5"/>',
  penghargaan:'<circle cx="12" cy="14.5" r="5"/><path d="M9 10.2 6.5 3h3.8l1.7 4.2L13.7 3h3.8L15 10.2"/><path d="m10.3 14.2 1.2 1.2 2.4-2.4"/>',
  suksesi:'<circle cx="7.5" cy="7" r="2.8"/><path d="M3 19a4.5 4.5 0 0 1 9 0"/><circle cx="16.5" cy="10.5" r="2.4"/><path d="M12.5 19a4 4 0 0 1 8 0"/><path d="M19 7.5V3m0 0-1.8 1.8M19 3l1.8 1.8"/>',
@@ -2839,11 +2840,19 @@ const MODULES=[
  ]},
  
 
- {id:'inklusi',icn:'inklusi',lab:'Disabilitas & Penyakit Kronis',groups:[
+ {id:'inklusi',icn:'inklusi',lab:'Disabilitas & Inklusi',groups:[
    {grp:'',items:[{v:'ink',lab:'Ikhtisar'}]},
-   {grp:'Disabilitas',items:[{v:'inksurvei',lab:'Dukungan Organisasi'},{v:'inkprofil',lab:'Profil & Kebutuhan'},{v:'inkrekrut',lab:'Rekrutmen Inklusif'}]},
-   {grp:'Penyakit Kronis',items:[{v:'inkkronis',lab:'Jenis Penyakit & Usia'},{v:'inkunit',lab:'Sebaran per Unit'}]},
+   {grp:'Kesiapan Organisasi',items:[{v:'inksurvei',lab:'Dukungan Organisasi'},{v:'inkprofil',lab:'Profil & Kebutuhan'}]},
+   {grp:'Jalur Masuk',items:[{v:'inkrekrut',lab:'Rekrutmen Inklusif'}]},
    {grp:'Rujukan',items:[{v:'inktentang',lab:'Tentang Data'}]},
+ ]},
+ 
+
+
+ {id:'kronis',icn:'kronis',lab:'Penyakit Kronis',groups:[
+   {grp:'',items:[{v:'inkkronis',lab:'Ikhtisar'}]},
+   {grp:'Analisis',items:[{v:'inkkrtempat',lab:'Penempatan & Jabatan'},{v:'inkkrmampu',lab:'Kemampuan Bekerja'},{v:'inkunit',lab:'Sebaran per Unit'}]},
+   {grp:'Rujukan',items:[{v:'inkkrtentang',lab:'Tentang Data'}]},
  ]},
  {id:'bencana',icn:'bencana',lab:'Risiko Bencana',groups:[
    {grp:'',items:[{v:'rbn',lab:'Ikhtisar'}]},
@@ -2921,6 +2930,7 @@ const MODDOMAIN={
   suksesi:'sdm',   
   penghargaan:'sdm',   
   pemberhentian:'sdm',   
+  kronis:'sdm',         
   inklusi:'sdm',         
   bencana:'sdm',         
   takelola:'tatakelola', unitremote:'tatakelola',
@@ -2947,7 +2957,8 @@ const MODKET={
   katref:'Katalog referensi baku ber-kode: Produk ABK, Jabatan, Proses Bisnis, Norma Waktu, Unit & Kantor, Layanan, Aplikasi, Kewenangan.',
   cuti:'Pola pemanfaatan cuti pegawai: tren, musiman, unit, demografi, kategori sakit, proyeksi, hingga simulasi kebijakan.',
   bencana:'Risiko bencana di kantor tempat pegawai bekerja: di mana pegawai menghadapi risiko tinggi, kantor mana yang paling berisiko, dan seberapa terkumpul pimpinan di satu titik rawan. Peta sungguhan setingkat kelurahan.',
-  inklusi:'Pegawai penyandang disabilitas dan pegawai dengan penyakit kronis: dukungan organisasi, kebutuhan akomodasi, rekrutmen khusus, serta jenis penyakit kronis dan sebarannya. Seluruh angka gabungan, tanpa nama dan tanpa NIP.',
+  inklusi:'Kesiapan organisasi bagi pegawai penyandang disabilitas: dukungan organisasi, kebutuhan akomodasi, dan rekrutmen khusus. Seluruh angka gabungan, tanpa nama dan tanpa NIP.',
+  kronis:'Pegawai dengan penyakit kronis: jenis penyakit, penempatan, kemampuan bekerja, dan sebaran per unit. Seluruh angka gabungan, tanpa nama dan tanpa NIP.',
   pemberhentian:'Pegawai yang berhenti sebelum batas usia pensiun: seberapa sering, di unit mana, siapa yang paling sering pergi, dan mengapa. Dihitung sebagai tingkat keluar dengan penyebut seluruh pegawai aktif.',
   penghargaan:'Pemerataan dan tata kelola penghargaan: seberapa merata penghargaan prestasi sampai ke pegawai, unit dan lapisan mana yang jarang tersentuh, dan seberapa jauh sistem resmi KMK 325 sudah dipakai.',
   suksesi:'Kesiapan regenerasi kepemimpinan: gelombang pensiun pejabat Eselon II sampai IV, jabatan pimpinan yang paling terekspos, dan seberapa dalam ketersediaan calon pengganti di tiap unit.',
@@ -2955,7 +2966,7 @@ const MODKET={
 };
 const DOMDESC={
   organisasi:'Struktur, proses bisnis, jabatan, kompetensi, beban kerja, dan kapabilitas organisasi.',
-  sdm:'Pegawai dari masuk sampai pensiun: cuti, suksesi pejabat, penghargaan, pemberhentian, disabilitas dan penyakit kronis, serta risiko bencana.',
+  sdm:'Pegawai dari masuk sampai pensiun: cuti, suksesi pejabat, penghargaan, pemberhentian, disabilitas, penyakit kronis, serta risiko bencana.',
   tatakelola:'Pelimpahan wewenang menteri dan perangkat kerja lintas unit.',
   layananpublik:'Zona Integritas, kepuasan layanan, kepatuhan pelayanan, inovasi, dan kantor terbaik.',
   katalog:'Daftar acuan berkode yang dipakai bersama oleh semua kluster.'
@@ -2982,7 +2993,7 @@ const MENUKET={
   cuti:'Ringkasan pemanfaatan cuti pegawai lintas jenis dan tahun.',cutitren:'Tren bulanan dan pola musiman pengajuan cuti.',cutiunit:'Cuti tiap unit Eselon I, dapat ditelusuri sampai Eselon II.',cutiwilayah:'Sebaran cuti menurut kota tempat kantor berada.',cutiutilisasi:'Pemakaian hak cuti tahunan dibanding hak 24 hari kerja.',cutikualitas:'Kepatuhan terhadap ketentuan hak cuti dan mutu rekaman data.',cutidemografi:'Sebaran cuti menurut kelompok usia dan gender.',cutipola:'Pola hari mulai/selesai cuti dan kalender kapasitas kehadiran.',cutisakit:'Kategori alasan cuti sakit hasil pengolahan teks.',cutiprediksi:'Perkiraan beban cuti dari pola musim tahun-tahun sebelumnya.',cutisimulasi:'Simulasi dampak perubahan ambang potongan tunjangan (PMK 221/PMK.01/2021).',cutitentang:'Sumber, cakupan, kualitas, dan batasan data cuti.',
   
   rbn:'Ringkasan risiko bencana di tempat kerja pegawai.',rbnpeta:'Peta kelurahan tempat kantor berada menurut risiko bencana.',rbnjenis:'Berapa pegawai berkantor di zona risiko tinggi untuk tiap jenis bencana.',rbnganda:'Kantor yang berisiko tinggi untuk beberapa bencana sekaligus.',rbnunit:'Risiko tiap unit Eselon I menurut jenis bencana.',rbnprov:'Risiko tiap provinsi, dengan peta.',rbnkantor:'Daftar kantor diurutkan menurut risiko, dengan peta yang terhubung ke tabel.',rbnpusat:'Pimpinan dan fungsi pusat yang terkumpul di satu kelurahan rawan.',rbntentang:'Sumber, cara membaca, dan batas data.',
-  ink:'Ringkasan pegawai penyandang disabilitas dan pegawai dengan penyakit kronis.',inkkronis:'Jenis penyakit kronis pegawai menurut kategori, usia, dan jenjang.',inksurvei:'Penilaian pegawai penyandang disabilitas atas dukungan organisasi, sembilan butir.',inkprofil:'Komposisi kondisi, penyebab, dan kebutuhan akomodasi yang harus disediakan.',inkrekrut:'Formasi khusus disabilitas dan berapa yang terisi.',inkunit:'Jumlah pegawai dengan penyakit kronis per Eselon I beserta pola penempatannya.',inktentang:'Sumber, cara olah, dan rambu privasi modul ini.',
+  ink:'Ringkasan kesiapan organisasi bagi pegawai penyandang disabilitas.',inkkronis:'Ringkasan pegawai dengan penyakit kronis: jenis penyakit, penempatan, dan kemampuan bekerja.',inkkrtempat:'Tempat bekerja dan jenjang jabatan pegawai dengan penyakit kronis.',inkkrmampu:'Penilaian unit atas kemampuan bekerja pegawai dengan penyakit kronis.',inkkrtentang:'Sumber, kategori penyakit, dan rambu privasi data penyakit kronis.',inksurvei:'Penilaian pegawai penyandang disabilitas atas dukungan organisasi, sembilan butir.',inkprofil:'Komposisi kondisi, penyebab, dan kebutuhan akomodasi yang harus disediakan.',inkrekrut:'Formasi khusus disabilitas dan berapa yang terisi.',inkunit:'Jumlah pegawai dengan penyakit kronis per Eselon I beserta pola penempatannya.',inktentang:'Sumber, cara olah, dan rambu privasi modul ini.',
   pmb:'Ringkasan pegawai yang berhenti sebelum batas usia pensiun.',pmbtren:'Jumlah dan tingkat pemberhentian per tahun, tahun berjalan ditandai.',pmbunit:'Tingkat keluar per unit Eselon I, termasuk perbandingan perempuan dan laki-laki.',pmbprofil:'Usia, masa kerja, dan angkatan pegawai yang berhenti, dengan ukuran yang adil antarangkatan.',pmbalasan:'Alasan berhenti dari teks bebas, dikelompokkan dan dipecah menurut jenis kelamin.',pmbintegrasi:'Pintu keluar ganda bersama pensiun, dan sandingan dengan penghargaan serta cuti.',pmbtentang:'Sumber, penyebut, cara membersihkan, mutu data, dan rambu privasi.',
   ph:'Ringkasan pemerataan penghargaan di seluruh Kementerian.',phunit:'Cakupan dan intensitas penghargaan prestasi di tiap unit Eselon I.',phprofil:'Siapa yang pernah menerima penghargaan prestasi menurut jenjang, jenis kelamin, dan masa kerja.',phjenis:'Komposisi jenis penghargaan dan tingkat pemberinya.',phtren:'Perkembangan jumlah penghargaan per tahun, dipisah antara yang otomatis dan yang berbasis keputusan.',phrujukan:'Sebelas jenis penghargaan resmi, kriteria, kategori prestasi, dan alur pengusulannya.',phtentang:'Sumber, cara membersihkan, mutu data, dan rambu privasi.',
   suksesi:'Ringkasan pensiun dan kesiapan pengganti pejabat Eselon II sampai IV.',sukpensiun:'Jumlah kursi pejabat yang kosong karena pensiun, tahun demi tahun sampai sepuluh tahun ke depan.',sukunit:'Unit Eselon I mana yang paling banyak kehilangan pejabat dalam lima tahun.',suktempo:'Kapan gelombang pensiun tiap unit memuncak, dan unit mana yang paling sedikit sisa waktunya.',suksimulasi:'Seberapa jauh puncak pensiun bergeser bila batas usia pensiun dinaikkan satu sampai tiga tahun.',sukantrean:'Sisa waktu sebelum batas usia pada tiap jenjang, dan berapa lama satu kenaikan tingkat biasanya ditempuh.',sukkritikal:'Jabatan pimpinan satuan kerja yang pemangkunya paling banyak segera pensiun.',sukregen:'Perbandingan kursi yang akan kosong dengan jumlah kandidat di satu tingkat di bawahnya.',sukpopulasi:'Komposisi pejabat menurut eselon, jalur, gender, dan piramida usia.',sukes2:'Kesinambungan pejabat sampai level unit Eselon II, penghubung ke modul Struktur Organisasi.',sukinstrumen:'Rubrik penilaian profesionalitas dan personalitas pemimpin sebagai rujukan penilaian talenta.',suktentang:'Sumber, cara hitung batas usia pensiun, mutu data, dan rambu privasi.',suknominatif:'Daftar nama pejabat yang akan pensiun pada periode tertentu, dibuka dengan token akses dari pengelola dashboard.',
@@ -3009,7 +3020,7 @@ const MENUOBJ={
   kj:'Mengetahui sejauh mana jabatan sudah punya standar kompetensi.',kjrumpun:'Memahami pengelompokan bidang tugas yang menaungi kompetensi.',kjstandar:'Menemukan standar kompetensi jabatan tertentu dengan cepat.',kjdetail:'Membaca kompetensi satu jabatan sampai indikator perilakunya.',kjksa:'Menemukan jabatan yang membutuhkan suatu keahlian.',kjkamus:'Merujuk definisi dan tingkatan tiap kompetensi secara baku.',kjksajpt:'Mengetahui keahlian yang dituntut dari pimpinan tinggi.',kjjf:'Merujuk standar kompetensi jabatan fungsional sesuai jenjangnya.',kjmansos:'Mengetahui level kompetensi manajerial yang dituntut tiap jenjang.',kjkeahlian:'Merujuk definisi keahlian secara baku.',kjcakupan:'Menyusun daftar kerja jabatan yang belum berstandar.',kjrantai:'Memastikan proses bisnis didukung kompetensi jabatan yang tepat.',kjtaksonomi:'Menyelaraskan penamaan rumpun antara data dan acuan.',kjubah:'Memahami arah perubahan tuntutan kompetensi.',kjproyeksi:'Memperkirakan waktu penyelesaian standar kompetensi.',kjprioritas:'Menentukan jabatan yang didahulukan penyusunan standarnya.',katpeta:'Mengecek apakah kantor sejenis punya pola beban yang serupa.',kjtentang:'Memahami batasan data sebelum memakainya untuk keputusan.',
   cuti:'Memantau pemanfaatan cuti pegawai secara menyeluruh.',cutitren:'Mengantisipasi lonjakan pengajuan cuti pada periode tertentu.',cutiunit:'Membandingkan intensitas cuti antar unit secara adil.',cutiwilayah:'Melihat perbedaan pola cuti antar wilayah kerja.',cutiutilisasi:'Memastikan hak istirahat pegawai benar-benar dimanfaatkan.',cutikualitas:'Menemukan rekaman cuti yang perlu diperiksa dan diperbaiki.',cutidemografi:'Memahami profil risiko cuti menurut usia dan gender.',cutipola:'Merencanakan kapasitas kehadiran dan jadwal kegiatan besar.',cutisakit:'Memahami penyebab cuti sakit untuk menyiapkan langkah kesehatan.',cutiprediksi:'Memperkirakan beban cuti mendatang untuk perencanaan.',cutisimulasi:'Menguji dampak usulan revisi kebijakan potongan tunjangan.',cutitentang:'Memahami sumber, cakupan, dan batasan data cuti.',
   rbn:'Menilai seberapa besar pegawai menghadapi risiko bencana di tempat kerja.',rbnpeta:'Melihat sebaran risiko sampai tingkat kelurahan.',rbnjenis:'Menentukan jenis bencana yang paling perlu disiapkan.',rbnganda:'Menemukan kantor yang perlu rencana untuk beberapa bencana.',rbnunit:'Membandingkan risiko antarunit Eselon I.',rbnprov:'Membandingkan risiko antarprovinsi.',rbnkantor:'Menentukan kantor yang didahulukan dalam rencana kesiapsiagaan.',rbnpusat:'Menilai kerentanan kelangsungan kerja pimpinan dan fungsi pusat.',rbntentang:'Menelusuri asal angka dan batas penggunaannya.',
-  ink:'Menilai kesiapan organisasi bagi pegawai penyandang disabilitas dan pegawai dengan penyakit kronis.',inkkronis:'Mengetahui penyakit kronis apa yang paling banyak dan pada usia berapa.',inksurvei:'Menemukan di mana dukungan organisasi paling lemah.',inkprofil:'Memperkirakan jenis dan besar akomodasi yang perlu disediakan.',inkrekrut:'Mengetahui mengapa formasi khusus disabilitas tidak pernah terisi penuh.',inkunit:'Melihat sebaran beban akomodasi dan kelengkapan pendataan antarunit.',inktentang:'Menelusuri asal angka dan batas penggunaannya.',
+  ink:'Menilai kesiapan organisasi menjadi tempat kerja yang inklusif.',inkkronis:'Melihat gambaran besar penyakit kronis pegawai sebelum menata penempatan.',inkkrtempat:'Menimbang penempatan dan mutasi pegawai dengan penyakit kronis.',inkkrmampu:'Mengetahui seberapa banyak pegawai mampu bekerja normal kembali.',inkkrtentang:'Menelusuri asal angka dan batas penggunaannya.',inksurvei:'Menemukan di mana dukungan organisasi paling lemah.',inkprofil:'Memperkirakan jenis dan besar akomodasi yang perlu disediakan.',inkrekrut:'Mengetahui mengapa formasi khusus disabilitas tidak pernah terisi penuh.',inkunit:'Melihat sebaran beban akomodasi dan kelengkapan pendataan antarunit.',inktentang:'Menelusuri asal angka dan batas penggunaannya.',
   pmb:'Menilai seberapa besar Kementerian kehilangan pegawai sebelum waktunya.',pmbtren:'Memantau arah pemberhentian dari tahun ke tahun.',pmbunit:'Menemukan unit yang paling sering ditinggalkan pegawainya.',pmbprofil:'Mengenali pada titik karier mana pegawai memilih pergi.',pmbalasan:'Memahami sebab yang paling sering ditulis pegawai yang berhenti.',pmbintegrasi:'Melihat tekanan pengisian jabatan dari dua pintu sekaligus.',pmbtentang:'Memahami batas pembacaan data pemberhentian.',
   ph:'Menilai seberapa merata sistem penghargaan menjangkau pegawai.',phunit:'Menemukan unit yang jarang memberi atau mencatat penghargaan.',phprofil:'Mengenali lapisan pegawai yang jarang tersentuh penghargaan.',phjenis:'Membaca seberapa besar penghargaan yang berbasis keputusan dibanding yang otomatis.',phtren:'Memantau apakah sistem resmi mulai menggantikan penghargaan tidak resmi.',phrujukan:'Rujukan cepat kriteria dan alur pengusulan penghargaan.',phtentang:'Memahami batas pembacaan data pencatatan PILAR.',
   suksesi:'Menilai kesiapan Kementerian menghadapi pergantian pemimpin.',sukpensiun:'Merencanakan kebutuhan pengisian jabatan tahun per tahun.',sukunit:'Menentukan unit mana yang perlu didahulukan penyiapan penggantinya.',suktempo:'Menjadwalkan penyiapan calon menurut kapan gelombang tiap unit datang.',suksimulasi:'Menakar dampak wacana kenaikan batas usia pensiun terhadap beban pengisian jabatan.',sukantrean:'Mengenali sumbatan antrean promosi sebelum menyusun rencana pengembangan karier.',sukkritikal:'Mengamankan kepemimpinan satuan kerja yang segera berganti.',sukregen:'Mengetahui unit yang tidak punya cukup calon pengganti sendiri.',sukpopulasi:'Memahami struktur usia dan komposisi pejabat hari ini.',sukes2:'Menelusuri kesinambungan pejabat sampai unit Eselon II.',sukinstrumen:'Menyeragamkan dasar penilaian talenta untuk promosi dan mutasi.',suktentang:'Memahami asumsi, mutu, dan batasan data pejabat.',suknominatif:'Menyusun rencana pengisian jabatan dan usulan mutasi atas nama orang.',
@@ -3192,7 +3203,10 @@ function featOK(v){
 
 
   if(v==='suknominatif')return !!REMOTE;   
-  return FEATURES==='all'||(Array.isArray(FEATURES)&&FEATURES.indexOf(v)>=0);}
+  
+
+  var ALIAS={inkkronis:'inkunit',inkkrtempat:'inkunit',inkkrmampu:'inkunit',inkkrtentang:'inkunit'};
+  return FEATURES==='all'||(Array.isArray(FEATURES)&&(FEATURES.indexOf(v)>=0||(ALIAS[v]&&FEATURES.indexOf(ALIAS[v])>=0)));}
 function canMod(mid){if(mid==='beranda')return true;const m=MODULES.find(x=>x.id===mid);return !!(m&&m.groups.some(g=>g.items.some(it=>featOK(it.v))));}
 function canView(v){if(v==='beranda')return true;if(v==='usermgmt'||v==='statistik')return ADMIN;
   
@@ -3297,7 +3311,7 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   beranda:'Beranda',otkikh:'Ikhtisar Struktur Organisasi',otk:'Pohon Organisasi',otkdetail:'Detail Unit Organisasi',otkvdetail:'Detail Unit (Instansi Vertikal)',otkanalisis:'Komposisi & Rentang Kendali',otkhealth:'Kesehatan Struktur',otkorg:'Indeks Kematangan Organisasi',otkindeks:'Usulan Penataan',otkshare:'Peluang Share Service',otkcompare:'Komparasi Struktur',otkkaitan:'Keterkaitan Antar Modul',otkoverlap:'Tumpang Tindih Tugas & Fungsi',usermgmt:'Manajemen User',statistik:'Statistik Pemanfaatan',katdata:'List Dataset',otkremote:'Unit Remote',hub_organisasi:'Organisasi',hub_sdm:'SDM',hub_tatakelola:'Tata Kelola',hub_layananpublik:'Layanan Publik',hub_katalog:'Katalog',profil:'Profil Eselon I',profilunit:'Profil Eselon I',panduan:'Panduan Navigasi',kategoritim:'Kategori Tim Kerja',katalog:'Katalog Keahlian',jf:'Peta JF Keuangan Negara',jfprofil:'Profil Jabatan Fungsional',jffungsi:'Fungsionalisasi (Delayering ke JF)',jabkomposisi:'Peta Jabatan',
   tk:'Ikhtisar Layanan Publik',tkintegritas:'Zona Integritas (WBK/WBBM)',tkmonev:'Monev & Keberlanjutan Predikat',tkkegagalan:'Riwayat Kegagalan ZI',tkgeo:'Sebaran Geografis ZI',tkkepuasan:'Kepuasan Pengguna Layanan',tkpelayanan:'Pelayanan Publik (EUPP/PEKPPP)',tkombudsman:'Kepatuhan Pelayanan (Ombudsman RI)',tksarpras:'Layanan Ramah Kelompok Rentan',tkinovasi:'Inovasi Pelayanan',tkinovator:'Tokoh Inovator',tkkantor:'Kantor Terbaik & Champion Office',
   cuti:'Ringkasan Cuti Pegawai',cutitren:'Tren & Musiman Cuti',cutiunit:'Profil Unit',cutiwilayah:'Sebaran Wilayah',cutiutilisasi:'Pemakaian Hak Cuti Tahunan',cutikualitas:'Kepatuhan & Mutu Data',cutidemografi:'Demografi & Gender Cuti',cutipola:'Pola Hari & Kalender Kapasitas',cutisakit:'Kategori Cuti Sakit',cutiprediksi:'Proyeksi Beban Cuti',cutisimulasi:'Simulasi Kebijakan PMK 221',cutitentang:'Tentang Data Cuti',
-  ink:'Ikhtisar Disabilitas & Penyakit Kronis',inkkronis:'Penyakit Kronis Pegawai',inksurvei:'Dukungan Organisasi',inkprofil:'Profil & Kebutuhan Akomodasi',inkrekrut:'Rekrutmen Inklusif',inkunit:'Sebaran per Unit',inktentang:'Tentang Data Disabilitas & Penyakit Kronis',
+  ink:'Ikhtisar Disabilitas & Inklusi',inkkronis:'Ikhtisar Penyakit Kronis',inkkrtempat:'Penempatan & Jabatan',inkkrmampu:'Kemampuan Bekerja',inkkrtentang:'Tentang Data Penyakit Kronis',inksurvei:'Dukungan Organisasi',inkprofil:'Profil & Kebutuhan Akomodasi',inkrekrut:'Rekrutmen Inklusif',inkunit:'Sebaran per Unit',inktentang:'Tentang Data Disabilitas & Inklusi',
   rbn:'Ikhtisar Risiko Bencana',rbnpeta:'Peta Sebaran Risiko Bencana',rbnjenis:'Risiko per Jenis Bencana',rbnganda:'Risiko Ganda',rbnunit:'Risiko per Unit Eselon I',rbnprov:'Risiko per Provinsi',rbnkantor:'Kantor Paling Berisiko',rbnpusat:'Konsentrasi Pimpinan & Kantor Pusat',rbntentang:'Tentang Data Risiko Bencana',
   pmb:'Ikhtisar Pemberhentian & Retensi',pmbtren:'Tren Pemberhentian Tahunan',pmbunit:'Tingkat Keluar per Unit Eselon I',pmbprofil:'Profil Pegawai yang Berhenti',pmbalasan:'Alasan Berhenti',pmbintegrasi:'Kaitan Pemberhentian dengan Modul Lain',pmbtentang:'Tentang Data Pemberhentian',
   ph:'Ikhtisar Penghargaan & Apresiasi',phunit:'Pemerataan Penghargaan per Unit Eselon I',phprofil:'Profil Penerima Penghargaan',phjenis:'Komposisi Jenis Penghargaan',phtren:'Tren Penghargaan Tahunan',phrujukan:'Sistem Penghargaan Kementerian (KMK 325)',phtentang:'Tentang Data Penghargaan',
@@ -8029,7 +8043,7 @@ function vKatData(){
     {d:'Risiko Bencana Tempat Kerja (indeks risiko InaRISK per kelurahan kantor)',f:'bencana.json',m:'Risiko Bencana (domain SDM)',a:'Gerbang \u00b7 saat menu dibuka',
      s:()=>!!(typeof BENCANA==='object'&&BENCANA&&BENCANA.desa),p:()=>{var m=(BENCANA&&BENCANA.meta)||{};return 'Diolah '+(m.dibuat||'-')+', agregat kantor dan kelurahan, tanpa identitas';},
      u:'build_bencana.py lalu ganti isi file di Drive (File ID tetap)',o:'Data pegawai dan indeks risiko bencana per desa \u00b7 koordinat Wikidata'},
-    {d:'Disabilitas & Penyakit Kronis',f:'inklusi.json',m:'Disabilitas & Penyakit Kronis (domain SDM)',a:'Gerbang \u00b7 saat menu dibuka',
+    {d:'Disabilitas & Inklusi serta Penyakit Kronis',f:'inklusi.json',m:'Disabilitas & Inklusi dan Penyakit Kronis (domain SDM)',a:'Gerbang \u00b7 saat menu dibuka',
      s:()=>!!(typeof INKLUSI==='object'&&INKLUSI&&INKLUSI.survei),p:()=>{var m=(INKLUSI&&INKLUSI.meta)||{};return 'Diolah '+(m.dibuat||'-')+', agregat Eselon I, tanpa nama dan NIP';},
      u:'build_inklusi.py lalu ganti isi file di Drive (File ID tetap)',o:'Pendataan disabilitas dan penyakit kronis \u00b7 Biro Sumber Daya Manusia'},
     {d:'Pemberhentian Sebelum Batas Usia (PDH THP)',f:'pemberhentian.json',m:'Pemberhentian & Retensi (domain SDM)',a:'Gerbang · saat menu dibuka · sensitif',
@@ -8749,7 +8763,7 @@ function render(){
     kj:vKj,kjstandar:vKjStandar,kjdetail:vKjDetail,kjksajpt:vKjKsaJpt,kjjf:vKjJf,kjrumpun:vKjRumpun,kjkamus:vKjKamus,kjmansos:vKjMansos,kjkeahlian:vKjKeahlian,kjcakupan:vKjCakupan,kjrantai:vKjRantai,kjtaksonomi:vKjTaksonomi,kjubah:vKjUbah,kjproyeksi:vKjProyeksi,kjprioritas:vKjPrioritas,kjtentang:vKjTentang,
     suknominatif:vSukNominatif,
     pmb:vPmb,pmbtren:vPmbTren,pmbunit:vPmbUnit,pmbprofil:vPmbProfil,pmbalasan:vPmbAlasan,pmbintegrasi:vPmbIntegrasi,pmbtentang:vPmbTentang,
-    ink:vInk,inkkronis:vInkKronis,inksurvei:vInkSurvei,inkprofil:vInkProfil,inkrekrut:vInkRekrut,inkunit:vInkUnit,inktentang:vInkTentang,
+    ink:vInk,inkkronis:vInkKronis,inkkrtempat:vInkKrTempat,inkkrmampu:vInkKrMampu,inkkrtentang:vInkKrTentang,inksurvei:vInkSurvei,inkprofil:vInkProfil,inkrekrut:vInkRekrut,inkunit:vInkUnit,inktentang:vInkTentang,
     rbn:vRbn,rbnpeta:vRbnPeta,rbnjenis:vRbnJenis,rbnganda:vRbnGanda,rbnunit:vRbnUnit,rbnprov:vRbnProv,rbnkantor:vRbnKantor,rbnpusat:vRbnPusat,rbntentang:vRbnTentang,
     ph:vPh,phunit:vPhUnit,phprofil:vPhProfil,phjenis:vPhJenis,phtren:vPhTren,phrujukan:vPhRujukan,phtentang:vPhTentang,
     suksesi:vSuksesi,sukpensiun:vSukPensiun,sukunit:vSukUnit,suktempo:vSukTempo,suksimulasi:vSukSimulasi,sukantrean:vSukAntrean,sukkritikal:vSukKritikal,sukregen:vSukRegen,sukpopulasi:vSukPopulasi,sukes2:vSukEs2,sukinstrumen:vSukInstrumen,suktentang:vSukTentang,
@@ -10948,33 +10962,35 @@ function lpPct(v){return d1(v)+'<span class="lp-of">%</span>';}
 
 function vInk(){
   var g=inkGuard(); if(g)return g;
-  const M=INKLUSI.meta||{}, S=INKLUSI.survei, R=INKLUSI.rekrutmen, K=INKLUSI.kronis;
-  const T=R.total||{}, B=R.baris||[], KM=K.meta||{}, tot=KM.total||{};
+  
+
+
+  const M=INKLUSI.meta||{}, S=INKLUSI.survei, R=INKLUSI.rekrutmen;
+  const T=R.total||{}, B=R.baris||[];
   const grup=S.grup||[], atas=grup[0]||{}, bawah=grup[grup.length-1]||{};
   const PB=S.penyebab||[], pk=function(k){return PB.find(function(x){return x.k===k;})||{};};
   const kerja=(pk('Penyakit').n||0)+(pk('Kecelakaan').n||0), kerjaPct=S.n?100*kerja/S.n:0;
-  const unitAll=(KM.unitMelapor||0)+((KM.unitBelum||[]).length);
-  const RK=K.rekam, RKk=RK?(RK.kategori||[]).filter(function(x){return x.k!=='Lainnya';}):[];
+  const keb=function(kode){return (S.kebutuhan||[]).find(function(x){return x.kode===kode;})||{};};
+  const sur=keb('surat'), ling=keb('lingkungan');
   
   var s='Survei terhadap <b>'+fmt(S.n)+' pegawai penyandang disabilitas</b> memberi nilai tertinggi pada kelompok <b>'+esc(atas.grup||'-')+'</b> ('+d1(atas.rerata||0)+' dari 5) dan terendah pada <b>'+esc(bawah.grup||'-')+'</b> ('+d1(bawah.rerata||0)+'). ';
   if(atas.grup==='Orang di sekitar'&&bawah.grup==='Aturan main')s+='Artinya atasan dan rekan kerja sudah mendukung, tetapi kebijakan tertulis dan prosedur permintaan akomodasi masih perlu dibenahi. ';
   s+='Dari '+fmt(T.formasi||0)+' formasi khusus disabilitas pada 2017 sampai 2024, baru <b>'+fmt(T.angkat||0)+'</b> yang terisi karena pelamarnya sedikit, rata-rata '+d1(T.minatRasio||0)+' orang per formasi. ';
-  s+='Sebanyak <b>'+d1(kerjaPct)+'%</b> disabilitas muncul karena penyakit atau kecelakaan setelah pegawai bekerja, sehingga penyesuaian kerja bagi pegawai yang sudah ada sama pentingnya dengan rekrutmen.';
-  if(RK)s+=' Pendataan penyakit kronis mencatat <b>'+fmt(RK.sendiri)+' pegawai</b>, terbanyak '+esc((RKk[0]||{}).k||'-').toLowerCase()+' dan '+esc((RKk[1]||{}).k||'-').toLowerCase()+'.';
-  var h=sorotanCard('Highlight',s,[{v:'inksurvei',t:'Dukungan Organisasi'},{v:'inkrekrut',t:'Rekrutmen Inklusif'},{v:'inkkronis',t:'Penyakit Kronis'}]);
+  s+='Sebanyak <b>'+d1(kerjaPct)+'%</b> disabilitas muncul setelah pegawai bekerja, sehingga penyesuaian kerja bagi pegawai yang sudah ada sama pentingnya dengan rekrutmen.';
+  var h=sorotanCard('Highlight',s,[{v:'inksurvei',t:'Dukungan Organisasi'},{v:'inkprofil',t:'Profil & Kebutuhan'},{v:'inkrekrut',t:'Rekrutmen Inklusif'}]);
   
   h+='<div class="lp-kpis">'
     +lpSel('inkprofil','Responden Survei',fmt(S.n),'pegawai penyandang disabilitas')
     +lpSel('inksurvei','Nilai '+esc(bawah.grup||'Terendah'),d1(bawah.rerata||0)+'<span class="lp-of"> dari 5</span>','terendah dari '+grup.length+' kelompok penilaian')
     +lpSel('inkrekrut','Formasi Terisi',lpPct(T.isiPct||0),fmt(T.angkat||0)+' dari '+fmt(T.formasi||0)+' formasi, 2017 sampai 2024')
     +lpSel('inkprofil','Muncul Setelah Bekerja',lpPct(kerjaPct),'karena penyakit atau kecelakaan')
-    +lpSel('inkkronis','Penyakit Kronis Pegawai',fmt(RK?RK.sendiri:(tot.jumlah||0)),RK?('dari '+fmt(RK.total)+' catatan; '+(KM.unitMelapor||0)+' dari '+unitAll+' unit melapor'):((KM.unitMelapor||0)+' dari '+unitAll+' unit sudah melapor'))
+    +lpSel('inkprofil','Belum Punya Surat Keterangan',lpPct(S.n?100*(sur.tidak||0)/S.n:0),fmt(sur.tidak||0)+' responden')
     +'</div>';
   
   const L=(S.likert||[]).slice().sort(function(a,b){return a.rerata-b.rerata;});
   const cB='var(--seq-7)', cL='var(--seq-3)';
   const kebLab={medis:'Punya kebutuhan medis rutin',lingkungan:'Lingkungan kerja belum mendukung',surat:'Belum punya surat keterangan disabilitas'};
-  const keb=(S.kebutuhan||[]).map(function(x){var balik=(x.kode==='lingkungan'||x.kode==='surat');var n=balik?x.tidak:x.ya;
+  const kb=(S.kebutuhan||[]).map(function(x){var balik=(x.kode==='lingkungan'||x.kode==='surat');var n=balik?x.tidak:x.ya;
     return {lab:kebLab[x.kode]||x.label,n:S.n?100*n/S.n:0,teks:d1(S.n?100*n/S.n:0)+'% <small>'+fmt(n)+' org</small>'};}).sort(function(a,b){return b.n-a.n;});
   h+='<div class="lp-grid">';
   h+='<div class="lp-c7">'+lpKartu('inksurvei','Penilaian Dukungan Organisasi','Rerata '+L.length+' butir pada skala 1 sampai 5, diurutkan dari yang terendah. Batang dimulai dari nilai 1.',
@@ -10982,21 +10998,20 @@ function vInk(){
       lpBaris(L.map(function(x){return {lab:x.ringkas||x.label,n:x.rerata,teks:d1(x.rerata),col:x.grup===bawah.grup?cB:cL,title:x.label};}),{min:1,max:5,kls:'lp-bars-lebar'}))+'</div>';
   h+='<div class="lp-c5 lp-stack">'
     +lpKartu('inkprofil','Kapan Disabilitas Muncul','Penyebab menurut '+fmt(S.n)+' responden',
-      lpStk([{lab:'Penyakit saat bekerja',n:pk('Penyakit').n||0,col:'var(--seq-7)'},{lab:'Kecelakaan',n:pk('Kecelakaan').n||0,col:'var(--seq-5)'},{lab:'Sejak lahir',n:pk('Sejak lahir').n||0,col:'var(--seq-3)'},{lab:'Lainnya atau tidak dirinci',n:pk('Lainnya atau tidak dirinci').n||0,col:'var(--muted)'}]))
-    +lpKartu('inkprofil','Kebutuhan Akomodasi','Persen dari '+fmt(S.n)+' responden',lpBaris(keb,{max:100,kls:'lp-bars-lebar'}))
+      lpStk([{lab:'Penyakit',n:pk('Penyakit').n||0,col:'var(--seq-7)'},{lab:'Kecelakaan',n:pk('Kecelakaan').n||0,col:'var(--seq-5)'},{lab:'Sejak lahir',n:pk('Sejak lahir').n||0,col:'var(--seq-3)'},{lab:'Lainnya atau tidak dirinci',n:pk('Lainnya atau tidak dirinci').n||0,col:'var(--muted)'}]))
+    +lpKartu('inkprofil','Kebutuhan Akomodasi','Persen dari '+fmt(S.n)+' responden',lpBaris(kb,{max:100,kls:'lp-bars-lebar'}))
     +'</div>';
   h+='<div class="lp-c7">'+lpKartu('inkrekrut','Formasi Khusus Disabilitas','Formasi yang disediakan dan yang terisi per periode penerimaan',
       lpLeg([{lab:'Terisi',col:'var(--seq-7)'},{lab:'Tidak terisi',col:'var(--seq-3)'}])+
       lpKolom(B.map(function(x){return {lab:x.jalur+' '+String(x.tahun).replace(/^(\d{4})-\d\d(\d\d)$/,'$1-$2'),v:{a:x.angkat||0,t:Math.max(0,(x.formasi||0)-(x.angkat||0))}};}),
         [{k:'a',lab:'Terisi',col:'var(--seq-7)'},{k:'t',lab:'Tidak terisi',col:'var(--seq-3)'}],{w:540,h:220,aria:'Formasi khusus disabilitas per periode'}))+'</div>';
-  h+='<div class="lp-c5">'+lpKartu('inkkronis','Penyakit Kronis Pegawai',RK?fmt(RK.sendiri)+' pegawai dari '+fmt(RK.total)+' catatan, '+(KM.unitMelapor||0)+' unit Eselon I melapor':fmt(tot.jumlah||0)+' pegawai tercatat',
-      (RK?lpBaris(RKk.slice(0,6).map(function(x){return {lab:x.k,n:x.n,teks:fmt(x.n)+' <small>'+d1(x.pct)+'%</small>'};}),{kls:'lp-bars-lebar'}):'')+
-      '<div class="lp-chs" style="margin:4px 0 0">Tempat bekerja</div>'+
-      lpStk([{lab:'Bukan di homebase',n:tot.nonHomebase||0,col:'var(--seq-7)'},{lab:'Di homebase',n:tot.homebase||0,col:'var(--seq-3)'}])+
-      ((KM.unitBelum||[]).length?'<div class="mini" style="margin:2px 0 8px">Belum melapor: '+esc((KM.unitBelum||[]).map(lpUnit).join(' dan '))+'.</div>':''))+'</div>';
+  const JN=S.jenis||[];
+  h+='<div class="lp-c5">'+lpKartu('inkprofil','Jenis Disabilitas','Menurut '+fmt(S.n)+' responden survei',
+      lpBaris(JN.map(function(x){return {lab:x.k.replace(/^Disabilitas /,''),n:x.n,teks:fmt(x.n)+' <small>'+d1(x.pct||0)+'%</small>',title:x.k};}),{kls:'lp-bars-lebar'})+
+      '<div class="mini" style="margin:2px 0 10px">Lingkungan kerja dinilai belum mendukung oleh '+fmt(ling.tidak||0)+' responden.</div>')+'</div>';
   h+='</div>';
-  h+=lpNav([['inksurvei','Dukungan Organisasi'],['inkprofil','Profil & Kebutuhan'],['inkrekrut','Rekrutmen Inklusif'],['inkkronis','Penyakit Kronis'],['inkunit','Sebaran per Unit'],['inktentang','Tentang Data']]);
-  h+='<div class="mini lp-src">Angka gabungan tingkat Eselon I, tanpa nama dan NIP, diolah '+esc(M.dibuat||'-')+'. '+esc(sederhana(M.peringatan||''))+'</div>';
+  h+=lpNav([['inksurvei','Dukungan Organisasi'],['inkprofil','Profil & Kebutuhan'],['inkrekrut','Rekrutmen Inklusif'],['inktentang','Tentang Data']]);
+  h+='<div class="mini lp-src">Survei kesejahteraan pegawai penyandang disabilitas dan rekapitulasi rekrutmen khusus 2017 sampai 2024, tanpa nama dan NIP, diolah '+esc(M.dibuat||'-')+'. Survei didominasi responden satu unit, sehingga menggambarkan pegawai yang terjangkau survei, bukan seluruh populasi.</div>';
   return h;
 }
 
@@ -11173,76 +11188,155 @@ function vInkUnit(){
 
 
 
+
+
+function krnRekam(){var K=INKLUSI&&INKLUSI.kronis;return K&&K.rekam?K.rekam:null;}
+function krnKosong(){return '<div class="empty">Rincian penyakit kronis belum ada pada data yang dimuat. Unggah ulang berkas inklusi.json versi terbaru, lalu muat ulang halaman.</div>';}
+function krnJenis(R,k){return (R.acuan||[]).indexOf(k)>=0?'acuan':((R.tambahan||[]).indexOf(k)>=0?'tambahan':(k==='Komplikasi'?'komplikasi':'lain'));}
+var KRN_WARNA={acuan:'var(--seq-7)',tambahan:'var(--seq-5)',komplikasi:'var(--seq-3)',lain:'var(--muted)'};
+
+function krnHeat(baris,kol,V,ekstraLab,ekstra,saring){
+  var t='<div class="tblw"><table class="lp-heat" data-pgn-lewat><thead><tr><th>Jenis penyakit</th>'+kol.map(function(k){return '<th>'+esc(k)+'</th>';}).join('')+(ekstraLab?'<th>'+esc(ekstraLab)+'</th>':'')+'</tr></thead><tbody>';
+  baris.forEach(function(b,i){var r=V[i]||[];if(saring&&!saring(b,r))return;var mx=Math.max.apply(null,r.map(function(v){return v||0;}).concat([1]));
+    t+='<tr><td>'+esc(b)+'</td>'+r.map(function(v){
+      if(v==null)return '<td class="lp-hx" title="Tidak dirinci: kelompoknya kecil">&middot;</td>';
+      var a=Math.round(12+60*v/mx);return '<td'+(a>45?' class="pk"':'')+' style="background:color-mix(in srgb, var(--seq-6) '+a+'%, transparent)">'+fmt(v)+'</td>';}).join('')+
+      (ekstra?'<td class="lp-hp">'+ekstra(i,r)+'</td>':'')+'</tr>';});
+  return t+'</tbody></table></div><div class="mini" style="margin:6px 0 8px">Tanda titik berarti tidak dirinci karena kelompoknya kecil. Warna makin pekat berarti kolom terbanyak pada baris itu.</div>';}
+function krnPct(r,i){if(r.some(function(v){return v==null;}))return '&middot;';var t=r.reduce(function(a,v){return a+v;},0);return t?Math.round(100*r[i]/t)+'%':'&middot;';}
+
 function vInkKronis(){
   var g=inkGuard(); if(g)return g;
-  const K=INKLUSI.kronis, R=K.rekam, KM=K.meta||{};
-  if(!R)return '<div class="empty">Rincian penyakit kronis belum ada pada data yang dimuat. Unggah ulang berkas inklusi.json versi terbaru, lalu muat ulang halaman.</div>';
+  const R=krnRekam(); if(!R)return krnKosong();
+  const K=INKLUSI.kronis, KM=K.meta||{};
   const bk=function(k){return ((R.bukan||[]).find(function(x){return x.k===k;})||{}).n||0;};
   const KT=R.kategori||[], utama=KT.filter(function(x){return x.k!=='Lainnya';}), lain=KT.find(function(x){return x.k==='Lainnya';})||{n:0,pct:0};
-  const top=utama[0]||{}, D=R.dampakDjp||{}, U=R.usia||{};
+  const nAcuan=KT.filter(function(x){return krnJenis(R,x.k)==='acuan';}).reduce(function(a,x){return a+(x.n>0?x.n:0);},0);
+  const HB=R.homebaseTot||{}, hbT=(HB.ya||0)+(HB.tidak||0), PT=R.potensiTot||{}, ptT=(PT.ya||0)+(PT.tidak||0), D=R.dampakDjp||{}, U=R.usia||{};
   const unitAll=(KM.unitMelapor||0)+((KM.unitBelum||[]).length);
   
-  var s='Dari '+fmt(R.total)+' catatan pendataan penyakit kronis, <b>'+fmt(R.sendiri)+'</b> adalah penyakit pegawai sendiri. Sisanya berisi kondisi anggota keluarga ('+fmt(bk('Kondisi keluarga'))+' catatan), keterangan sudah sehat atau sembuh, meninggal dunia, atau kosong, hampir seluruhnya dari Direktorat Jenderal Pajak. ';
-  s+='Penyakit terbanyak adalah <b>'+esc(top.k||'-')+'</b> ('+fmt(top.n||0)+' orang), disusul '+utama.slice(1,4).map(function(x){return esc(x.k)+' ('+fmt(x.n)+')';}).join(', ')+'. ';
-  if(U.median)s+='Median usianya '+U.median+' tahun, jadi sebagian besar masih di usia kerja produktif.';
-  let h=sorotanCard('Highlight',s,[{v:'inkunit',t:'Sebaran per Unit'},{v:'ink',t:'Ikhtisar Modul'}]);
+  var s='Pendataan Biro SDM mencatat <b>'+fmt(R.sendiri)+' pegawai</b> dengan penyakit kronis di '+(KM.unitMelapor||0)+' unit Eselon I. Terbanyak '+utama.slice(0,4).map(function(x){return esc(x.k).toLowerCase()+' ('+fmt(x.n)+')';}).join(', ')+'. ';
+  if(hbT)s+='Untuk penataan, <b>'+Math.round(100*(HB.tidak||0)/hbT)+'%</b> di antaranya bekerja di luar homebase';
+  if(ptT)s+=', dan dari '+fmt(ptT)+' pegawai yang dinilai, '+Math.round(100*(PT.ya||0)/ptT)+'% mampu bekerja normal kembali';
+  s+='. ';
+  if(D.n)s+='Di Direktorat Jenderal Pajak, '+Math.round(100*(D.besar>0?D.besar:0)/D.n)+'% dinilai berdampak besar terhadap kinerja.';
+  let h=sorotanCard('Highlight',s,[{v:'inkkrtempat',t:'Penempatan & Jabatan'},{v:'inkkrmampu',t:'Kemampuan Bekerja'},{v:'inkunit',t:'Sebaran per Unit'}]);
   
   h+='<div class="lp-kpis">'
-    +lpSel('inkunit','Catatan Penyakit Kronis',fmt(R.total),(KM.unitMelapor||0)+' dari '+unitAll+' unit sudah melapor')
-    +lpSel('','Penyakit Pegawai Sendiri',fmt(R.sendiri),Math.round(100*R.sendiri/(R.total||1))+'% dari seluruh catatan')
-    +lpSel('','Kondisi Keluarga',fmt(bk('Kondisi keluarga')),'dicatat sebagai riwayat pegawai')
-    +lpSel('','Penyakit Terbanyak',esc(String(top.k||'-').replace(/^Penyakit /,'')),fmt(top.n||0)+' orang, '+d1(top.pct||0)+'% pegawai yang tercatat')
-    +lpSel('','Median Usia',(U.median||'-')+'<span class="lp-of"> tahun</span>','dari '+fmt(U.n||0)+' catatan yang usianya terbaca')
+    +lpSel('inkunit','Pegawai dengan Penyakit Kronis',fmt(R.sendiri),'dari '+fmt(R.total)+' catatan; '+(KM.unitMelapor||0)+' dari '+unitAll+' unit melapor')
+    +lpSel('','Kategori Acuan',lpPct(R.sendiri?100*nAcuan/R.sendiri:0),fmt(nAcuan)+' pegawai pada '+(R.acuan||[]).length+' penyakit acuan')
+    +lpSel('inkkrtempat','Di Luar Homebase',lpPct(hbT?100*(HB.tidak||0)/hbT:0),fmt(HB.tidak||0)+' pegawai')
+    +lpSel('inkkrmampu','Mampu Bekerja Normal',lpPct(ptT?100*(PT.ya||0)/ptT:0),'dari '+fmt(ptT)+' pegawai yang dinilai')
+    +lpSel('inkkrmampu','Berdampak Besar (DJP)',lpPct(D.n?100*(D.besar>0?D.besar:0)/D.n:0),'dari '+fmt(D.n||0)+' pegawai DJP yang dinilai')
     +'</div>';
   
+  const LEG=[{lab:'Kategori acuan Kemenkes dan BPJS',col:KRN_WARNA.acuan},{lab:'Kategori tambahan Biro SDM',col:KRN_WARNA.tambahan},{lab:'Lebih dari satu penyakit',col:KRN_WARNA.komplikasi}];
   h+='<div class="lp-grid">';
-  h+='<div class="lp-c7">'+lpKartu('','Jenis Penyakit Kronis Pegawai','Jumlah pegawai menurut kategori penyakit. Kategori Lainnya ('+fmt(lain.n)+' orang, '+d1(lain.pct)+'%) mencakup penyakit di luar daftar dan tidak digambar.',
-      lpBaris(utama.map(function(x){return {lab:x.k,n:x.n,teks:fmt(x.n)+' <small>'+d1(x.pct)+'%</small>',title:x.k+(x.L!=null?': laki-laki '+fmt(x.L)+', perempuan '+fmt(x.P):'')};}),{kls:'lp-bars-lebar'}))+'</div>';
+  h+='<div class="lp-c7">'+lpKartu('inkkrtempat','Jenis Penyakit Kronis','Jumlah pegawai menurut kategori. Kategori Lainnya ('+fmt(lain.n)+' orang, '+d1(lain.pct)+'%) mencakup penyakit di luar daftar dan tidak digambar.',
+      lpLeg(LEG)+lpBaris(utama.map(function(x){return {lab:x.k,n:x.n>0?x.n:0,teks:fmt(x.n)+' <small>'+d1(x.pct)+'%</small>',col:KRN_WARNA[krnJenis(R,x.k)],title:x.k+(x.L!=null?': laki-laki '+fmt(x.L)+', perempuan '+fmt(x.P):'')};}),{kls:'lp-bars-lebar'}))+'</div>';
   h+='<div class="lp-c5 lp-stack">'
-    +lpKartu('','Isi Catatan Pendataan',fmt(R.total)+' catatan dari '+(KM.unitMelapor||0)+' unit Eselon I',
+    +lpKartu('inktentang','Isi Catatan Pendataan',fmt(R.total)+' catatan',
       lpStk([{lab:'Penyakit pegawai sendiri',n:R.sendiri,col:'var(--seq-7)'},{lab:'Kondisi anggota keluarga',n:bk('Kondisi keluarga'),col:'var(--seq-5)'},{lab:'Sudah sehat atau sembuh',n:bk('Sehat atau sudah sembuh'),col:'var(--seq-3)'},{lab:'Meninggal dunia atau kosong',n:bk('Meninggal dunia')+bk('Tidak terisi'),col:'var(--muted)'}]))
-    +(D.n?lpKartu('','Dampak terhadap Kinerja','Penilaian Direktorat Jenderal Pajak atas '+fmt(D.n)+' pegawainya',
-      lpStk([{lab:'Berdampak besar',n:D.besar>0?D.besar:0,col:'var(--seq-7)'},{lab:'Berdampak kecil',n:D.kecil>0?D.kecil:0,col:'var(--seq-5)'},{lab:'Tidak berdampak',n:D.tidak>0?D.tidak:0,col:'var(--seq-3)'}])):'')
+    +lpKartu('','Usia Pegawai','Median '+(U.median||'-')+' tahun',
+      lpKolom((U.kelompok||[]).map(function(x){return {lab:x.k.replace(' sampai ','-').replace('di bawah ','< ').replace(' ke atas','+'),v:{n:x.n>0?x.n:0}};}),[{k:'n',lab:'Pegawai',col:'var(--seq-5)'}],{w:370,h:190,aria:'Usia pegawai berpenyakit kronis'}))
     +'</div>';
-  
-
-  const KU=(R.kategoriUsia||[]).filter(function(x){return x.k!=='Lainnya';}), KL=R.kelUsia||[];
-  const katOf=function(k){return KT.find(function(x){return x.k===k;})||{};};
-  let tb='<div class="tblw"><table class="lp-heat" data-pgn-lewat><thead><tr><th>Jenis penyakit</th>'+KL.map(function(k){return '<th>'+esc(k)+'</th>';}).join('')+'<th>Perempuan</th></tr></thead><tbody>';
-  KU.forEach(function(r){const mx=Math.max.apply(null,r.v.map(function(v){return v||0;}).concat([1]));const kx=katOf(r.k);
-    tb+='<tr><td>'+esc(r.k)+'</td>'+r.v.map(function(v){
-      if(v==null)return '<td class="lp-hx" title="Tidak dirinci: kelompoknya kecil">&middot;</td>';
-      const a=Math.round(12+60*v/mx);
-      return '<td'+(a>45?' class="pk"':'')+' style="background:color-mix(in srgb, var(--seq-6) '+a+'%, transparent)">'+fmt(v)+'</td>';}).join('')+
-      '<td class="lp-hp">'+(kx.P!=null&&(kx.L+kx.P)?Math.round(100*kx.P/(kx.L+kx.P))+'%':'&middot;')+'</td></tr>';});
-  tb+='</tbody></table></div>';
-  h+='<div class="lp-c7">'+lpKartu('','Jenis Penyakit menurut Kelompok Usia','Jumlah orang. Warna makin pekat berarti kelompok usia paling banyak untuk penyakit itu.',
-      tb+'<div class="mini" style="margin:6px 0 8px">Tanda titik berarti tidak dirinci karena kelompoknya kecil. Kolom Perempuan adalah porsi perempuan pada penyakit itu; porsi perempuan di seluruh catatan '+Math.round(100*(R.gender||{}).P/(((R.gender||{}).L||0)+((R.gender||{}).P||0)||1))+'%.</div>')+'</div>';
+  const SL=R.silang||{}, BR=SL.baris||[];
+  const hbRows=BR.map(function(b,i){var r=(SL.homebase||{v:[]}).v[i]||[];return {b:b,r:r};}).filter(function(x){return x.b!=='Lainnya'&&x.r.length&&x.r.every(function(v){return v!=null;})&&(x.r[0]+x.r[1])>=20;});
+  h+='<div class="lp-c7">'+lpKartu('inkkrtempat','Bekerja di Luar Homebase menurut Penyakit','Persen pegawai pada tiap jenis penyakit yang bekerja jauh dari homebase. Jenis dengan kurang dari 20 orang tidak digambar.',
+      lpBaris(hbRows.map(function(x){var t=x.r[0]+x.r[1];return {lab:x.b,n:100*x.r[1]/t,teks:Math.round(100*x.r[1]/t)+'% <small>'+fmt(x.r[1])+'</small>',col:KRN_WARNA[krnJenis(R,x.b)]};}).sort(function(a,b){return b.n-a.n;}),{max:100,kls:'lp-bars-lebar'}))+'</div>';
   h+='<div class="lp-c5 lp-stack">'
-    +lpKartu('','Usia Pegawai','Pegawai dengan penyakit kronis menurut kelompok usia',
-      lpKolom((U.kelompok||[]).map(function(x){return {lab:x.k.replace(' sampai ','-').replace('di bawah ','< ').replace(' ke atas','+'),v:{n:x.n>0?x.n:0}};}),[{k:'n',lab:'Pegawai',col:'var(--seq-5)'}],{w:370,h:200,aria:'Usia pegawai berpenyakit kronis'}))
-    +lpKartu('','Jenjang Jabatan','Pegawai dengan penyakit kronis menurut jenjang',
-      lpBaris((R.jenjang||[]).map(function(x){return {lab:x.k,n:x.n>0?x.n:0,teks:x.n>0?fmt(x.n)+' <small>'+Math.round(100*x.n/(R.sendiri||1))+'%</small>':'&lt; 5'};})))
+    +lpKartu('inkkrmampu','Potensi Bekerja Normal Kembali','Penilaian unit atas '+fmt(ptT)+' pegawai',lpStk([{lab:'Mampu bekerja normal',n:PT.ya||0,col:'var(--seq-7)'},{lab:'Belum mampu',n:PT.tidak||0,col:'var(--seq-3)'}]))
+    +(D.n?lpKartu('inkkrmampu','Dampak terhadap Kinerja','Penilaian Direktorat Jenderal Pajak atas '+fmt(D.n)+' pegawai',lpStk([{lab:'Berdampak besar',n:D.besar>0?D.besar:0,col:'var(--seq-7)'},{lab:'Berdampak kecil',n:D.kecil>0?D.kecil:0,col:'var(--seq-5)'},{lab:'Tidak berdampak',n:D.tidak>0?D.tidak:0,col:'var(--seq-3)'}])):'')
     +'</div>';
   h+='</div>';
-  h+=lpNav([['inkunit','Sebaran per Unit'],['ink','Ikhtisar Modul'],['inktentang','Tentang Data']]);
-  h+='<div class="mini lp-src">Pendataan penyakit kronis Biro SDM, tanpa nama dan NIP. Jabatan, unit di bawah Eselon I, dan teks nama penyakit tidak ditampilkan. Kategori pada '+fmt(R.dikelompokkanTeks||0)+' catatan yang kolom kategorinya kosong ditentukan otomatis dari teks nama penyakit, sehingga hasilnya perkiraan. Unit yang belum melapor: '+esc((KM.unitBelum||[]).map(lpUnit).join(' dan ')||'-')+'.</div>';
+  h+=lpNav([['inkkrtempat','Penempatan & Jabatan'],['inkkrmampu','Kemampuan Bekerja'],['inkunit','Sebaran per Unit'],['inkkrtentang','Tentang Data']]);
+  h+='<div class="mini lp-src">Pendataan penyakit kronis Biro SDM, tanpa nama dan NIP. Kategori acuan adalah sembilan penyakit kronis pada daftar Kemenkes dan BPJS Kesehatan; ginjal, kanker, dan autoimun ditambahkan Biro SDM. Kategori pada '+fmt(R.dikelompokkanTeks||0)+' catatan yang kolom kategorinya kosong ditentukan otomatis dari teks nama penyakit, sehingga perkiraan. Unit yang belum melapor: '+esc((KM.unitBelum||[]).map(lpUnit).join(' dan ')||'-')+'.</div>';
+  return h;
+}
+
+function vInkKrTempat(){
+  var g=inkGuard(); if(g)return g;
+  const R=krnRekam(); if(!R)return krnKosong();
+  const K=INKLUSI.kronis, U=K.perUnit||[], SL=R.silang||{}, BR=SL.baris||[], HB=R.homebaseTot||{}, hbT=(HB.ya||0)+(HB.tidak||0);
+  const J=R.jenjang||[], jT=J.reduce(function(a,x){return a+(x.n>0?x.n:0);},0);
+  var s='Sebanyak <b>'+Math.round(100*(HB.tidak||0)/(hbT||1))+'%</b> pegawai dengan penyakit kronis bekerja di luar homebase. Bagi penyakit yang butuh pengobatan rutin, jarak dari keluarga dan fasilitas kesehatan langganan menjadi bahan pertimbangan penempatan dan mutasi. ';
+  s+='Menurut jenjang, '+Math.round(100*((J[0]||{}).n||0)/(jT||1))+'% berada di jenjang pelaksana. Kesesuaian jabatan per orang tidak dapat dinilai dari data gabungan; yang tersedia adalah sebaran jenjang dan unit.';
+  let h=sorotanCard('Highlight',s,[{v:'inkkronis',t:'Ikhtisar'},{v:'inkunit',t:'Sebaran per Unit'}]);
+  h+='<div class="lp-kpis">'
+    +lpSel('','Di Luar Homebase',lpPct(hbT?100*(HB.tidak||0)/hbT:0),fmt(HB.tidak||0)+' pegawai')
+    +lpSel('','Di Homebase',fmt(HB.ya||0),'pegawai')
+    +J.map(function(x){return lpSel('',esc(x.k),fmt(x.n>0?x.n:0),Math.round(100*(x.n>0?x.n:0)/(jT||1))+'% pegawai dengan penyakit kronis');}).join('')
+    +'</div>';
+  h+='<div class="lp-grid">';
+  h+='<div class="lp-c7">'+lpKartu('','Tempat Bekerja menurut Jenis Penyakit','Jumlah pegawai di homebase dan di luar homebase; kolom terakhir adalah porsi di luar homebase',
+      krnHeat(BR,(SL.homebase||{}).kol||[],(SL.homebase||{}).v||[],'Luar homebase',function(i,r){return krnPct(r,1);}))+'</div>';
+  const rinciHB=U.filter(function(x){return x.status==='ok'&&x.rinci&&x.nonHomebasePct!=null;}).sort(function(a,b){return b.nonHomebasePct-a.nonHomebasePct;});
+  h+='<div class="lp-c5">'+lpKartu('inkunit','Di Luar Homebase per Unit','Persen pegawai dengan penyakit kronis di tiap unit',
+      lpBaris(rinciHB.map(function(x){return {lab:lpUnit(x.unit),n:x.nonHomebasePct,teks:d1(x.nonHomebasePct)+'%',title:x.unit};}),{max:100,kls:'lp-bars-lebar'})+
+      '<div class="mini" style="margin:2px 0 10px">Unit dengan catatan kurang dari 20 orang tidak dirinci.</div>')+'</div>';
+  h+='<div class="lp-c12">'+lpKartu('','Jenjang Jabatan menurut Jenis Penyakit','Jumlah pegawai pada tiap jenjang; kolom terakhir adalah porsi jenjang Eselon IV ke atas',
+      krnHeat(BR,(SL.jenjang||{}).kol||[],(SL.jenjang||{}).v||[],'Eselon IV ke atas',function(i,r){if(r.some(function(v){return v==null;}))return '&middot;';var t=r.reduce(function(a,v){return a+v;},0);return t?Math.round(100*(r[1]+r[2])/t)+'%':'&middot;';}))+'</div>';
+  h+='</div>';
+  h+=lpNav([['inkkronis','Ikhtisar Penyakit Kronis'],['inkkrmampu','Kemampuan Bekerja'],['inkunit','Sebaran per Unit'],['inkkrtentang','Tentang Data']]);
+  h+='<div class="mini lp-src">Homebase sesuai isian unit pada pendataan. Jabatan dan unit di bawah Eselon I tidak dipakai karena pada unit kecil dapat menunjuk satu orang.</div>';
+  return h;
+}
+
+function vInkKrMampu(){
+  var g=inkGuard(); if(g)return g;
+  const R=krnRekam(); if(!R)return krnKosong();
+  const K=INKLUSI.kronis, U=K.perUnit||[], KM=K.meta||{}, SL=R.silang||{}, BR=SL.baris||[], PT=R.potensiTot||{}, ptT=(PT.ya||0)+(PT.tidak||0), D=R.dampakDjp||{};
+  var s='Unit menilai kemampuan pegawai dengan dua cara. Sebagian besar unit menjawab apakah pegawai <b>berpotensi bekerja normal kembali</b>: dari '+fmt(ptT)+' pegawai yang dinilai, <b>'+Math.round(100*(PT.ya||0)/(ptT||1))+'%</b> dinyatakan mampu. ';
+  if(D.n)s+='Direktorat Jenderal Pajak menilai <b>dampak penyakit terhadap kinerja</b>: dari '+fmt(D.n)+' pegawai, '+Math.round(100*(D.besar>0?D.besar:0)/D.n)+'% berdampak besar dan '+Math.round(100*(D.tidak>0?D.tidak:0)/D.n)+'% tidak berdampak. ';
+  s+='Kedua skala tidak dijumlahkan karena pertanyaannya berbeda.';
+  let h=sorotanCard('Highlight',s,[{v:'inkkronis',t:'Ikhtisar'},{v:'inkkrtempat',t:'Penempatan & Jabatan'}]);
+  h+='<div class="lp-kpis">'
+    +lpSel('','Dinilai Potensinya',fmt(ptT),'pegawai di luar skala dampak DJP')
+    +lpSel('','Mampu Bekerja Normal',lpPct(ptT?100*(PT.ya||0)/ptT:0),fmt(PT.ya||0)+' pegawai')
+    +lpSel('','Belum Mampu',fmt(PT.tidak||0),'pegawai')
+    +lpSel('','Dinilai Dampaknya (DJP)',fmt(D.n||0),'pegawai Direktorat Jenderal Pajak')
+    +lpSel('','Berdampak Besar',lpPct(D.n?100*(D.besar>0?D.besar:0)/D.n:0),fmt(D.besar>0?D.besar:0)+' pegawai DJP')
+    +'</div>';
+  h+='<div class="lp-grid">';
+  h+='<div class="lp-c7">'+lpKartu('','Dampak terhadap Kinerja menurut Jenis Penyakit','Penilaian Direktorat Jenderal Pajak; kolom terakhir adalah porsi berdampak besar',
+      krnHeat(BR,(SL.dampak||{}).kol||[],(SL.dampak||{}).v||[],'Berdampak besar',function(i,r){return krnPct(r,0);},function(b,r){return r.some(function(v){return v;});}))+'</div>';
+  h+='<div class="lp-c5">'+lpKartu('','Potensi Bekerja Normal menurut Jenis Penyakit','Unit selain penilaian dampak DJP; kolom terakhir adalah porsi yang mampu',
+      krnHeat(BR,(SL.potensi||{}).kol||[],(SL.potensi||{}).v||[],'Mampu',function(i,r){return krnPct(r,0);},function(b,r){return r.some(function(v){return v;});}))+'</div>';
+  const rinciPot=U.filter(function(x){return x.status==='ok'&&x.rinci&&x.potensiPct!=null;}).sort(function(a,b){return b.potensiPct-a.potensiPct;});
+  h+='<div class="lp-c12">'+lpKartu('inkunit','Dinilai Mampu Bekerja Normal per Unit','Persen pegawai dengan penyakit kronis yang dinilai mampu bekerja normal. Rerata Kementerian '+d1(KM.potensiPct||0)+'%. Unit bertanda bintang menafsirkan pertanyaan berbeda.',
+      lpBaris(rinciPot.map(function(x){return {lab:lpUnit(x.unit)+(x.tafsirBeda?' *':''),n:x.potensiPct,teks:d1(x.potensiPct)+'%',col:x.tafsirBeda?'var(--muted)':'var(--seq-5)',title:x.unit};}),{max:100,kls:'lp-bars2'}))+'</div>';
+  h+='</div>';
+  h+=lpNav([['inkkronis','Ikhtisar Penyakit Kronis'],['inkkrtempat','Penempatan & Jabatan'],['inkunit','Sebaran per Unit'],['inkkrtentang','Tentang Data']]);
+  h+='<div class="mini lp-src">Penilaian kemampuan bekerja berasal dari isian unit, bukan pemeriksaan medis. Potensi pulih secara medis tidak tercatat di data ini.</div>';
+  return h;
+}
+
+function vInkKrTentang(){
+  var g=inkGuard(); if(g)return g;
+  const R=krnRekam(), M=INKLUSI.meta||{};
+  const kr=(M.catatan||[]).filter(function(c){return /penyakit|rekaman|kategori|usia|potensi|homebase/i.test(c)&&!/disabilitas:/i.test(c);});
+  var h=pgHead('Tentang Data Penyakit Kronis','Asal angka, cara olah, dan batas penggunaannya.','');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Sumber</h2><p>Pendataan penyakit kronis pegawai oleh Biro Sumber Daya Manusia: lembar rekapitulasi per Eselon I dan lembar rekaman yang tidak memuat nama maupun NIP. Diolah '+esc(M.dibuat||'-')+'.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori penyakit</h2><p>Kategori acuan: '+esc((R&&R.acuan||[]).join(', '))+'. Kategori ini mengikuti daftar penyakit kronis Kementerian Kesehatan yang dipakai BPJS Kesehatan. Biro SDM menambahkan '+esc((R&&R.tambahan||[]).join(', ').toLowerCase())+'. Pegawai dengan lebih dari satu penyakit dikelompokkan sebagai Komplikasi, dan penyakit di luar daftar sebagai Lainnya.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Privasi</h2><p>Yang dipakai hanya kolom yang aman bila digabung: unit Eselon I, usia, jenis kelamin, jenjang, homebase, penilaian kemampuan bekerja, dan kategori penyakit. Jabatan, unit di bawah Eselon I, keterangan, nilai kinerja, dan teks nama penyakit tidak pernah disimpan, sebab jabatan pada unit kecil bisa menunjuk satu orang. Kelompok di bawah lima orang tidak dirinci.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Batas penggunaan</h2><p>'+esc(sederhana(M.peringatan||''))+' Penilaian kemampuan bekerja berasal dari isian unit, bukan pemeriksaan medis.</p></div>';
+  if(kr.length)h+='<div class="card"><h2 class="sec" style="margin-top:0">Catatan pengolahan</h2><ul>'+kr.map(function(c){return '<li>'+esc(c)+'</li>';}).join('')+'</ul></div>';
   return h;
 }
 
 function vInkTentang(){
   var g=inkGuard(); if(g)return g;
   const M=INKLUSI.meta||{};
-  var h=pgHead('Tentang Data Disabilitas & Penyakit Kronis','Asal angka, cara olah, dan batas penggunaannya.','');
+  var h=pgHead('Tentang Data Disabilitas & Inklusi','Asal angka, cara olah, dan batas penggunaannya.','');
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Sumber</h2><ul>'+
-    (M.sumber||[]).map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ul>'+
+    (M.sumber||[]).filter(function(s){return !/kronis/i.test(s);}).map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ul>'+
     '<div class="mini">Diolah '+esc(M.dibuat||'-')+'.</div></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Privasi</h2><p>'+esc(sederhana(M.privasi))+'</p>'+
-    '<p>Berkas sumber tidak memuat nama maupun NIP. Sejak 14 Oktober 2026 lembar rekaman penyakit kronis ikut diolah, tetapi yang dipakai hanya kolom yang aman bila digabung: unit Eselon I, usia, jenis kelamin, jenjang, homebase, penilaian kemampuan bekerja, dan kategori penyakit. Jabatan, unit di bawah Eselon I, keterangan, nilai kinerja, dan teks nama penyakit tidak pernah disimpan, sebab jabatan pada unit kecil bisa menunjuk satu orang. Kolom tanggal lahir, nomor telepon, dan tautan surat keterangan disabilitas tidak pernah disentuh.</p></div>';
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Batas penggunaan</h2><p>'+esc(sederhana(M.peringatan))+'</p></div>';
+    '<p>Data penyakit kronis disajikan pada modul tersendiri, Penyakit Kronis, beserta rambu privasinya.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Batas penggunaan</h2><p>Survei menjangkau '+fmt((INKLUSI.survei||{}).n||0)+' pegawai penyandang disabilitas dan sebagian besar respondennya dari satu unit, sehingga hasilnya menggambarkan pegawai yang terjangkau survei, bukan seluruh populasi. Rekapitulasi rekrutmen mencakup formasi khusus disabilitas 2017 sampai 2024.</p></div>';
   if((M.catatan||[]).length)
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Catatan pembersihan data</h2><ul>'+
-      (M.catatan||[]).map(function(c){return '<li>'+esc(c)+'</li>';}).join('')+'</ul></div>';
+      (M.catatan||[]).filter(function(c){return !/penyakit|rekaman|homebase|potensi|Usia tidak/i.test(c);}).map(function(c){return '<li>'+esc(c)+'</li>';}).join('')+'</ul></div>';
   return h;
 }
 
@@ -13911,7 +14005,8 @@ const MUAT_INFO={
   suksesi:{lab:'Suksesi & Regenerasi',  byte:   80000, detik:[2,6]},
   penghargaan:{lab:'Penghargaan & Apresiasi', byte: 18000, detik:[1,4]},
   pemberhentian:{lab:'Pemberhentian & Retensi', byte: 11000, detik:[1,4]},
-  inklusi:{lab:'Disabilitas & Penyakit Kronis',  byte: 11000, detik:[1,4]},
+  kronis:{lab:'Penyakit Kronis',  byte: 15000, detik:[1,4]},
+  inklusi:{lab:'Disabilitas & Inklusi',  byte: 11000, detik:[1,4]},
   bencana:{lab:'Risiko Bencana',       byte:575000, detik:[2,6]},
   beranda:{lab:'Ringkasan Beranda',    byte:  6000, detik:[1,4]}
 };
@@ -14506,7 +14601,7 @@ document.getElementById('lpass').addEventListener('keydown',e=>{if(e.key==='Ente
     function icn(id){var m=MODULES.find(function(x){return x.id===id;});return m?svgIcon(m.icn,22):'';}
     var F=[
       {i:icn('otk'),t:'Organisasi',d:'Struktur organisasi, proses bisnis, jabatan, kompetensi, beban kerja, mekanisme kerja, dan kapabilitas kelembagaan.'},
-      {i:icn('suksesi'),t:'Sumber Daya Manusia',d:'Cuti, suksesi pejabat, penghargaan, pemberhentian, disabilitas dan penyakit kronis, serta risiko bencana di tempat kerja.'},
+      {i:icn('suksesi'),t:'Sumber Daya Manusia',d:'Cuti, suksesi pejabat, penghargaan, pemberhentian, disabilitas, penyakit kronis, serta risiko bencana di tempat kerja.'},
       {i:icn('takelola'),t:'Tata Kelola',d:'Pelimpahan wewenang (mandat) dan perangkat kerja lintas unit.'},
       {i:icn('layanan'),t:'Layanan Publik',d:'Zona Integritas, kepuasan pengguna layanan, inovasi, dan kantor terbaik.'}
     ];
