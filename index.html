@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-AUObCpI9m1tuylw62YUwABb8l1LohYUVQDAJwQtLa0U='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-A9MxAX8LcLgkm7iC9lDQhr0LO+CNfCpnePNhSlP3IWo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -718,6 +718,15 @@ input.search:focus,select.flt:focus,.fld:focus{outline:none;border-color:var(--b
 
 .kok-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:10px}
 .kok-card{background:var(--side);border:1px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer;transition:box-shadow var(--t-fast) ease,transform var(--t-fast) ease}
+.br-kok{display:grid;gap:10px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.br-kok.n3{grid-template-columns:repeat(3,minmax(0,1fr))}.br-kok.n2{grid-template-columns:repeat(2,minmax(0,1fr))}.br-kok.n1{grid-template-columns:1fr}
+@media (max-width:900px){.br-kok.n4{grid-template-columns:repeat(2,minmax(0,1fr))}.br-kok.n3{grid-template-columns:1fr}}
+@media (max-width:520px){.br-kok.n4,.br-kok.n2{grid-template-columns:1fr}}
+.br-pg{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.br-pgs{display:inline-flex;gap:4px}
+.br-pgb{min-width:32px;height:30px;padding:0 9px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:var(--fs-sm);font-weight:700;cursor:pointer}
+.br-pgb.on{background:var(--brand);border-color:var(--brand);color:var(--on-brand,#fff)}
+.br-pgb:disabled{opacity:.4;cursor:default}
 .br-sorot{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:10px}
 .br-s,.br-k,.br-sg{background:var(--side);border:1px solid var(--line);border-radius:10px;cursor:pointer;transition:box-shadow var(--t-fast) ease,border-color var(--t-fast) ease}
 .br-s:hover,.br-k:hover,.br-sg:hover{border-color:var(--brand);box-shadow:0 2px 10px color-mix(in srgb,var(--brand) 14%,transparent)}
@@ -2869,10 +2878,11 @@ const MODKET={
   unitremote:'Aplikasi unit remote (UKDR) tertanam di dalam dashboard.'
 };
 const DOMDESC={
-  organisasi:'Analitik struktur, jabatan, beban kerja, dan kapabilitas organisasi.',
-  sdm:'Analitik siklus SDM Hire-to-Retire, dari perencanaan sampai pemberhentian. Modul disiapkan bertahap sesuai kesiapan data dari SI-OSDM.',
-  tatakelola:'Tata kelola kewenangan dan perangkat pendukung kerja lintas unit.',
-  layananpublik:'Integritas dan mutu layanan publik: Zona Integritas, kepuasan layanan, pengaduan, inovasi, dan kantor terbaik.'
+  organisasi:'Struktur, proses bisnis, jabatan, kompetensi, beban kerja, dan kapabilitas organisasi.',
+  sdm:'Pegawai dari masuk sampai pensiun: cuti, suksesi pejabat, penghargaan, pemberhentian, inklusi, dan risiko bencana.',
+  tatakelola:'Pelimpahan wewenang menteri dan perangkat kerja lintas unit.',
+  layananpublik:'Zona Integritas, kepuasan layanan, kepatuhan pelayanan, inovasi, dan kantor terbaik.',
+  katalog:'Daftar acuan berkode yang dipakai bersama oleh semua kluster.'
 };
 
 
@@ -4467,120 +4477,107 @@ function _kokCard(sev,num,lab,desc,act){
 function _brTgl(s){var B=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||''));return m?(+m[3])+' '+B[+m[2]-1]+' '+m[1]:String(s||'');}
 
 
+
 const BR_KOL=[
-  {k:'abk',mod:'abk',lab:'Selisih Pegawai',sub:'ABK 2024',v:'abk'},
-  {k:'mof',mod:'kapabilitas',lab:'Skor MOFIN',sub:'0 sampai 100',arah:1,krit:4,v:'mofheatmap'},
+  {k:'peg',mod:null,lab:'Pegawai',sub:'orang',v:'profil'},
+  {k:'unit',mod:'otk',lab:'Unit Organisasi',sub:'di bawah Eselon I',v:'otkanalisis'},
+  {k:'pb',mod:'probis',lab:'Proses Bisnis',sub:'grup proses diampu',v:'pb_exec'},
+  {k:'delay',mod:'otk',lab:'Eselon II Sudah Delayering',sub:'% Eselon II',arah:1,krit:15,pct:1,v:'otkhealth'},
+  {k:'kom',mod:'komjab',lab:'Jabatan Berstandar Kompetensi',sub:'% jabatan',arah:1,krit:10,pct:1,v:'kjcakupan'},
+  {k:'mof',mod:'kapabilitas',lab:'Skor Kapabilitas (MOFIN)',sub:'0 sampai 100',arah:1,krit:4,v:'mofheatmap'},
   {k:'suk',mod:'suksesi',lab:'Pejabat Pensiun 5 Tahun',sub:'% pejabat',arah:-1,krit:5,pct:1,v:'sukunit'},
-  {k:'pmb',mod:'pemberhentian',lab:'Tingkat Keluar',sub:'per 10.000 pegawai',arah:-1,krit:'x2',v:'pmbunit'},
-  {k:'cuti',mod:'cuti',lab:'Hak Cuti Terpakai',sub:'% cuti tahunan',arah:1,krit:5,pct:1,v:'cutiutilisasi'},
-  {k:'ph',mod:'penghargaan',lab:'Penerima Penghargaan',sub:'% pegawai, prestasi',arah:1,krit:5,pct:1,v:'phunit'},
-  {k:'banjir',mod:'bencana',lab:'Di Zona Banjir Tinggi',sub:'% pegawai',arah:-1,krit:20,pct:1,v:'rbnunit'},
   {k:'kep',mod:'layanan',lab:'Kepuasan Layanan',sub:'skala 5',arah:1,krit:0.15,v:'tkkepuasan'}
 ];
 const BR_KLAB={organisasi:'Organisasi',sdm:'SDM',tatakelola:'Tata Kelola',layananpublik:'Layanan Publik',katalog:'Katalog'};
-function _brAngka(c,v){if(v==null)return '-';if(c.k==='kep')return Number(v).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});if(c.k==='abk')return (v>0?'+':'')+fmt(v);return d1(v)+(c.pct?'%':'');}
-function _brSel(c,u,ref,abkRefPct){
-  if(c.k==='abk'){
-    const a=u.abk;if(!a)return '<td class="num-c brm-na">belum ada data</td>';
-    const kurang=a.selisih<0?100*-a.selisih/(a.ada||1):0;
-    const cls=kurang>=2*abkRefPct&&kurang>0?'brm-c':(kurang>abkRefPct?'brm-w':'');
-    return '<td class="num-c '+cls+'" title="'+esc(u.nama)+': '+fmt(a.ada)+' ada, '+fmt(a.butuh)+' dibutuhkan">'+_brAngka(c,a.selisih)+'</td>';}
+const BR_PER=5;   
+function _brAngka(c,v){if(v==null)return '-';if(c.k==='kep')return Number(v).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});if(!c.arah)return fmt(v);return d1(v)+(c.pct?'%':'');}
+function _brSel(c,u,ref){
   const v=u[c.k];if(v==null)return '<td class="num-c brm-na">belum ada data</td>';
-  const sebagian=(c.k==='cuti'&&u.cutiParsial);
   let cls='';const r=ref[c.k];
-  if(r!=null&&!sebagian){const bad=c.arah>0?r-v:v-r;const kr=c.krit==='x2'?r:c.krit;
-    if(bad>=kr)cls='brm-c';else if(bad>0.0001)cls='brm-w';}
-  return '<td class="num-c '+cls+(sebagian?' brm-na':'')+'"'+(sebagian?' title="Data unit ini baru sebagian masuk HRIS"':'')+'>'+_brAngka(c,v)+(sebagian?' <span class="mini">sebagian</span>':'')+'</td>';}
+  if(c.arah&&r!=null){const bad=c.arah>0?r-v:v-r;if(bad>=c.krit)cls='brm-c';else if(bad>0.0001)cls='brm-w';}
+  return '<td class="num-c '+cls+'">'+_brAngka(c,v)+'</td>';}
 async function loadBeranda(){if(BERANDA)return BERANDA;let d=null;if(REMOTE){d=await apiUnduh('beranda',{});}else if(BERANDA_URL){const r=await fetch(BERANDA_URL);d=await r.json();}else{return BERANDA;}
   if(!d||!d.unit)throw new Error((d&&d.err)||'beranda-unavailable');BERANDA=d;return BERANDA;}
 function ensureBeranda(){if(BERANDA||state.brLoading)return;state.brLoading=true;state.brErr=false;
   loadBeranda().then(()=>{state.brLoading=false;if(state.view==='beranda')render();}).catch(()=>{state.brLoading=false;state.brErr=true;if(state.view==='beranda')render();});}
 function vBeranda(){
   const s=(DATA&&DATA.summary)||{};
-  const canM=m=>(typeof canMod!=='function')||canMod(m);
+  const canM=m=>!m||(typeof canMod!=='function')||canMod(m);
   const allScope=SCOPE.type==='all';
   const scopeLab=allScope?'Kementerian Keuangan':(SCOPE.ue2||SCOPE.ue1||'unit Anda');
-  const oset=otkScopeSet();const otkN=oset?oset.size:(OTK.meta.total_unit||0);
   const urN=URJAB?urjabScopedRows().length:(allScope?1434:null);
   const B=BERANDA;
-  const tunggu=!B&&state.brLoading, gagal=!B&&state.brErr;
+  const gagal=!B&&state.brErr;
   const ketB=gagal
-    ? '<div class="note-box" style="margin:0">Ringkasan lintas modul belum bisa dimuat dari server. <span class="tag link" data-act="brulang" style="cursor:pointer">Coba lagi &rsaquo;</span></div>'
-    : '<div class="empty" style="padding:18px">Memuat ringkasan lintas modul...</div>';
+    ? '<div class="note-box" style="margin:0">Ringkasan Beranda belum bisa dimuat dari server. <span class="tag link" data-act="brulang" style="cursor:pointer">Coba lagi &rsaquo;</span></div>'
+    : '<div class="empty" style="padding:18px">Memuat ringkasan Beranda...</div>';
+  const R=(B&&B.ref)||{},K=(B&&B.kluster)||{};
   let h=_berandaTabs('beranda')+'<div style="margin-bottom:14px"><div style="font-size:var(--fs-h);font-weight:800;color:var(--brand-d)">Dashboard Analitik Pengelolaan Organisasi dan SDM</div>'+
-    '<div class="mini" style="margin-top:3px">Lingkup '+esc(scopeLab)+' &middot; posisi data berbeda di tiap modul, lihat bagian Posisi Data di bawah</div></div><div class="bento">';
+    '<div class="mini" style="margin-top:3px">Lingkup '+esc(scopeLab)+' &middot; tanggal data tiap modul berbeda, lihat bagian Tanggal Data di bawah</div></div><div class="bento">';
 
   
   const sor=B?(B.sorotan||[]).filter(x=>canM(x.mod)):[];
-  h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 2px">Sorotan Lintas Kluster</div>'+
-     '<div class="mini" style="margin:0 0 10px">Temuan terpenting dari tiap modul, tingkat Kementerian. Klik untuk membuka halaman asalnya.</div>';
+  h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 2px">Highlight</div>'+
+     '<div class="mini" style="margin:0 0 10px">Temuan utama tingkat Kementerian dari tiap modul. Klik kartu untuk melihat rinciannya.</div>';
   if(B){h+=sor.length?'<div class="br-sorot">'+sor.map(x=>{const m=MODULES.find(mm=>mm.id===x.mod);
-      return '<div class="br-s" data-act="nav" data-view="'+esc(x.v)+'"><div class="br-sh"><span class="br-ic">'+svgIcon(m?m.icn:'home',16)+'</span><span class="br-kl br-kl-'+esc(x.kl)+'">'+esc(BR_KLAB[x.kl]||x.kl)+'</span></div>'+
-        '<div class="br-st">'+esc(x.t)+'</div><span class="br-go">Buka '+esc(m?m.lab:'')+' &rsaquo;</span></div>';}).join('')+'</div>'
-      :'<div class="empty" style="padding:14px">Belum ada sorotan untuk modul yang dapat Anda akses.</div>';}
+      return '<div class="br-s" data-act="nav" data-view="'+esc(x.v)+'"><div class="br-sh"><span class="br-ic">'+svgIcon(m?m.icn:'home',16)+'</span><span class="br-kl">'+esc(BR_KLAB[x.kl]||x.kl)+'</span></div>'+
+        '<div class="br-st">'+esc(x.t)+'</div><span class="br-go">Lihat '+esc(m?m.lab:'')+' &rsaquo;</span></div>';}).join('')+'</div>'
+      :'<div class="empty" style="padding:14px">Belum ada highlight untuk modul yang dapat Anda akses.</div>';}
   else h+=ketB;
   h+='</div>';
 
   
-  const K=(B&&B.kluster)||{},R=(B&&B.ref)||{};
   const met=(a,b)=>'<div class="br-m"><b>'+a+'</b> '+b+'</div>';
   const kartu=[];
   DOMAINS.forEach(d=>{
     const mods=MODULES.filter(m=>MODDOMAIN[m.id]===d.k&&canM(m.id));if(!mods.length)return;
     let mm='';
-    if(d.k==='organisasi'){mm=met(fmt(otkN),'unit organisasi')+(urN!=null?met(fmt(urN),'jabatan'):'')+(R.abkSelisih<0&&canM('abk')?met(fmt(-R.abkSelisih),'kekurangan pegawai (ABK 2024)'):'');}
-    else if(d.k==='sdm'&&K.sdm){mm=(K.sdm.pegawai?met(fmt(K.sdm.pegawai),'pegawai'):'')+(K.sdm.pensiunPct!=null&&canM('suksesi')?met(Math.round(K.sdm.pensiunPct)+'%','pejabat pensiun dalam 5 tahun'):'');}
-    else if(d.k==='tatakelola'&&K.tatakelola){mm=met(fmt(K.tatakelola.butir),'butir mandat KMK 167/2025')+met(fmt(K.tatakelola.jabatan),'jabatan penerima mandat');}
+    if(d.k==='organisasi'){mm=(R.unitTotal?met(fmt(R.unitTotal),'unit organisasi'):'')+(urN!=null?met(fmt(urN),'jabatan'):'');}
+    else if(d.k==='sdm'&&K.sdm){mm=(K.sdm.pegawai?met(fmt(K.sdm.pegawai),'pegawai'):'')+(K.sdm.pejabat?met(fmt(K.sdm.pejabat),'pejabat Eselon II sampai IV'):'');}
+    else if(d.k==='tatakelola'&&K.tatakelola){mm=met(fmt(K.tatakelola.butir),'butir mandat menteri')+met(fmt(K.tatakelola.jabatan),'jabatan penerima mandat');}
     else if(d.k==='layananpublik'&&K.layananpublik){const L=K.layananpublik;mm=met(fmt(L.zi),'predikat Zona Integritas')+(L.kep!=null?met(Number(L.kep).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2}),'kepuasan layanan '+esc(L.kepTahun||'')):'');}
-    else if(d.k==='katalog'){const n=mods.reduce((a,m)=>a+m.groups.reduce((b,g)=>b+g.items.length,0),0);mm=met(fmt(n),'katalog referensi berkode');}
-    const desc=(typeof DOMDESC!=='undefined'&&DOMDESC[d.k])||(d.k==='katalog'?'Register acuan berkode yang dipakai lintas kluster.':'');
+    else if(d.k==='katalog'){const n=mods.reduce((a,m)=>a+m.groups.reduce((b,g)=>b+g.items.length,0),0);mm=met(fmt(n),'katalog acuan berkode');}
+    const desc=(typeof DOMDESC!=='undefined'&&DOMDESC[d.k])||'';
     kartu.push('<div class="br-k" data-act="domsel" data-dom="'+esc(d.k)+'"><div class="br-kh"><span class="br-ki">'+svgIcon(d.icn,20)+'</span><div><div class="br-kt">'+esc(d.lab)+'</div><div class="mini">'+mods.length+' modul</div></div></div>'+
       (mm?'<div class="br-ms">'+mm+'</div>':'')+'<div class="br-kd">'+esc(desc)+'</div><span class="br-go">Masuk kluster &rsaquo;</span></div>');});
   h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 10px">Kluster</div><div class="br-kgrid">'+kartu.join('')+'</div></div>';
 
   
+  const kok=B?(B.kokpit||[]).filter(x=>canM(x.mod)):[];
+  h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 2px">Perlu Perhatian Pimpinan</div>'+
+     '<div class="mini" style="margin:0 0 10px">Hal strategis yang perlu segera ditindaklanjuti. Klik kartu untuk melihat rinciannya.</div>';
+  if(B)h+=kok.length?'<div class="br-kok n'+Math.min(kok.length,4)+'">'+kok.map(x=>_kokCard(x.sev,esc(x.n),x.lab,x.ket,'data-act="nav" data-view="'+esc(x.v)+'"')).join('')+'</div>'
+    :'<div class="empty" style="padding:14px">Belum ada hal yang perlu perhatian untuk modul yang dapat Anda akses.</div>';
+  else h+=ketB;
+  h+='</div>';
+
+  
   const kol=BR_KOL.filter(c=>canM(c.mod));
-  h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 2px">Eselon I Lintas Modul</div>'+
-     '<div class="mini" style="margin:0 0 10px">Satu baris per unit Eselon I, satu kolom per modul. Baris pertama adalah angka Kemenkeu sebagai pembanding. '+
-     '<span class="brm-lg brm-w">kuning</span> sedikit lebih buruk dari Kemenkeu, <span class="brm-lg brm-c">merah</span> jauh lebih buruk. Klik nama unit untuk membuka profilnya, klik judul kolom untuk membuka modulnya.</div>';
+  h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 2px">Perbandingan Antar Eselon I</div>'+
+     '<div class="mini" style="margin:0 0 10px">Angka utama tiap Eselon I dibanding Kemenkeu (baris pertama). '+
+     '<span class="brm-lg brm-w">kuning</span> sedikit di bawah Kemenkeu, <span class="brm-lg brm-c">merah</span> jauh di bawah. Kolom jumlah tidak diberi warna. Klik nama unit untuk melihat profilnya.</div>';
   if(B&&kol.length){
     let rows=(B.unit||[]).slice();
     if(!allScope)rows=rows.filter(u=>u.nama===SCOPE.ue1);
-    const ada=(B.unit||[]).reduce((a,u)=>a+((u.abk&&u.abk.ada)||0),0);
-    const abkRefPct=R.abkSelisih<0&&ada?100*-R.abkSelisih/ada:0;
+    const hal=Math.max(1,Math.ceil(rows.length/BR_PER));
+    const pg=Math.min(Math.max(0,state.brPg||0),hal-1);
     const peta=(typeof _petaUnit==='function')?_petaUnit():[];
-    h+='<div class="tblw"><table class="brm" data-pgn-lewat><thead><tr><th>Eselon I</th>'+kol.map(c=>'<th class="num-c link" data-act="nav" data-view="'+c.v+'" title="Buka modul">'+esc(c.lab)+'<div class="brm-sub">'+esc(c.sub)+'</div></th>').join('')+'</tr></thead><tbody>';
-    h+='<tr class="brm-ref"><td><b>Kementerian Keuangan</b></td>'+kol.map(c=>'<td class="num-c"><b>'+(c.k==='abk'?(R.abkSelisih!=null?_brAngka(c,R.abkSelisih):'-'):_brAngka(c,R[c.k]))+'</b></td>').join('')+'</tr>';
-    rows.forEach(u=>{const p=peta.find(x=>x.nama===u.nama);
+    h+='<div class="tblw"><table class="brm" data-pgn-lewat><thead><tr><th>Eselon I</th>'+kol.map(c=>'<th class="num-c link" data-act="nav" data-view="'+c.v+'" title="Buka modulnya">'+esc(c.lab)+'<div class="brm-sub">'+esc(c.sub)+'</div></th>').join('')+'</tr></thead><tbody>';
+    h+='<tr class="brm-ref"><td><b>Kementerian Keuangan</b></td>'+kol.map(c=>'<td class="num-c"><b>'+_brAngka(c,R[c.k])+'</b></td>').join('')+'</tr>';
+    rows.slice(pg*BR_PER,pg*BR_PER+BR_PER).forEach(u=>{const p=peta.find(x=>x.nama===u.nama);
       const nm=u.nama.replace(/^Direktorat Jenderal /,'Ditjen ');
-      h+='<tr><td title="'+esc(u.nama)+'">'+(p?'<span class="link" data-act="profpick" data-k="'+esc(p.kunci)+'">'+esc(nm)+'</span>':esc(nm))+'</td>'+kol.map(c=>_brSel(c,u,R,abkRefPct)).join('')+'</tr>';});
+      h+='<tr><td title="'+esc(u.nama)+'">'+(p?'<span class="link" data-act="profpick" data-k="'+esc(p.kunci)+'">'+esc(nm)+'</span>':esc(nm))+'</td>'+kol.map(c=>_brSel(c,u,R)).join('')+'</tr>';});
     h+='</tbody></table></div>';
-    if(kol.some(c=>c.k==='cuti'))h+='<div class="mini" style="margin-top:8px">Angka cuti Direktorat Jenderal Pajak dan Bea dan Cukai bertanda sebagian karena datanya belum penuh masuk HRIS, jadi tidak diberi warna.</div>';
+    if(hal>1){let b='';for(let i=0;i<hal;i++)b+='<button class="br-pgb'+(i===pg?' on':'')+'" data-act="brpg" data-p="'+i+'">'+(i+1)+'</button>';
+      h+='<div class="br-pg"><span class="mini">Baris '+(pg*BR_PER+1)+' sampai '+Math.min(rows.length,pg*BR_PER+BR_PER)+' dari '+rows.length+' Eselon I</span><span class="br-pgs">'+
+        '<button class="br-pgb" data-act="brpg" data-p="'+Math.max(0,pg-1)+'"'+(pg===0?' disabled':'')+' aria-label="Halaman sebelumnya">&lsaquo;</button>'+b+
+        '<button class="br-pgb" data-act="brpg" data-p="'+Math.min(hal-1,pg+1)+'"'+(pg===hal-1?' disabled':'')+' aria-label="Halaman berikutnya">&rsaquo;</button></span></div>';}
   }else if(!B)h+=ketB;
   else h+='<div class="empty" style="padding:14px">Belum ada modul lintas Eselon I yang dapat Anda akses.</div>';
   h+='</div>';
 
   
-  const noF=OTK.unit.filter(n=>!n.nonunit&&(!oset||oset.has(n.id))&&n.level>=1&&n.level<=2&&(!n.fungsi||!n.fungsi.length)).length;
-  let wideSpan=0;OTK.unit.forEach(n=>{if(n.nonunit||(oset&&!oset.has(n.id)))return;if((n.level===2||n.level===3)&&otkKids(n.id).length>=7)wideSpan++;});
-  const abkAcc=canM('abk');const abkReady=abkAcc&&(typeof ABK!=='undefined')&&!!ABK;
-  let abkShortUnits=0,abkShortPeople=0;
-  if(abkReady)ABK.eselon1.forEach(e=>e.units.forEach(u=>{if(u.selisih<0){abkShortUnits++;abkShortPeople+=-u.selisih;}}));
-  const tkReady=canM('layanan')&&(typeof TK!=='undefined')&&TK&&TK.integritas;
-  let tkGagal=0;if(tkReady)tkGagal=(TK.integritas.units||[]).filter(u=>(u.n_gagal||0)>0).length;
-  const mofReady=canM('kapabilitas')&&(typeof MOFIN!=='undefined')&&MOFIN&&MOFIN.units;
-  let mofBelow=0,mofRef=0;if(mofReady){mofRef=(MOFIN.units.find(u=>u.kode==='Kemenkeu')||{}).skor_total||0;mofBelow=MOFIN.units.filter(u=>u.kode!=='Kemenkeu'&&u.skor_total<mofRef).length;}
-  let kok='';
-  if(canM('mk'))kok+=_kokCard('crit',fmt((s.task&&s.task.overdue)||0),'Tugas lewat tenggat','Di modul Mekanisme Kerja','data-act="nav" data-view="insight"');
-  if(canM('otk'))kok+=_kokCard(noF>0?'warn':'ok',fmt(noF),'Unit tanpa rumusan fungsi','Eselon I dan II yang fungsinya belum tertulis di PMK OTK','data-act="mod" data-mod="otk"');
-  if(canM('otk'))kok+=_kokCard(wideSpan>0?'warn':'ok',fmt(wideSpan),'Rentang kendali lebar','Unit Eselon II atau III yang membawahi 7 unit atau lebih','data-act="nav" data-view="otkhealth"');
-  if(abkReady)kok+=_kokCard(abkShortPeople>0?'crit':'ok',fmt(abkShortPeople),'Kekurangan pegawai','Jumlah kekurangan di '+fmt(abkShortUnits)+' unit (ABK 2024)','data-act="nav" data-view="abk"');
-  else if(abkAcc)kok+='<div class="kok-card" data-act="loadabk" style="border:1px solid var(--muted)"><div class="kok-num" style="color:var(--muted);font-size:var(--fs-lg)">Muat &rsaquo;</div><div class="kok-lab">Kekurangan pegawai per unit</div><div class="kok-desc">Klik untuk memuat data beban kerja</div></div>';
-  if(tkReady)kok+=_kokCard(tkGagal>0?'warn':'ok',fmt(tkGagal),'Unit pernah gagal ZI','Punya riwayat gagal meraih predikat Zona Integritas','data-act="nav" data-view="tkkegagalan"');
-  if(mofReady)kok+=_kokCard(mofBelow>0?'warn':'ok',fmt(mofBelow),'Kapabilitas di bawah rata-rata','Skor MOFIN di bawah Kemenkeu ('+mofRef+')','data-act="nav" data-view="mofin"');
-  if(kok){h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 10px">Kokpit Prioritas <span class="mini" style="font-weight:400">: hal yang perlu perhatian pimpinan</span></div><div class="kok-grid">'+kok+'</div>';
-    if(canM('urjab'))h+='<div class="mini" style="margin-top:11px">Telusuri kecukupan pegawai per fungsi: <span class="tag link" data-act="nav" data-view="urjabkaitan">Keterkaitan Fungsi &amp; Tugas &rsaquo;</span></div>';
-    h+='</div>';}
+  const abkReady=canM('abk')&&(typeof ABK!=='undefined')&&!!ABK;
   if(canM('urjab')&&abkReady){const rk=_kokpitPrioritas();
     if(rk.length)h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 3px">Fungsi Berat, Pegawai Kurang</div>'+
       '<div class="mini" style="margin:0 0 10px">Unit yang sebagian fungsinya belum dijalankan uraian tugas jabatan <b>dan</b> kekurangan pegawai menurut ABK 2024. Diurutkan dari kekurangan terbesar.</div>'+
@@ -4593,7 +4590,7 @@ function vBeranda(){
   if(canM('otk'))seg.push({lab:'Struktur Organisasi',pos:'PMK 124/2024',v:'otk'});
   if(canM('mk')&&s.tanggal_olah)seg.push({lab:'Mekanisme Kerja',pos:'Diolah '+_brTgl(s.tanggal_olah),v:'ringkasan'});
   ((B&&B.segar)||[]).forEach(x=>{if(canM(x.mod))seg.push(x);});
-  if(seg.length)h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 2px">Posisi Data</div><div class="mini" style="margin:0 0 10px">Setiap modul memakai data dengan tanggal berbeda. Perhatikan tanggalnya sebelum membandingkan antarmodul.</div>'+
+  if(seg.length)h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 2px">Tanggal Data</div><div class="mini" style="margin:0 0 10px">Setiap modul memakai data dari tanggal yang berbeda. Perhatikan tanggalnya sebelum membandingkan angka antarmodul.</div>'+
     '<div class="br-seg">'+seg.map(x=>'<div class="br-sg" data-act="nav" data-view="'+esc(x.v)+'"><span>'+esc(x.lab)+'</span><b>'+esc(x.pos)+'</b></div>').join('')+'</div></div>';
   h+='</div>';
   return h;
@@ -13386,6 +13383,7 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='inkulang'){state.inkErr=false;state.inkErrMsg='';ensureInklusi();render();}
   else if(a==='rbnulang'){state.rbnErr=false;state.rbnErrMsg='';ensureBencana();render();}
   else if(a==='brulang'){state.brErr=false;ensureBeranda();render();}
+  else if(a==='brpg'){state.brPg=+el.dataset.p||0;render();}
   else if(a==='rbnhapusdesa'){state.rbnDesa='';render();}
   else if(a==='inksurveitab'){state.inkSurveiTab=el.dataset.tab;render();}
   else if(a==='inkprofiltab'){state.inkProfilTab=el.dataset.tab;render();}
