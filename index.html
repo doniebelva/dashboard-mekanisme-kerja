@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-z1xrwdeG00iT/eKu7Vdm7JlAODIBmiTeu69bZIygsYo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-H2UD7tYPFj5NIhZJMgvIfjb/VXeRUgwC5RlHkW4bwQA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -4793,7 +4793,7 @@ function vOtkIkh(){
   const U=OTK.unit.filter(n=>!n.nonunit);
   const E1=U.filter(n=>n.level===1&&n.jenis==='Eselon I');
   const cnt=lv=>U.filter(n=>n.level===lv&&n.jenis!=='Staf Ahli').length;
-  const n2=cnt(2),n3=cnt(3),n4=cnt(4),nSA=U.filter(n=>n.jenis==='Staf Ahli').length;
+  const n2=cnt(2),n3=cnt(3),n4=cnt(4),nSA=OTK.unit.filter(n=>n.jenis==='Staf Ahli').length;
   const total=E1.length+n2+n3+n4;
   
   const desc=(id)=>{const r={2:0,3:0,4:0};const st=[id];while(st.length){const k=otkKids(st.pop());k.forEach(c=>{if(r[c.level]!=null)r[c.level]++;st.push(c.id);});}return r;};
@@ -8889,6 +8889,9 @@ async function tdSiapkan(){
   if(!TD.sudah._kantor&&canMod('bencana')&&typeof BENCANA!=='undefined'&&BENCANA&&BENCANA.kantor&&BENCANA.meta){var kt=BENCANA.kantor,nk=kt.length;
     (BENCANA.meta.bahaya||[]).forEach(function(b){var c=kt.filter(function(x){return (x.t||[]).indexOf(b.kode)>=0;}).length;
       tdTambah({v:'rbn',mod:'bencana',k:'kpi',ctx:'Lokasi kantor',t:'Lokasi kantor di zona '+b.label.toLowerCase()+' tinggi: '+fmt(c)+' dari '+fmt(nk)+' lokasi kantor ('+String((100*c/nk).toFixed(1)).replace('.',',')+'%)'});});
+    var NP=BENCANA.meta.pegawai||1;(BENCANA.paparan||[]).forEach(function(p){
+      tdTambah({v:'rbnjenis',mod:'bencana',k:'kpi',ctx:'Pegawai per jenis bencana',t:'Pegawai berkantor di zona '+p.label.toLowerCase()+' tinggi: '+fmt(p.tinggi)+' dari '+fmt(NP)+' pegawai ('+String((100*p.tinggi/NP).toFixed(1)).replace('.',',')+'%)'+
+        (p.terpPct!=null?'; kelurahan kantor terpetakan untuk '+String(p.terpPct.toFixed(1)).replace('.',',')+'% pegawai':'')});});
     TD.sudah._kantor=1;}
 }
 function tdCari(q){
@@ -8909,6 +8912,9 @@ function tdCari(q){
     if(tanyaArti&&(p.k==='ket'||p.k==='menu'))s*=1.35;
     if(p.k==='sorot'||p.k==='kpi')s*=tanyaAngka?1.35:1.1;
     if(tanyaAngka&&p.k==='tabel')s*=0.7;
+    if(p.ctx==='Lokasi kantor'&&!/kantor|lokasi/i.test(q))s*=0.3;
+    if(p.ctx==='Pegawai per jenis bencana'&&/kantor|lokasi/i.test(q)&&!/pegawai/i.test(q))s*=0.3;
+    if(/\bunit\b/i.test(q)&&/eselon/i.test(q)&&!/abk|beban|evaluasi|dievaluasi/i.test(q)&&p.mod==='abk')s*=0.6;
     if(tanyaAngka&&p.k==='baris')s*=1.25;
     if(unitQ.length&&!unitQ.some(function(w){return p.tf[w];})&&Object.keys(TD_UNIT).some(function(w){return p.tf[w];}))s*=0.4;
     if(tanyaAngka&&p.k==='ket'&&p.ctx!=='Keterangan')s*=0.8;
@@ -9246,7 +9252,7 @@ function taAsing(q){var s=taKata(q),kenal={};TA_IND.forEach(function(i){i.syn.fo
   return s.trim().split(' ').filter(function(w){return w.length>=4&&!/\d/.test(w)&&!TD_STOP[w]&&!TA_MAKSUD[w]&&!kenal[w]&&!TA_KODE[w]&&!TA_KATA[w]&&!(TD.df&&TD.df[w]);});}
 function taRencana(q){var sT=taKata(q);if(taTusiMaksud(sT)){var tu=taTusiUnit(sT);return {j:'tusi',u:tu.u.slice(0,3),f:taTusiFrasa(sT,tu)};}if(taAsing(q).length)return null;var s=taKata(q),un=taCariUnit(q),id=taCariInd(q).map(function(x){return x.ind;});
   if(id.some(function(i){return i.id==='lok';})&&id.some(function(i){return i.mod==='bencana'&&i.id!=='lok';}))return null;
-  if(/eselon (ii|iii|iv|2|3|4) /.test(s)){var n0=id.length;id=id.filter(function(i){return i.id!=='unit';});if(n0&&!id.length)return null;}
+  if(/eselon (ii|iii|iv|2|3|4) /.test(s)){id=id.filter(function(i){return i.id!=='unit';});if(!id.length)return null;}
   if(id.length){var kenal={};id.forEach(function(i){i.syn.concat([i.lab]).forEach(function(p){taKata(p).trim().split(' ').forEach(function(w){kenal[w]=1;});});});
     TA_UNIT.forEach(function(u){taKata(u.n).trim().split(' ').forEach(function(w){kenal[w]=1;});});
     var ekstra=s.trim().split(' ').filter(function(w){return w.length>=4&&!/\d/.test(w)&&!TD_STOP[w]&&!TA_MAKSUD[w]&&!TA_KODE[w]&&!TA_KATA[w]&&!kenal[w]&&!TA_ISI[w]&&TD.df&&TD.df[w];});
