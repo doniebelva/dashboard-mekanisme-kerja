@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-Z2CBgA9eqzGCnQVwyVgT+TXJ8MeWev71Y7q365s94DM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-uwYretqZfr3oMtXxWVY3ITaSYyc9KzJRt2GvqYvE384='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -22,6 +22,8 @@
   --on-brand:#ffffff;--on-brand-soft:rgba(255,255,255,.16);--on-brand-hover:rgba(255,255,255,.24);
   --on-brand-line:rgba(255,255,255,.30);--on-brand-line-h:rgba(255,255,255,.55);   
   --gold:#f0a93f;--gold2:#e8951a;--gold-l:rgba(232,149,26,.10);
+  --td-or1:#f7a21b;--td-or2:#e2620c;--td-or-ink:#c2560a;--td-or-l:rgba(240,128,20,.12);--td-or-ring:rgba(240,128,20,.45);--td-or-shadow:rgba(214,96,12,.38);
+  --td-or-fill:linear-gradient(135deg,var(--td-or1),var(--td-or2));
 
   
   --green:var(--st-good);--amber:var(--st-warn);--red:var(--st-critical);--blue:#1467c0;--slate:#7b8794;--vio:#7c3aed;
@@ -803,12 +805,13 @@ select.flt,.search{max-width:100%}
 .lp-heat td.lp-hx{color:var(--muted)}.lp-heat td.lp-hp{color:var(--muted);font-size:var(--fs-sm)}
 .abk-zona .lp-bt{background:linear-gradient(to right,var(--track) 50%,color-mix(in srgb,var(--seq-3) 45%,var(--track)) 50%,color-mix(in srgb,var(--seq-3) 45%,var(--track)) 83.33%,var(--track) 83.33%)}
 
-.td-fab{position:fixed;right:22px;bottom:22px;z-index:900;display:inline-flex;align-items:center;gap:9px;padding:11px 18px 11px 14px;border:none;border-radius:999px;background:var(--brand-fill);color:#fff;font:700 var(--fs-md)/1 inherit;font-family:inherit;box-shadow:0 8px 24px rgba(16,42,80,.28);cursor:pointer}
-.td-fab svg{width:20px;height:20px}.td-fab:hover{filter:brightness(1.08)}.td-fab:focus-visible{outline:3px solid var(--brand-l2);outline-offset:2px}
+.td-fab{position:fixed;right:22px;bottom:22px;z-index:900;display:inline-flex;align-items:center;gap:9px;padding:11px 18px 11px 14px;border:none;border-radius:999px;background:var(--td-or-fill);color:#fff;font:700 var(--fs-md)/1 inherit;font-family:inherit;box-shadow:0 8px 24px var(--td-or-shadow);cursor:pointer;animation:tdDenyut 2.6s ease-out 3}
+@keyframes tdDenyut{0%{box-shadow:0 8px 24px var(--td-or-shadow),0 0 0 0 var(--td-or-ring)}70%{box-shadow:0 8px 24px var(--td-or-shadow),0 0 0 14px rgba(240,128,20,0)}100%{box-shadow:0 8px 24px var(--td-or-shadow),0 0 0 0 rgba(240,128,20,0)}}
+.td-fab svg{width:20px;height:20px}.td-fab:hover{filter:brightness(1.08)}.td-fab:focus-visible{outline:3px solid var(--td-or-ring);outline-offset:2px}
 .td-panel{position:fixed;top:0;right:0;height:100vh;height:100dvh;width:min(440px,100vw);z-index:950;background:var(--surface);border-left:1px solid var(--line);box-shadow:-12px 0 40px rgba(16,42,80,.18);display:flex;flex-direction:column;transform:translateX(105%);transition:transform .22s ease;visibility:hidden}
 .td-panel.on{transform:none;visibility:visible}
 .td-hd{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
-.td-logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--brand-fill);color:#fff;flex:none}.td-logo svg{width:19px;height:19px}
+.td-logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--td-or-fill);color:#fff;flex:none;box-shadow:0 3px 10px var(--td-or-shadow)}.td-logo svg{width:19px;height:19px}
 .td-tt{font-weight:800;color:var(--ink);font-size:var(--fs-base)}.td-st{font-size:var(--fs-sm);color:var(--muted)}
 .td-x{margin-left:auto;border:none;background:none;font-size:24px;line-height:1;color:var(--muted);cursor:pointer;padding:4px 9px;border-radius:8px}.td-x:hover{background:var(--brand-l)}
 .td-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--bg)}
@@ -823,20 +826,30 @@ select.flt,.search{max-width:100%}
 .td-t{margin:4px 0 6px;color:var(--ink)}.td-t b{color:var(--brand-d)}
 .td-buka{border:1px solid var(--line);background:var(--surface);color:var(--brand);font:600 var(--fs-sm)/1.2 inherit;font-family:inherit;padding:5px 11px;border-radius:999px;cursor:pointer}.td-buka:hover{background:var(--brand-l)}
 .td-cat{font-size:var(--fs-sm);color:var(--muted);margin-top:8px}
-.td-rows{margin:0 0 8px;padding:0 0 0 18px;font-size:var(--fs-md);color:var(--ink)}.td-rows li{margin:2px 0}.td-rows b{color:var(--brand-d)}
+.ta-ol{margin:6px 0 4px;padding-left:20px;font-size:var(--fs-md);color:var(--ink)}.ta-ol li{margin:3px 0}.ta-ol b{color:var(--brand-d)}
+.ta-tbl{width:100%;border-collapse:collapse;font-size:var(--fs-sm);margin:8px 0}.ta-tbl th,.ta-tbl td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left;color:var(--ink)}.ta-tbl th{color:var(--muted);font-weight:700}.ta-tbl .num-c{text-align:right;white-space:nowrap}
+.ta-det{margin-top:8px;font-size:var(--fs-sm)}.ta-det summary{cursor:pointer;color:var(--brand);font-weight:600}
+.ta-cat{font-size:var(--fs-sm);color:var(--muted);margin-top:8px;line-height:1.5}.ta-cat b{color:var(--ink-sec)}
+.ta-src{display:flex;flex-direction:column;gap:3px;font-size:var(--fs-sm)}.ta-src .td-lnk,.td-src .td-lnk{white-space:normal;overflow-wrap:anywhere}
+.td-jwb{font-size:var(--fs-base);line-height:1.6;color:var(--ink)}.td-jwb b{color:var(--brand-d)}
+.td-src{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;padding:9px 11px;border-radius:10px;background:var(--brand-l);font-size:var(--fs-sm);color:var(--ink)}.td-src b{color:var(--ink)}
+.td-sub{font-size:var(--fs-sm);font-weight:700;color:var(--muted);margin:12px 0 4px}
+.td-rel{margin:0;padding:0 0 0 18px;font-size:var(--fs-md);color:var(--ink)}.td-rel li{margin:4px 0}.td-rel b{color:var(--brand-d)}
+.td-lnk{color:var(--brand);font-weight:600;cursor:pointer;white-space:nowrap}
+.td-rows{margin:6px 0 4px;padding:0 0 0 18px;font-size:var(--fs-md);color:var(--ink)}.td-rows li{margin:2px 0}.td-rows b{color:var(--brand-d)}
 .td-chips,.td-chips-in{display:flex;flex-wrap:wrap;gap:6px}
 .td-chips{padding:10px 16px 2px;border-top:1px solid var(--line);background:var(--surface);flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:thin}.td-chips .td-chip{white-space:nowrap;flex:none}.td-chips-in{margin-top:10px}
 .td-chip{font-size:var(--fs-sm);font-weight:600;color:var(--brand);background:var(--brand-l);padding:6px 11px;border-radius:999px;cursor:pointer;line-height:1.3}.td-chip:hover{background:var(--brand-l2)}
 .td-in{display:flex;gap:8px;padding:12px 16px 16px;background:var(--surface)}
 .td-in input,.td-hero-f input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:11px 13px;font:inherit;font-size:var(--fs-md);background:var(--bg);color:var(--ink)}
-.td-in input:focus,.td-hero-f input:focus{outline:2px solid var(--brand);outline-offset:-1px}
-.td-kirim{flex:none;width:44px;border:none;border-radius:12px;background:var(--brand-fill);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.td-kirim svg{width:18px;height:18px}
+.td-in input:focus,.td-hero-f input:focus{outline:2px solid var(--td-or2);outline-offset:-1px}
+.td-kirim{flex:none;width:44px;border:none;border-radius:12px;background:var(--td-or-fill);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.td-kirim svg{width:18px;height:18px}
 .td-ketik{display:inline-flex;gap:4px;padding:3px 0}.td-ketik i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:tdk 1s infinite}.td-ketik i:nth-child(2){animation-delay:.15s}.td-ketik i:nth-child(3){animation-delay:.3s}
 @keyframes tdk{0%,80%,100%{opacity:.25}40%{opacity:1}}
-.td-hero{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px 24px;align-items:center;border-left:4px solid var(--brand)!important}
+.td-hero{display:grid!important;grid-template-columns:auto minmax(0,1fr);gap:10px 18px;align-items:center;border-left:4px solid var(--td-or2)!important;padding:12px 16px!important;background:linear-gradient(90deg,var(--td-or-l),transparent 45%),var(--surface)!important}.td-hero .td-hero-l{align-items:center;gap:10px}.td-hero .td-hero-t{font-size:var(--fs-base);white-space:nowrap}.td-hero .td-hero-f input{padding:9px 12px}.td-hero .td-hero-b{padding:0 18px}
 .td-hero-l{display:flex;gap:14px;align-items:flex-start}.td-logo-lg{width:46px;height:46px;border-radius:13px}.td-logo-lg svg{width:24px;height:24px}
 .td-hero-t{font-size:var(--fs-lg);font-weight:800;color:var(--ink)}.td-hero-s{font-size:var(--fs-md);color:var(--muted);margin-top:3px;line-height:1.5}
-.td-hero-f{display:flex;gap:8px}.td-hero-b{border:none;border-radius:12px;background:var(--brand-fill);color:#fff;font:700 var(--fs-md)/1 inherit;font-family:inherit;padding:0 22px;cursor:pointer}
+.td-hero-f{display:flex;gap:8px}.td-hero-b{border:none;border-radius:12px;background:var(--td-or-fill);color:#fff;font:700 var(--fs-md)/1 inherit;font-family:inherit;padding:0 22px;cursor:pointer}
 .td-hero-c{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
 @media(max-width:860px){.td-hero{grid-template-columns:1fr}}
 @media(max-width:560px){.td-fab span{display:none}.td-fab{padding:13px;right:16px;bottom:16px}}
@@ -8761,7 +8774,7 @@ var TD_RAHASIA={suknominatif:1,usermgmt:1,statistik:1};
 var TD_LEWAT={otkremote:1,urjab:1,tema:1,pegawai:1,keahlian:1,kjstandar:1,otk:1,pelcari:1,katalog:1,tim:1,struktur:1};
 var TD_STOP={};'yang di ke dari dan atau apa apakah berapa berapakah siapa mana manakah bagaimana gimana untuk pada dengan ini itu ada saja tolong saya kita kami aku dalam oleh adalah sebagai tentang bisa dong ya yg dgn sih nih tuh lihat melihat tampilkan tunjukkan cari info informasi berapa seberapa paling punya memiliki jumlah jumlahnya banyak total sebutkan jelaskan coba mohon kah per the of besar kecil'.split(' ').forEach(function(w){TD_STOP[w]=1;});
 var TD_ALIAS={djp:'pajak',pajak:'djp',djbc:'bea cukai',bea:'djbc',cukai:'djbc',djpb:'perbendaharaan',perbendaharaan:'djpb',dja:'anggaran',anggaran:'dja',djkn:'kekayaan negara',kekayaan:'djkn',djpk:'perimbangan',perimbangan:'djpk',djppr:'pembiayaan risiko',pembiayaan:'djppr',djsef:'strategi ekonomi fiskal',djspsk:'stabilitas sektor',setjen:'sekretariat jenderal',sekjen:'sekretariat jenderal',sekretariat:'setjen',itjen:'inspektorat',inspektorat:'itjen',bppk:'pendidikan pelatihan',batii:'teknologi intelijen',btiik:'teknologi intelijen',lnsw:'national single window',kemenkeu:'kementerian keuangan',difabel:'disabilitas',probis:'proses bisnis',otk:'struktur organisasi',abk:'beban kerja',mofin:'kapabilitas',pelwen:'pelimpahan wewenang',mandat:'pelimpahan wewenang',zi:'zona integritas',wbk:'zona integritas',wbbm:'zona integritas',pensiunan:'pensiun',resign:'berhenti',keluar:'berhenti',berisiko:'rawan',rawan:'berisiko',ramai:'teramai',teramai:'ramai',sepi:'tersepi',terendah:'rendah',tertinggi:'tinggi'};
-var TD_UMUM=['Berapa pegawai yang berkantor di zona banjir tinggi?','Berapa skor MOFIN Kemenkeu?','Unit mana yang porsi pensiunnya paling besar?','Berapa jumlah unit Eselon II?','Apa itu efisiensi EU.1?','Di mana melihat pelimpahan wewenang?'];
+var TD_UMUM=['Bagaimana kondisi DJP?','Bandingkan DJA dan DJPb','Unit mana tingkat keluarnya tertinggi?','Unit mana yang perlu perhatian?','Apakah unit yang banyak pensiun juga banyak yang berhenti?','Berapa skor MOFIN Kemenkeu?'];
 var TD_CONTOH={cuti:['Berapa persen hak cuti tahunan yang terpakai?','Bulan apa paling ramai cuti?'],suksesi:['Berapa pejabat yang pensiun sampai 2031?','Jabatan pimpinan mana yang paling terdampak pensiun?'],penghargaan:['Berapa persen pegawai pernah menerima penghargaan prestasi?','Unit mana cakupan penghargaannya terendah?'],pemberhentian:['Berapa tingkat keluar pegawai per tahun?','Apa alasan berhenti terbanyak?'],inklusi:['Berapa formasi khusus disabilitas yang terisi?','Butir dukungan organisasi mana yang terendah?'],kronis:['Penyakit kronis apa yang paling banyak?','Berapa persen yang bekerja di luar homebase?'],bencana:['Berapa pegawai di zona banjir tinggi?','Kelurahan mana yang paling berisiko?'],abk:['Berapa efisiensi Kementerian?','Unit mana selisih bezettingnya terbesar?'],otk:['Berapa jumlah unit Eselon IV?','Berapa rentang kendali Eselon II?'],urjab:['Berapa jabatan struktural menurut PMK OTK?','Unit mana porsi fungsionalnya terbesar?'],komjab:['Berapa jabatan yang sudah punya standar kompetensi?','Rumpun jabatan apa yang terbanyak?'],mk:['Berapa persen tim yang aktif?','Unit mana yang belum punya tim aktif?'],kapabilitas:['Dimensi MOFIN mana yang terlemah?','Berapa persen tindak lanjut yang selesai?'],takelola:['Berapa butir kewenangan yang dilimpahkan?','Unit mana yang paling banyak menerima mandat?'],layanan:['Berapa unit yang meraih WBBM?','Berapa nilai kepuasan layanan Kemenkeu?']};
 var TD_IKON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.2 7.5L3 21l2-5.3A8.4 8.4 0 1 1 21 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg>';
 var TD_KIRIM='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
@@ -8858,6 +8871,10 @@ async function tdSiapkan(){
   if(!TD.menu){tdMenu();TD.menu=true;}
   var mods=['beranda'].concat(MODULES.filter(function(m){return canMod(m.id);}).map(function(m){return m.id;}));
   for(var i=0;i<mods.length;i++){tdIndeksModul(mods[i]);if(i%3===2)await tdTidur(0);}
+  if(!TD.sudah._kantor&&canMod('bencana')&&typeof BENCANA!=='undefined'&&BENCANA&&BENCANA.kantor&&BENCANA.meta){var kt=BENCANA.kantor,nk=kt.length;
+    (BENCANA.meta.bahaya||[]).forEach(function(b){var c=kt.filter(function(x){return (x.t||[]).indexOf(b.kode)>=0;}).length;
+      tdTambah({v:'rbn',mod:'bencana',k:'kpi',ctx:'Lokasi kantor',t:'Lokasi kantor di zona '+b.label.toLowerCase()+' tinggi: '+fmt(c)+' dari '+fmt(nk)+' lokasi kantor ('+String((100*c/nk).toFixed(1)).replace('.',',')+'%)'});});
+    TD.sudah._kantor=1;}
 }
 function tdCari(q){
   var qt=tdTok(q),ex=[];qt.forEach(function(w){if(TD_ALIAS[w])ex=ex.concat(tdTok(TD_ALIAS[w]));});
@@ -8876,9 +8893,11 @@ function tdCari(q){
     if(tanyaAngka&&/\d/.test(p.t))s*=1.3;
     if(tanyaArti&&(p.k==='ket'||p.k==='menu'))s*=1.35;
     if(p.k==='sorot'||p.k==='kpi')s*=tanyaAngka?1.35:1.1;
+    if(tanyaAngka&&p.k==='tabel')s*=0.7;
+    if(tanyaAngka&&p.k==='baris')s*=1.25;
     if(unitQ.length&&!unitQ.some(function(w){return p.tf[w];})&&Object.keys(TD_UNIT).some(function(w){return p.tf[w];}))s*=0.4;
     if(tanyaAngka&&p.k==='ket'&&p.ctx!=='Keterangan')s*=0.8;
-    return {s:s,p:p};}).sort(function(a,b){return b.s-a.s;});
+    return {s:s,p:p,cov:cov};}).sort(function(a,b){return b.s-a.s;});
 }
 function tdTebal(s){return s.replace(/(?<![#\w&])(\d[\d.,]*(?:\s?%)?)/g,'<b>$1</b>');}
 function tdKartu(p,utama,dipakai){
@@ -8894,17 +8913,65 @@ function tdKartu(p,utama,dipakai){
   return '<div class="td-res'+(utama?' utama':'')+'"><div class="td-crumb">'+esc(crumb)+'</div>'+ctx+'<div class="td-t">'+tdTebal(esc(p.t))+'</div>'+baris+
     (canView(p.v)?'<button type="button" class="td-buka" data-td="nav" data-v="'+esc(p.v)+'">Buka halaman &rsaquo;</button>':'')+'</div>';}
 function tdChipHtml(arr){return arr.map(function(q){return '<span class="td-chip" data-td="tanya" data-q="'+esc(q)+'" role="button" tabindex="0">'+esc(q)+'</span>';}).join('');}
+
+
+
+
+function tdCrumb(p){var dom=MODDOMAIN[p.mod]?domLab(MODDOMAIN[p.mod]):'';var a=[dom,tdModLab(p.mod),p.v==='beranda'?'':tdJudul(p.v)].filter(Boolean);return a.filter(function(x,i){return i===0||x!==a[i-1];}).join(' › ');}
+function tdBarisGrafik(p,dipakai){
+  var rb=TD.idx.filter(function(x){return x.v===p.v&&x.ctx===p.ctx&&x.k==='baris';});
+  rb=/terendah|terkecil|paling rendah|paling kecil|paling sedikit|terlemah|terburuk/i.test(TD.q||'')?rb.slice(-4).reverse():rb.slice(0,4);
+  if(dipakai){dipakai['grafik|'+p.v+'|'+p.ctx]=1;rb.forEach(function(x){dipakai[x.v+'|'+x.t]=1;});}
+  return rb;}
+function tdRangkai(p,dipakai){
+  var t=String(p.t).replace(/\s+/g,' ').trim(), s='', baris=[];
+  if(p.k==='kpi'){s=t.replace(/^([^:]+):\s*/,'$1 ').replace(/\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*$/,', $1');}
+  else if(p.k==='baris'){s=t+(p.ctx&&p.ctx!=='Keterangan'?' ('+p.ctx.charAt(0).toLowerCase()+p.ctx.slice(1)+')':'');}
+  else if(p.k==='tabel'){s=t+(p.ctx?' (tabel '+p.ctx.charAt(0).toLowerCase()+p.ctx.slice(1)+')':'');}
+  else if(p.k==='ket'&&p.ctx&&p.ctx!=='Keterangan'&&p.ctx!=='Highlight'){
+    baris=tdBarisGrafik(p,dipakai);
+    s=t.replace(/^[^.]*\.\s*/,'');if(!s)s=t;
+    s=(p.ctx?p.ctx+': ':'')+s;
+    if(baris.length)s+=(/[.!?]$/.test(s)?' ':'. ')+(/terendah|terkecil|paling rendah|paling sedikit|terlemah/i.test(TD.q||'')?'Yang terendah':'Urutan teratas')+':';}
+  else s=t;
+  if(!/[.!?:]$/.test(s))s+='.';
+  var h='<div class="td-jwb">'+tdTebal(esc(s))+'</div>';
+  if(baris.length)h+='<ul class="td-rows">'+baris.map(function(x){return '<li>'+tdTebal(esc(x.t))+'</li>';}).join('')+'</ul>';
+  return h;}
+function tdArah(p){return '<div class="td-src"><span>Lihat detailnya di <b>'+esc(tdCrumb(p))+'</b></span>'+(canView(p.v)?'<button type="button" class="td-buka" data-td="nav" data-v="'+esc(p.v)+'">Buka &rsaquo;</button>':'')+'</div>';}
 function tdHasilHtml(q,r){
-  if(!r.length||r[0].s<0.9){
-    var menu=r.filter(function(x){return x.p.k==='menu';}).slice(0,3);
-    return '<div class="td-lead">Belum ketemu jawaban yang pas di data dashboard.</div><div class="td-t">Coba sebut nama unit, modul, atau ukurannya, misalnya "tingkat keluar DJP" atau "pensiun Eselon II".</div>'+
-      (menu.length?'<div class="td-ctx" style="margin-top:8px">Halaman yang mungkin terkait</div>'+menu.map(function(x){return tdKartu(x.p,false);}).join(''):'')+
+  var tanyaMana=/\b(di mana|dimana|halaman apa|menu apa|halaman mana|menu mana)\b/i.test(q);
+  var data=r.filter(function(x){return x.p.k!=='menu';});
+  
+
+
+  var qt=tdTok(q),hilang=qt.filter(function(w){return !TD.df[w]&&!(TD_ALIAS[w]&&tdTok(TD_ALIAS[w]).some(function(x){return TD.df[x];}));});
+  if(data.length&&((hilang.length&&data[0].cov<0.75)||data[0].cov<0.5))data=[];
+  var unq=[];try{unq=taCariUnit(q);}catch(e){}
+  if(data.length&&unq.length===1&&!tanyaMana){var uu=taU(unq[0]);if(uu){var pola=[uu.s,uu.n,lpUnit(uu.n)].map(function(x){return new RegExp('(^|[^a-z])'+String(x).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z]|$)');});
+    var GEN={pegawai:1,orang:1,unit:1,jumlah:1,total:1,banyak:1,data:1};
+    var lengkap=function(x){return qt.every(function(w){return GEN[w]||x.p.tf[w]||(TD_ALIAS[w]&&tdTok(TD_ALIAS[w]).some(function(y){return x.p.tf[y];}));});};
+    data=data.filter(function(x){var tx=(x.p.t+' '+(tdJudul(x.p.v)||'')).toLowerCase();return lengkap(x)&&pola.some(function(re){return re.test(tx);});});}}
+  if(tanyaMana){
+    var mn=r.filter(function(x){return x.p.k==='menu';}).slice(0,3);
+    if(mn.length)return '<div class="td-jwb">Topik ini ada di halaman <b>'+esc(tdJudul(mn[0].p.v))+'</b> pada modul '+esc(tdModLab(mn[0].p.mod))+'.</div>'+tdArah(mn[0].p)+
+      (mn.length>1?'<div class="td-sub">Halaman lain yang juga membahasnya</div>'+mn.slice(1).map(function(x){return tdArah(x.p);}).join(''):'');}
+  if(!data.length||data[0].s<0.9){
+    var m=r.filter(function(x){return x.p.k==='menu';})[0];
+    return '<div class="td-jwb">Data yang menjawab pertanyaan itu belum tersedia di dashboard.</div>'+
+      (m?'<div class="td-t">Topik yang paling dekat dibahas di halaman berikut.</div>'+tdArah(m.p):'<div class="td-t">Coba sebut nama unit, modul, atau ukurannya, misalnya "tingkat keluar DJP" atau "pensiun Eselon II".</div>')+
       '<div class="td-chips-in">'+tdChipHtml(TD_UMUM.slice(0,3))+'</div>';}
-  var pilih=[],perView={},dipakai={},isi='';
-  for(var i=0;i<r.length&&pilih.length<4;i++){var x=r[i];if(x.s<r[0].s*0.35)break;if(dipakai[x.p.v+'|'+x.p.t]||(x.p.k==='baris'&&dipakai['grafik|'+x.p.v+'|'+x.p.ctx]))continue;var c=perView[x.p.v]||0;if(c>=2)continue;perView[x.p.v]=c+1;pilih.push(x);isi+=tdKartu(x.p,pilih.length===1,dipakai);}
-  return '<div class="td-lead">'+(pilih[0].p.k==='menu'?'Halaman yang paling sesuai:':'Ini yang saya temukan di dashboard:')+'</div>'+
-    isi+
-    '<div class="td-cat">Jawaban diambil dari isi halaman. Buka halamannya untuk konteks lengkap.</div>';}
+  var dipakai={},best=data[0].p;
+  dipakai[best.v+'|'+best.t]=1;
+  var h=tdRangkai(best,dipakai)+tdArah(best);
+  var terkait=[];
+  for(var i=1;i<data.length&&terkait.length<2;i++){var x=data[i];if(x.s<data[0].s*0.45)break;
+    if(dipakai[x.p.v+'|'+x.p.t]||(x.p.k==='baris'&&dipakai['grafik|'+x.p.v+'|'+x.p.ctx]))continue;
+    dipakai[x.p.v+'|'+x.p.t]=1;terkait.push(x.p);}
+  if(terkait.length)h+='<div class="td-sub">Fakta terkait</div><ul class="td-rel">'+terkait.map(function(p){
+    var t=p.k==='baris'&&p.ctx&&p.ctx!=='Keterangan'?p.ctx+': '+p.t:p.t;
+    return '<li><span>'+tdTebal(esc(t))+'</span>'+(canView(p.v)?' <a class="td-lnk" data-td="nav" data-v="'+esc(p.v)+'" role="button" tabindex="0">'+esc(tdJudul(p.v))+' &rsaquo;</a>':'')+'</li>';}).join('')+'</ul>';
+  return h;}
 function tdPesan(kls,html){var b=document.getElementById('tdBody');if(!b)return null;var d=document.createElement('div');d.className='td-msg '+kls;d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;return d;}
 function tdChips(){var el=document.getElementById('tdChips');if(!el)return;var m=curMod();var c=(TD_CONTOH[m]||[]).filter(function(){return canMod(m);});el.innerHTML=tdChipHtml(c.concat(TD_UMUM).slice(0,4));}
 function tdMuatRingan(){['beranda','inklusi','pemberhentian','penghargaan','suksesi','cuti'].forEach(function(m){if(m!=='beranda'&&!canMod(m))return;if(!tdModOk(m)){try{TD_DATA[m].muat();}catch(e){}}});}
@@ -8920,22 +8987,26 @@ async function tdTanya(q){
   if(!TD.buka)tdBuka();
   TD.q=q;tdPesan('u',esc(q));var tk=tdPesan('b','<span class="td-ketik" aria-label="Sedang mencari"><i></i><i></i><i></i></span>');
   try{
+    await tdSiapkan();var rc=null,ja=null;try{rc=taRencana(q);}catch(e){rc=null;}
+    if(rc){var pm=taModPerlu(rc);
+      if(pm.length){tk.innerHTML='<div class="td-t">Mengambil data '+esc(pm.map(tdModLab).join(', '))+' dari server. Data besar bisa butuh sampai satu menit, cukup sekali per sesi.</div><span class="td-ketik"><i></i><i></i><i></i></span>';
+        pm.forEach(function(m){try{TD_DATA[m].muat();}catch(e){}});var t1=Date.now();while(Date.now()-t1<60000&&pm.some(function(m){return !tdModOk(m);}))await tdTidur(400);}
+      try{ja=taJawab(rc,q);}catch(e){ja=null;}}
+    if(ja){tk.innerHTML=ja;TD.sibuk=false;var bb=document.getElementById('tdBody');if(bb)bb.scrollTop=bb.scrollHeight;return;}
     await tdSiapkan();var r=tdCari(q),perlu=[];
-    r.slice(0,8).forEach(function(x){var m=x.p.mod;if(perlu.indexOf(m)<0&&TD_DATA[m]&&!tdModOk(m)&&canMod(m))perlu.push(m);});
+    r.slice(0,12).forEach(function(x){var m=x.p.mod;if(perlu.indexOf(m)<0&&TD_DATA[m]&&!tdModOk(m)&&canMod(m))perlu.push(m);});
     perlu=perlu.slice(0,2);
     if(perlu.length){
-      tk.innerHTML='<div class="td-t">Memuat data '+esc(perlu.map(tdModLab).join(' dan '))+'...</div>';
+      tk.innerHTML='<div class="td-t">Mengambil data '+esc(perlu.map(tdModLab).join(' dan '))+' dari server. Data besar bisa butuh sampai satu menit, cukup sekali per sesi.</div><span class="td-ketik"><i></i><i></i><i></i></span>';
       perlu.forEach(function(m){try{TD_DATA[m].muat();}catch(e){}});
-      var t0=Date.now();while(Date.now()-t0<30000&&perlu.some(function(m){return !tdModOk(m);}))await tdTidur(400);
+      var t0=Date.now();while(Date.now()-t0<60000&&perlu.some(function(m){return !tdModOk(m);}))await tdTidur(400);
       await tdSiapkan();r=tdCari(q);}
     tk.innerHTML=tdHasilHtml(q,r);
   }catch(e){tk.innerHTML='<div class="td-t">Maaf, terjadi kendala saat mencari jawaban. Coba ulangi pertanyaannya.</div>';}
   TD.sibuk=false;var b=document.getElementById('tdBody');if(b)b.scrollTop=b.scrollHeight;}
 function tdHeroHtml(){
-  return '<div class="stat td-hero" style="grid-column:span 12"><div class="td-hero-l"><span class="td-logo td-logo-lg">'+TD_IKON+'</span><div><div class="td-hero-t">Tanya Dashboard</div>'+
-    '<div class="td-hero-s">Tanyakan angka, perbandingan antarunit, arti istilah, atau letak halaman. Jawaban diambil dari data dashboard ini dan dilengkapi tautan ke halaman sumbernya.</div></div></div>'+
-    '<div class="td-hero-f"><input id="tdHeroQ" type="text" maxlength="200" placeholder="Contoh: berapa skor MOFIN Kemenkeu?" autocomplete="off" aria-label="Pertanyaan untuk Tanya Dashboard"><button type="button" class="td-hero-b" data-td="hero">Tanya</button></div>'+
-    '<div class="td-hero-c">'+tdChipHtml(TD_UMUM.slice(0,4))+'</div></div>';}
+  return '<div class="stat td-hero" style="grid-column:span 12"><div class="td-hero-l"><span class="td-logo">'+TD_IKON+'</span><div class="td-hero-t">Tanya Dashboard</div></div>'+
+    '<div class="td-hero-f"><input id="tdHeroQ" type="text" maxlength="200" placeholder="Tanyakan data dashboard, misalnya: bandingkan DJA dan DJPb" autocomplete="off" aria-label="Pertanyaan untuk Tanya Dashboard"><button type="button" class="td-hero-b" data-td="hero">Tanya</button></div></div>';}
 function tdPasang(){
   var lo=document.getElementById('loginOverlay');var masuk=!lo||getComputedStyle(lo).display==='none';
   var fab=document.getElementById('tdFab');
@@ -8965,6 +9036,223 @@ document.addEventListener('keydown',function(e){
   if(t.id==='tdHeroQ'&&e.key==='Enter'){e.preventDefault();var q=t.value;t.value='';if(q.trim())tdTanya(q);}
   else if(t.classList&&t.classList.contains('td-chip')&&(e.key==='Enter'||e.key===' ')){e.preventDefault();tdTanya(t.getAttribute('data-q'));}
 });
+
+
+
+
+
+
+
+var TA_UNIT=[
+  {k:'setjen',s:'Setjen',n:'Sekretariat Jenderal'},{k:'itjen',s:'Itjen',n:'Inspektorat Jenderal'},
+  {k:'dja',s:'DJA',n:'Direktorat Jenderal Anggaran'},{k:'djp',s:'DJP',n:'Direktorat Jenderal Pajak'},
+  {k:'djbc',s:'DJBC',n:'Direktorat Jenderal Bea dan Cukai'},{k:'djpb',s:'DJPb',n:'Direktorat Jenderal Perbendaharaan'},
+  {k:'djkn',s:'DJKN',n:'Direktorat Jenderal Kekayaan Negara'},{k:'djpk',s:'DJPK',n:'Direktorat Jenderal Perimbangan Keuangan'},
+  {k:'djppr',s:'DJPPR',n:'Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko'},{k:'djsef',s:'DJSEF',n:'Direktorat Jenderal Strategi Ekonomi dan Fiskal'},
+  {k:'djspsk',s:'DJSPSK',n:'Direktorat Jenderal Stabilitas dan Pengembangan Sektor Keuangan'},{k:'bppk',s:'BPPK',n:'Badan Pendidikan dan Pelatihan Keuangan'},
+  {k:'batii',s:'BTIIK',n:'Badan Teknologi, Informasi, dan Intelijen Keuangan'},{k:'lnsw',s:'LNSW',n:'Lembaga National Single Window'}];
+var TA_KODE={setjen:'setjen',sekjen:'setjen',itjen:'itjen',dja:'dja',djp:'djp',djbc:'djbc',djpb:'djpb',djkn:'djkn',djpk:'djpk',djppr:'djppr',djsef:'djsef',bkf:'djsef',djspsk:'djspsk',djspk:'djspsk',bppk:'bppk',batii:'batii',bati:'batii',btiik:'batii',btii:'batii',lnsw:'lnsw'};
+var TA_KATA={pajak:'djp',bea:'djbc',cukai:'djbc',perbendaharaan:'djpb',anggaran:'dja',kekayaan:'djkn',perimbangan:'djpk',pembiayaan:'djppr',stabilitas:'djspsk',sekretariat:'setjen',inspektorat:'itjen',pelatihan:'bppk',intelijen:'batii'};
+function taNorm(s){return String(s||'').toLowerCase().replace(/&/g,' dan ').replace(/direktorat jenderal|ditjen|badan|lembaga/g,'').replace(/[^a-z]/g,'');}
+var TA_NAMA={};TA_UNIT.forEach(function(u){TA_NAMA[taNorm(u.n)]=u.k;});
+function taKey(s){var c=String(s||'').toLowerCase().replace(/[^a-z]/g,'');if(TA_KODE[c])return TA_KODE[c];return TA_NAMA[taNorm(s)]||null;}
+function taU(k){return TA_UNIT.find(function(u){return u.k===k;});}
+function taLab(k){var u=taU(k);return u?(lpUnit(u.n)+' ('+u.s+')'):k;}
+function taAda(nm){try{switch(nm){
+  case 'BERANDA':return typeof BERANDA!=='undefined'&&!!BERANDA;case 'MOFIN':return typeof MOFIN!=='undefined'&&!!(MOFIN&&MOFIN.units);
+  case 'ABK':return typeof ABK!=='undefined'&&!!ABK;case 'PW':return typeof PW!=='undefined'&&!!(PW&&PW.per_unit);
+  case 'PEMBERHENTIAN':return typeof PEMBERHENTIAN!=='undefined'&&!!PEMBERHENTIAN;case 'PENGHARGAAN':return typeof PENGHARGAAN!=='undefined'&&!!PENGHARGAAN;
+  case 'BENCANA':return typeof BENCANA!=='undefined'&&!!BENCANA;case 'CUTI':return typeof CUTI!=='undefined'&&!!CUTI;
+  case 'DATA':return typeof DATA!=='undefined'&&!!DATA;}}catch(e){}return false;}
+function taDari(arr,fn){var o={};(arr||[]).forEach(function(x){var r=fn(x);if(r&&r[0]&&r[1]!=null&&isFinite(r[1]))o[r[0]]=+r[1];});return o;}
+function taBer(f){if(!taAda('BERANDA'))return {};return taDari(BERANDA.unit,function(u){return [u.k,u[f]];});}
+function taBerRef(f){return taAda('BERANDA')&&BERANDA.ref?BERANDA.ref[f]:null;}
+
+
+var TA_IND=[
+ {id:'peg',lab:'Jumlah pegawai',syn:['jumlah pegawai','banyak pegawai','pegawai','sdm','personel'],jenis:'jumlah',arah:0,mod:'beranda',v:'beranda',f:'n',
+  get:function(){return {nilai:taBer('peg'),ref:taBerRef('peg'),refLab:'total Kemenkeu'};}},
+ {id:'unit',lab:'Unit organisasi di bawah Eselon I',syn:['unit organisasi','jumlah unit','struktur organisasi'],jenis:'jumlah',arah:0,mod:'beranda',v:'otkikh',f:'n',
+  get:function(){return {nilai:taBer('unit'),ref:taBerRef('unit'),refLab:'total Kemenkeu'};}},
+ {id:'pb',lab:'Grup proses bisnis yang diampu',syn:['proses bisnis','probis'],jenis:'jumlah',arah:0,mod:'beranda',v:'pb_exec',f:'n',
+  get:function(){return {nilai:taBer('pb'),ref:taBerRef('pb'),refLab:'total Kemenkeu'};}},
+ {id:'delay',lab:'Eselon II sudah delayering',syn:['delayering','penyederhanaan birokrasi','penyederhanaan struktur'],jenis:'rasio',arah:1,mod:'beranda',v:'otkhealth',f:'pct',
+  get:function(){return {nilai:taBer('delay'),ref:taBerRef('delay'),refLab:'Kemenkeu'};}},
+ {id:'kom',lab:'Jabatan berstandar kompetensi',syn:['standar kompetensi','kompetensi'],jenis:'rasio',arah:1,mod:'beranda',v:'kjcakupan',f:'pct',
+  get:function(){return {nilai:taBer('kom'),ref:taBerRef('kom'),refLab:'Kemenkeu'};}},
+ {id:'mof',lab:'Skor kapabilitas (MOFIN)',syn:['skor mofin','mofin','kapabilitas','skor kapabilitas'],jenis:'rasio',arah:1,mod:'kapabilitas',v:'mofin',f:'n',
+  get:function(){if(!taAda('MOFIN'))return null;var km=mofU('Kemenkeu');return {nilai:taDari(mofUnits(),function(u){return u.kode==='Kemenkeu'?null:[taKey(u.kode)||taKey(u.nama),u.skor_total];}),ref:km?km.skor_total:null,refLab:'Kemenkeu'};}},
+ {id:'tl',lab:'Tindak lanjut rekomendasi MOFIN selesai',syn:['tindak lanjut','rekomendasi mofin','rekomendasi'],jenis:'rasio',arah:1,mod:'kapabilitas',v:'moftl',f:'pct',
+  get:function(){if(!taAda('MOFIN'))return null;var d=0,n=0;var o=taDari(mofUnits(),function(u){if(u.kode==='Kemenkeu'||!u.ada_tl||!u.tl||!u.tl.n)return null;d+=u.tl.done;n+=u.tl.n;return [taKey(u.kode)||taKey(u.nama),100*u.tl.done/u.tl.n];});return {nilai:o,ref:n?100*d/n:null,refLab:'seluruh Eselon I'};}},
+ {id:'suk',lab:'Pejabat pensiun dalam 5 tahun',syn:['pensiun','suksesi','regenerasi'],jenis:'rasio',arah:-1,mod:'beranda',v:'sukunit',f:'pct',
+  get:function(){return {nilai:taBer('suk'),ref:taBerRef('suk'),refLab:'Kemenkeu'};}},
+ {id:'kep',lab:'Nilai kepuasan layanan',syn:['kepuasan','survei kepuasan','skm'],jenis:'rasio',arah:1,mod:'beranda',v:'tkkepuasan',f:'n2',
+  get:function(){return {nilai:taBer('kep'),ref:taBerRef('kep'),refLab:'Kemenkeu'};}},
+ {id:'eu1',lab:'Efisiensi beban kerja (EU.1)',syn:['efisiensi','eu1','eu 1','beban kerja'],jenis:'rasio',arah:0,mod:'abk',v:'abk',f:'n2',cat:'Zona wajar 0,75 sampai 1,25.',
+  get:function(){if(!taAda('ABK'))return null;var b=0,a=0,j=(ABK.meta&&ABK.meta.jke)||1476;var o=taDari(ABK.eselon1,function(e){b+=e.total.beban||0;a+=e.total.ada||0;return [taKey(e.nama),e.total.eu1];});return {nilai:o,ref:a?b/(a*j):null,refLab:'Kemenkeu'};}},
+ {id:'eu2',lab:'Efektivitas beban kerja (EU.2)',syn:['efektivitas','eu2','eu 2','tugas dan fungsi'],jenis:'rasio',arah:1,mod:'abk',v:'abk',f:'pct',
+  get:function(){if(!taAda('ABK'))return null;var b=0,t=0;var o=taDari(ABK.eselon1,function(e){b+=e.total.beban||0;t+=e.total.beban_tusi||0;return [taKey(e.nama),e.total.eu2];});return {nilai:o,ref:b?100*t/b:null,refLab:'Kemenkeu'};}},
+ {id:'sel',lab:'Selisih bezetting terhadap kebutuhan ABK',syn:['bezetting','kebutuhan pegawai','kekurangan pegawai','kelebihan pegawai','selisih pegawai'],jenis:'rasio',arah:0,mod:'abk',v:'abk',f:'pctS',cat:'Kebutuhan adalah hasil hitungan ABK 2024 dan belum memperhitungkan kebijakan formasi pegawai.',
+  get:function(){if(!taAda('ABK'))return null;var a=0,u=0;var o=taDari(ABK.eselon1,function(e){a+=e.total.ada||0;u+=e.total.butuh||0;return [taKey(e.nama),e.total.butuh?100*(e.total.ada-e.total.butuh)/e.total.butuh:null];});return {nilai:o,ref:u?100*(a-u)/u:null,refLab:'Kemenkeu'};}},
+ {id:'butir',lab:'Butir pelimpahan wewenang yang diterima',syn:['pelimpahan wewenang','pelimpahan','wewenang','mandat','pelwen'],jenis:'jumlah',arah:0,mod:'takelola',v:'pelunit',f:'n',
+  get:function(){if(!taAda('PW'))return null;var t=0;var o=taDari(PW.per_unit,function(u){t+=u.jml_butir||0;return [taKey(u.kode)||taKey(u.nama),u.jml_butir];});return {nilai:o,ref:t,refLab:'total butir per unit'};}},
+ {id:'keluar',lab:'Tingkat keluar (per 10.000 pegawai per tahun)',syn:['tingkat keluar','berhenti','pemberhentian','keluar','turnover','resign','retensi'],jenis:'rasio',arah:-1,mod:'pemberhentian',v:'pmbunit',f:'n1',cat:'Unit di bawah 100 pegawai dan unit baru tidak diberi tingkat keluar.',
+  get:function(){if(!taAda('PEMBERHENTIAN'))return null;return {nilai:taDari(PEMBERHENTIAN.perUnit,function(u){return u.status==='ok'?[taKey(u.unit),u.per10rb]:null;}),ref:PEMBERHENTIAN.meta.rataKemenkeu,refLab:'Kemenkeu'};}},
+ {id:'ph',lab:'Pegawai pernah menerima penghargaan prestasi',syn:['penghargaan','apresiasi','prestasi'],jenis:'rasio',arah:1,mod:'penghargaan',v:'phunit',f:'pct',cat:'Mengukur pencatatan di PILAR, bukan pemberian penghargaan.',
+  get:function(){if(!taAda('PENGHARGAAN'))return null;return {nilai:taDari(PENGHARGAAN.perUnit,function(u){return u.gabungan?null:[taKey(u.unit),u.pctPrestasi];}),ref:PENGHARGAAN.cakupan.pctPrestasi,refLab:'Kemenkeu'};}},
+ {id:'banjir',lab:'Pegawai berkantor di zona banjir tinggi',syn:['banjir','zona banjir'],jenis:'rasio',arah:-1,mod:'bencana',v:'rbnunit',f:'pct',cat:'Risiko diukur di kelurahan tempat kantor, bukan per gedung.',
+  get:function(){if(!taAda('BENCANA'))return null;var bj=(BENCANA.paparan||[]).find(function(x){return x.kode==='BJ';})||{};return {nilai:taDari(BENCANA.perEselon1,function(u){return u.n>=100?[taKey(u.unit),100*((u.tinggi||{}).BJ||0)/u.n]:null;}),ref:bj.tinggiPct,refLab:'Kemenkeu'};}},
+ {id:'ganda',lab:'Pegawai di kantor dengan 3 risiko bencana tinggi atau lebih',syn:['risiko bencana','bencana','risiko ganda','tiga risiko'],jenis:'rasio',arah:-1,mod:'bencana',v:'rbnganda',f:'pct',cat:'Cuaca ekstrem tidak dihitung karena berlaku untuk hampir semua kantor.',
+  get:function(){if(!taAda('BENCANA'))return null;var g=(BENCANA.ganda.pegawai||[]).filter(function(x){return x.k>=3;}).reduce(function(s,x){return s+x.n;},0);return {nilai:taDari(BENCANA.perEselon1,function(u){return u.n>=100?[taKey(u.unit),u.ganda3Pct]:null;}),ref:100*g/(BENCANA.meta.pegawai||1),refLab:'Kemenkeu'};}},
+ {id:'lok',lab:'Lokasi kantor',syn:['lokasi kantor','jumlah kantor','kantor'],jenis:'jumlah',arah:0,mod:'bencana',v:'rbnunit',f:'n',cat:'Satu lokasi bisa dipakai lebih dari satu unit Eselon I, sehingga jumlah per unit tidak bisa dijumlahkan menjadi total Kemenkeu.',
+  get:function(){if(!taAda('BENCANA'))return null;return {nilai:taDari(BENCANA.perEselon1,function(u){return u.lokasi?[taKey(u.unit),u.lokasi]:null;}),ref:(BENCANA.meta||{}).lokasiKantor,refLab:'total Kemenkeu'};}},
+ {id:'zi',lab:'Predikat Zona Integritas (WBK dan WBBM)',syn:['zona integritas','predikat zi','wbk','zi'],jenis:'jumlah',arah:0,mod:'layanan',v:'tkintegritas',f:'n',
+  get:function(){if(!tkOK())return null;var o={},t=0;(TK.integritas.rows||[]).forEach(function(r){var k=taKey(r.ue1);if(!k)return;o[k]=(o[k]||0)+1;t++;});return {nilai:o,ref:t,refLab:'total Kemenkeu'};}},
+ {id:'wbbm',lab:'Predikat WBBM',syn:['wbbm','birokrasi bersih'],jenis:'jumlah',arah:0,mod:'layanan',v:'tkintegritas',f:'n',
+  get:function(){if(!tkOK())return null;var o={},t=0;(TK.integritas.rows||[]).forEach(function(r){if(r.predikat!=='WBBM')return;var k=taKey(r.ue1);if(!k)return;o[k]=(o[k]||0)+1;t++;});return {nilai:o,ref:t,refLab:'total Kemenkeu'};}},
+ {id:'inov',lab:'Inovasi yang tercatat',syn:['inovasi'],jenis:'jumlah',arah:0,mod:'layanan',v:'tkinovasi',f:'n',
+  get:function(){if(!tkOK())return null;var o={},t=0;(TK.inovasi.rows||[]).forEach(function(r){var k=taKey(r.ue1);if(!k)return;o[k]=(o[k]||0)+1;t++;});return {nilai:o,ref:t,refLab:'total Kemenkeu'};}},
+ {id:'cuti',lab:'Pemakaian hak cuti tahunan',syn:['hak cuti','cuti tahunan','cuti'],jenis:'rasio',arah:0,mod:'cuti',v:'cutiutilisasi',f:'pct',cat:'Direktorat Jenderal Pajak dan Bea dan Cukai tidak dihitung karena datanya belum lengkap.',
+  get:function(){if(!taAda('CUTI'))return null;var par=(CUTI.meta.parsial||[]);var u=((CUTI.utilisasi||{}).perTahun||[]).find(function(x){return x.tahun===CUTI.meta.tahunPenuh;})||{};return {nilai:taDari(CUTI.utilisasiUnit,function(x){return par.indexOf(x.nama)>=0?null:[taKey(x.nama),x.utilisasiPct];}),ref:u.utilisasiPct,refLab:'Kemenkeu'};}},
+ {id:'adopsi',lab:'Tim kerja yang aktif memakai penugasan',syn:['tim kerja','tim aktif','adopsi','mekanisme kerja','squad'],jenis:'rasio',arah:1,mod:'mk',v:'ringkasan',f:'pct',cat:'Hanya unit yang sudah memakai aplikasi tim kerja.',
+  get:function(){if(!mkSiap()||!taAda('DATA')||!DATA.ue1)return null;return {nilai:taDari(Object.keys(DATA.ue1).map(function(k){return [k,DATA.ue1[k]];}),function(x){return [taKey(x[0]),x[1].adopsi_pct];}),ref:(DATA.summary||{}).adopsi_pct,refLab:'Kemenkeu'};}}
+];
+function taF(ind,v){if(v==null||!isFinite(v))return '-';
+  if(ind.f==='pct')return d1(v)+'%';if(ind.f==='pctS')return (v>0?'+':'')+d1(v)+'%';
+  if(ind.f==='n2')return Number(v).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(ind.f==='n1')return d1(v);return fmt(Math.round(v));}
+function taData(ind){try{var d=ind.get();if(!d)return null;var ks=Object.keys(d.nilai||{});if(!ks.length)return null;return d;}catch(e){return null;}}
+function taKata(q){return ' '+String(q||'').toLowerCase().replace(/[^a-z0-9.]+/g,' ').split(' ').map(function(w){return w.length>5&&/nya$/.test(w)?w.slice(0,-3):w;}).join(' ').replace(/\s+/g,' ')+' ';}
+function taCariInd(q){var s=taKata(q),hasil=[];
+  TA_IND.forEach(function(ind){var sk=0;ind.syn.forEach(function(p){if(s.indexOf(' '+p+' ')>=0){var w=p.split(' ').length;sk=Math.max(sk,(p==='pegawai'||p==='sdm')?0.4:w+p.length/20);}});if(sk>0)hasil.push({ind:ind,sk:sk,pos:s.indexOf(' '+ind.syn.find(function(p){return s.indexOf(' '+p+' ')>=0;})+' ')});});
+  hasil.sort(function(a,b){return b.sk-a.sk;});
+  
+  if(hasil.length>1)hasil=hasil.filter(function(x){return x.ind.id!=='peg'||x.sk>=1;});
+  return hasil;}
+function taCariUnit(q){var s=taKata(q),out=[];
+  s.split(' ').forEach(function(w){var k=TA_KODE[w]||TA_KATA[w];if(k&&out.indexOf(k)<0)out.push(k);});
+  if(/single window/.test(s)&&out.indexOf('lnsw')<0)out.push('lnsw');
+  return out;}
+function taUrut(nilai,desc){return Object.keys(nilai).sort(function(a,b){return desc?nilai[b]-nilai[a]:nilai[a]-nilai[b];});}
+function taPeringkat(nilai,k){var u=taUrut(nilai,true);var r=u.indexOf(k)+1,n=u.length;return {r:r,n:n,t:(r<=Math.ceil(n/2)?'tertinggi ke-'+r:'terendah ke-'+(n-r+1))+' dari '+n};}
+function taRata(nilai){var v=Object.keys(nilai).map(function(k){return nilai[k];});return v.reduce(function(s,x){return s+x;},0)/(v.length||1);}
+function taSd(nilai){var m=taRata(nilai),v=Object.keys(nilai).map(function(k){return nilai[k];});return Math.sqrt(v.reduce(function(s,x){return s+(x-m)*(x-m);},0)/(v.length||1))||1;}
+function taBanding(ind,d,v){
+  if(ind.jenis==='jumlah'){return d.ref?('setara '+d1(100*v/d.ref)+'% dari '+d.refLab+' ('+taF(ind,d.ref)+')'):'';}
+  if(d.ref==null)return '';var df=v-d.ref,tol=Math.abs(d.ref)*0.02+(ind.f==='n2'?0.005:0.05);
+  if(Math.abs(df)<=tol)return 'setara dengan '+d.refLab+' ('+taF(ind,d.ref)+')';
+  return (df>0?'di atas':'di bawah')+' '+d.refLab+' ('+taF(ind,d.ref)+')';}
+function taSumber(inds){var u={};inds.forEach(function(i){u[i.v]=u[i.v]||[];u[i.v].push(i);});
+  return '<div class="td-sub">Sumber</div><div class="ta-src">'+Object.keys(u).map(function(v){var i=u[v][0];var p={v:v,mod:VIEW2MOD[v]||i.mod};
+    return '<span class="td-lnk" data-td="nav" data-v="'+esc(v)+'" role="button" tabindex="0">'+esc(tdCrumb(p))+' &rsaquo;</span>';}).join('')+'</div>';}
+function taCatatan(inds){var c=[];inds.forEach(function(i){if(i.cat&&c.indexOf(i.cat)<0)c.push(i.cat);});if(inds.some(function(i){return i.jenis==='jumlah';}))c.push('Indikator jumlah dipengaruhi besar kecilnya unit, jadi bandingkan dengan hati-hati.');
+  return c.length?'<div class="ta-cat"><b>Catatan data:</b> '+esc(c.join(' '))+'</div>':'';}
+function taT(s){return tdTebal(esc(s));}
+
+
+function taNilai(k,ind){var d=taData(ind);if(!d)return null;var v=d.nilai[k];
+  if(v==null)return '<div class="td-jwb">Data <b>'+esc(ind.lab.toLowerCase())+'</b> untuk '+esc(taLab(k))+' belum tersedia di dashboard.</div>'+taSumber([ind]);
+  var p=taPeringkat(d.nilai,k),b=taBanding(ind,d,v);
+  var s=ind.lab+' '+taLab(k)+' adalah '+taF(ind,v)+(b?', '+b:'')+'. Posisinya '+p.t+' unit Eselon I yang punya data.';
+  if(ind.id==='eu1')s+=(v<0.75||v>1.25)?' Nilai ini di luar zona wajar.':' Nilai ini berada di zona wajar.';
+  var u=taUrut(d.nilai,true);
+  s+=' Tertinggi '+taLab(u[0])+' ('+taF(ind,d.nilai[u[0]])+'), terendah '+taLab(u[u.length-1])+' ('+taF(ind,d.nilai[u[u.length-1]])+').';
+  return '<div class="td-jwb">'+taT(s)+'</div>'+taCatatan([ind])+taSumber([ind]);}
+function taPeringkatJ(ind,q){var d=taData(ind);if(!d)return null;
+  var rendah=/terendah|terkecil|tersedikit|paling rendah|paling kecil|paling sedikit|terburuk|terlemah/.test(q);
+  var u=taUrut(d.nilai,!rendah).slice(0,5);
+  var s=ind.lab+(rendah?', lima unit terendah:':', lima unit tertinggi:');
+  var h='<div class="td-jwb">'+taT(s)+'</div><ol class="ta-ol">'+u.map(function(k){return '<li>'+esc(taLab(k))+' <b>'+esc(taF(ind,d.nilai[k]))+'</b></li>';}).join('')+'</ol>';
+  if(d.ref!=null)h+='<div class="td-t">Sebagai pembanding, '+esc(d.refLab)+' <b>'+esc(taF(ind,d.ref))+'</b>, dari '+Object.keys(d.nilai).length+' unit yang punya data.</div>';
+  if(ind.arah!==0)h+='<div class="td-t">'+esc(ind.arah>0?'Pada indikator ini, makin tinggi makin baik.':'Pada indikator ini, makin tinggi makin perlu perhatian.')+'</div>';
+  return h+taCatatan([ind])+taSumber([ind]);}
+function taRingkasInd(ind){var d=taData(ind);if(!d)return null;var u=taUrut(d.nilai,true);
+  var s=(d.ref!=null?ind.lab+' '+d.refLab+' '+taF(ind,d.ref)+'. ':'')+'Dari '+u.length+' unit Eselon I, tertinggi '+taLab(u[0])+' ('+taF(ind,d.nilai[u[0]])+') dan terendah '+taLab(u[u.length-1])+' ('+taF(ind,d.nilai[u[u.length-1]])+').';
+  return '<div class="td-jwb">'+taT(s)+'</div>'+taCatatan([ind])+taSumber([ind]);}
+function taSemua(){return TA_IND.map(function(i){return {ind:i,d:taData(i)};}).filter(function(x){return x.d;});}
+function taProfil(k){var A=taSemua(),baik=[],perlu=[],baris=[];
+  A.forEach(function(x){var v=x.d.nilai[k];if(v==null)return;var p=taPeringkat(x.d.nilai,k);baris.push({x:x,v:v,p:p});
+    if(x.ind.jenis==='rasio'&&x.ind.arah!==0&&p.n>=6){var z=(v-taRata(x.d.nilai))/taSd(x.d.nilai)*x.ind.arah;(z>=0?baik:perlu).push({x:x,v:v,p:p,z:Math.abs(z)});}
+    if(x.ind.id==='eu1'&&(v<0.75||v>1.25))perlu.push({x:x,v:v,p:p,z:2});});
+  if(!baris.length)return '<div class="td-jwb">Data untuk '+esc(taLab(k))+' belum tersedia di dashboard.</div>';
+  baik.sort(function(a,b){return b.z-a.z;});perlu.sort(function(a,b){return b.z-a.z;});
+  var frasa=function(o){return o.x.ind.lab.toLowerCase()+' '+taF(o.x.ind,o.v)+' ('+o.p.t+')';};
+  var s='Gambaran '+taLab(k)+' dari '+baris.length+' indikator yang tersedia.';
+  var kuat=baik.filter(function(o){return o.z>=0.5;}).slice(0,3),lemah=perlu.filter(function(o){return o.z>=0.5;}).slice(0,3);
+  var h='<div class="td-jwb">'+taT(s)+'</div>';
+  if(kuat.length)h+='<div class="td-sub">Menonjol baik</div><ul class="td-rel">'+kuat.map(function(o){return '<li>'+taT(frasa(o))+'</li>';}).join('')+'</ul>';
+  if(lemah.length)h+='<div class="td-sub">Perlu perhatian</div><ul class="td-rel">'+lemah.map(function(o){return '<li>'+taT(frasa(o))+'</li>';}).join('')+'</ul>';
+  h+='<details class="ta-det"><summary>Lihat semua indikator</summary><table class="ta-tbl"><tbody>'+baris.map(function(o){return '<tr><td>'+esc(o.x.ind.lab)+'</td><td class="num-c"><b>'+esc(taF(o.x.ind,o.v))+'</b></td><td class="num-c">'+(o.x.ind.jenis==='rasio'?o.p.t:'')+'</td></tr>';}).join('')+'</tbody></table></details>';
+  h+='<div class="ta-cat">"Menonjol" dihitung dari jarak terhadap rata-rata antarunit pada indikator yang punya arah baik atau buruk. Posisi dihitung di antara unit Eselon I yang punya data.</div>';
+  return h+taSumber(baris.map(function(o){return o.x.ind;}).slice(0,6));}
+function taBandingJ(ks,inds){var A=inds.length?inds.map(function(i){return {ind:i,d:taData(i)};}).filter(function(x){return x.d;}):taSemua();
+  A=A.filter(function(x){return ks.some(function(k){return x.d.nilai[k]!=null;});});
+  if(!A.length)return '<div class="td-jwb">Data untuk membandingkan unit tersebut belum tersedia di dashboard.</div>';
+  var lebih={};ks.forEach(function(k){lebih[k]=[];});
+  A.forEach(function(x){if(x.ind.arah===0||ks.some(function(k){return x.d.nilai[k]==null;}))return;var best=ks.slice().sort(function(a,b){return (x.d.nilai[b]-x.d.nilai[a])*x.ind.arah;})[0];
+    if(ks.every(function(k){return Math.abs(x.d.nilai[k]-x.d.nilai[best])<1e-9;}))return;lebih[best].push(x.ind.lab.toLowerCase());});
+  var s=ks.map(function(k){return lebih[k].length?taLab(k)+' lebih baik pada '+lebih[k].slice(0,4).join(', '):'';}).filter(Boolean).join('; ');
+  var h='<div class="td-jwb">'+taT(s?('Perbandingan '+ks.map(taLab).join(' dan ')+': '+s+'.'):('Perbandingan '+ks.map(taLab).join(' dan ')+' pada '+A.length+' indikator.'))+'</div>';
+  h+='<div class="tblw"><table class="ta-tbl"><thead><tr><th>Indikator</th>'+ks.map(function(k){return '<th class="num-c">'+esc((taU(k)||{}).s||k)+'</th>';}).join('')+'</tr></thead><tbody>'+
+    A.map(function(x){return '<tr><td>'+esc(x.ind.lab)+'</td>'+ks.map(function(k){return '<td class="num-c">'+esc(taF(x.ind,x.d.nilai[k]))+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';
+  h+='<div class="ta-cat">"Lebih baik" hanya dinilai pada indikator yang punya arah baik atau buruk; indikator jumlah dan netral ditampilkan tanpa dinilai.</div>';
+  return h+taCatatan(A.map(function(x){return x.ind;}))+taSumber(A.map(function(x){return x.ind;}).slice(0,6));}
+function taHubungan(i1,i2){var d1x=taData(i1),d2x=taData(i2);if(!d1x||!d2x)return null;
+  var ks=Object.keys(d1x.nilai).filter(function(k){return d2x.nilai[k]!=null;});
+  if(ks.length<6)return '<div class="td-jwb">Unit yang punya data kedua indikator hanya '+ks.length+', terlalu sedikit untuk menilai hubungannya.</div>'+taSumber([i1,i2]);
+  var rk=function(d){var u=ks.slice().sort(function(a,b){return d.nilai[a]-d.nilai[b];});var r={};u.forEach(function(k,i){r[k]=i+1;});return r;};
+  var r1=rk(d1x),r2=rk(d2x),n=ks.length,sd=ks.reduce(function(s,k){return s+Math.pow(r1[k]-r2[k],2);},0),rho=1-6*sd/(n*(n*n-1));
+  var a=Math.abs(rho),kuat=a<0.3?'lemah atau tidak ada':(a<0.6?'sedang':'kuat');
+  var s='Hubungan antara '+i1.lab.toLowerCase()+' dan '+i2.lab.toLowerCase()+' pada '+n+' unit Eselon I tergolong '+kuat+' (korelasi peringkat '+(rho>=0?'':'minus ')+Number(Math.abs(rho)).toLocaleString('id-ID',{maximumFractionDigits:2})+').';
+  if(a>=0.3)s+=rho>0?' Unit yang tinggi pada indikator pertama cenderung juga tinggi pada indikator kedua.':' Unit yang tinggi pada indikator pertama cenderung rendah pada indikator kedua.';
+  return '<div class="td-jwb">'+taT(s)+'</div><div class="ta-cat">Dengan hanya '+n+' unit, hubungan ini mudah berubah oleh satu atau dua unit dan bukan bukti sebab akibat.</div>'+taCatatan([i1,i2])+taSumber([i1,i2]);}
+function taPerhatian(){var A=taSemua().filter(function(x){return x.ind.jenis==='rasio'&&x.ind.arah!==0&&Object.keys(x.d.nilai).length>=8;});
+  if(!A.length)return null;var hit={};
+  A.forEach(function(x){var u=taUrut(x.d.nilai,x.ind.arah<0);var q=Math.max(1,Math.round(u.length/4));u.slice(0,q).forEach(function(k){(hit[k]=hit[k]||[]).push(x.ind.lab.toLowerCase());});});
+  var ur=Object.keys(hit).sort(function(a,b){return hit[b].length-hit[a].length;}).slice(0,4);
+  var h='<div class="td-jwb">'+taT('Dari '+A.length+' indikator yang punya arah baik atau buruk, unit yang paling sering berada di kelompok seperempat terburuk:')+'</div><ol class="ta-ol">'+
+    ur.map(function(k){return '<li><b>'+esc(taLab(k))+'</b>: '+hit[k].length+' indikator ('+esc(hit[k].join(', '))+')</li>';}).join('')+'</ol>';
+  return h+'<div class="ta-cat">Ini penanda awal, bukan penilaian kinerja: setiap indikator diberi bobot sama dan tiap indikator punya keterbatasan sendiri. Buka halaman sumbernya sebelum mengambil kesimpulan.</div>'+taSumber(A.map(function(x){return x.ind;}).slice(0,6));}
+
+
+var TA_ISI={};'tahun saat sekarang kini terakhir tolong mohon data angka berapakah sebutkan tampilkan lihat coba kira kira dong saja hanya semua masing setiap per pegawai orang personel'.split(' ').forEach(function(w){TA_ISI[w]=1;});
+var TA_MAKSUD={};'bandingkan perbandingan banding dibanding dibandingkan versus kondisi profil gambaran keadaan ringkas rangkum perhatian prioritas bermasalah hubungan korelasi kaitan berkaitan seiring sejalan apakah juga tertinggi terendah terbesar terkecil terbanyak tersedikit terbaik terburuk terlemah paling peringkat urutan ranking rangking unit eselon mana siapa berapa bagaimana kemenkeu kementerian keuangan rata seluruh total keseluruhan tingkat nilai skor persen jumlah banyak lebih baik buruk tinggi rendah kritis lemah'.split(' ').forEach(function(w){TA_MAKSUD[w]=1;});
+
+
+function taAsing(q){var s=taKata(q),kenal={};TA_IND.forEach(function(i){i.syn.forEach(function(p){p.split(' ').forEach(function(w){kenal[w]=1;});});});
+  return s.trim().split(' ').filter(function(w){return w.length>=4&&!/\d/.test(w)&&!TD_STOP[w]&&!TA_MAKSUD[w]&&!kenal[w]&&!TA_KODE[w]&&!TA_KATA[w]&&!(TD.df&&TD.df[w]);});}
+function taRencana(q){if(taAsing(q).length)return null;var s=taKata(q),un=taCariUnit(q),id=taCariInd(q).map(function(x){return x.ind;});
+  if(id.some(function(i){return i.id==='lok';})&&id.some(function(i){return i.mod==='bencana'&&i.id!=='lok';}))return null;
+  if(/eselon (ii|iii|iv|2|3|4) /.test(s)){var n0=id.length;id=id.filter(function(i){return i.id!=='unit';});if(n0&&!id.length)return null;}
+  if(id.length){var kenal={};id.forEach(function(i){i.syn.concat([i.lab]).forEach(function(p){taKata(p).trim().split(' ').forEach(function(w){kenal[w]=1;});});});
+    TA_UNIT.forEach(function(u){taKata(u.n).trim().split(' ').forEach(function(w){kenal[w]=1;});});
+    var ekstra=s.trim().split(' ').filter(function(w){return w.length>=4&&!/\d/.test(w)&&!TD_STOP[w]&&!TA_MAKSUD[w]&&!TA_KODE[w]&&!TA_KATA[w]&&!kenal[w]&&!TA_ISI[w]&&TD.df&&TD.df[w];});
+    if(ekstra.length)return null;}
+  var sup=/tertinggi|terendah|terbesar|terkecil|terbanyak|tersedikit|paling|peringkat|urutan|ranking|rangking|terbaik|terburuk/.test(s);
+  if(id.length>=2&&/hubungan|korelasi|kaitan|berkaitan|seiring|sejalan|apakah .* juga/.test(s))return {j:'hub',i:id.slice(0,2)};
+  if(un.length>=2)return {j:'band',u:un,i:id};
+  if(un.length===1&&id.length)return {j:'nilai',u:un[0],i:id[0]};
+  
+
+  var sisa=s.trim().split(' ').filter(function(w){return w.length>=3&&!/\d/.test(w)&&!TD_STOP[w]&&!TA_MAKSUD[w]&&!TA_KODE[w]&&!TA_KATA[w]&&['ditjen','direktorat','jenderal','badan','sekretariat','inspektorat','dan','cukai','bea'].indexOf(w)<0;});
+  if(un.length===1&&(/kondisi|profil|gambaran|keadaan|ringkas|rangkum|potret|seperti apa|bagaimana/.test(s)||!sisa.length))return {j:'profil',u:un[0]};
+  if(un.length===1)return null;
+  if(id.length&&(sup||/unit mana|eselon i mana|siapa/.test(s)))return {j:'rank',i:id[0]};
+  if(!id.length&&/perlu perhatian|prioritas|bermasalah|paling lemah|paling buruk|kritis|terlemah|terburuk/.test(s))return {j:'perhatian'};
+  if(/apa itu|arti |artinya|maksud|definisi|bagaimana cara|cara membaca|kenapa|mengapa|di mana|dimana|halaman/.test(s))return null;
+  if(id.length)return {j:'ringkas',i:id[0]};
+  return null;}
+function taModPerlu(r){var ids=[];if(r.i)ids=[].concat(r.i);if(r.j==='profil'||r.j==='perhatian'||(r.j==='band'&&!(r.i||[]).length))ids=TA_IND.filter(function(i){return ['beranda','pemberhentian','penghargaan','bencana','cuti','kapabilitas','takelola','layanan'].indexOf(i.mod)>=0;});
+  var m=[];ids.forEach(function(i){if(TD_DATA[i.mod]&&!tdModOk(i.mod)&&canMod(i.mod==='beranda'?'otk':i.mod)&&m.indexOf(i.mod)<0)m.push(i.mod);});return m;}
+function taJawab(r,q){
+  if(r.j==='hub')return taHubungan(r.i[0],r.i[1]);
+  if(r.j==='band')return taBandingJ(r.u.slice(0,4),r.i||[]);
+  if(r.j==='nilai')return taNilai(r.u,r.i);
+  if(r.j==='profil')return taProfil(r.u);
+  if(r.j==='rank')return taPeringkatJ(r.i,taKata(q));
+  if(r.j==='perhatian')return taPerhatian();
+  if(r.j==='ringkas')return taRingkasInd(r.i);
+  return null;}
 
 function render(){
   var _al=VIEW_ALIAS[state.view];
