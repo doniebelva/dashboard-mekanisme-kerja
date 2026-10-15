@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-0UD+3L3wAZHt6lIAF739snsV4jb07h8qn8ghxf1SikY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-3l/YL8EN5yalcNQkWj6HpqfxRgXDZsHwUaC7iTUFK0A='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -8980,7 +8980,9 @@ function tdHasilHtml(q,r){
     return '<li><span>'+tdTebal(esc(t))+'</span>'+(canView(p.v)?' <a class="td-lnk" data-td="nav" data-v="'+esc(p.v)+'" role="button" tabindex="0">'+esc(tdJudul(p.v))+' &rsaquo;</a>':'')+'</li>';}).join('')+'</ul>';
   return h;}
 function tdPesan(kls,html){var b=document.getElementById('tdBody');if(!b)return null;var d=document.createElement('div');d.className='td-msg '+kls;d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;return d;}
-function tdChips(){var el=document.getElementById('tdChips');if(!el)return;if(TD.nTanya){el.innerHTML='';el.style.display='none';return;}var m=curMod();var c=(TD_CONTOH[m]||[]).filter(function(){return canMod(m);});el.innerHTML=tdChipHtml(c.concat(TD_UMUM).slice(0,4));}
+
+
+function tdChips(){var el=document.getElementById('tdChips');if(!el)return;el.innerHTML='';el.style.display='none';}
 function tdMuatRingan(){['beranda','inklusi','pemberhentian','penghargaan','suksesi','cuti'].forEach(function(m){if(m!=='beranda'&&!canMod(m))return;if(!tdModOk(m)){try{TD_DATA[m].muat();}catch(e){}}});}
 function tdBuka(){
   tdPasang();var p=document.getElementById('tdPanel');if(!p)return;
