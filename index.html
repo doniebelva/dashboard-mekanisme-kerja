@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-mB4knvEAGfBKbDLlt6J1jkgGdMv4IaiT/+XqgMZjSbg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-Q2CZqc8T7NaIr3akGR05jlrZN3nc19TVJs6zbz4qsIs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -9086,7 +9086,8 @@ var TA_IND=[
   get:function(){return {nilai:taBer('peg'),ref:taBerRef('peg'),refLab:'total Kemenkeu'};}},
  {id:'unit',lab:'Unit organisasi di bawah Eselon I',syn:['unit organisasi','jumlah unit','struktur organisasi'],jenis:'jumlah',arah:0,mod:'beranda',v:'otkikh',f:'n',
   get:function(){return {nilai:taBer('unit'),ref:taBerRef('unit'),refLab:'total Kemenkeu'};}},
- {id:'pb',lab:'Grup proses bisnis yang diampu',syn:['proses bisnis','probis','grup proses'],jenis:'jumlah',arah:0,mod:'beranda',v:'pb_exec',f:'n',cat:'Angka ini menghitung grup proses (tingkat 3) dari salinan Katalog Proses Bisnis, bukan proses rinci di bawahnya. Halaman Proses Bisnis membaca lembar kerja tim secara langsung dan menghitung proses rinci, jadi totalnya lebih besar dan bisa lebih baru.',
+ {id:'pb',lab:'Grup proses bisnis yang diampu',syn:['proses bisnis','probis','grup proses'],jenis:'jumlah',arah:0,mod:'beranda',v:'pb_exec',f:'n',cat:'Perbandingan antarunit memakai jumlah grup proses yang diampu tiap unit; satu grup bisa diampu beberapa unit sekaligus. Data diambil dari lembar kerja Proses Bisnis pada 15 Okt 2026, sedangkan halaman Proses Bisnis selalu membaca versi terbarunya.',
+  pre:function(){var r=taAda('BERANDA')&&BERANDA.ref;return r&&r.pbProses?'Peta Proses Bisnis Kemenkeu mencatat '+fmt(r.pbProses)+' proses dalam '+r.pbDom+' domain, '+r.pbSub+' subdomain, dan '+fmt(r.pb)+' grup proses.':'';},
   get:function(){return {nilai:taBer('pb'),ref:taBerRef('pb'),refLab:'total Kemenkeu'};}},
  {id:'delay',lab:'Eselon II sudah delayering',syn:['delayering','penyederhanaan birokrasi','penyederhanaan struktur'],jenis:'rasio',arah:1,mod:'beranda',v:'otkhealth',f:'pct',
   get:function(){return {nilai:taBer('delay'),ref:taBerRef('delay'),refLab:'Kemenkeu'};}},
@@ -9179,7 +9180,8 @@ function taPeringkatJ(ind,q){var d=taData(ind);if(!d)return null;
   if(ind.arah!==0)h+='<div class="td-t">'+esc(ind.arah>0?'Pada indikator ini, makin tinggi makin baik.':'Pada indikator ini, makin tinggi makin perlu perhatian.')+'</div>';
   return h+taCatatan([ind])+taSumber([ind]);}
 function taRingkasInd(ind){var d=taData(ind);if(!d)return null;var u=taUrut(d.nilai,true);
-  var s=(d.ref!=null?ind.lab+' '+d.refLab+' '+taF(ind,d.ref)+'. ':'')+'Dari '+u.length+' unit Eselon I, tertinggi '+taLab(u[0])+' ('+taF(ind,d.nilai[u[0]])+') dan terendah '+taLab(u[u.length-1])+' ('+taF(ind,d.nilai[u[u.length-1]])+').';
+  var pre=ind.pre?ind.pre():'';
+  var s=(pre?pre+' Menurut jumlah grup yang diampu dari ':(d.ref!=null?ind.lab+' '+d.refLab+' '+taF(ind,d.ref)+'. ':'')+'Dari ')+u.length+' unit Eselon I, tertinggi '+taLab(u[0])+' ('+taF(ind,d.nilai[u[0]])+') dan terendah '+taLab(u[u.length-1])+' ('+taF(ind,d.nilai[u[u.length-1]])+').';
   return '<div class="td-jwb">'+taT(s)+'</div>'+taCatatan([ind])+taSumber([ind]);}
 function taSemua(){return TA_IND.map(function(i){return {ind:i,d:taData(i)};}).filter(function(x){return x.d;});}
 function taProfil(k){var A=taSemua(),baik=[],perlu=[],baris=[];
