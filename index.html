@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-Q9AnQO00Ms8kIEfonyghyEf41iKw6LjCYLAw56LTrdk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-Z2CBgA9eqzGCnQVwyVgT+TXJ8MeWev71Y7q365s94DM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -802,6 +802,45 @@ select.flt,.search{max-width:100%}
 .lp-heat td.pk{color:#fff;font-weight:600}[data-theme=dark] .lp-heat td.pk{color:#0b1520}
 .lp-heat td.lp-hx{color:var(--muted)}.lp-heat td.lp-hp{color:var(--muted);font-size:var(--fs-sm)}
 .abk-zona .lp-bt{background:linear-gradient(to right,var(--track) 50%,color-mix(in srgb,var(--seq-3) 45%,var(--track)) 50%,color-mix(in srgb,var(--seq-3) 45%,var(--track)) 83.33%,var(--track) 83.33%)}
+
+.td-fab{position:fixed;right:22px;bottom:22px;z-index:900;display:inline-flex;align-items:center;gap:9px;padding:11px 18px 11px 14px;border:none;border-radius:999px;background:var(--brand-fill);color:#fff;font:700 var(--fs-md)/1 inherit;font-family:inherit;box-shadow:0 8px 24px rgba(16,42,80,.28);cursor:pointer}
+.td-fab svg{width:20px;height:20px}.td-fab:hover{filter:brightness(1.08)}.td-fab:focus-visible{outline:3px solid var(--brand-l2);outline-offset:2px}
+.td-panel{position:fixed;top:0;right:0;height:100vh;height:100dvh;width:min(440px,100vw);z-index:950;background:var(--surface);border-left:1px solid var(--line);box-shadow:-12px 0 40px rgba(16,42,80,.18);display:flex;flex-direction:column;transform:translateX(105%);transition:transform .22s ease;visibility:hidden}
+.td-panel.on{transform:none;visibility:visible}
+.td-hd{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.td-logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--brand-fill);color:#fff;flex:none}.td-logo svg{width:19px;height:19px}
+.td-tt{font-weight:800;color:var(--ink);font-size:var(--fs-base)}.td-st{font-size:var(--fs-sm);color:var(--muted)}
+.td-x{margin-left:auto;border:none;background:none;font-size:24px;line-height:1;color:var(--muted);cursor:pointer;padding:4px 9px;border-radius:8px}.td-x:hover{background:var(--brand-l)}
+.td-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--bg)}
+.td-msg{max-width:94%;font-size:var(--fs-md);line-height:1.55;overflow-wrap:anywhere}
+.td-msg.u{align-self:flex-end;background:var(--brand-fill);color:#fff;padding:9px 13px;border-radius:14px 14px 4px 14px}
+.td-msg.b{align-self:flex-start;background:var(--surface);border:1px solid var(--line);padding:12px 14px;border-radius:14px 14px 14px 4px;color:var(--ink)}
+.td-lead{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.td-res{border-top:1px solid var(--line);padding:10px 0 4px}.td-lead+.td-res{border-top:none;padding-top:2px}
+.td-res.utama .td-t{font-size:var(--fs-base)}
+.td-crumb{font-size:var(--fs-sm);color:var(--muted)}
+.td-ctx{font-size:var(--fs-sm);font-weight:700;color:var(--ink-sec);margin-top:2px}
+.td-t{margin:4px 0 6px;color:var(--ink)}.td-t b{color:var(--brand-d)}
+.td-buka{border:1px solid var(--line);background:var(--surface);color:var(--brand);font:600 var(--fs-sm)/1.2 inherit;font-family:inherit;padding:5px 11px;border-radius:999px;cursor:pointer}.td-buka:hover{background:var(--brand-l)}
+.td-cat{font-size:var(--fs-sm);color:var(--muted);margin-top:8px}
+.td-rows{margin:0 0 8px;padding:0 0 0 18px;font-size:var(--fs-md);color:var(--ink)}.td-rows li{margin:2px 0}.td-rows b{color:var(--brand-d)}
+.td-chips,.td-chips-in{display:flex;flex-wrap:wrap;gap:6px}
+.td-chips{padding:10px 16px 2px;border-top:1px solid var(--line);background:var(--surface);flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:thin}.td-chips .td-chip{white-space:nowrap;flex:none}.td-chips-in{margin-top:10px}
+.td-chip{font-size:var(--fs-sm);font-weight:600;color:var(--brand);background:var(--brand-l);padding:6px 11px;border-radius:999px;cursor:pointer;line-height:1.3}.td-chip:hover{background:var(--brand-l2)}
+.td-in{display:flex;gap:8px;padding:12px 16px 16px;background:var(--surface)}
+.td-in input,.td-hero-f input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:11px 13px;font:inherit;font-size:var(--fs-md);background:var(--bg);color:var(--ink)}
+.td-in input:focus,.td-hero-f input:focus{outline:2px solid var(--brand);outline-offset:-1px}
+.td-kirim{flex:none;width:44px;border:none;border-radius:12px;background:var(--brand-fill);color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.td-kirim svg{width:18px;height:18px}
+.td-ketik{display:inline-flex;gap:4px;padding:3px 0}.td-ketik i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:tdk 1s infinite}.td-ketik i:nth-child(2){animation-delay:.15s}.td-ketik i:nth-child(3){animation-delay:.3s}
+@keyframes tdk{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.td-hero{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px 24px;align-items:center;border-left:4px solid var(--brand)!important}
+.td-hero-l{display:flex;gap:14px;align-items:flex-start}.td-logo-lg{width:46px;height:46px;border-radius:13px}.td-logo-lg svg{width:24px;height:24px}
+.td-hero-t{font-size:var(--fs-lg);font-weight:800;color:var(--ink)}.td-hero-s{font-size:var(--fs-md);color:var(--muted);margin-top:3px;line-height:1.5}
+.td-hero-f{display:flex;gap:8px}.td-hero-b{border:none;border-radius:12px;background:var(--brand-fill);color:#fff;font:700 var(--fs-md)/1 inherit;font-family:inherit;padding:0 22px;cursor:pointer}
+.td-hero-c{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
+@media(max-width:860px){.td-hero{grid-template-columns:1fr}}
+@media(max-width:560px){.td-fab span{display:none}.td-fab{padding:13px;right:16px;bottom:16px}}
+@media print{.td-fab,.td-panel{display:none!important}}
 .br-sorot{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:10px}
 .br-s,.br-k,.br-sg{background:var(--side);border:1px solid var(--line);border-radius:10px;cursor:pointer;transition:box-shadow var(--t-fast) ease,border-color var(--t-fast) ease}
 .br-s:hover,.br-k:hover,.br-sg:hover{border-color:var(--brand);box-shadow:0 2px 10px color-mix(in srgb,var(--brand) 14%,transparent)}
@@ -4615,6 +4654,8 @@ function vBeranda(){
   let h=_berandaTabs('beranda')+'<div style="margin-bottom:14px"><div style="font-size:var(--fs-h);font-weight:800;color:var(--brand-d)">Dashboard Analitik Pengelolaan Organisasi dan SDM</div>'+
     '<div class="mini" style="margin-top:3px">Lingkup '+esc(scopeLab)+' &middot; tanggal data tiap modul berbeda, lihat bagian Tanggal Data di bawah</div></div><div class="bento">';
 
+  h+=tdHeroHtml();
+
   
   const sor=B?(B.sorotan||[]).filter(x=>canM(x.mod)):[];
   h+='<div class="stat" style="grid-column:span 12"><div class="slab" style="margin:0 0 2px">Highlight</div>'+
@@ -5446,7 +5487,7 @@ function vJabKomposisi(){
   const seri=['struktural','fungsional','pelaksana'].map(k=>({k:k,lab:LBL[k],col:COL[k]}));
   h+='<div class="lp-grid" style="margin-top:14px"><div class="lp-c12">'+lpKartu('','Komposisi Jabatan per Unit Eselon I','Diurutkan dari porsi fungsional terbesar. Angka di kanan adalah porsi fungsional.'+(canAbk?' Klik nama unit untuk menelusuri unitnya di modul Analisis Beban Kerja.':''),
       lpLeg(seri)+lpHs(rows.map(r=>({lab:lpUnit(r.nama),title:r.nama+': struktural '+fmt(r.c.struktural)+', fungsional '+fmt(r.c.fungsional)+', pelaksana '+fmt(r.c.pelaksana),
-        v:{struktural:100*r.c.struktural/r.tot,fungsional:100*r.c.fungsional/r.tot,pelaksana:100*r.c.pelaksana/r.tot},teks:Math.round(100*r.fpct)+'% <small>'+fmt(r.tot)+'</small>',
+        v:{struktural:Math.round(1000*r.c.struktural/r.tot)/10,fungsional:Math.round(1000*r.c.fungsional/r.tot)/10,pelaksana:Math.round(1000*r.c.pelaksana/r.tot)/10},teks:Math.round(100*r.fpct)+'% <small>'+fmt(r.tot)+'</small>',
         attr:canAbk?'data-act="abkpick" data-k="'+esc(r.kode)+'"':''})),seri))+'</div></div>';
   h+=nav;
   h+='<div class="mini lp-src">Sumber: data ABK 2024. Data ini masih memuat struktur sebelum delayering dan menghitung jabatan yang sama berulang di setiap kantor vertikal, sehingga jabatan strukturalnya lebih banyak daripada struktur yang berlaku sekarang. Fungsional dikenali dari daftar nama jabatan fungsional, yang di data ini masih nama lama (23 JF sebelum digabung). Kelengkapan data tiap Eselon I tidak sama.</div>';
@@ -8707,6 +8748,224 @@ function skelMemuat(txt,baris){
 
 
 const VIEW_ALIAS={heatmap:['beban',1],avail:['pegawai',1],kategoritim:['timanalitik',1],ringkasanpb:['pb_exec',1]};
+
+
+
+
+
+
+
+var TD={idx:[],inv:{},df:{},ada:{},sudah:{},totLen:0,menu:false,buka:false,sapa:false,sibuk:false};
+var TD_RAHASIA={suknominatif:1,usermgmt:1,statistik:1};
+
+var TD_LEWAT={otkremote:1,urjab:1,tema:1,pegawai:1,keahlian:1,kjstandar:1,otk:1,pelcari:1,katalog:1,tim:1,struktur:1};
+var TD_STOP={};'yang di ke dari dan atau apa apakah berapa berapakah siapa mana manakah bagaimana gimana untuk pada dengan ini itu ada saja tolong saya kita kami aku dalam oleh adalah sebagai tentang bisa dong ya yg dgn sih nih tuh lihat melihat tampilkan tunjukkan cari info informasi berapa seberapa paling punya memiliki jumlah jumlahnya banyak total sebutkan jelaskan coba mohon kah per the of besar kecil'.split(' ').forEach(function(w){TD_STOP[w]=1;});
+var TD_ALIAS={djp:'pajak',pajak:'djp',djbc:'bea cukai',bea:'djbc',cukai:'djbc',djpb:'perbendaharaan',perbendaharaan:'djpb',dja:'anggaran',anggaran:'dja',djkn:'kekayaan negara',kekayaan:'djkn',djpk:'perimbangan',perimbangan:'djpk',djppr:'pembiayaan risiko',pembiayaan:'djppr',djsef:'strategi ekonomi fiskal',djspsk:'stabilitas sektor',setjen:'sekretariat jenderal',sekjen:'sekretariat jenderal',sekretariat:'setjen',itjen:'inspektorat',inspektorat:'itjen',bppk:'pendidikan pelatihan',batii:'teknologi intelijen',btiik:'teknologi intelijen',lnsw:'national single window',kemenkeu:'kementerian keuangan',difabel:'disabilitas',probis:'proses bisnis',otk:'struktur organisasi',abk:'beban kerja',mofin:'kapabilitas',pelwen:'pelimpahan wewenang',mandat:'pelimpahan wewenang',zi:'zona integritas',wbk:'zona integritas',wbbm:'zona integritas',pensiunan:'pensiun',resign:'berhenti',keluar:'berhenti',berisiko:'rawan',rawan:'berisiko',ramai:'teramai',teramai:'ramai',sepi:'tersepi',terendah:'rendah',tertinggi:'tinggi'};
+var TD_UMUM=['Berapa pegawai yang berkantor di zona banjir tinggi?','Berapa skor MOFIN Kemenkeu?','Unit mana yang porsi pensiunnya paling besar?','Berapa jumlah unit Eselon II?','Apa itu efisiensi EU.1?','Di mana melihat pelimpahan wewenang?'];
+var TD_CONTOH={cuti:['Berapa persen hak cuti tahunan yang terpakai?','Bulan apa paling ramai cuti?'],suksesi:['Berapa pejabat yang pensiun sampai 2031?','Jabatan pimpinan mana yang paling terdampak pensiun?'],penghargaan:['Berapa persen pegawai pernah menerima penghargaan prestasi?','Unit mana cakupan penghargaannya terendah?'],pemberhentian:['Berapa tingkat keluar pegawai per tahun?','Apa alasan berhenti terbanyak?'],inklusi:['Berapa formasi khusus disabilitas yang terisi?','Butir dukungan organisasi mana yang terendah?'],kronis:['Penyakit kronis apa yang paling banyak?','Berapa persen yang bekerja di luar homebase?'],bencana:['Berapa pegawai di zona banjir tinggi?','Kelurahan mana yang paling berisiko?'],abk:['Berapa efisiensi Kementerian?','Unit mana selisih bezettingnya terbesar?'],otk:['Berapa jumlah unit Eselon IV?','Berapa rentang kendali Eselon II?'],urjab:['Berapa jabatan struktural menurut PMK OTK?','Unit mana porsi fungsionalnya terbesar?'],komjab:['Berapa jabatan yang sudah punya standar kompetensi?','Rumpun jabatan apa yang terbanyak?'],mk:['Berapa persen tim yang aktif?','Unit mana yang belum punya tim aktif?'],kapabilitas:['Dimensi MOFIN mana yang terlemah?','Berapa persen tindak lanjut yang selesai?'],takelola:['Berapa butir kewenangan yang dilimpahkan?','Unit mana yang paling banyak menerima mandat?'],layanan:['Berapa unit yang meraih WBBM?','Berapa nilai kepuasan layanan Kemenkeu?']};
+var TD_IKON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.2 7.5L3 21l2-5.3A8.4 8.4 0 1 1 21 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg>';
+var TD_KIRIM='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+var TD_DATA={
+  abk:{ok:function(){return typeof ABK!=='undefined'&&!!ABK;},muat:function(){ensureAbk();}},
+  urjab:{ok:function(){return typeof URJAB!=='undefined'&&!!URJAB&&typeof ABK!=='undefined'&&!!ABK;},muat:function(){ensureUrjab();ensureAbk();}},
+  komjab:{ok:function(){return typeof KOMJ!=='undefined'&&!!KOMJ;},muat:function(){ensureKomjab();}},
+  mk:{ok:function(){return mkSiap();},muat:function(){ensureMkFull();}},
+  bencana:{ok:function(){return typeof BENCANA!=='undefined'&&!!BENCANA;},muat:function(){ensureBencana();}},
+  cuti:{ok:function(){return typeof CUTI!=='undefined'&&!!CUTI;},muat:function(){ensureCuti();}},
+  suksesi:{ok:function(){return typeof SUKSESI!=='undefined'&&!!SUKSESI;},muat:function(){ensureSuksesi();}},
+  penghargaan:{ok:function(){return typeof PENGHARGAAN!=='undefined'&&!!PENGHARGAAN;},muat:function(){ensurePenghargaan();}},
+  pemberhentian:{ok:function(){return typeof PEMBERHENTIAN!=='undefined'&&!!PEMBERHENTIAN;},muat:function(){ensurePemberhentian();}},
+  inklusi:{ok:function(){return typeof INKLUSI!=='undefined'&&!!INKLUSI;},muat:function(){ensureInklusi();}},
+  kronis:{ok:function(){return typeof INKLUSI!=='undefined'&&!!INKLUSI;},muat:function(){ensureInklusi();}},
+  katref:{ok:function(){return typeof KATREF!=='undefined'&&!!KATREF;},muat:function(){ensureKatref();}},
+  kapabilitas:{ok:function(){return typeof MOFIN!=='undefined'&&!!(MOFIN&&MOFIN.units);},muat:function(){ensureMofinRemote();}},
+  takelola:{ok:function(){return typeof PW!=='undefined'&&!!(PW&&PW.detail);},muat:function(){ensurePwRemote();}},
+  layanan:{ok:function(){return tkOK();},muat:function(){ensureTkRemote();}},
+  otk:{ok:function(){return typeof OTK!=='undefined'&&!!OTK;},muat:function(){ensureOtkRemote();}},
+  beranda:{ok:function(){return typeof BERANDA!=='undefined'&&!!BERANDA;},muat:function(){ensureBeranda();}}
+};
+function tdModOk(m){var d=TD_DATA[m];try{return !d||d.ok();}catch(e){return false;}}
+function tdTidur(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function tdTok(s){
+  s=String(s||'').toLowerCase().replace(/&[a-z]+;/g,' ').replace(/[^a-z0-9]+/g,' ');
+  var out=[];s.split(' ').forEach(function(w){
+    if(!w)return;if(w.length>5&&/nya$/.test(w))w=w.slice(0,-3);
+    if((w.length<2&&!/\d/.test(w))||TD_STOP[w])return;out.push(w);});
+  return out;}
+function tdModLab(m){if(m==='beranda')return 'Beranda';var x=MODULES.find(function(y){return y.id===m;});return x?x.lab:m;}
+function tdJudul(v){if(typeof VT!=='undefined'&&VT[v])return VT[v];for(var i=0;i<MODULES.length;i++)for(var j=0;j<MODULES[i].groups.length;j++){var it=MODULES[i].groups[j].items.find(function(z){return z.v===v;});if(it)return it.lab;}return v==='beranda'?'Beranda':v;}
+function tdKalimat(s){return String(s||'').replace(/\s+/g,' ').trim().split(/(?<=[.!?])\s+(?=[A-Z0-9"(])/).filter(function(x){return x.length>15;});}
+function tdTambah(p){
+  var t=String(p.t||'').replace(/\s+/g,' ').replace(/\s+([,.;:])/g,'$1').trim();if(t.length<4||/^[:;,.\s]+$/.test(t))return;
+  var key=p.v+'|'+t;if(TD.ada[key])return;TD.ada[key]=1;
+  var toks=tdTok(t).concat(tdTok(p.ctx||''),tdTok(tdJudul(p.v)),tdTok(tdModLab(p.mod)));
+  var tf={};toks.forEach(function(w){tf[w]=(tf[w]||0)+1;});
+  var id=TD.idx.length;TD.idx.push({v:p.v,mod:p.mod,t:t,ctx:p.ctx||'',k:p.k||'isi',tf:tf,len:toks.length});TD.totLen+=toks.length;
+  Object.keys(tf).forEach(function(w){TD.df[w]=(TD.df[w]||0)+1;(TD.inv[w]=TD.inv[w]||[]).push(id);});
+}
+function tdMenu(){
+  MODULES.forEach(function(m){if(!canMod(m.id))return;m.groups.forEach(function(g){g.items.forEach(function(it){
+    if(TD_RAHASIA[it.v]||!canView(it.v))return;
+    var ket=((typeof MENUKET!=='undefined'&&MENUKET[it.v])||'')+' '+((typeof MENUOBJ!=='undefined'&&MENUOBJ[it.v])||'');
+    tdTambah({v:it.v,mod:m.id,t:'Halaman '+it.lab+' pada modul '+m.lab+'. '+ket.trim(),ctx:'Menu',k:'menu'});});});});
+}
+function tdUrai(v,mod,html){
+  var doc=new DOMParser().parseFromString('<div>'+String(html).slice(0,400000)+'</div>','text/html');
+  doc.querySelectorAll('.td-hero,script,style,.lp-nav,.pgtabs,.toolbar,select,button,.seg').forEach(function(e){e.remove();});
+  doc.querySelectorAll('th *,td *').forEach(function(e){e.insertAdjacentText('beforebegin',' ');});
+  var T=function(e){return e?e.textContent.replace(/\s+/g,' ').trim():'';};
+  var J=function(a,b,c){return a+(b?': '+b:'')+(c?' ('+c+')':'');};
+  doc.querySelectorAll('.sorotan').forEach(function(c){c.querySelectorAll('.tag').forEach(function(x){x.remove();});var h=c.querySelector('h2');if(h)h.remove();
+    tdKalimat(T(c)).forEach(function(s){tdTambah({v:v,mod:mod,t:s,ctx:'Highlight',k:'sorot'});});c.remove();});
+  doc.querySelectorAll('.br-s').forEach(function(c){tdTambah({v:v,mod:mod,t:T(c.querySelector('.br-st')),ctx:'Highlight Beranda: '+T(c.querySelector('.br-kl')),k:'sorot'});});
+  doc.querySelectorAll('.kok-card').forEach(function(c){tdTambah({v:v,mod:mod,t:J(T(c.querySelector('.kok-lab')),T(c.querySelector('.kok-num')),T(c.querySelector('.kok-desc'))),ctx:'Perlu Perhatian Pimpinan',k:'kpi'});});
+  doc.querySelectorAll('.lp-kc').forEach(function(c){tdTambah({v:v,mod:mod,t:J(T(c.querySelector('.lp-kl')),T(c.querySelector('.lp-kv')),T(c.querySelector('.lp-kn'))),ctx:'Angka utama',k:'kpi'});});
+  doc.querySelectorAll('.kpi').forEach(function(c){tdTambah({v:v,mod:mod,t:J(T(c.querySelector('.lab')),T(c.querySelector('.val')),T(c.querySelector('.note'))),ctx:'Angka utama',k:'kpi'});});
+  doc.querySelectorAll('.lp-ch').forEach(function(c){
+    var ttl=c.querySelector('.lp-cht');if(ttl){var go=ttl.querySelector('.lp-go');if(go)go.remove();}
+    var judul=T(ttl),sub=T(c.querySelector('.lp-chs'));
+    if(sub)tdTambah({v:v,mod:mod,t:judul+'. '+sub,ctx:judul,k:'ket'});
+    c.querySelectorAll('.lp-br').forEach(function(r){tdTambah({v:v,mod:mod,t:J(T(r.querySelector('.lp-bn')),T(r.querySelector('.lp-bv'))),ctx:judul,k:'baris'});});
+    c.querySelectorAll('.lp-hr').forEach(function(r){var seg=[].slice.call(r.querySelectorAll('.lp-ht i')).map(function(i){return String(i.getAttribute('title')||'').replace(/^[^·]*·\s*/,'');}).filter(Boolean);
+      tdTambah({v:v,mod:mod,t:J(T(r.querySelector('.lp-hn')),T(r.querySelector('.lp-hv')),seg.join('; ')),ctx:judul,k:'baris'});});
+    c.querySelectorAll('.lp-sl > div').forEach(function(r){tdTambah({v:v,mod:mod,t:J(T(r.querySelector('span')),T(r.querySelector('b')),T(r.querySelector('small'))),ctx:judul,k:'baris'});});
+    var st={};[].slice.call(c.querySelectorAll('svg title')).slice(0,80).forEach(function(x){var s=T(x);if(s&&!st[s]){st[s]=1;tdTambah({v:v,mod:mod,t:s,ctx:judul,k:'baris'});}});
+  });
+  doc.querySelectorAll('.bar-row').forEach(function(r){var card=r.closest('.card,.lp-ch');var h=card&&card.querySelector('h2,h3,.lp-cht');tdTambah({v:v,mod:mod,t:J(T(r.querySelector('.name')),T(r.querySelector('.num'))),ctx:T(h),k:'baris'});});
+  doc.querySelectorAll('table').forEach(function(tb){var card=tb.closest('.card,.lp-ch');var h=card&&card.querySelector('h2,h3,.lp-cht');var ctx=T(h);
+    var hd=[].slice.call(tb.querySelectorAll('thead th')).map(T);
+    [].slice.call(tb.querySelectorAll('tbody tr')).slice(0,80).forEach(function(tr){var c=[].slice.call(tr.children).map(T);if(!c.length||!c[0])return;
+      var t=c.map(function(x,i){return x?(i>0&&hd[i]?hd[i].toLowerCase()+' '+x:x):'';}).filter(Boolean).join('; ');tdTambah({v:v,mod:mod,t:t.slice(0,280),ctx:ctx,k:'tabel'});});});
+  doc.querySelectorAll('.note-box,.lp-src,.pgd,.card p').forEach(function(e){if(e.closest('table'))return;tdKalimat(T(e)).forEach(function(s){if(s.length>40)tdTambah({v:v,mod:mod,t:s,ctx:'Keterangan',k:'ket'});});});
+}
+function tdIndeksModul(mod){
+  if(!tdModOk(mod))return;if(mod==='mk'&&!mkSiap())return;if(!window.VMAP)return;
+  var views=mod==='beranda'?['beranda']:[];
+  if(mod!=='beranda'){var m=MODULES.find(function(x){return x.id===mod;});if(!m)return;m.groups.forEach(function(g){g.items.forEach(function(it){views.push(it.v);});});}
+  views.forEach(function(v){
+    if(TD.sudah[v]||TD_LEWAT[v]||TD_RAHASIA[v]||v.indexOf('pb_')===0||!canView(v)||!VMAP[v])return;
+    var simpan={},k,pl=PASCA.length,html='';
+    for(k in state)simpan[k]=state[k];
+    try{state.view=v;html=VMAP[v]()||'';if(v==='beranda'){for(var pg=1;pg<6;pg++){state.brPg=pg;html+=VMAP[v]()||'';}}}catch(e){html='';}
+    for(k in state){if(!(k in simpan))delete state[k];}for(k in simpan)state[k]=simpan[k];
+    PASCA.length=pl;
+    if(!html||/skel|Memuat data|Memuat ringkasan|belum dimuat|Memuat repositori/i.test(html.slice(0,800)))return;
+    try{tdUrai(v,mod,html);TD.sudah[v]=1;}catch(e){}
+  });
+}
+async function tdSiapkan(){
+  if(!TD.menu){tdMenu();TD.menu=true;}
+  var mods=['beranda'].concat(MODULES.filter(function(m){return canMod(m.id);}).map(function(m){return m.id;}));
+  for(var i=0;i<mods.length;i++){tdIndeksModul(mods[i]);if(i%3===2)await tdTidur(0);}
+}
+function tdCari(q){
+  var qt=tdTok(q),ex=[];qt.forEach(function(w){if(TD_ALIAS[w])ex=ex.concat(tdTok(TD_ALIAS[w]));});
+  var all=qt.concat(ex.filter(function(w){return qt.indexOf(w)<0;}));if(!all.length)return [];
+  var N=TD.idx.length||1,avg=(TD.totLen/N)||1,sc={};
+  all.forEach(function(w,wi){var ids=TD.inv[w];if(!ids)return;var bobot=wi<qt.length?1:0.6;var idf=Math.log(1+(N-TD.df[w]+0.5)/(TD.df[w]+0.5));
+    ids.forEach(function(id){var p=TD.idx[id],tf=p.tf[w];sc[id]=(sc[id]||0)+bobot*idf*tf*2.2/(tf+1.2*(0.4+0.6*p.len/avg));});});
+  
+  var TD_UNIT={pajak:1,cukai:1,perbendaharaan:1,anggaran:1,kekayaan:1,perimbangan:1,pembiayaan:1,strategi:1,stabilitas:1,sekretariat:1,inspektorat:1,pendidikan:1,teknologi:1,window:1};
+  var unitQ=all.filter(function(w){return TD_UNIT[w];});
+  var tanyaAngka=/\b(berapa|jumlah|persen|banyak|total|skor|nilai|rata)/i.test(q),tanyaArti=/\b(apa itu|arti|maksud|definisi|cara|kenapa|mengapa)/i.test(q),tanyaMana=/\b(di mana|dimana|halaman|menu|buka)\b/i.test(q);
+  return Object.keys(sc).map(function(id){var p=TD.idx[id];
+    var cov=qt.filter(function(w){return p.tf[w]||(TD_ALIAS[w]&&tdTok(TD_ALIAS[w]).some(function(x){return p.tf[x];}));}).length/(qt.length||1);
+    var s=sc[id]*(0.35+cov);
+    if(p.k==='menu')s*=tanyaMana?1.7:0.5;
+    if(tanyaAngka&&/\d/.test(p.t))s*=1.3;
+    if(tanyaArti&&(p.k==='ket'||p.k==='menu'))s*=1.35;
+    if(p.k==='sorot'||p.k==='kpi')s*=tanyaAngka?1.35:1.1;
+    if(unitQ.length&&!unitQ.some(function(w){return p.tf[w];})&&Object.keys(TD_UNIT).some(function(w){return p.tf[w];}))s*=0.4;
+    if(tanyaAngka&&p.k==='ket'&&p.ctx!=='Keterangan')s*=0.8;
+    return {s:s,p:p};}).sort(function(a,b){return b.s-a.s;});
+}
+function tdTebal(s){return s.replace(/(?<![#\w&])(\d[\d.,]*(?:\s?%)?)/g,'<b>$1</b>');}
+function tdKartu(p,utama,dipakai){
+  var dom=MODDOMAIN[p.mod]?domLab(MODDOMAIN[p.mod]):'';
+  var crumb=[dom,tdModLab(p.mod),p.v==='beranda'?'':tdJudul(p.v)].filter(Boolean).join(' › ');
+  var ctx=(p.ctx&&p.k!=='menu'&&p.ctx!=='Keterangan'&&p.ctx!=='Angka utama')?'<div class="td-ctx">'+esc(p.ctx)+'</div>':'';
+  var baris='';
+  if(p.k==='ket'&&p.ctx&&p.ctx!=='Keterangan'&&p.ctx!=='Highlight'){var rb=TD.idx.filter(function(x){return x.v===p.v&&x.ctx===p.ctx&&x.k==='baris';});
+    
+    rb=/terendah|terkecil|paling rendah|paling kecil|paling sedikit|terlemah|terburuk/i.test(TD.q||'')?rb.slice(-4).reverse():rb.slice(0,4);
+    if(dipakai&&rb.length){dipakai['grafik|'+p.v+'|'+p.ctx]=1;rb.forEach(function(x){dipakai[x.v+'|'+x.t]=1;});}
+    if(rb.length)baris='<ul class="td-rows">'+rb.map(function(x){return '<li>'+tdTebal(esc(x.t))+'</li>';}).join('')+'</ul>';}
+  return '<div class="td-res'+(utama?' utama':'')+'"><div class="td-crumb">'+esc(crumb)+'</div>'+ctx+'<div class="td-t">'+tdTebal(esc(p.t))+'</div>'+baris+
+    (canView(p.v)?'<button type="button" class="td-buka" data-td="nav" data-v="'+esc(p.v)+'">Buka halaman &rsaquo;</button>':'')+'</div>';}
+function tdChipHtml(arr){return arr.map(function(q){return '<span class="td-chip" data-td="tanya" data-q="'+esc(q)+'" role="button" tabindex="0">'+esc(q)+'</span>';}).join('');}
+function tdHasilHtml(q,r){
+  if(!r.length||r[0].s<0.9){
+    var menu=r.filter(function(x){return x.p.k==='menu';}).slice(0,3);
+    return '<div class="td-lead">Belum ketemu jawaban yang pas di data dashboard.</div><div class="td-t">Coba sebut nama unit, modul, atau ukurannya, misalnya "tingkat keluar DJP" atau "pensiun Eselon II".</div>'+
+      (menu.length?'<div class="td-ctx" style="margin-top:8px">Halaman yang mungkin terkait</div>'+menu.map(function(x){return tdKartu(x.p,false);}).join(''):'')+
+      '<div class="td-chips-in">'+tdChipHtml(TD_UMUM.slice(0,3))+'</div>';}
+  var pilih=[],perView={},dipakai={},isi='';
+  for(var i=0;i<r.length&&pilih.length<4;i++){var x=r[i];if(x.s<r[0].s*0.35)break;if(dipakai[x.p.v+'|'+x.p.t]||(x.p.k==='baris'&&dipakai['grafik|'+x.p.v+'|'+x.p.ctx]))continue;var c=perView[x.p.v]||0;if(c>=2)continue;perView[x.p.v]=c+1;pilih.push(x);isi+=tdKartu(x.p,pilih.length===1,dipakai);}
+  return '<div class="td-lead">'+(pilih[0].p.k==='menu'?'Halaman yang paling sesuai:':'Ini yang saya temukan di dashboard:')+'</div>'+
+    isi+
+    '<div class="td-cat">Jawaban diambil dari isi halaman. Buka halamannya untuk konteks lengkap.</div>';}
+function tdPesan(kls,html){var b=document.getElementById('tdBody');if(!b)return null;var d=document.createElement('div');d.className='td-msg '+kls;d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;return d;}
+function tdChips(){var el=document.getElementById('tdChips');if(!el)return;var m=curMod();var c=(TD_CONTOH[m]||[]).filter(function(){return canMod(m);});el.innerHTML=tdChipHtml(c.concat(TD_UMUM).slice(0,4));}
+function tdMuatRingan(){['beranda','inklusi','pemberhentian','penghargaan','suksesi','cuti'].forEach(function(m){if(m!=='beranda'&&!canMod(m))return;if(!tdModOk(m)){try{TD_DATA[m].muat();}catch(e){}}});}
+function tdBuka(){
+  tdPasang();var p=document.getElementById('tdPanel');if(!p)return;
+  TD.buka=true;p.classList.add('on');var f=document.getElementById('tdFab');if(f)f.style.display='none';
+  if(!TD.sapa){TD.sapa=true;tdPesan('b','<div class="td-lead">Halo, saya Tanya Dashboard.</div><div class="td-t">Saya bisa menjawab pertanyaan tentang data di dashboard ini: angka per unit, perbandingan, arti istilah, atau letak halaman. Saya hanya membaca modul yang boleh Anda buka, dan setiap jawaban disertai tautan ke halaman sumbernya.</div>');}
+  tdChips();tdMuatRingan();tdSiapkan();
+  setTimeout(function(){var q=document.getElementById('tdQ');if(q&&window.innerWidth>760)q.focus();},120);}
+function tdTutup(){var p=document.getElementById('tdPanel');if(p)p.classList.remove('on');TD.buka=false;tdPasang();}
+async function tdTanya(q){
+  q=String(q||'').trim().slice(0,200);if(!q||TD.sibuk)return;TD.sibuk=true;
+  if(!TD.buka)tdBuka();
+  TD.q=q;tdPesan('u',esc(q));var tk=tdPesan('b','<span class="td-ketik" aria-label="Sedang mencari"><i></i><i></i><i></i></span>');
+  try{
+    await tdSiapkan();var r=tdCari(q),perlu=[];
+    r.slice(0,8).forEach(function(x){var m=x.p.mod;if(perlu.indexOf(m)<0&&TD_DATA[m]&&!tdModOk(m)&&canMod(m))perlu.push(m);});
+    perlu=perlu.slice(0,2);
+    if(perlu.length){
+      tk.innerHTML='<div class="td-t">Memuat data '+esc(perlu.map(tdModLab).join(' dan '))+'...</div>';
+      perlu.forEach(function(m){try{TD_DATA[m].muat();}catch(e){}});
+      var t0=Date.now();while(Date.now()-t0<30000&&perlu.some(function(m){return !tdModOk(m);}))await tdTidur(400);
+      await tdSiapkan();r=tdCari(q);}
+    tk.innerHTML=tdHasilHtml(q,r);
+  }catch(e){tk.innerHTML='<div class="td-t">Maaf, terjadi kendala saat mencari jawaban. Coba ulangi pertanyaannya.</div>';}
+  TD.sibuk=false;var b=document.getElementById('tdBody');if(b)b.scrollTop=b.scrollHeight;}
+function tdHeroHtml(){
+  return '<div class="stat td-hero" style="grid-column:span 12"><div class="td-hero-l"><span class="td-logo td-logo-lg">'+TD_IKON+'</span><div><div class="td-hero-t">Tanya Dashboard</div>'+
+    '<div class="td-hero-s">Tanyakan angka, perbandingan antarunit, arti istilah, atau letak halaman. Jawaban diambil dari data dashboard ini dan dilengkapi tautan ke halaman sumbernya.</div></div></div>'+
+    '<div class="td-hero-f"><input id="tdHeroQ" type="text" maxlength="200" placeholder="Contoh: berapa skor MOFIN Kemenkeu?" autocomplete="off" aria-label="Pertanyaan untuk Tanya Dashboard"><button type="button" class="td-hero-b" data-td="hero">Tanya</button></div>'+
+    '<div class="td-hero-c">'+tdChipHtml(TD_UMUM.slice(0,4))+'</div></div>';}
+function tdPasang(){
+  var lo=document.getElementById('loginOverlay');var masuk=!lo||getComputedStyle(lo).display==='none';
+  var fab=document.getElementById('tdFab');
+  if(!fab){
+    fab=document.createElement('button');fab.id='tdFab';fab.type='button';fab.className='td-fab';fab.setAttribute('data-td','buka');fab.setAttribute('aria-label','Buka Tanya Dashboard');
+    fab.innerHTML=TD_IKON+'<span>Tanya Dashboard</span>';document.body.appendChild(fab);
+    var pn=document.createElement('aside');pn.id='tdPanel';pn.className='td-panel';pn.setAttribute('aria-label','Tanya Dashboard');
+    pn.innerHTML='<div class="td-hd"><span class="td-logo">'+TD_IKON+'</span><div><div class="td-tt">Tanya Dashboard</div><div class="td-st">Jawaban dari data yang tayang di dashboard ini</div></div><button type="button" class="td-x" data-td="tutup" aria-label="Tutup">&times;</button></div>'+
+      '<div class="td-body" id="tdBody" aria-live="polite"></div><div class="td-chips" id="tdChips"></div>'+
+      '<form class="td-in" id="tdForm"><input id="tdQ" type="text" maxlength="200" placeholder="Tulis pertanyaan Anda..." autocomplete="off" aria-label="Pertanyaan"><button type="submit" class="td-kirim" aria-label="Kirim">'+TD_KIRIM+'</button></form>';
+    document.body.appendChild(pn);
+    pn.querySelector('#tdForm').addEventListener('submit',function(e){e.preventDefault();var i=document.getElementById('tdQ');var q=i.value;i.value='';tdTanya(q);});
+  }
+  fab.style.display=(masuk&&!TD.buka)?'':'none';
+  if(!masuk){var p=document.getElementById('tdPanel');if(p)p.classList.remove('on');TD.buka=false;}
+}
+document.addEventListener('click',function(e){var el=e.target.closest('[data-td]');if(!el)return;var a=el.getAttribute('data-td');
+  if(a==='buka'){tdBuka();}
+  else if(a==='tutup'){tdTutup();}
+  else if(a==='tanya'){tdTanya(el.getAttribute('data-q'));}
+  else if(a==='hero'){var i=document.getElementById('tdHeroQ');var q=i?i.value:'';if(i)i.value='';if(q.trim())tdTanya(q);else tdBuka();}
+  else if(a==='nav'){var v=el.getAttribute('data-v');if(!canView(v))return;state.domainOverride=null;state.view=v;render();if(window.innerWidth<=760)tdTutup();}
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&TD.buka){tdTutup();return;}
+  var t=e.target;if(!t)return;
+  if(t.id==='tdHeroQ'&&e.key==='Enter'){e.preventDefault();var q=t.value;t.value='';if(q.trim())tdTanya(q);}
+  else if(t.classList&&t.classList.contains('td-chip')&&(e.key==='Enter'||e.key===' ')){e.preventDefault();tdTanya(t.getAttribute('data-q'));}
+});
+
 function render(){
   var _al=VIEW_ALIAS[state.view];
   if(_al){bukaTab(_al[0],_al[1]);state.view=_al[0];}
@@ -8740,6 +8999,7 @@ function render(){
   if(state.view==='urjabdetail'&&!KOMJ&&!state.kompLoading&&((typeof canMod!=='function')||canMod('komjab')))ensureKomjab();
   if(state.view==='profilunit'&&!CUTI&&!state.cutiLoading&&((typeof canMod!=='function')||canMod('cuti')))ensureCuti();
   renderNav();
+  try{tdPasang();}catch(_){}
   const isPb=state.view.indexOf('pb_')===0;
   
   if(state.view==='pb_exec'&&_prev!=='pb_exec'&&!_tabReq)state.pbDashTab='exec';
@@ -8769,6 +9029,7 @@ function render(){
     suksesi:vSuksesi,sukpensiun:vSukPensiun,sukunit:vSukUnit,suktempo:vSukTempo,suksimulasi:vSukSimulasi,sukantrean:vSukAntrean,sukkritikal:vSukKritikal,sukregen:vSukRegen,sukpopulasi:vSukPopulasi,sukes2:vSukEs2,sukinstrumen:vSukInstrumen,suktentang:vSukTentang,
     cuti:vCuti,cutitren:vCutiTren,cutiunit:vCutiUnit,cutiwilayah:vCutiWilayah,cutiutilisasi:vCutiUtilisasi,cutikualitas:vCutiKualitas,cutidemografi:vCutiDemografi,cutipola:vCutiPola,cutisakit:vCutiSakit,cutiprediksi:vCutiPrediksi,cutisimulasi:vCutiSimulasi,cutitentang:vCutiTentang,
     mofin:vMofin,mofheatmap:vMofinHeatmap,mofprofil:vMofinProfil,moftl:vMofinTL,mofkuadran:vMofinKuadran,mofgap:vMofinGap,pelwen:vPelwen,pelunit:vPelUnit,pellintas:vPelLintas,pelcari:vPelCari,pelanalisis:vPelAnalisis,pelinsight:vPelInsight,peltentang:vPelTentang,tk:vTataKelola,tkintegritas:vTkIntegritas,tkkepuasan:vTkKepuasan,tkpelayanan:vTkPelayanan,tkombudsman:vTkOmbudsman,tksarpras:vTkSarpras,tkinovasi:vTkInovasi,tkinovator:vTkInovator,tkkantor:vTkKantor,tkmonev:vTkMonev,tkkegagalan:vTkKegagalan,tkgeo:vTkGeo,tkdiagintegritas:vTkDiagIntegritas,tkkuadran:vTkKuadran,tkpanutan:vTkPanutan,tkindeks:vTkIndeks};
+  window.VMAP=map;   
   
 
 
