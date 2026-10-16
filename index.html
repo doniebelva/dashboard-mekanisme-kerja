@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-pepKnLRjl4L4tQG7lqCR4DyUGHL64hiTzVZkThOz6uc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-PnTS5h8LTFKymFn2vMQzgKDR3NvE8GZF/Y6WTtniIlI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -797,7 +797,7 @@ select.flt,.search{max-width:100%}
 @media(max-width:900px){.lp-c12{grid-column:span 12}.lp-bars2{grid-template-columns:1fr}}
 @media(max-width:560px){.lp-hr{grid-template-columns:96px 1fr 64px}.lp-bars2 .lp-br{grid-template-columns:minmax(0,1fr) 70px 64px}}
 .lp-br[data-act]{cursor:pointer}.lp-br[data-act]:hover .lp-bn{color:var(--brand)}
-.lp-bars-lebar .lp-br{grid-template-columns:minmax(140px,230px) 1fr 104px}.lp-bars-lebar .lp-bn{line-height:1.3}
+.lp-bars-lebar .lp-br{grid-template-columns:minmax(110px,min(230px,42%)) minmax(56px,1fr) auto}.lp-bars-lebar .lp-bn{line-height:1.3}
 .lp-bn{overflow-wrap:anywhere}
 @media(max-width:560px){.lp-bars-lebar .lp-br{grid-template-columns:112px 1fr 84px}}
 .lp-heat{width:100%;border-collapse:separate;border-spacing:2px;font-size:var(--fs-md)}
@@ -3074,14 +3074,14 @@ const MENUKET={
   
   
   kj:'Ikhtisar standar kompetensi jabatan dan cakupannya.',kjrumpun:'Taksonomi rumpun jabatan tiga tingkat beserta konsep penataannya.',kjstandar:'Daftar standar kompetensi tiap posisi jabatan, dapat disaring dan dicari.',kjdetail:'Rincian kompetensi teknis, manajerial dan sosial kultural, serta KSA satu jabatan.',kjksa:'Keahlian yang dibutuhkan jabatan, dipadankan dengan Katalog Kompetensi.',kjkamus:'Kamus kompetensi teknis beserta indikator perilaku tiap level.',kjksajpt:'Keahlian dan unit kompetensi umum untuk jabatan pimpinan tinggi.',kjjf:'Standar kompetensi jabatan fungsional per jenjang dan bidang tugas.',kjmansos:'Sembilan kompetensi manajerial dan sosial kultural beserta levelnya per jenjang.',kjkeahlian:'Daftar keahlian beserta definisinya, dan yang sudah dipakai standar.',kjcakupan:'Jabatan mana yang sudah dan belum punya standar kompetensi.',kjrantai:'Telusuri dari proses bisnis ke unit, jabatan, sampai kompetensinya.',kjtaksonomi:'Kecocokan rumpun di data standar dengan daftar rumpun acuan.',kjubah:'Apa yang berubah antara standar lama dan standar baru.',kjproyeksi:'Perkiraan berapa tahun lagi semua jabatan punya standar.',kjprioritas:'Urutan jabatan yang sebaiknya didahulukan penyusunan standarnya.',katpeta:'Sebaran beban tiap kantor menurut kelompok kegiatan.',kjtentang:'Sumber, cakupan, batasan, dan mutu data standar kompetensi.',
-  cuti:'Ringkasan pemanfaatan cuti pegawai lintas jenis dan tahun.',cutitren:'Tren bulanan dan pola musiman pengajuan cuti.',cutiunit:'Cuti tiap unit Eselon I, dapat ditelusuri sampai Eselon II.',cutiwilayah:'Sebaran cuti menurut kota tempat kantor berada.',cutiutilisasi:'Pemakaian hak cuti tahunan dibanding hak 24 hari kerja.',cutikualitas:'Kepatuhan terhadap ketentuan hak cuti dan mutu rekaman data.',cutidemografi:'Sebaran cuti menurut kelompok usia dan gender.',cutipola:'Pola hari mulai/selesai cuti dan kalender kapasitas kehadiran.',cutisakit:'Kategori alasan cuti sakit hasil pengolahan teks.',cutiprediksi:'Perkiraan beban cuti dari pola musim tahun-tahun sebelumnya.',cutisimulasi:'Simulasi dampak perubahan ambang potongan tunjangan (PMK 221/PMK.01/2021).',cutitentang:'Sumber, cakupan, kualitas, dan batasan data cuti.',
+  cuti:'Ringkasan pemanfaatan cuti pegawai lintas jenis dan tahun.',cutitren:'Tren bulanan dan pola musiman pengajuan cuti.',cutiunit:'Cuti tiap unit Eselon I, dapat ditelusuri sampai Eselon II.',cutiwilayah:'Sebaran cuti menurut kota tempat kantor berada.',cutiutilisasi:'Pemakaian cuti tahunan dibanding hak dasar 12 hari kerja.',cutikualitas:'Kepatuhan terhadap ketentuan hak cuti dan mutu rekaman data.',cutidemografi:'Sebaran cuti menurut kelompok usia dan gender.',cutipola:'Pola hari mulai/selesai cuti dan kalender kapasitas kehadiran.',cutisakit:'Kategori alasan cuti sakit hasil pengolahan teks.',cutiprediksi:'Perkiraan beban cuti dari pola musim tahun-tahun sebelumnya.',cutisimulasi:'Simulasi dampak perubahan ambang potongan tunjangan (PMK 221/PMK.01/2021).',cutitentang:'Sumber, cakupan, kualitas, dan batasan data cuti.',
   
   rmh:'Ringkasan kebutuhan hunian pegawai dan usulan bantuan sewa rumah.',rmhsim:'Perkiraan anggaran bantuan sewa per tahun menurut kelompok sasaran dan konstanta.',rmhtarif:'Tarif hotel SBM per provinsi dan besaran bantuan yang dihasilkan.',rmhdinas:'Kondisi rumah dinas dan kecukupannya di daerah terpencil.',rmhprobis:'Alur bantuan sewa yang berlaku dan usulan kajian.',rmhsurvei:'Minat kepemilikan rumah dan kemampuan bayar pegawai dari survei Rent to Own.',rmhbanding:'Bantuan sewa rumah di kementerian dan lembaga lain.',rmhtentang:'Sumber, asumsi, dan data yang sedang ditunggu.',
   rbn:'Ringkasan risiko bencana di tempat kerja pegawai.',rbnpeta:'Peta kelurahan tempat kantor berada menurut risiko bencana.',rbnjenis:'Sebaran pegawai menurut tingkat risiko tiap jenis bencana, termasuk yang kelurahannya belum terpetakan.',rbnganda:'Kantor yang berisiko tinggi untuk beberapa bencana sekaligus.',rbnunit:'Risiko tiap unit Eselon I menurut jenis bencana.',rbnprov:'Risiko tiap provinsi, dengan peta.',rbnkantor:'Daftar kantor diurutkan menurut risiko, dengan peta yang terhubung ke tabel.',rbnpusat:'Pimpinan dan fungsi pusat yang terkumpul di satu kelurahan rawan.',rbntentang:'Sumber, cara membaca, dan batas data.',
   ink:'Ringkasan kesiapan organisasi bagi pegawai penyandang disabilitas.',inkkronis:'Ringkasan pegawai dengan penyakit kronis: jenis penyakit, penempatan, dan kemampuan bekerja.',inkkrtempat:'Tempat bekerja dan jenjang jabatan pegawai dengan penyakit kronis.',inkkrmampu:'Penilaian unit atas kemampuan bekerja pegawai dengan penyakit kronis.',inkkrtentang:'Sumber, kategori penyakit, dan rambu privasi data penyakit kronis.',inksurvei:'Penilaian pegawai penyandang disabilitas atas dukungan organisasi, sembilan butir.',inkprofil:'Komposisi kondisi, penyebab, dan kebutuhan akomodasi yang harus disediakan.',inkrekrut:'Formasi khusus disabilitas dan berapa yang terisi.',inkunit:'Jumlah pegawai dengan penyakit kronis per Eselon I beserta pola penempatannya.',inktentang:'Sumber, cara olah, dan rambu privasi modul ini.',
   pmb:'Ringkasan pegawai yang berhenti sebelum batas usia pensiun.',pmbtren:'Jumlah dan tingkat pemberhentian per tahun, tahun berjalan ditandai.',pmbunit:'Tingkat keluar per unit Eselon I, termasuk perbandingan perempuan dan laki-laki.',pmbprofil:'Usia, masa kerja, dan angkatan pegawai yang berhenti, dengan ukuran yang adil antarangkatan.',pmbalasan:'Alasan berhenti dari teks bebas, dikelompokkan dan dipecah menurut jenis kelamin.',pmbintegrasi:'Pintu keluar ganda bersama pensiun, dan sandingan dengan penghargaan serta cuti.',pmbtentang:'Sumber, penyebut, cara membersihkan, mutu data, dan rambu privasi.',
   ph:'Ringkasan pemerataan penghargaan di seluruh Kementerian.',phunit:'Cakupan dan intensitas penghargaan prestasi di tiap unit Eselon I.',phprofil:'Siapa yang pernah menerima penghargaan prestasi menurut jenjang, jenis kelamin, dan masa kerja.',phjenis:'Komposisi jenis penghargaan dan tingkat pemberinya.',phtren:'Perkembangan jumlah penghargaan per tahun, dipisah antara yang otomatis dan yang berbasis keputusan.',phrujukan:'Sebelas jenis penghargaan resmi, kriteria, kategori prestasi, dan alur pengusulannya.',phtentang:'Sumber, cara membersihkan, mutu data, dan rambu privasi.',
-  suksesi:'Ringkasan pensiun dan kesiapan pengganti pejabat Eselon II sampai IV.',sukpensiun:'Jumlah kursi pejabat yang kosong karena pensiun, tahun demi tahun sampai sepuluh tahun ke depan.',sukunit:'Unit Eselon I mana yang paling banyak kehilangan pejabat dalam lima tahun.',suktempo:'Kapan gelombang pensiun tiap unit memuncak, dan unit mana yang paling sedikit sisa waktunya.',suksimulasi:'Seberapa jauh puncak pensiun bergeser bila batas usia pensiun dinaikkan satu sampai tiga tahun.',sukantrean:'Sisa waktu sebelum batas usia pada tiap jenjang, dan berapa lama satu kenaikan tingkat biasanya ditempuh.',sukkritikal:'Jabatan pimpinan satuan kerja yang pemangkunya paling banyak segera pensiun.',sukregen:'Perbandingan kursi yang akan kosong dengan jumlah kandidat di satu tingkat di bawahnya.',sukpopulasi:'Komposisi pejabat menurut eselon, jalur, gender, dan piramida usia.',sukes2:'Kesinambungan pejabat sampai level unit Eselon II, penghubung ke modul Struktur Organisasi.',sukinstrumen:'Rubrik penilaian profesionalitas dan personalitas pemimpin sebagai rujukan penilaian talenta.',suktentang:'Sumber, cara hitung batas usia pensiun, mutu data, dan rambu privasi.',suknominatif:'Daftar nama pejabat yang akan pensiun pada periode tertentu, dibuka dengan token akses dari pengelola dashboard.',
+  suksesi:'Ringkasan pensiun dan kesiapan pengganti pejabat Eselon II sampai IV.',sukpensiun:'Jumlah kursi pejabat yang kosong karena pensiun, tahun demi tahun sampai sepuluh tahun ke depan.',sukunit:'Unit Eselon I mana yang paling banyak kehilangan pejabat dalam lima tahun.',suktempo:'Kapan gelombang pensiun tiap unit memuncak, dan unit mana yang paling sedikit sisa waktunya.',suksimulasi:'Seberapa jauh puncak pensiun bergeser bila batas usia pensiun dinaikkan satu sampai tiga tahun.',sukantrean:'Sisa waktu sebelum batas usia pada tiap jenjang, dan berapa lama satu kenaikan tingkat biasanya ditempuh.',sukkritikal:'Jabatan pimpinan satuan kerja yang pemangkunya paling banyak segera pensiun.',sukregen:'Perbandingan kursi yang akan kosong dengan jumlah calon di satu tingkat di bawahnya.',sukpopulasi:'Komposisi pejabat menurut eselon, jalur, gender, dan piramida usia.',sukes2:'Kesinambungan pejabat sampai level unit Eselon II, penghubung ke modul Struktur Organisasi.',sukinstrumen:'Rubrik penilaian profesionalitas dan personalitas pemimpin sebagai rujukan penilaian talenta.',suktentang:'Sumber, cara hitung batas usia pensiun, mutu data, dan rambu privasi.',suknominatif:'Daftar nama pejabat yang akan pensiun pada periode tertentu, dibuka dengan token akses dari pengelola dashboard.',
   
   katalog:'Merujuk keahlian baku untuk pemetaan keahlian tim dan pegawai.',katakt:'Daftar aktivitas standar hasil penyeragaman nama produk ABK 2024.',katjab:'Daftar baku nama jabatan berkode per unit Eselon I.',katpb:'Peta proses bisnis level 1 sampai 3 berkode resmi.',katnw:'Norma waktu baku tiap tahapan kerja, calon acuan pengisian ABK.',katunit:'Kode unit Eselon I dan II sebagai penghubung data antarmodul.',katsvc:'Daftar baku layanan tiap Eselon I beserta tingkat digitalisasinya.',katapp:'Daftar baku aplikasi tiap Eselon I beserta kaitannya ke proses bisnis.',katwen:'Butir mandat KMK 167/2025 per jabatan penerima.',
   
@@ -3223,7 +3223,7 @@ function _freshInfo(mid){
     }
     if(mid==='cuti'&&typeof CUTI==='object'&&CUTI&&CUTI.meta){
       var ca=(CUTI.meta.periode&&CUTI.meta.periode.akhirLabel)||'';
-      return {t:ca?('Data per '+ca):'Data cuti HRIS', d:'DJBC (CHRIS) dan DJP (SIKA) belum penuh terhubung HRIS', k:'warn'};
+      return {t:ca?('Data per '+ca):'Data cuti HRIS', d:'data DJBC (CHRIS) dan DJP (SIKA) belum sepenuhnya terhubung ke HRIS', k:'warn'};
     }
     if(mid==='katalog')                                          
       return {t:'Referensi taksonomi keahlian', d:'katalog kompetensi Kemenkeu'};
@@ -3423,7 +3423,7 @@ function cutiLanjut(items){
 function sorotanCard(judul,isi,tombol){
   var t=(tombol||[]).filter(function(x){return x&&x.v&&((typeof canView!=='function')||canView(x.v));})
     .map(function(x){return '<span class="tag link" data-act="nav" data-view="'+esc(x.v)+'">'+esc(x.t)+' &rsaquo;</span>';}).join(' ');
-  return '<div class="card sorotan"><h2 class="sec" style="margin-top:0">'+esc(judul||'Sorotan')+'</h2>'+
+  return '<div class="card sorotan"><h2 class="sec" style="margin-top:0">'+esc(judul||'Highlight')+'</h2>'+
     '<p style="margin:0'+(t?' 0 10px':'')+'">'+isi+'</p>'+(t?'<div>'+t+'</div>':'')+'</div>';
 }
 function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val/max)):0;
@@ -7339,7 +7339,7 @@ function vJfMap(){
       <span style="flex:1;font-size:var(--fs-md);font-weight:${fxSel===x.k?700:500}">${esc(x.k)}</span>
       <div style="width:130px;background:var(--side);border-radius:4px;height:9px;flex:none"><div style="width:${Math.round(x.v/fxMax*100)}%;background:${FXC[x.k]};height:9px;border-radius:4px"></div></div>
       <b style="width:32px;text-align:right">${x.v}</b></div>`).join('')+`</div>
-    ${fxSel?`<div class="mini" style="margin-top:8px"><span class="tag link" data-act="jffx" data-f="${esc(fxSel)}">Hapus sorotan &times;</span></div>`:''}</div>`;
+    ${fxSel?`<div class="mini" style="margin-top:8px"><span class="tag link" data-act="jffx" data-f="${esc(fxSel)}">Hapus tanda &times;</span></div>`:''}</div>`;
   
   if(fxSel){
     const e1name=u=>{let x=u;while(x&&x.level>1)x=byid[x.parent];return x?x.nama:'';};
@@ -7472,7 +7472,7 @@ function lpKolom(cats,series,opt){opt=opt||{};
         :`M${x.toFixed(1)},${(yy+hh).toFixed(1)}V${yy.toFixed(1)}H${(x+bar).toFixed(1)}V${(yy+hh).toFixed(1)}Z`;
       g+=`<path d="${d}" fill="${se.col}"${redup?' opacity="0.35"':''}><title>${esc(String(c.lab))} · ${esc(se.lab)}: ${fmt(v)}</title></path>`;base=y;});
     if(tot[i]&&(i===iMax||i===cats.length-1||String(c.lab)===String(opt.sorot)))g+=`<text x="${(x+bar/2).toFixed(1)}" y="${(Y(tot[i])-6).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${fmt(tot[i])}</text>`;
-    const lab=String(c.lab);if(cats.length<=10||i%2===0||i===cats.length-1)g+=`<text x="${(x+bar/2).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(lab.length===4?"'"+lab.slice(2):lab)}</text>`;
+    const lab=String(c.lab);if(cats.length<=10||i%2===0||i===cats.length-1)g+=`<text x="${(x+bar/2).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(/^\d{4}$/.test(lab)?"'"+lab.slice(2):lab)}</text>`;
     g+=`<rect x="${(pl+bw*i).toFixed(1)}" y="${pt}" width="${bw.toFixed(1)}" height="${ih}" fill="transparent"><title>${esc(String(c.lab))}: ${series.map(se=>se.lab+' '+fmt(c.v[se.k]||0)).join(', ')}</title></rect>`;});
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(opt.aria||'')}" style="display:block">${g}</svg>`;}
 function lpGaris(pts,opt){opt=opt||{};
@@ -9171,8 +9171,8 @@ var TA_IND=[
   get:function(){if(!tkOK())return null;var o={},t=0;(TK.integritas.rows||[]).forEach(function(r){if(r.predikat!=='WBBM')return;var k=taKey(r.ue1);if(!k)return;o[k]=(o[k]||0)+1;t++;});return {nilai:o,ref:t,refLab:'total Kemenkeu'};}},
  {id:'inov',lab:'Inovasi yang tercatat',syn:['inovasi'],jenis:'jumlah',arah:0,mod:'layanan',v:'tkinovasi',f:'n',
   get:function(){if(!tkOK())return null;var o={},t=0;(TK.inovasi.rows||[]).forEach(function(r){var k=taKey(r.ue1);if(!k)return;o[k]=(o[k]||0)+1;t++;});return {nilai:o,ref:t,refLab:'total Kemenkeu'};}},
- {id:'cuti',lab:'Pemakaian hak cuti tahunan',syn:['hak cuti','cuti tahunan','cuti'],jenis:'rasio',arah:0,mod:'cuti',v:'cutiutilisasi',f:'pct',cat:'Direktorat Jenderal Pajak dan Bea dan Cukai tidak dihitung karena datanya belum lengkap.',
-  get:function(){if(!taAda('CUTI'))return null;var par=(CUTI.meta.parsial||[]);var u=((CUTI.utilisasi||{}).perTahun||[]).find(function(x){return x.tahun===CUTI.meta.tahunPenuh;})||{};return {nilai:taDari(CUTI.utilisasiUnit,function(x){return par.indexOf(x.nama)>=0?null:[taKey(x.nama),x.utilisasiPct];}),ref:u.utilisasiPct,refLab:'Kemenkeu'};}},
+ {id:'cuti',lab:'Rata-rata cuti tahunan per pegawai (hari kerja)',syn:['hak cuti','cuti tahunan','cuti'],jenis:'rasio',arah:0,mod:'cuti',v:'cutiutilisasi',f:'n1',cat:'Direktorat Jenderal Pajak dan Bea dan Cukai tidak dihitung karena datanya belum lengkap.',
+  get:function(){if(!taAda('CUTI'))return null;var par=(CUTI.meta.parsial||[]);var u=((CUTI.utilisasi||{}).perTahun||[]).find(function(x){return x.tahun===CUTI.meta.tahunPenuh;})||{};return {nilai:taDari(CUTI.utilisasiUnit,function(x){return par.indexOf(x.nama)>=0?null:[taKey(x.nama),x.rataHk];}),ref:u.rataHk,refLab:'Kemenkeu'};}},
  {id:'adopsi',lab:'Tim kerja yang aktif memakai penugasan',syn:['tim kerja','tim aktif','adopsi','mekanisme kerja','squad'],jenis:'rasio',arah:1,mod:'mk',v:'ringkasan',f:'pct',cat:'Hanya unit yang sudah memakai aplikasi tim kerja.',
   get:function(){if(!mkSiap()||!taAda('DATA')||!DATA.ue1)return null;return {nilai:taDari(Object.keys(DATA.ue1).map(function(k){return [k,DATA.ue1[k]];}),function(x){return [taKey(x[0]),x[1].adopsi_pct];}),ref:(DATA.summary||{}).adopsi_pct,refLab:'Kemenkeu'};}}
 ];
@@ -9995,7 +9995,7 @@ function vKjRumpun(){
     kpiBox('Rumpun Dipakai Data',fmt(Object.keys(dipakai).length),luar.length?(fmt(luar.length)+' di luar acuan'):'seluruhnya sesuai acuan',luar.length?'gold':'')+
     kpiBox('Jabatan Berumpun',fmt(rows.filter(function(j){return j.rp;}).length),'dari '+fmt(rows.length)+' posisi')+
     '</div>';
-  h+=sorotanCard('Dua daftar rumpun yang berdiri sendiri',
+  h+=sorotanCard('Highlight',
     'Sumber data memuat <b>dua daftar rumpun</b>: yang berlaku sekarang (<b>'+asis.length+' rumpun</b>) '+
     'dan rancangan baru (<b>'+tobe.length+' rumpun</b>). Sumbernya tidak memasangkan keduanya, jadi di sini pun tidak dipasangkan. '+
     'Kelima rumpun rancangan <b>sama dengan lima domain peta proses bisnis Kementerian Keuangan</b>, '+
@@ -10575,9 +10575,8 @@ function cutiCakupan(ringkas){
   var head='<b>Data per '+esc(cutiTglIndo(pd.akhir))+'</b> (rekaman '+esc(cutiTglIndo(pd.mulai))+' sampai '+esc(cutiTglIndo(pd.akhir))+'), diolah '+esc(cutiTglIndo(m.tanggal_olah))+'.';
   if(ringkas)return '<div class="note-box">'+head+' Angka Direktorat Jenderal Pajak dan Bea dan Cukai belum lengkap karena sebagian cutinya masih tercatat di aplikasi SIKA dan CHRIS.</div>';
   return '<div class="note-box warn">'+head+
-    '<div style="margin-top:8px"><b>Penting sebelum membandingkan antarunit:</b> angka <b>Direktorat Jenderal Bea dan Cukai</b> dan <b>Direktorat Jenderal Pajak</b> pada seluruh halaman ini <b>belum lengkap</b>. '+
-    'Sebagian besar pengajuan cuti pegawai Bea dan Cukai masih tercatat pada aplikasi <b>CHRIS</b>, sedangkan pegawai Pajak masih pada aplikasi <b>SIKA</b>, dan keduanya belum sepenuhnya terhubung dengan HRIS. '+
-    'Akibatnya kedua unit tampak jauh lebih sedikit cutinya, dan itu <b>bukan</b> menunjukkan pegawainya lebih jarang cuti. Keduanya diberi tanda <span class="tag">sebagian</span> dan sengaja dikeluarkan dari perhitungan yang membandingkan intensitas antarunit.</div>'+
+    '<div style="margin-top:8px"><b>Sebelum membandingkan antarunit:</b> angka <b>Direktorat Jenderal Bea dan Cukai</b> dan <b>Direktorat Jenderal Pajak</b> belum lengkap karena sebagian besar cutinya masih tercatat di aplikasi CHRIS dan SIKA yang belum sepenuhnya terhubung dengan HRIS. '+
+    'Kedua unit diberi tanda <span class="tag">sebagian</span> dan tidak ikut dibandingkan.</div>'+
     '<div class="mini" style="margin-top:8px">Data tidak memuat identitas pegawai. Lama cuti disajikan dalam hari kerja sesuai dasar penghitungan hak cuti, dengan hari kalender sebagai pendamping.</div></div>';}
 function cutiSumF(rows,f){return rows.reduce((s,r)=>s+(r[f]||0),0);}
 
@@ -10623,21 +10622,26 @@ function cutiLine(labels,series,opt){
   for(var k=0;k<=2;k++){var val=mx*k/2,gy=Y(val);
     g+='<line x1="'+pL+'" y1="'+gy.toFixed(1)+'" x2="'+(W-pR)+'" y2="'+gy.toFixed(1)+'" stroke="var(--line)" stroke-opacity="0.45" stroke-width="1"/>';
     yl+='<text x="'+(pL-8)+'" y="'+(gy+3.5).toFixed(1)+'" font-size="10.5" fill="var(--muted)" text-anchor="end">'+(opt.pct?(Math.round(val)+'%'):fmt(Math.round(val)))+'</text>';}
-  var body='',akhir='';
+  var body='',akhir='',ujung=[];
   series.forEach(function(s){
     var pts=s.v.map(function(v,i){return v==null?null:[X(i),Y(v),i];}).filter(Boolean);
     if(!pts.length)return;
     if(s.area)body+='<polygon points="'+pts[0][0].toFixed(1)+','+(H-pB)+' '+pts.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+' '+pts[pts.length-1][0].toFixed(1)+','+(H-pB)+'" fill="'+s.c+'" opacity="0.10"/>';
     body+='<polyline points="'+pts.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+'" fill="none" stroke="'+s.c+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
     body+=pts.map(function(q){return '<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="2.6" fill="var(--surface)" stroke="'+s.c+'" stroke-width="1.6"><title>'+esc(s.n)+' '+esc(String(labels[q[2]]))+': '+(opt.pct?(s.v[q[2]]+'%'):fmt(s.v[q[2]]))+'</title></circle>';}).join('');
-    var la=pts[pts.length-1];
-    
+    var la=pts[pts.length-1];ujung.push({s:s,la:la,y:la[1]+3.5});
+  });
+  
 
-    akhir+='<text x="'+(la[0]+8).toFixed(1)+'" y="'+(la[1]+3.5).toFixed(1)+'">'+
+  var jarak=series.length>1?26:14,batas=H-pB-(series.length>1?12:0);
+  ujung.sort(function(a,b){return a.y-b.y;});
+  for(var u1=1;u1<ujung.length;u1++){if(ujung[u1].y<ujung[u1-1].y+jarak)ujung[u1].y=ujung[u1-1].y+jarak;}
+  if(ujung.length&&ujung[ujung.length-1].y>batas){var geser=ujung[ujung.length-1].y-batas;ujung.forEach(function(q){q.y-=geser;});}
+  ujung.forEach(function(q){var s=q.s,la=q.la;
+    akhir+='<text x="'+(la[0]+8).toFixed(1)+'" y="'+q.y.toFixed(1)+'">'+
       '<tspan font-size="10.5" font-weight="700" fill="'+s.c+'">'+esc(opt.pct?(s.v[la[2]]+'%'):fmt(s.v[la[2]]))+'</tspan>'+
       (series.length>1?('<tspan x="'+(la[0]+8).toFixed(1)+'" dy="13" font-size="9.5" fill="var(--muted)">'+esc(s.n.replace('Cuti ',''))+'</tspan>'):'')+
-      '</text>';
-  });
+      '</text>';});
   var xl=labels.map(function(l,i){return '<text x="'+X(i).toFixed(1)+'" y="'+(H-8)+'" font-size="10.5" fill="var(--muted)" text-anchor="middle">'+esc(String(l))+'</text>';}).join('');
   return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" style="max-width:100%">'+g+yl+body+akhir+xl+'</svg>';}
 
@@ -10646,7 +10650,7 @@ function cutiLine(labels,series,opt){
 
 
 
-function cutiGauge(pct,besar,kecil,catatan){
+function cutiGauge(pct,besar,kecil,catatan,lab){lab=lab||['separuh hak','hak penuh'];
   var W=460,H=104,pL=8,pR=8,y=52,tb=22,p=Math.max(0,Math.min(100,pct));
   var w=W-pL-pR,isi=w*p/100;
   var tik='';
@@ -10661,8 +10665,8 @@ function cutiGauge(pct,besar,kecil,catatan){
     '<rect x="'+pL+'" y="'+y+'" width="'+w+'" height="'+tb+'" rx="4" fill="var(--track)"/>'+
     '<rect x="'+pL+'" y="'+y+'" width="'+isi.toFixed(1)+'" height="'+tb+'" rx="4" fill="var(--brand)"/>'+tik+
     '<text x="'+pL+'" y="'+(y+tb+16)+'" font-size="10.5" fill="var(--muted)">0</text>'+
-    '<text x="'+(pL+w/2).toFixed(1)+'" y="'+(y+tb+16)+'" font-size="10.5" fill="var(--muted)" text-anchor="middle">separuh hak</text>'+
-    '<text x="'+(W-pR)+'" y="'+(y+tb+16)+'" font-size="10.5" fill="var(--muted)" text-anchor="end">hak penuh</text>'+
+    '<text x="'+(pL+w/2).toFixed(1)+'" y="'+(y+tb+16)+'" font-size="10.5" fill="var(--muted)" text-anchor="middle">'+esc(lab[0])+'</text>'+
+    '<text x="'+(W-pR)+'" y="'+(y+tb+16)+'" font-size="10.5" fill="var(--muted)" text-anchor="end">'+esc(lab[1])+'</text>'+
     (catatan?('<text x="'+(W-pR)+'" y="30" font-size="11" fill="var(--muted)" text-anchor="end">'+esc(catatan)+'</text>'):'')+'</svg>';}
 
 
@@ -10674,10 +10678,10 @@ const CUTI_KOTA={
  'Tangerang':[-6.18,106.63],'Tangerang Selatan':[-6.29,106.72],'Serang':[-6.12,106.15],'Bandung':[-6.91,107.61],
  'Semarang':[-6.97,110.42],'Surakarta':[-7.57,110.83],'Sleman':[-7.72,110.36],'Surabaya':[-7.26,112.75],
  'Sidoarjo':[-7.45,112.72],'Malang':[-7.98,112.63],'Denpasar':[-8.65,115.22],'Badung':[-8.58,115.18],
- 'Mataram':[-8.58,116.10],'Kupang':[-10.18,123.61],'Medan':[3.59,98.67],'Kota Pematang Siantar':[2.96,99.06],
+ 'Mataram':[-8.58,116.10],'Kupang':[-10.18,123.61],'Medan':[3.59,98.67],'Kota Pematang Siantar':[2.96,99.06],'Pematangsiantar':[2.96,99.06],'DKI Jakarta':[-6.21,106.85],
  'Banda Aceh':[5.55,95.32],'Padang':[-0.95,100.35],'Pekanbaru':[0.51,101.45],'Jambi':[-1.61,103.61],
  'Palembang':[-2.99,104.76],'Bengkulu':[-3.79,102.26],'Bandar Lampung':[-5.43,105.26],'Pangkal Pinang':[-2.13,106.11],
- 'Tanjung Pinang':[0.92,104.45],'Batam':[1.08,104.03],'Karimun':[1.05,103.42],'Kota Pontianak':[-0.02,109.34],
+ 'Tanjung Pinang':[0.92,104.45],'Batam':[1.08,104.03],'Karimun':[1.05,103.42],'Kota Pontianak':[-0.02,109.34],'Pontianak':[-0.02,109.34],
  'Palangkaraya':[-2.21,113.92],'Banjarmasin':[-3.32,114.59],'Banjarbaru':[-3.44,114.84],'Samarinda':[-0.50,117.15],
  'Balikpapan':[-1.27,116.83],'Bulungan':[2.85,117.38],'Makassar':[-5.15,119.43],'Mamuju':[-2.68,118.89],
  'Palu':[-0.90,119.87],'Kendari':[-3.99,122.51],'Gorontalo':[0.54,123.06],'Manado':[1.47,124.84],
@@ -10740,26 +10744,27 @@ function cutiStack(parts,tot,hpx){var hh=hpx||20;tot=tot||parts.reduce((s,p)=>s+
 function vCuti(){
   const g=cutiGuard();if(g)return g;
   const T=CUTI.tahunan, thn=cutiThn(), J=CUTI.meta.jenis, _thP=CUTI.meta.tahunPenuh;
-  const totR=cutiSumF(T,'rekaman'), totH=cutiSumF(T,'hari');
-  const perJ={};J.forEach(j=>{const r=T.filter(x=>x.jenis===j);perJ[j]={rekaman:cutiSumF(r,'rekaman'),hari:cutiSumF(r,'hari')};});
+  const totR=cutiSumF(T,'rekaman'), totH=cutiSumF(T,'hk');
+  const perJ={};J.forEach(j=>{const r=T.filter(x=>x.jenis===j);perJ[j]={rekaman:cutiSumF(r,'rekaman'),hari:cutiSumF(r,'hk')};});
   const U=CUTI.utilisasi||{}, _u=(U.perTahun||[]).find(x=>x.tahun===_thP)||{};
   const s20=T.find(x=>x.jenis==='Cuti Sakit'&&x.tahun===2020)||{rekaman:0,hari:0};
   const sP=T.find(x=>x.jenis==='Cuti Sakit'&&x.tahun===_thP)||{rekaman:0,hari:0};
   const kali=s20.rekaman?sP.rekaman/s20.rekaman:0;
-  const d20=s20.rekaman?(s20.hari/s20.rekaman):0, dP=sP.rekaman?(sP.hari/sP.rekaman):0;
+  const d20=s20.rekaman?(s20.hk/s20.rekaman):0, dP=sP.rekaman?(sP.hk/sP.rekaman):0;
   const mus=CUTI.musiman['Cuti Tahunan']||[], iMx=mus.indexOf(Math.max.apply(null,mus.concat([0])));
   const puncak=CUTI_BLNF[iMx]||'-', pPct=Math.round((Math.max.apply(null,mus.concat([1]))-1)*100);
   const sh=CUTI.dow.satuHari, p1=cutiPct(sh.total,sh.dariCutiTahunan), pjs=cutiPct(sh.jumatSenin,sh.total);
   const pd=CUTI.meta.periode||{};
   
-  var s='Pada '+_thP+' pegawai baru memakai <b>'+d1(_u.utilisasiPct||0)+'%</b> hak cuti tahunannya (rata-rata '+d1(_u.rataHk||0)+' dari '+(U.hakHk||24)+' hari kerja), sehingga sekitar '+fmt(_u.sisaHakHk||0)+' hari kerja hak istirahat tidak diambil. ';
+  const _sb=_u.sebaran||{},_pa=_u.pegawaiAktif||0,_n6=_sb['1-6']||0,_lb12=(_sb['13-18']||0)+(_sb['19-24']||0)+(_sb.lewat||0);
+  var s='Pada '+_thP+' rata-rata pegawai memakai <b>'+d1(_u.rataHk||0)+' hari kerja</b> cuti tahunan (nilai tengah '+fmt(_u.medianHk||0)+' hari), setara hak dasar 12 hari setahun. Sebanyak <b>'+fmt(_n6)+' pegawai ('+cutiPct(_n6,_pa)+'%)</b> hanya memakai 6 hari atau kurang, sedangkan '+cutiPct(_lb12,_pa)+'% memakai lebih dari 12 hari dengan sisa hak tahun sebelumnya. ';
   if(kali)s+='Pengajuan cuti sakit naik <b>'+d1(kali)+' kali</b> sejak 2020, tetapi lamanya memendek dari '+d1(d20)+' menjadi '+d1(dP)+' hari, sehingga yang bertambah adalah sakit ringan. ';
-  s+='Pengelola SDM perlu mendorong pegawai memakai hak istirahatnya dan menyiapkan kapasitas layanan pada bulan ramai cuti, terutama '+esc(puncak)+'.';
+  s+='Pengelola SDM perlu memperhatikan pegawai yang jarang mengambil cuti dan menyiapkan kapasitas layanan pada bulan ramai cuti, terutama '+esc(puncak)+'.';
   let h=sorotanCard('Highlight',s,[{v:'cutiutilisasi',t:'Pemakaian Hak Cuti'},{v:'cutiprediksi',t:'Perkiraan Beban Cuti'},{v:'cutipola',t:'Pola Hari & Kalender'}]);
   
   h+='<div class="lp-kpis">'
-    +lpSel('cutiutilisasi','Hak Cuti Terpakai',lpPct(_u.utilisasiPct||0),'rata-rata '+d1(_u.rataHk||0)+' dari '+(U.hakHk||24)+' hari kerja, '+_thP)
-    +lpSel('cutiutilisasi','Hak Tidak Diambil',fmt(_u.sisaHakHk||0),'hari kerja sepanjang '+_thP)
+    +lpSel('cutiutilisasi','Rata-rata Cuti Tahunan',d1(_u.rataHk||0)+'<span class="lp-of"> hari</span>','hari kerja per pegawai, '+_thP+'; hak dasar 12 hari')
+    +lpSel('cutiutilisasi','Memakai 6 Hari atau Kurang',cutiPct(_n6,_pa)+'<span class="lp-of">%</span>',fmt(_n6)+' dari '+fmt(_pa)+' pegawai, '+_thP)
     +lpSel('cutisakit','Cuti Sakit '+_thP,fmt(sP.rekaman),kali?d1(kali)+' kali jumlah 2020':'pengajuan')
     +lpSel('cutipola','Cuti Satu Hari',p1+'<span class="lp-of">%</span>','dari cuti tahunan; '+pjs+'% di hari Jumat atau Senin')
     +lpSel('cutipola','Bulan Teramai',esc(puncak),pPct>0?'sekitar '+pPct+'% di atas bulan biasa':'bulan dengan cuti terbanyak')
@@ -10767,28 +10772,28 @@ function vCuti(){
   
   const thPenuh=thn.filter(t=>t<=_thP);
   const seri=J.map(j=>({n:j,c:CUTI_JCOL[j],v:thPenuh.map(t=>{const r=T.find(x=>x.jenis===j&&x.tahun===t);return r?r.rekaman:0;})}));
-  const utilPts=thPenuh.map(t=>{const u=(U.perTahun||[]).find(x=>x.tahun===t);return u?{x:t,y:u.utilisasiPct}:null;}).filter(Boolean);
+  const utilPts=thPenuh.map(t=>{const u=(U.perTahun||[]).find(x=>x.tahun===t);return u?{x:t,y:u.rataHk}:null;}).filter(Boolean);
   h+='<div class="lp-grid">';
   h+='<div class="lp-c7">'+lpKartu('cutitren','Pengajuan Cuti per Tahun',thPenuh[0]+' sampai '+_thP+'. Tahun berjalan tidak digambar karena belum lengkap.',
       lpLeg(J.map(j=>({lab:j,col:CUTI_JCOL[j]})))+cutiLine(thPenuh,seri))+'</div>';
-  h+='<div class="lp-c5">'+lpKartu('cutiutilisasi','Pemakaian Hak Cuti Tahunan','Persen hak cuti tahunan yang dipakai pegawai',
-      lpGaris(utilPts,{w:370,h:240,min:0,max:100,dec:1,aria:'Pemakaian hak cuti tahunan'}))+'</div>';
+  h+='<div class="lp-c5">'+lpKartu('cutiutilisasi','Pemakaian Cuti Tahunan','Rata-rata hari kerja per pegawai; hak dasar 12 hari setahun',
+      lpGaris(utilPts,{w:370,h:240,min:0,max:16,dec:1,aria:'Rata-rata pemakaian cuti tahunan per pegawai'}))+'</div>';
   const al=CUTI.alasan.filter(x=>x.jenis==='Cuti Tahunan'&&x.alasan!=='Tanpa keterangan').sort((a,b)=>b.rekaman-a.rekaman).slice(0,6);
   const tanpa=cutiPct(cutiSumF(CUTI.alasan.filter(x=>x.jenis==='Cuti Tahunan'&&x.alasan==='Tanpa keterangan'),'rekaman'),perJ['Cuti Tahunan'].rekaman);
   const stk=function(f,tot){return '<div class="lp-stk">'+J.filter(j=>perJ[j][f]>0).map(j=>'<i style="flex:0 1 '+(100*perJ[j][f]/tot).toFixed(2)+'%;background:'+CUTI_JCOL[j]+'" title="'+esc(j)+': '+fmt(perJ[j][f])+'"></i>').join('')+'</div>';};
   h+='<div class="lp-c7">'+lpKartu('cutitren','Komposisi Jenis Cuti','Cuti besar jarang diajukan tetapi lama, sehingga porsinya jauh lebih besar bila dihitung dari hari terpakai.',
       '<div class="lp-chs" style="margin:6px 0 0;font-weight:600;color:var(--ink)">Menurut jumlah pengajuan ('+fmt(totR)+')</div>'+stk('rekaman',totR)+
-      '<div class="lp-chs" style="margin:0;font-weight:600;color:var(--ink)">Menurut hari terpakai ('+fmt(totH)+')</div>'+stk('hari',totH)+
+      '<div class="lp-chs" style="margin:0;font-weight:600;color:var(--ink)">Menurut hari kerja terpakai ('+fmt(totH)+')</div>'+stk('hari',totH)+
       '<div class="lp-sl lp-sl-lebar">'+J.map(j=>'<div><i style="background:'+CUTI_JCOL[j]+'"></i><span>'+esc(j)+'</span><b>'+cutiPct(perJ[j].rekaman,totR)+'%</b><small>'+cutiPct(perJ[j].hari,totH)+'% hari</small></div>').join('')+'</div>')+'</div>';
   h+='<div class="lp-c5">'+lpKartu('cutitren','Alasan Cuti Tahunan','Di luar '+tanpa+'% pengajuan tanpa keterangan',
       lpBaris(al.map(a=>({lab:a.alasan,n:a.rekaman,teks:fmt(a.rekaman)})),{kls:'lp-bars-lebar'}))+'</div>';
   const BL=CUTI_BLNF.map((b,i)=>({lab:String(b).slice(0,3),v:{m:Math.round(100*(mus[i]||0))}}));
-  h+='<div class="lp-c7">'+lpKartu('cutipola','Bulan Ramai Cuti Tahunan','Jumlah cuti tiap bulan dibanding bulan rata-rata (nilai 100)',
+  h+='<div class="lp-c7">'+lpKartu('cutipola','Bulan Ramai Cuti Tahunan','Jumlah cuti tiap bulan dibanding bulan biasa; 100 berarti bulan biasa',
       lpKolom(BL,[{k:'m',lab:'Indeks bulan',col:'var(--seq-5)'}],{w:540,h:220,aria:'Indeks musiman cuti tahunan'}))+'</div>';
   h+='<div class="lp-c5 lp-stack">'
     +lpKartu('cutipola','Cuti Satu Hari',p1+'% cuti tahunan hanya satu hari',
       lpStk([{lab:'Jumat atau Senin',n:sh.jumatSenin||0,col:'var(--seq-7)'},{lab:'Hari lain',n:Math.max(0,(sh.total||0)-(sh.jumatSenin||0)),col:'var(--seq-3)'}]))
-    +lpKartu('cutisakit','Lama Cuti Sakit','Rata-rata hari per pengajuan',
+    +lpKartu('cutisakit','Lama Cuti Sakit','Rata-rata hari kerja per pengajuan',
       lpBaris([{lab:'2020',n:d20,teks:d1(d20)+' hari'},{lab:String(_thP),n:dP,teks:d1(dP)+' hari'}],{max:Math.max(d20,dP)*1.1||1}))
     +'</div>';
   h+='</div>';
@@ -10831,8 +10836,8 @@ function vCutiTren(){
   
   const T=CUTI.tahunan.filter(x=>x.jenis===j);
   const mxr=Math.max(1,...T.map(x=>x.rekaman));
-  let rows=T.map(r=>{const rata=r.rekaman?(r.hari/r.rekaman):0;
-    return '<tr><td><b>'+r.tahun+(r.tahun===2026?' (s.d. Juni)':'')+'</b></td><td class="num-c">'+fmt(r.rekaman)+'</td><td>'+cutiMiniBar(r.rekaman,mxr,CUTI_JCOL[j])+'</td><td class="num-c">'+fmt(r.hari)+'</td><td class="num-c">'+rata.toFixed(2).replace('.',',')+'</td></tr>';}).join('');
+  let rows=T.map(r=>{const rata=r.rekaman?(r.hk/r.rekaman):0;
+    return '<tr><td><b>'+r.tahun+(r.tahun===2026?' (s.d. Juni)':'')+'</b></td><td class="num-c">'+fmt(r.rekaman)+'</td><td>'+cutiMiniBar(r.rekaman,mxr,CUTI_JCOL[j])+'</td><td class="num-c">'+fmt(r.hk)+'</td><td class="num-c">'+rata.toFixed(2).replace('.',',')+'</td></tr>';}).join('');
   
   const bmap={'1':'1 hari','2':'2 hari','3':'3 hari','4-5':'4-5 hari','6-10':'6-10 hari'};
   const durTot={};CUTI.durasi.filter(x=>x.jenis===j).forEach(x=>{
@@ -10840,22 +10845,23 @@ function vCutiTren(){
   const durOrder=['1','2','3','4-5','6-10','>10'];
   const dparts=durOrder.filter(k=>durTot[k]).map((k,i)=>({v:durTot[k],c:'var(--seq-'+(i+2)+')',name:bmap[k]||'di atas 10 hari'}));
   const durAll=dparts.reduce((s,p)=>s+p.v,0);
-  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Makin Sering atau Makin Lama? (Jumlah vs Durasi)</h2><div class="tblw"><table><thead><tr><th>Tahun</th><th class="num-c">Pengajuan</th><th></th><th class="num-c">Hari</th><th class="num-c">Rata-rata Hari / Pengajuan</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Makin Sering atau Makin Lama? (Jumlah vs Durasi)</h2><div class="tblw"><table><thead><tr><th>Tahun</th><th class="num-c">Pengajuan</th><th></th><th class="num-c">Hari Kerja</th><th class="num-c">Rata-rata Hari Kerja per Pengajuan</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
     (j==='Cuti Sakit'?'<div class="note-box" style="margin-top:10px">Cara membacanya: jumlah pengajuan naik, tetapi rata-rata lamanya turun. Itu tanda kenaikan berasal dari sakit ringan yang sebentar (flu, batuk, demam musiman), bukan dari penyakit berat yang bertambah.</div>':'')+'</div>'+
     '<div class="card"><h2 class="sec" style="margin-top:0">Komposisi Durasi '+esc(j)+'</h2>'+cutiStack(dparts,durAll,26)+
     _tkLeg(dparts.map(p=>({c:p.c,l:p.name+' ('+cutiPct(p.v,durAll)+'%)'})))+
-    '<div class="note-box" style="margin-top:10px"><b>'+cutiPct(durTot['1']||0,durAll)+'%</b> pengajuan '+esc(j)+' berdurasi satu hari. Warna makin gelap berarti durasi makin panjang (hari kalender per pengajuan).</div></div></div>';
-  h+=cutiLanjut([{v:'cutiprediksi',t:'Proyeksi Beban Cuti',d:'Perkiraan beban tahun berjalan dari pola musiman'},{v:'cutipola',t:'Kalender Kapasitas',d:'Bulan dan hari yang rawan kehadiran rendah'},{v:'cutiunit',t:'Profil Unit',d:'Unit mana penyumbang kenaikan'}]);
+    '<div class="note-box" style="margin-top:10px"><b>'+cutiPct(durTot['1']||0,durAll)+'%</b> pengajuan '+esc(j)+' berdurasi satu hari. Warna makin gelap berarti durasi makin panjang. Durasi di bagan ini dihitung dalam hari kalender.</div></div></div>';
+  h+=cutiLanjut([{v:'cutiprediksi',t:'Perkiraan Beban Cuti',d:'Perkiraan beban tahun berjalan dari pola musiman'},{v:'cutipola',t:'Pola Hari & Kalender',d:'Bulan dan hari yang rawan kehadiran rendah'},{v:'cutiunit',t:'Profil Unit',d:'Unit mana penyumbang kenaikan'}]);
   return h;
 }
 
 function vCutiUnit(){
   const g=cutiGuard();if(g)return g;
-  const fj=state.cutiUnitJenis, ft=state.cutiUnitTahun, mode=state.cutiUnitMode||'abs', thn=cutiThn();
+  const fj=state.cutiUnitJenis, ft=(state.cutiUnitTahun===undefined?String(CUTI.meta.tahunPenuh):state.cutiUnitTahun), mode=state.cutiUnitMode||'abs', thn=cutiThn();
   let U=CUTI.unit;
   if(fj)U=U.filter(x=>x.jenis===fj);
   if(ft)U=U.filter(x=>String(x.tahun)===String(ft));
-  const per={};U.forEach(r=>{if(!per[r.nama])per[r.nama]={rekaman:0,hari:0};per[r.nama].rekaman+=r.rekaman;per[r.nama].hari+=r.hari;});
+  
+  const per={};U.forEach(r=>{const nm=/^Staf Ahli/.test(r.nama)?'Staf Ahli Menteri':r.nama;if(!per[nm])per[nm]={rekaman:0,hari:0};per[nm].rekaman+=r.rekaman;per[nm].hari+=(r.hk!=null?r.hk:r.hari);});
   const abkOn=(typeof ABK!=='undefined')&&!!ABK&&ABK.eselon1;
   let rows=Object.keys(per).map(nm=>{
     const o=per[nm], bez=cutiBez(nm), par=cutiParsial(nm);
@@ -10877,8 +10883,8 @@ function vCutiUnit(){
       '<td class="num-c">'+r.rata.toFixed(2).replace('.',',')+'</td>'+
       '<td class="num-c">'+(r.bez&&!r.par?fmt(r.bez):'<span class="mini">'+(abkOn?'belum ada data':'-')+'</span>')+'</td>'+
       '<td class="num-c">'+nrmCell+'</td></tr>';}).join('');
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Cuti per Unit Eselon I <span class="mini">('+rows.length+' unit, klik untuk menelusuri Eselon II)</span></h2><div class="tblw"><table><thead><tr><th>Unit</th><th class="num-c">Pengajuan</th><th class="num-c">Hari</th><th></th><th class="num-c">Rata Hari/Pengajuan</th><th class="num-c">Jumlah Pegawai (ABK)</th><th class="num-c">Hari per 100 Pegawai</th></tr></thead><tbody>'+tb+'</tbody></table></div>'+
-    '<div class="mini" style="margin-top:6px">Jumlah pegawai diambil dari data ABK 2024, dicocokkan lewat nama unit. Mode Per 100 Pegawai lebih tepat untuk membandingkan unit besar dan kecil, karena yang diukur intensitasnya, bukan banyaknya. Unit bertanda sebagian datanya belum lengkap sehingga sengaja tidak ikut dihitung.</div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Cuti per Unit Eselon I <span class="mini">('+rows.length+' unit, klik untuk menelusuri Eselon II)</span></h2><div class="tblw"><table><thead><tr><th>Unit</th><th class="num-c">Pengajuan</th><th class="num-c">Hari Kerja</th><th></th><th class="num-c">Rata-rata Hari per Pengajuan</th><th class="num-c">Jumlah Pegawai (ABK)</th><th class="num-c">Hari Kerja per 100 Pegawai</th></tr></thead><tbody>'+tb+'</tbody></table></div>'+
+    '<div class="mini" style="margin-top:6px">Jumlah pegawai diambil dari data ABK 2024, dicocokkan lewat nama unit. Mode Per 100 Pegawai lebih tepat untuk membandingkan unit besar dan kecil. Pakailah satu tahun saja saat membandingkan per 100 pegawai, karena jumlah pegawai ABK adalah keadaan satu tahun. Unit bertanda sebagian datanya belum lengkap sehingga tidak ikut dihitung.</div></div>';
   
   if(state.cutiUnitSel){
     const anak=(CUTI.unit2||[]).filter(x=>x.unit1===state.cutiUnitSel).sort((a,b)=>b.hari-a.hari);
@@ -10898,9 +10904,21 @@ function vCutiUnit(){
   return h;
 }
 
+
+
+
+function cutiNamaKota(k){k=String(k||'').replace(/\s+/g,' ').trim();
+  if(/^Jakarta$|^Kota Administrasi Jakarta|^Kebayoran/i.test(k))return 'DKI Jakarta';
+  if(/^Kota Pematang Siantar$/i.test(k))return 'Pematangsiantar';
+  return k.replace(/^Kota /,'');}
+function cutiWilGabung(rows){var o={},urut=[];
+  rows.forEach(function(r){var k=cutiNamaKota(r.kota);
+    if(!o[k]){o[k]={kota:k,pengajuan:0,hari:0,hk:0,pegawai:0,pengajuanTh:0,hariTh:0,hkTh:0,pegawaiTh:0};urut.push(k);}
+    ['pengajuan','hari','hk','pegawai','pengajuanTh','hariTh','hkTh','pegawaiTh'].forEach(function(f){o[k][f]+=(r[f]||0);});});
+  return urut.map(function(k){return o[k];});}
 function vCutiWilayah(){
   const g=cutiGuard();if(g)return g;
-  const W=(CUTI.wilayah||[]),q=(state.cutiWilQ||'').toLowerCase().trim();
+  const W=cutiWilGabung(CUTI.wilayah||[]),q=(state.cutiWilQ||'').toLowerCase().trim();
   const rows=q?W.filter(x=>x.kota.toLowerCase().indexOf(q)>=0):W;
   const mx=Math.max(1,...rows.map(x=>x.hari));
   const totPeg=W.reduce((s,x)=>s+x.pegawai,0);
@@ -10941,45 +10959,49 @@ function vCutiUtilisasi(){
   const U=CUTI.utilisasi||{},hak=U.hakHk||24,PT=U.perTahun||[];
   const thPenuh=CUTI.meta.tahunPenuh;
   const cur=PT.find(x=>x.tahun===thPenuh)||PT[PT.length-1]||{};
-  let h='<div class="note-box"><b>Dasar hitungan:</b> setiap pegawai berhak atas cuti tahunan paling banyak <b>'+hak+' hari kerja</b> setahun ('+
-    '12 hari untuk tahun berjalan ditambah sisa hak tahun sebelumnya), sesuai '+esc(CUTI.meta.hakCuti.dasar)+'. '+
-    'Halaman ini membandingkan pemakaian nyata terhadap hak tersebut. Angka tahun berjalan belum lengkap sehingga rujukan utama adalah tahun penuh terakhir, yaitu <b>'+thPenuh+'</b>.</div>'+cutiCakupan(true);
+  const sbC=cur.sebaran||{},paC=cur.pegawaiAktif||0,n6C=sbC['1-6']||0,lb12C=(sbC['13-18']||0)+(sbC['19-24']||0)+(sbC.lewat||0);
+  let h='<div class="note-box"><b>Dasar hitungan:</b> hak cuti tahunan adalah <b>12 hari kerja</b> setahun. Hak yang tidak diambil dapat dibawa ke tahun berikutnya, '+
+    'sehingga dalam satu tahun pegawai dapat memakai sampai 18 hari, atau paling banyak <b>'+hak+' hari kerja</b> bila haknya tidak diambil dua tahun berturut-turut ('+esc(CUTI.meta.hakCuti.dasar)+'). '+
+    'Data tidak memuat sisa hak tiap pegawai, sehingga halaman ini membandingkan pemakaian dengan hak dasar 12 hari, dan batas '+hak+' hari hanya dipakai untuk menandai rekaman yang melebihinya. '+
+    'Rujukan utama adalah tahun penuh terakhir, yaitu <b>'+thPenuh+'</b>.</div>'+cutiCakupan(true);
   
   var _pg0=h.length;
-  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Seberapa Banyak Hak Cuti Dipakai?</h2>'+
-    cutiGauge(cur.utilisasiPct||0,String(cur.utilisasiPct||0).replace('.',',')+'%','dari hak '+hak+' hari kerja','tahun '+thPenuh)+
-    '<p style="margin:10px 0 0">Rata-rata pegawai memakai <b>'+String(cur.rataHk||0).replace('.',',')+' hari kerja</b> dari '+hak+' hari yang menjadi haknya. Sisanya, sekitar <b>'+fmt(cur.sisaHakHk||0)+' hari kerja</b>, tidak terpakai sepanjang '+thPenuh+'.</p></div>'+
+  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Berapa Hari Cuti Tahunan yang Dipakai?</h2>'+
+    cutiGauge(100*(cur.rataHk||0)/hak,d1(cur.rataHk||0)+' hari','rata-rata per pegawai','tahun '+thPenuh,['12 hari, hak dasar',hak+' hari, batas tertinggi'])+
+    '<p style="margin:10px 0 0">Rata-rata pegawai memakai <b>'+d1(cur.rataHk||0)+' hari kerja</b>, dengan nilai tengah '+fmt(cur.medianHk||0)+' hari. Angka ini setara hak dasar 12 hari setahun. '+
+    'Sebanyak <b>'+fmt(n6C)+' pegawai ('+cutiPct(n6C,paC)+'%)</b> hanya memakai 6 hari atau kurang.</p></div>'+
     '<div class="card"><h2 class="sec" style="margin-top:0">Apa Artinya bagi Pengelola SDM</h2>'+
-    '<p style="margin:0 0 8px">Hak cuti yang tidak terpakai bukan penghematan, melainkan <b>istirahat yang tertunda</b>. Pola ini biasanya berkaitan dengan beban kerja yang sulit ditinggalkan, kebiasaan kerja, atau ketidakjelasan sisa hak.</p>'+
-    '<p style="margin:0 0 8px">Tiga langkah yang lazim ditempuh: mengingatkan sisa hak menjelang akhir tahun, memastikan atasan langsung mendorong pengambilan cuti, dan menelaah unit yang pemakaiannya jauh di bawah rata-rata.</p>'+
-    '<p class="mini" style="margin:0">Catatan penting: angka rendah <b>bukan</b> penilaian kinerja, dan angka tinggi bukan berarti bermasalah selama masih dalam hak.</p></div></div>';
-  h+=_katKpi([['Pemakaian Hak '+thPenuh,String(cur.utilisasiPct||0).replace('.',',')+'%','dari hak '+hak+' hari kerja',1],
-    ['Pemakaian Median',(cur.medianHk||0)+' hari','kerja, per pegawai'],
-    ['Mengambil Cuti Tahunan',fmt(cur.mengambil||0),'dari '+fmt(cur.pegawaiAktif||0)+' pegawai'],
-    ['Hak Tidak Terpakai',fmt(cur.sisaHakHk||0),'hari kerja pada '+thPenuh]]);
+    '<p style="margin:0 0 8px">Secara rata-rata, pegawai sudah memakai hak dasarnya. Yang perlu diperhatikan adalah pegawai yang <b>jarang mengambil cuti</b>. Pola ini biasanya berkaitan dengan beban kerja yang sulit ditinggalkan, kebiasaan kerja, atau ketidakjelasan sisa hak.</p>'+
+    '<p style="margin:0 0 8px">Langkah yang lazim ditempuh: mengingatkan sisa hak menjelang akhir tahun, meminta atasan langsung mendorong pengambilan cuti, dan menelaah unit yang rata-ratanya jauh di bawah unit lain.</p>'+
+    '<p class="mini" style="margin:0">Angka rendah tidak dipakai untuk menilai kinerja, dan angka tinggi tidak bermasalah selama masih dalam hak.</p></div></div>';
+  h+=_katKpi([['Rata-rata '+thPenuh,d1(cur.rataHk||0)+' hari','kerja per pegawai; hak dasar 12 hari',1],
+    ['Nilai Tengah',fmt(cur.medianHk||0)+' hari','kerja, per pegawai'],
+    ['Mengambil Cuti Tahunan',fmt(cur.mengambil||0),'dari '+fmt(paC)+' pegawai'],
+    ['Memakai 6 Hari atau Kurang',fmt(n6C),cutiPct(n6C,paC)+'% pegawai pada '+thPenuh]]);
   
-  const sb=cur.sebaran||{},urut=[['1-6','1 sampai 6 hari'],['7-12','7 sampai 12 hari'],['13-18','13 sampai 18 hari'],['19-24','19 sampai 24 hari'],['lewat','di atas '+hak+' hari']];
+  const sb=cur.sebaran||{},urut=[['1-6','1 sampai 6 hari'],['7-12','7 sampai 12 hari'],['13-18','13 sampai 18 hari (memakai sisa hak)'],['19-24','19 sampai 24 hari (memakai sisa hak)'],['lewat','di atas '+hak+' hari (perlu dicek)']];
   const totS=urut.reduce((s,k)=>s+(sb[k[0]]||0),0)||1;
   const mxS=Math.max(...urut.map(k=>sb[k[0]]||0));
   var _pg1=h.length;
   h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Sebaran Pemakaian Hak ('+thPenuh+')</h2>'+
     urut.map(k=>bar(k[1],sb[k[0]]||0,mxS,'',fmt(sb[k[0]]||0)+' ('+cutiPct(sb[k[0]]||0,totS)+'%)')).join('')+
-    '<div class="note-box" style="margin-top:10px">Sebagian besar pegawai memakai jauh di bawah haknya. Sisa hak yang tidak terpakai pada '+thPenuh+' mencapai <b>'+fmt(cur.sisaHakHk||0)+' hari kerja</b>, setara istirahat yang tidak diambil. Ini bahan pertimbangan kebijakan kesejahteraan, bukan penilaian kinerja.</div></div>';
+    '<div class="note-box" style="margin-top:10px">'+cutiPct((sbC['1-6']||0)+(sbC['7-12']||0),totS)+'% pegawai memakai paling banyak 12 hari. '+cutiPct(lb12C,totS)+'% memakai lebih dari 12 hari, artinya memakai sisa hak tahun sebelumnya. '+
+    'Kelompok yang perlu diperhatikan adalah <b>'+cutiPct(n6C,totS)+'%</b> pegawai yang hanya memakai 6 hari atau kurang.</div></div>';
   
-  const mxT=Math.max(...PT.map(x=>x.utilisasiPct||0));
+  const mxT=Math.max(...PT.map(x=>x.rataHk||0));
   var _pg2=h.length;
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Tren Pemakaian Hak per Tahun</h2>'+
-    PT.map(x=>bar(String(x.tahun)+(x.tahun>thPenuh?' (berjalan)':''),x.utilisasiPct||0,mxT,'',String(x.utilisasiPct||0).replace('.',',')+'%')).join('')+
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Rata-rata Pemakaian per Tahun <span class="mini">(hari kerja per pegawai)</span></h2>'+
+    PT.map(x=>bar(String(x.tahun)+(x.tahun>thPenuh?' (berjalan)':''),x.rataHk||0,mxT,'',d1(x.rataHk||0)+' hari')).join('')+
     '<div class="mini" style="margin-top:6px">Tahun 2020 dan 2021 rendah karena pembatasan masa pandemi. Tahun berjalan belum genap setahun sehingga wajar lebih rendah.</div></div></div>';
   
   const UU=(CUTI.utilisasiUnit||[]);
-  const mxU=Math.max(1,...UU.map(x=>x.utilisasiPct));
+  const mxU=Math.max(1,...UU.map(x=>x.rataHk||0));
   var _pg3=h.length;
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Pemakaian Hak per Unit Eselon I ('+thPenuh+')</h2><div class="tblw"><table><thead><tr><th>Unit</th><th class="num-c">Pegawai</th><th class="num-c">Rata Pemakaian (hari kerja)</th><th></th><th class="num-c">Utilisasi</th><th class="num-c">Melebihi Hak</th></tr></thead><tbody>'+
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Pemakaian Hak per Unit Eselon I ('+thPenuh+')</h2><div class="tblw"><table><thead><tr><th>Unit</th><th class="num-c">Pegawai</th><th></th><th class="num-c">Rata-rata (hari kerja)</th><th class="num-c">Nilai Tengah</th><th class="num-c">Melebihi '+hak+' Hari</th></tr></thead><tbody>'+
     UU.map(x=>{const par=cutiParsial(x.nama);
       return '<tr><td>'+esc(x.nama)+(par?' <span class="tag" title="Data unit ini baru sebagian masuk HRIS">sebagian</span>':'')+'</td>'+
-      '<td class="num-c">'+fmt(x.pegawai)+'</td><td class="num-c">'+String(x.rataHk).replace('.',',')+'</td>'+
-      '<td>'+cutiMiniBar(x.utilisasiPct,mxU,'var(--cat-1)')+'</td><td class="num-c"><b>'+pct(x.utilisasiPct)+'</b></td>'+
+      '<td class="num-c">'+fmt(x.pegawai)+'</td>'+
+      '<td>'+cutiMiniBar(x.rataHk||0,mxU,'var(--cat-1)')+'</td><td class="num-c"><b>'+d1(x.rataHk||0)+'</b></td><td class="num-c">'+fmt(x.medianHk||0)+'</td>'+
       '<td class="num-c">'+(x.lewatHak||0)+'</td></tr>';}).join('')+
     '</tbody></table></div><div class="mini" style="margin-top:6px">Unit bertanda sebagian datanya belum lengkap; angka pemakaiannya belum menggambarkan keadaan sebenarnya. Hanya unit dengan sekurangnya 50 pegawai yang ditampilkan.</div></div>';
   
@@ -10991,7 +11013,7 @@ function vCutiUtilisasi(){
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Pola Cuti Sakit ('+P.tahun+')</h2>'+
     '<p style="margin:0 0 8px">Cuti sakit <b>tidak memiliki batas tetap</b> karena bergantung kondisi medis. Yang disajikan adalah pengelompokan pola untuk keperluan kebijakan kesehatan, bukan penilaian terhadap pegawai.</p>'+
     (P.pola||[]).map(x=>bar(x.label,x.pegawai,Math.max(...(P.pola||[{pegawai:1}]).map(y=>y.pegawai)),'',fmt(x.pegawai))).join('')+'</div></div>';
-  h+=cutiLanjut([{v:'cutikualitas',t:'Kepatuhan & Mutu Data',d:'Periksa rekaman yang melebihi hak'},{v:'cutiunit',t:'Profil Unit',d:'Bandingkan antarunit lebih rinci'},{v:'cutipola',t:'Kalender Kapasitas',d:'Kapan sebaiknya cuti diambil'}]);
+  h+=cutiLanjut([{v:'cutikualitas',t:'Kepatuhan & Mutu Data',d:'Periksa rekaman yang melebihi hak'},{v:'cutiunit',t:'Profil Unit',d:'Bandingkan antarunit lebih rinci'},{v:'cutipola',t:'Pola Hari & Kalender',d:'Kapan sebaiknya cuti diambil'}]);
   var _pgE=h.length;
   
 
@@ -11005,7 +11027,7 @@ function vCutiUtilisasi(){
 function vCutiKualitas(){
   const g=cutiGuard();if(g)return g;
   const K=CUTI.kualitasData||{},M=CUTI.meta.kualitas||{},hak=(CUTI.utilisasi||{}).hakHk||24;
-  let h='<div class="note-box">Halaman ini bukan penilaian terhadap pegawai, melainkan <b>alat bantu perbaikan data</b> bagi pengelola kepegawaian. Yang ditandai di sini adalah rekaman yang secara aturan tidak mungkin atau perlu ditelusuri ulang, umumnya berasal dari kekeliruan pencatatan.</div>';
+  let h='<div class="note-box">Halaman ini <b>alat bantu perbaikan data</b> bagi pengelola kepegawaian dan tidak dipakai untuk menilai pegawai. Yang ditandai di sini adalah rekaman yang secara aturan tidak mungkin atau perlu ditelusuri ulang, umumnya berasal dari kekeliruan pencatatan.</div>';
   h+=_katKpi([['Baris Sumber',fmt(M.baris_sumber||0),'sebelum dirapikan',1],
     ['Salinan Digabung',fmt(M.digabung_duplikat||0),'satu pengajuan tercatat berulang'],
     ['Pengajuan Dipakai',fmt(M.pengajuan_dipakai||0),'setelah dirapikan'],
@@ -11069,12 +11091,12 @@ function vCutiPola(){
   const mus=CUTI.musiman['Cuti Tahunan']||[];
   const lvl=v=>v>=1.15?['Padat','var(--seq-6)','var(--seq-ink-hi)']:v>=1.02?['Di atas rata-rata','var(--seq-4)','var(--seq-ink-hi)']:v>=0.9?['Normal','var(--seq-2)','var(--seq-ink-lo)']:['Longgar','var(--seq-1)','var(--seq-ink-lo)'];
   let kal=CUTI_BLNF.map((b,i)=>{const L=lvl(mus[i]||0);
-    return '<td class="cell" style="background:'+L[1]+';color:'+L[2]+'" title="'+b+': indeks '+String(mus[i]).replace('.',',')+' ('+L[0]+')">'+b+'<br><b>'+String((mus[i]||0).toFixed(2)).replace('.',',')+'</b></td>';}).join('');
+    return '<td class="cell" style="background:'+L[1]+';color:'+L[2]+'" title="'+b+': indeks '+Math.round(100*(mus[i]||0))+' ('+L[0]+')">'+b+'<br><b>'+Math.round(100*(mus[i]||0))+'</b></td>';}).join('');
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Kalender Kapasitas Kehadiran (Perkiraan untuk Perencanaan)</h2>'+
     '<div class="mini" style="margin-bottom:6px">Angka pada tiap bulan menunjukkan indeks keramaian cuti; makin gelap berarti makin banyak pegawai mengambil cuti.</div>'+
     '<div class="tblw"><table class="hm hm-fit"><tbody><tr>'+kal+'</tr></tbody></table></div>'+
-    '<p style="margin:10px 0 0">Cara membaca angkanya: 1,00 berarti bulan biasa; 1,20 berarti sekitar 20% lebih ramai cuti daripada bulan biasa; di bawah 1,00 berarti lebih sepi (dihitung dari kebiasaan 2022-2025). Pada bulan yang ramai cuti, sebaiknya hindari menjadwalkan kegiatan besar dan siapkan petugas cadangan untuk layanan. Hari paling rawan kosong: Jumat dan Senin di sekitar libur nasional.</p></div>';
-  h+=cutiLanjut([{v:'cutiprediksi',t:'Proyeksi Beban Cuti',d:'Perkiraan bulan-bulan mendatang'},{v:'cutitren',t:'Tren & Musiman',d:'Riwayat bulanan tiap tahun'}]);
+    '<p style="margin:10px 0 0">Cara membaca angkanya: 100 berarti bulan biasa; 120 berarti sekitar 20% lebih ramai cuti daripada bulan biasa; di bawah 100 berarti lebih sepi (dihitung dari kebiasaan 2022-2025). Pada bulan yang ramai cuti, sebaiknya hindari menjadwalkan kegiatan besar dan siapkan petugas cadangan untuk layanan. Hari yang paling sering dipakai untuk cuti satu hari adalah Jumat dan Senin.</p></div>';
+  h+=cutiLanjut([{v:'cutiprediksi',t:'Perkiraan Beban Cuti',d:'Perkiraan bulan-bulan mendatang'},{v:'cutitren',t:'Tren & Musiman',d:'Riwayat bulanan tiap tahun'}]);
   return h;
 }
 
@@ -11086,7 +11108,7 @@ function vCutiSakit(){
   const totTanpa=tot['tanpa']||0, totIsi=totAll-totTanpa;
   const thn=[...new Set(K.map(r=>r.tahun))].sort();
   let h='<div class="note-box"><b>Bagaimana kategori ini dibuat:</b> pegawai menulis alasan sakit dengan kata-kata bebas, misalnya "demam", "cuci darah", atau "operasi gigi". Sistem membaca tulisan itu lalu mengelompokkannya ke 7 kategori mengikuti Studi Cuti Sakit Biro SDM. Dari seluruh pengajuan, '+
-    fmt(totIsi)+' berhasil dikelompokkan'+(totTanpa?'; '+fmt(totTanpa)+' ('+cutiPct(totTanpa,totAll)+'%) tidak bisa karena kolom alasannya kosong (kewajiban mengisi alasan baru berjalan beberapa tahun terakhir).':', dan tidak ada yang kolom alasannya kosong.')+'</div>';
+    fmt(totIsi)+' berhasil dikelompokkan'+(totTanpa?'; '+fmt(totTanpa)+' ('+cutiPct(totTanpa,totAll)+'%) tidak bisa karena kolom alasannya kosong (kewajiban mengisi alasan baru berjalan beberapa tahun terakhir).':'. Semua pengajuan cuti sakit mengisi alasan.')+'</div>';
   const mxk=Math.max(1,...kats.map(k=>tot[k.kat]||0));
   const kUrut=kats.slice().sort((a,b)=>(tot[b.kat]||0)-(tot[a.kat]||0));
   var _pg0=h.length;
@@ -11200,7 +11222,7 @@ function vCutiSakit(){
   
 
 
-  h+=cutiLanjut([{v:'cutidemografi',t:'Demografi & Gender',d:'Profil risiko menurut usia'},{v:'cutiprediksi',t:'Proyeksi Beban Cuti',d:'Peringatan dini musim penyakit'},{v:'cutiunit',t:'Profil Unit',d:'Unit mana yang perlu perhatian'}]);
+  h+=cutiLanjut([{v:'cutidemografi',t:'Demografi & Gender',d:'Profil risiko menurut usia'},{v:'cutiprediksi',t:'Perkiraan Beban Cuti',d:'Peringatan dini musim penyakit'},{v:'cutiunit',t:'Profil Unit',d:'Unit mana yang perlu perhatian'}]);
   return h;
 }
 
@@ -11211,8 +11233,8 @@ function vCutiPrediksi(){
   let h='<div class="note-box"><b>Cara menghitungnya (sederhana dan bisa diperiksa):</b> kebiasaan tahun 2022-2025 menunjukkan berapa persen cuti setahun yang biasanya jatuh pada Januari sampai Juni. Realisasi Januari-Juni 2026 lalu dibagi persentase kebiasaan itu untuk memperkirakan angka setahun penuh. Tahun 2020-2021 tidak dipakai karena polanya tidak normal akibat pandemi. Hasilnya perkiraan untuk perencanaan, bukan angka pasti.</div>';
   h+='<div class="toolbar"><span class="mini">Jenis cuti</span>'+cutiSelJ('cutiPredJenis',j)+'</div>';
   const mxm=Math.max(...mus,0.01);
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Indeks Musiman '+esc(j)+' <span class="mini">(1,00 = rata-rata bulanan)</span></h2>'+
-    CUTI_BLNF.map((b,i)=>bar(b,mus[i]||0,mxm,'',String((mus[i]||0).toFixed(2)).replace('.',','))).join('')+'</div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Indeks Musiman '+esc(j)+' <span class="mini">(100 berarti bulan biasa)</span></h2>'+
+    CUTI_BLNF.map((b,i)=>bar(b,mus[i]||0,mxm,'',String(Math.round(100*(mus[i]||0))))).join('')+'</div>';
   
   let rows=CUTI.meta.jenis.map(x=>{
     const p=P[x]||{}, r25=CUTI.tahunan.find(y=>y.jenis===x&&y.tahun===2025);
@@ -11223,7 +11245,7 @@ function vCutiPrediksi(){
   const ms=CUTI.musiman['Cuti Sakit']||[];
   const tinggi=CUTI_BLNF.filter((b,i)=>(ms[i]||0)>=1.05);
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Peringatan Dini Musiman (Cuti Sakit)</h2><p style="margin:0">Berdasarkan kebiasaan tahun-tahun sebelumnya, cuti sakit paling ramai pada bulan <b>'+(function(b){var B=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];var ix=b.map(function(x){return B.indexOf(x);});var urut=ix.every(function(v,i){return v>=0&&(i===0||v===ix[i-1]+1);});return (urut&&b.length>2)?(b[0]+' sampai '+b[b.length-1]):(b.length>1?b.slice(0,-1).join(', ')+' dan '+b[b.length-1]:b.join(''));})(tinggi)+'</b>. Musim hujan biasanya diikuti naiknya flu, ISPA, dan diare. Saran dari Studi Cuti Sakit: adakan vaksinasi influenza sebelum musim hujan, dan berlakukan masker atau kerja dari rumah saat risikonya sedang tinggi.</p></div>';
-  h+=cutiLanjut([{v:'cutipola',t:'Kalender Kapasitas',d:'Tindak lanjut penjadwalan kegiatan'},{v:'cutisakit',t:'Kategori Cuti Sakit',d:'Penyebab yang mendorong kenaikan'}]);
+  h+=cutiLanjut([{v:'cutipola',t:'Pola Hari & Kalender',d:'Tindak lanjut penjadwalan kegiatan'},{v:'cutisakit',t:'Kategori Cuti Sakit',d:'Penyebab yang mendorong kenaikan'}]);
   return h;
 }
 
@@ -11242,12 +11264,12 @@ function vCutiSimulasi(){
     rows+='<tr><td><b>'+t+(t===2026?' (s.d. Juni)':'')+'</b></td><td class="num-c">'+fmt(tt)+'</td><td class="num-c">'+fmt(k3)+'</td><td class="num-c">'+fmt(kx)+'</td><td class="num-c" style="color:var(--st-good);font-weight:700">'+fmt(lind)+'</td></tr>';});
   let h='<div class="note-box"><b>Aturannya sekarang:</b> pegawai yang cuti sakit rawat jalan tidak dipotong tunjangan untuk <b>3 hari kerja pertama</b>; lewat dari itu tunjangan dipotong 2,5% per hari (PMK 221/PMK.01/2021). Studi Cuti Sakit mengusulkan batas bebas potongan diperpanjang menjadi <b>10 hari kerja</b> untuk pegawai berpenyakit menahun yang butuh pemulihan. Alat ini menghitung: kalau batasnya digeser, berapa banyak pengajuan yang tadinya kena potongan menjadi bebas potongan.</div>';
   h+='<div class="toolbar"><span class="mini">Ambang usulan (hari)</span><input class="flt" type="number" id="cutiSimHari" min="1" max="30" value="'+thr+'" style="width:80px"></div>';
-  h+=_katKpi([['Pengajuan Rawat Jalan',fmt(totT),'2020 s.d. Jun 2026',1],
+  h+=_katKpi([['Pengajuan Rawat Jalan',fmt(totT),'seluruh periode data, sampai Juni 2026',1],
     ['Kena Potongan (Ambang 3 Hari)',fmt(tot3),cutiPct(tot3,totT)+'% dari pengajuan rawat jalan'],
     ['Masih Kena (Ambang '+thr+' Hari)',fmt(totX),cutiPct(totX,totT)+'%'],
     ['Pengajuan Terlindungi',fmt(tot3-totX),'berubah status bila ambang digeser ke '+thr+' hari']]);
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Rincian per Tahun</h2><div class="tblw"><table><thead><tr><th>Tahun</th><th class="num-c">Pengajuan Rawat Jalan</th><th class="num-c">Durasi &gt; 3 Hari</th><th class="num-c">Durasi &gt; '+thr+' Hari</th><th class="num-c">Terlindungi</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
-  h+='<div class="note-box"><b>Catatan penghitungan:</b> sejak pemutakhiran data, lama cuti di halaman ini dihitung dalam <b>hari kerja</b> (akhir pekan tidak dihitung), sama dengan dasar yang dipakai PMK, sehingga hasilnya tidak lagi berupa perkiraan kasar. Yang dihitung hanya cuti sakit rawat jalan, termasuk rawat jalan setelah rawat inap. Hari libur nasional belum dikecualikan. Alat ini bahan analisis untuk Biro Sumber Daya Manusia, bukan penetapan.</div>';
+  h+='<div class="note-box"><b>Catatan penghitungan:</b> lama cuti di halaman ini dihitung dalam <b>hari kerja</b> (akhir pekan tidak dihitung), sama dengan dasar yang dipakai PMK. Yang dihitung hanya cuti sakit rawat jalan, termasuk rawat jalan setelah rawat inap. Hari libur nasional belum dikecualikan. Alat ini bahan analisis untuk Biro Sumber Daya Manusia, bukan penetapan.</div>';
   h+=cutiLanjut([{v:'cutisakit',t:'Kategori Cuti Sakit',d:'Kondisi medis yang terdampak kebijakan'},{v:'cutiutilisasi',t:'Pemakaian Hak Cuti',d:'Gambaran hak cuti secara menyeluruh'}]);
   return h;
 }
@@ -11255,7 +11277,7 @@ function vCutiSimulasi(){
 function vCutiTentang(){
   const g=cutiGuard();if(g)return g;
   const m=CUTI.meta,k=m.kualitas||{};
-  let h='<div class="card"><h2 class="sec" style="margin-top:0">Sumber &amp; Cakupan</h2><p style="margin:0 0 6px"><b>Sumber:</b> '+esc(m.sumber)+', diolah '+esc(m.tanggal_olah)+'. <b>Periode:</b> '+esc(m.periode.mulai)+' s.d. '+esc(m.periode.akhir)+'.</p><p style="margin:0 0 6px"><b>Cakupan:</b> '+esc(sederhana(m.cakupan))+'.</p><p style="margin:0"><b>Jenis cuti tersedia:</b> '+m.jenis.join(', ')+'. Jenis lain (Cuti Melahirkan, Cuti Karena Alasan Penting, CLTN, Cuti Tahunan Tambahan) belum termasuk dalam data yang dikirim.</p></div>';
+  let h='<div class="card"><h2 class="sec" style="margin-top:0">Sumber &amp; Cakupan</h2><p style="margin:0 0 6px"><b>Sumber:</b> data cuti HRIS, diolah '+esc(cutiTglIndo(m.tanggal_olah))+'. <b>Periode:</b> '+esc(cutiTglIndo(m.periode.mulai))+' sampai '+esc(cutiTglIndo(m.periode.akhir))+'.</p><p style="margin:0 0 6px"><b>Cakupan:</b> '+esc(sederhana(m.cakupan))+'.</p><p style="margin:0"><b>Jenis cuti tersedia:</b> '+m.jenis.join(', ')+'. Jenis lain (Cuti Melahirkan, Cuti Karena Alasan Penting, CLTN, Cuti Tahunan Tambahan) belum termasuk dalam data yang dikirim.</p></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Kualitas Data</h2><div class="tblw"><table><thead><tr><th>Tahapan pengolahan</th><th class="num-c">Jumlah baris</th></tr></thead><tbody>'+
     '<tr><td>Baris sumber</td><td class="num-c">'+fmt(k.baris_sumber||0)+'</td></tr>'+
     '<tr><td>Salinan berulang yang disatukan</td><td class="num-c">'+fmt(k.digabung_duplikat||0)+'</td></tr>'+
@@ -11405,7 +11427,7 @@ function vRbn(){
     +lpSel('rbnpusat','Pimpinan di Zona Banjir',fmt(P.banjirTinggi)+'<span class="lp-of"> dari '+fmt(P.n)+'</span>','pejabat Eselon I dan II')
     +lpSel('rbnpusat','Pegawai di '+esc(Z.kel),fmt(Z.pegawai),fmt(Z.pimpinan)+' pejabat Eselon I dan II')
     +lpSel('rbnganda','Tiga Risiko Tinggi atau Lebih',fmt(g3),d1(100*g3/N)+'% pegawai')
-    +lpSel('rbnkantor','Kantor dengan Tiga Risiko',fmt(l3),'dari '+fmt(M.kantor||M.lokasiKantor)+' kantor, menurut lokasi utama')
+    +lpSel('rbnkantor','Kantor dengan Tiga Risiko Tinggi atau Lebih',fmt(l3),'dari '+fmt(M.kantor||M.lokasiKantor)+' kantor, menurut lokasi utama')
     +'</div>';
   
 
@@ -11676,7 +11698,7 @@ function vRmh(){
       '<div class="rmh-jalur"><div><b>Bantuan sewa</b><span>Kebutuhan jangka pendek pegawai yang dimutasi, di lokasi tugas.</span></div>'+
       '<div><b>Rent to Own</b><span>Kepemilikan jangka panjang. Pada survei, '+d1(100*R.rumah[0][1]/sw)+'% responden menyewa rumah dan '+R.beli[2][1]+'% memilih Rent to Own sebagai cara membeli.</span></div></div>')+'</div>';
   h+='</div>';
-  h+='<div class="note-box" style="margin-top:14px"><b>Tahap awal.</b> '+esc(P.meta.tahap)+' Angka bertanda <span class="pill warn">asumsi</span> belum didukung data. Daftar data yang sedang diminta ada di Tentang Data.</div>';
+  h+='<div class="note-box" style="margin-top:14px">'+esc(P.meta.tahap)+' Angka bertanda <span class="pill warn">asumsi</span> belum didukung data. Daftar data yang sedang diminta ada di Tentang Data.</div>';
   h+=lpNav([['rmhsim','Simulasi Anggaran'],['rmhtarif','Tarif per Provinsi'],['rmhdinas','Rumah Dinas'],['rmhprobis','Proses Bisnis'],['rmhsurvei','Survei Rent to Own'],['rmhbanding','Pembanding K/L'],['rmhtentang','Tentang Data']]);
   h+='<div class="mini lp-src">'+esc(P.meta.sumber.join('; '))+'.</div>';
   return h;
@@ -11906,7 +11928,7 @@ function lpBaris(rows,opt){opt=opt||{};const mn=opt.min||0;const mx=opt.max!=nul
   return '<div class="lp-bars'+(opt.kls?' '+opt.kls:'')+'">'+rows.map(r=>{const w=mx>mn?Math.max(2,Math.round(100*(r.n-mn)/(mx-mn))):0;
     return `<div class="lp-br"${r.attr?' '+r.attr:''}${r.title?` title="${esc(r.title)}"`:''}><span class="lp-bn">${esc(r.lab)}</span><span class="lp-bt"><i style="width:${w}%;background:${r.col||'var(--seq-5)'}"></i></span><span class="lp-bv">${r.teks}</span></div>`;}).join('')+'</div>';}
 
-function lpStk(items,opt){opt=opt||{};const t=items.reduce((s,x)=>s+(x.n||0),0)||1;const p=v=>Math.round(100*v/t);
+function lpStk(items,opt){opt=opt||{};const t=items.reduce((s,x)=>s+(x.n||0),0)||1;const p=v=>{const x=100*v/t;return (x>0&&x<1)?d1(x):Math.round(x);};
   return '<div class="lp-stk">'+items.filter(x=>x.n>0).map(x=>`<i style="flex:0 1 ${(100*x.n/t).toFixed(2)}%;background:${x.col}" title="${esc(x.lab)}: ${fmt(x.n)}"></i>`).join('')+'</div>'+
     '<div class="lp-sl">'+items.map(x=>`<div><i style="background:${x.col}"></i><span>${esc(x.lab)}</span><b>${fmt(x.n)}</b><small>${p(x.n)}%</small></div>`).join('')+'</div>';}
 function lpNav(nv){return '<div class="lp-nav"><span class="lp-navt">Lihat rincian</span>'+nv.filter(n=>(typeof canView!=='function')||canView(n[0])).map(n=>'<span class="lp-nl" data-act="nav" data-view="'+n[0]+'">'+esc(n[1])+' &rsaquo;</span>').join('')+'</div>';}
@@ -11928,15 +11950,15 @@ function vInk(){
   
   var s='Survei terhadap <b>'+fmt(S.n)+' pegawai penyandang disabilitas</b> memberi nilai tertinggi pada kelompok <b>'+esc(atas.grup||'-')+'</b> ('+d1(atas.rerata||0)+' dari 5) dan terendah pada <b>'+esc(bawah.grup||'-')+'</b> ('+d1(bawah.rerata||0)+'). ';
   if(atas.grup==='Orang di sekitar'&&bawah.grup==='Aturan main')s+='Artinya atasan dan rekan kerja sudah mendukung, tetapi kebijakan tertulis dan prosedur permintaan akomodasi masih perlu dibenahi. ';
-  s+='Dari '+fmt(T.formasi||0)+' formasi khusus disabilitas pada 2017 sampai 2024, baru <b>'+fmt(T.angkat||0)+'</b> yang terisi karena pelamarnya sedikit, rata-rata '+d1(T.minatRasio||0)+' orang per formasi. ';
-  s+='Sebanyak <b>'+d1(kerjaPct)+'%</b> disabilitas muncul setelah pegawai bekerja, sehingga penyesuaian kerja bagi pegawai yang sudah ada sama pentingnya dengan rekrutmen.';
+  s+='Dari '+fmt(T.formasi||0)+' formasi khusus disabilitas pada 2017 sampai 2024, baru <b>'+fmt(T.angkat||0)+'</b> yang terisi. Pelamarnya sedikit, rata-rata '+d1(T.minatRasio||0)+' orang per formasi, dan yang lulus seleksi hanya '+d1(T.lulusPct||0)+'% dari pelamar. ';
+  s+='Sebanyak <b>'+d1(kerjaPct)+'%</b> disabilitas disebabkan penyakit atau kecelakaan, bukan bawaan sejak lahir, sehingga penyesuaian kerja bagi pegawai yang sudah ada sama pentingnya dengan rekrutmen.';
   var h=sorotanCard('Highlight',s,[{v:'inksurvei',t:'Dukungan Organisasi'},{v:'inkprofil',t:'Profil & Kebutuhan'},{v:'inkrekrut',t:'Rekrutmen Inklusif'}]);
   
   h+='<div class="lp-kpis">'
     +lpSel('inkprofil','Responden Survei',fmt(S.n),'pegawai penyandang disabilitas')
     +lpSel('inksurvei','Nilai '+esc(bawah.grup||'Terendah'),d1(bawah.rerata||0)+'<span class="lp-of"> dari 5</span>','terendah dari '+grup.length+' kelompok penilaian')
     +lpSel('inkrekrut','Formasi Terisi',lpPct(T.isiPct||0),fmt(T.angkat||0)+' dari '+fmt(T.formasi||0)+' formasi, 2017 sampai 2024')
-    +lpSel('inkprofil','Muncul Setelah Bekerja',lpPct(kerjaPct),'karena penyakit atau kecelakaan')
+    +lpSel('inkprofil','Karena Penyakit atau Kecelakaan',lpPct(kerjaPct),'bukan bawaan sejak lahir')
     +lpSel('inkprofil','Belum Punya Surat Keterangan',lpPct(S.n?100*(sur.tidak||0)/S.n:0),fmt(sur.tidak||0)+' responden')
     +'</div>';
   
@@ -11964,7 +11986,7 @@ function vInk(){
       '<div class="mini" style="margin:2px 0 10px">Lingkungan kerja dinilai belum mendukung oleh '+fmt(ling.tidak||0)+' responden.</div>')+'</div>';
   h+='</div>';
   h+=lpNav([['inksurvei','Dukungan Organisasi'],['inkprofil','Profil & Kebutuhan'],['inkrekrut','Rekrutmen Inklusif'],['inktentang','Tentang Data']]);
-  h+='<div class="mini lp-src">Survei kesejahteraan pegawai penyandang disabilitas dan rekapitulasi rekrutmen khusus 2017 sampai 2024, tanpa nama dan NIP, diolah '+esc(M.dibuat||'-')+'. Survei didominasi responden satu unit, sehingga menggambarkan pegawai yang terjangkau survei, bukan seluruh populasi.</div>';
+  h+='<div class="mini lp-src">Survei kesejahteraan pegawai penyandang disabilitas dan rekapitulasi rekrutmen khusus 2017 sampai 2024, tanpa nama dan NIP, diolah '+esc(cutiTglIndo(M.dibuat||'-'))+'. Survei didominasi responden satu unit, sehingga menggambarkan pegawai yang terjangkau survei, bukan seluruh populasi.</div>';
   return h;
 }
 
@@ -12037,7 +12059,7 @@ function vInkProfil(){
       '</div><div>'+donut(dJ,150,{big:fmt(S.n),small:'RESPONDEN'})+'</div></div></div>';
     h+='<div class="card nama-lebar"><h2 class="sec" style="margin-top:0">Penyebab</h2>'+
       PB.map(function(x){return bar(x.k,x.n,PB[0].n,'',fmt(x.n)+' ('+d1(x.pct||0)+'%)');}).join('')+
-      '<div class="note-box" style="margin-top:10px">Mayoritas disabilitas muncul <b>setelah</b> pegawai bekerja, bukan sejak lahir. Karena itu kebijakan untuk mempertahankan dan menyesuaikan kerja pegawai yang kondisinya berubah sama pentingnya dengan kebijakan rekrutmen.</div></div>';
+      '<div class="note-box" style="margin-top:10px">Sebagian besar disabilitas disebabkan penyakit atau kecelakaan, bukan bawaan sejak lahir, dan kondisi seperti ini bisa muncul ketika pegawai sudah bekerja. Karena itu kebijakan untuk mempertahankan dan menyesuaikan kerja pegawai yang kondisinya berubah sama pentingnya dengan kebijakan rekrutmen.</div></div>';
   }
   return h;
 }
@@ -12084,7 +12106,7 @@ function vInkRekrut(){
       return '<div class="bar-row"><div class="name">'+esc(x.k)+'</div><div class="track"><div class="fill" style="width:'+(x.n>0?Math.round(100*x.n/(D.n||1)):4)+'%"></div></div><div class="num">'+inkNil(x.n)+'</div></div>';
     }).join('')+
     '<div class="mini" style="margin-top:8px">Komposisi ini menunjukkan jalur masuk yang sudah terbukti berjalan, dan dapat dipakai untuk menentukan formasi berikutnya ditawarkan pada rumpun apa.</div></div>';
-  h+='<div class="note-box">Rata-rata hanya '+d1(T.minatRasio||0)+' pelamar untuk satu formasi, lebih rendah daripada rekrutmen umum. Jadi hambatannya ada di tahap awal, yaitu jangkauan pengumuman dan kesesuaian persyaratan, bukan di tahap seleksi.</div>';
+  h+='<div class="note-box">Hambatannya ada di dua tahap. Pelamarnya sedikit, rata-rata hanya '+d1(T.minatRasio||0)+' orang untuk satu formasi, dan yang lulus seleksi hanya '+d1(T.lulusPct||0)+'% dari pelamar. Jangkauan pengumuman, kesesuaian persyaratan, dan akomodasi selama seleksi perlu ditelaah bersama.</div>';
   return h;
 }
 
@@ -12092,42 +12114,45 @@ function vInkUnit(){
   var g=inkGuard(); if(g)return g;
   const K=INKLUSI.kronis, U=K.perUnit||[], KM=K.meta||{}, tot=KM.total||{}, tab=state.inkUnitTab||'jumlah';
   const ok=U.filter(function(x){return x.status==='ok';});
+  const UR=krnUnitRekam(), HBr=((krnRekam()||{}).homebaseTot)||{}, PTr=((krnRekam()||{}).potensiTot)||{};
   var h=pgHead('Penyakit Kronis per Unit Eselon I',
     'Pegawai yang tercatat memiliki penyakit kronis, beserta pola penempatannya.',
-    fmt(tot.jumlah||0)+' pegawai tercatat &middot; '+(KM.unitMelapor||0)+' unit melapor');
+    fmt(tot.jumlah||0)+' catatan, '+fmt(((krnRekam()||{}).sendiri)||0)+' di antaranya penyakit pegawai sendiri &middot; '+(KM.unitMelapor||0)+' unit melapor');
   h+=inkTabBar('inkunittab',tab,[['jumlah','Jumlah & Kelengkapan'],['penempatan','Pola Penempatan'],['kapasitas','Penilaian Kapasitas']]);
   if(tab==='penempatan'){
     h+='<div class="kpis">'+
-      kpiBox('Bekerja bukan di homebase',d1(KM.nonHomebasePct||0)+'%',fmt(tot.nonHomebase||0)+' dari '+fmt((tot.homebase||0)+(tot.nonHomebase||0))+' pegawai tercatat')+
-      kpiBox('Bekerja di homebase',d1(100-(KM.nonHomebasePct||0))+'%',fmt(tot.homebase||0)+' pegawai')+
+      kpiBox('Bekerja bukan di homebase',d1(krnPersenTot(HBr))+'%',fmt(HBr.tidak||0)+' dari '+fmt((HBr.ya||0)+(HBr.tidak||0))+' pegawai')+
+      kpiBox('Bekerja di homebase',d1(100-krnPersenTot(HBr))+'%',fmt(HBr.ya||0)+' pegawai')+
     '</div>';
-    const rinciHB=ok.filter(function(x){return x.rinci&&x.nonHomebasePct!=null;});
+    const rinciHB=UR.filter(function(x){return x.luarHbPct!=null;});
     h+='<div class="card nama-lebar"><h2 class="sec" style="margin-top:0">Porsi yang bekerja bukan di homebase</h2>'+
-      rinciHB.slice().sort(function(a,b){return b.nonHomebasePct-a.nonHomebasePct;}).map(function(x){
-        return bar(x.unit,x.nonHomebasePct,100,'',d1(x.nonHomebasePct)+'%');}).join('')+
-      inkKecil(ok.length-rinciHB.length)+
+      rinciHB.map(function(x){
+        return bar(x.unit,x.luarHbPct,100,'',d1(x.luarHbPct)+'%');}).join('')+
+      inkKecil(UR.length-rinciHB.length)+
       '<div class="mini" style="margin-top:8px">Bagian ini paling terkait dengan penataan organisasi. Tiga perempat pegawai dengan penyakit kronis bekerja di luar homebase, dan hal itu dapat ditata lewat penempatan serta pola kerja.</div></div>';
   }else if(tab==='kapasitas'){
     h+='<div class="note-box" style="margin-bottom:14px"><b>Hati-hati membandingkan.</b> Penilaian ini memakai pertanyaan yang ternyata ditafsirkan berbeda antarunit, dan pada berkas sumber kolomnya memang memuat dua skala berbeda. Unit bertanda bintang berbeda cukup jauh dari unit lain, sehingga selisihnya lebih mungkin berasal dari perbedaan tafsir daripada perbedaan keadaan pegawai.</div>';
-    const rinciPot=ok.filter(function(x){return x.rinci&&x.potensiPct!=null;});
+    const rinciPot=UR.filter(function(x){return x.potensiPct!=null;});
     h+='<div class="card nama-lebar"><h2 class="sec" style="margin-top:0">Dinilai masih berpotensi bekerja normal</h2>'+
-      rinciPot.slice().sort(function(a,b){return b.potensiPct-a.potensiPct;}).map(function(x){
-        return bar(x.unit+(x.tafsirBeda?' *':''),x.potensiPct,100,'',d1(x.potensiPct)+'%');}).join('')+
-      inkKecil(ok.length-rinciPot.length)+
-      '<div class="mini" style="margin-top:8px">Rerata Kementerian '+d1(KM.potensiPct||0)+'%.</div></div>';
+      rinciPot.map(function(x){
+        return bar(x.unit+(x.tafsirBeda?' *':''),x.potensiPct,100,'',d1(x.potensiPct)+'% dari '+fmt(x.potensiN));}).join('')+
+      inkKecil(UR.length-rinciPot.length)+
+      '<div class="mini" style="margin-top:8px">Rerata Kementerian '+d1(100-krnPersenTot(PTr))+'% dari '+fmt((PTr.ya||0)+(PTr.tidak||0))+' pegawai yang dinilai.</div></div>';
   }else{
     h+='<div class="note-box" style="margin-bottom:14px"><b>Yang terukur di sini adalah kelengkapan pendataan, bukan keadaan kesehatan.</b> Rentang antarunit terlalu lebar untuk dijelaskan oleh perbedaan kesehatan. Unit yang belum mengirim data ditulis belum melapor, bukan nol, dan angka ini tidak boleh dipakai memeringkat unit.</div>';
-    const maks=Math.max.apply(null,ok.map(function(x){return x.tercatatPct||0;}).concat([1]));
-    h+='<div class="card nama-lebar"><h2 class="sec" style="margin-top:0">Persen pegawai unit yang tercatat</h2>'+
-      ok.slice().sort(function(a,b){return (b.tercatatPct||0)-(a.tercatatPct||0);}).map(function(x){
+    const UT=UR.filter(function(x){return x.tercatatPct!=null;});
+    const maks=Math.max.apply(null,UT.map(function(x){return x.tercatatPct||0;}).concat([1]));
+    h+='<div class="card nama-lebar"><h2 class="sec" style="margin-top:0">Persen pegawai unit yang tercatat berpenyakit kronis</h2>'+
+      '<div class="mini" style="margin-bottom:8px">Hanya penyakit pegawai sendiri; catatan anggota keluarga tidak dihitung. Diurutkan menurut banyaknya catatan.</div>'+
+      UT.map(function(x){
         return bar(x.unit,x.tercatatPct||0,maks,'',d1(x.tercatatPct||0)+'%');}).join('')+'</div>';
-    h+='<div class="card"><div class="tblw"><table><thead><tr><th>Unit Eselon I</th><th>Tercatat</th><th>Penyakit pegawai sendiri</th><th>Pegawai</th><th>% tercatat</th><th>Laki-laki</th><th>Perempuan</th><th>Status</th></tr></thead><tbody>'+
+    h+='<div class="card"><div class="tblw"><table><thead><tr><th>Unit Eselon I</th><th>Catatan</th><th>Penyakit pegawai sendiri</th><th>Pegawai</th><th>% pegawai</th><th>Laki-laki</th><th>Perempuan</th><th>Status</th></tr></thead><tbody>'+
       U.map(function(x){
         return '<tr><td>'+esc(x.unit)+'</td>'+
           '<td style="text-align:right">'+(x.status==='ok'?fmt(x.jumlah):'<span class="mini">belum melapor</span>')+'</td>'+
           '<td style="text-align:right">'+(function(){var r=((K.rekam||{}).perUnit||[]).find(function(p){return p.unit===x.unit;});return r?fmt(r.sendiri):'-';})()+'</td>'+
           '<td style="text-align:right">'+(x.pegawai?fmt(x.pegawai):'-')+'</td>'+
-          '<td style="text-align:right">'+(x.tercatatPct==null?'-':d1(x.tercatatPct)+'%')+'</td>'+
+          '<td style="text-align:right">'+(function(){var r=UR.find(function(p){return p.unit===x.unit;});return r&&r.tercatatPct!=null?d1(r.tercatatPct)+'%':'-';})()+'</td>'+
           '<td style="text-align:right">'+(x.status==='ok'?inkNil(x.pria):'-')+'</td>'+
           '<td style="text-align:right">'+(x.status==='ok'?inkNil(x.wanita):'-')+'</td>'+
           '<td>'+(x.status==='ok'?'<span class="tag">lengkap</span>':'<span class="tag warn">belum melapor</span>')+'</td></tr>';
@@ -12144,6 +12169,16 @@ function vInkUnit(){
 
 
 function krnRekam(){var K=INKLUSI&&INKLUSI.kronis;return K&&K.rekam?K.rekam:null;}
+
+
+
+
+function krnUnitRekam(){var R=krnRekam(),K=INKLUSI.kronis,U=(K&&K.perUnit)||[];if(!R)return [];
+  return (R.perUnit||[]).map(function(p){var u=U.find(function(x){return x.unit===p.unit;})||{};
+    return {unit:p.unit,total:p.total,sendiri:p.sendiri,pegawai:u.pegawai||null,tercatatPct:u.pegawai?Math.round(1000*p.sendiri/u.pegawai)/10:null,
+      luarHbPct:p.luarHbPct!=null?p.luarHbPct:null,potensiPct:p.potensiPct!=null?p.potensiPct:null,potensiN:p.potensiN||0,tafsirBeda:!!u.tafsirBeda};})
+    .sort(function(a,b){return b.sendiri-a.sendiri;});}
+function krnPersenTot(o){var t=(o.ya||0)+(o.tidak||0);return t?100*(o.tidak||0)/t:0;}
 function krnKosong(){return '<div class="empty">Rincian penyakit kronis belum ada pada data yang dimuat. Unggah ulang berkas inklusi.json versi terbaru, lalu muat ulang halaman.</div>';}
 function krnJenis(R,k){return (R.acuan||[]).indexOf(k)>=0?'acuan':((R.tambahan||[]).indexOf(k)>=0?'tambahan':(k==='Komplikasi'?'komplikasi':'lain'));}
 var KRN_WARNA={acuan:'var(--seq-7)',tambahan:'var(--seq-5)',komplikasi:'var(--seq-3)',lain:'var(--muted)'};
@@ -12223,9 +12258,9 @@ function vInkKrTempat(){
   h+='<div class="lp-grid">';
   h+='<div class="lp-c7">'+lpKartu('','Tempat Bekerja menurut Jenis Penyakit','Jumlah pegawai di homebase dan di luar homebase; kolom terakhir adalah porsi di luar homebase',
       krnHeat(BR,(SL.homebase||{}).kol||[],(SL.homebase||{}).v||[],'Luar homebase',function(i,r){return krnPct(r,1);}))+'</div>';
-  const rinciHB=U.filter(function(x){return x.status==='ok'&&x.rinci&&x.nonHomebasePct!=null;}).sort(function(a,b){return b.nonHomebasePct-a.nonHomebasePct;});
-  h+='<div class="lp-c5">'+lpKartu('inkunit','Di Luar Homebase per Unit','Persen pegawai dengan penyakit kronis di tiap unit',
-      lpBaris(rinciHB.map(function(x){return {lab:lpUnit(x.unit),n:x.nonHomebasePct,teks:d1(x.nonHomebasePct)+'%',title:x.unit};}),{max:100,kls:'lp-bars-lebar'})+
+  const rinciHB=krnUnitRekam().filter(function(x){return x.luarHbPct!=null;});
+  h+='<div class="lp-c5">'+lpKartu('inkunit','Di Luar Homebase per Unit','Persen pegawai dengan penyakit kronis di tiap unit, diurutkan menurut banyaknya catatan',
+      lpBaris(rinciHB.map(function(x){return {lab:lpUnit(x.unit),n:x.luarHbPct,teks:d1(x.luarHbPct)+'%',title:x.unit+': '+fmt(x.sendiri)+' pegawai'};}),{max:100,kls:'lp-bars-lebar'})+
       '<div class="mini" style="margin:2px 0 10px">Unit dengan catatan kurang dari 20 orang tidak dirinci.</div>')+'</div>';
   h+='<div class="lp-c12">'+lpKartu('','Jenjang Jabatan menurut Jenis Penyakit','Jumlah pegawai pada tiap jenjang; kolom terakhir adalah porsi jenjang Eselon IV ke atas',
       krnHeat(BR,(SL.jenjang||{}).kol||[],(SL.jenjang||{}).v||[],'Eselon IV ke atas',function(i,r){if(r.some(function(v){return v==null;}))return '&middot;';var t=r.reduce(function(a,v){return a+v;},0);return t?Math.round(100*(r[1]+r[2])/t)+'%':'&middot;';}))+'</div>';
@@ -12255,9 +12290,9 @@ function vInkKrMampu(){
       krnHeat(BR,(SL.dampak||{}).kol||[],(SL.dampak||{}).v||[],'Berdampak besar',function(i,r){return krnPct(r,0);},function(b,r){return r.some(function(v){return v;});}))+'</div>';
   h+='<div class="lp-c5">'+lpKartu('','Potensi Bekerja Normal menurut Jenis Penyakit','Unit selain penilaian dampak DJP; kolom terakhir adalah porsi yang mampu',
       krnHeat(BR,(SL.potensi||{}).kol||[],(SL.potensi||{}).v||[],'Mampu',function(i,r){return krnPct(r,0);},function(b,r){return r.some(function(v){return v;});}))+'</div>';
-  const rinciPot=U.filter(function(x){return x.status==='ok'&&x.rinci&&x.potensiPct!=null;}).sort(function(a,b){return b.potensiPct-a.potensiPct;});
-  h+='<div class="lp-c12">'+lpKartu('inkunit','Dinilai Mampu Bekerja Normal per Unit','Persen pegawai dengan penyakit kronis yang dinilai mampu bekerja normal. Rerata Kementerian '+d1(KM.potensiPct||0)+'%. Unit bertanda bintang menafsirkan pertanyaan berbeda.',
-      lpBaris(rinciPot.map(function(x){return {lab:lpUnit(x.unit)+(x.tafsirBeda?' *':''),n:x.potensiPct,teks:d1(x.potensiPct)+'%',col:x.tafsirBeda?'var(--muted)':'var(--seq-5)',title:x.unit};}),{max:100,kls:'lp-bars2'}))+'</div>';
+  const rinciPot=krnUnitRekam().filter(function(x){return x.potensiPct!=null;});
+  h+='<div class="lp-c12">'+lpKartu('inkunit','Dinilai Mampu Bekerja Normal per Unit','Persen pegawai yang dinilai mampu bekerja normal, dari '+fmt(ptT)+' pegawai yang dinilai. Rerata Kementerian '+d1(ptT?100*(PT.ya||0)/ptT:0)+'%. Untuk Direktorat Jenderal Pajak hanya sebagian kecil yang dinilai dengan pertanyaan ini. Unit bertanda bintang menafsirkan pertanyaan berbeda.',
+      lpBaris(rinciPot.map(function(x){return {lab:lpUnit(x.unit)+(x.tafsirBeda?' *':''),n:x.potensiPct,teks:d1(x.potensiPct)+'% <small>dari '+fmt(x.potensiN)+'</small>',col:x.tafsirBeda?'var(--muted)':'var(--seq-5)',title:x.unit};}),{max:100,kls:'lp-bars2'}))+'</div>';
   h+='</div>';
   h+=lpNav([['inkkronis','Ikhtisar Penyakit Kronis'],['inkkrtempat','Penempatan & Jabatan'],['inkunit','Sebaran per Unit'],['inkkrtentang','Tentang Data']]);
   h+='<div class="mini lp-src">Penilaian kemampuan bekerja berasal dari isian unit, bukan pemeriksaan medis. Potensi pulih secara medis tidak tercatat di data ini.</div>';
@@ -12269,11 +12304,11 @@ function vInkKrTentang(){
   const R=krnRekam(), M=INKLUSI.meta||{};
   const kr=(M.catatan||[]).filter(function(c){return /penyakit|rekaman|kategori|usia|potensi|homebase/i.test(c)&&!/disabilitas:/i.test(c);});
   var h=pgHead('Tentang Data Penyakit Kronis','Asal angka, cara olah, dan batas penggunaannya.','');
-  h+='<div class="card"><h2 class="sec" style="margin-top:0">Sumber</h2><p>Pendataan penyakit kronis pegawai oleh Biro Sumber Daya Manusia: lembar rekapitulasi per Eselon I dan lembar rekaman yang tidak memuat nama maupun NIP. Diolah '+esc(M.dibuat||'-')+'.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Sumber</h2><p>Pendataan penyakit kronis pegawai oleh Biro Sumber Daya Manusia: lembar rekapitulasi per Eselon I dan lembar rekaman yang tidak memuat nama maupun NIP. Diolah '+esc(cutiTglIndo(M.dibuat||'-'))+'.</p></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Kategori penyakit</h2><p>Kategori acuan: '+esc((R&&R.acuan||[]).join(', '))+'. Kategori ini mengikuti daftar penyakit kronis Kementerian Kesehatan yang dipakai BPJS Kesehatan. Biro SDM menambahkan '+esc((R&&R.tambahan||[]).join(', ').toLowerCase())+'. Pegawai dengan lebih dari satu penyakit dikelompokkan sebagai Komplikasi, dan penyakit di luar daftar sebagai Lainnya.</p></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Privasi</h2><p>Yang dipakai hanya kolom yang aman bila digabung: unit Eselon I, usia, jenis kelamin, jenjang, homebase, penilaian kemampuan bekerja, dan kategori penyakit. Jabatan, unit di bawah Eselon I, keterangan, nilai kinerja, dan teks nama penyakit tidak pernah disimpan, sebab jabatan pada unit kecil bisa menunjuk satu orang. Kelompok di bawah lima orang tidak dirinci.</p></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Batas penggunaan</h2><p>'+esc(sederhana(M.peringatan||''))+' Penilaian kemampuan bekerja berasal dari isian unit, bukan pemeriksaan medis.</p></div>';
-  if(kr.length)h+='<div class="card"><h2 class="sec" style="margin-top:0">Catatan pengolahan</h2><ul>'+kr.map(function(c){return '<li>'+esc(c)+'</li>';}).join('')+'</ul></div>';
+  if(kr.length)h+='<div class="card"><h2 class="sec" style="margin-top:0">Catatan pengolahan</h2><ul>'+kr.map(function(c){return '<li>'+esc(String(c).replace(/\b\d{4,}\b/g,function(m){return fmt(+m);}))+'</li>';}).join('')+'</ul></div>';
   return h;
 }
 
@@ -12283,7 +12318,7 @@ function vInkTentang(){
   var h=pgHead('Tentang Data Disabilitas & Inklusi','Asal angka, cara olah, dan batas penggunaannya.','');
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Sumber</h2><ul>'+
     (M.sumber||[]).filter(function(s){return !/kronis/i.test(s);}).map(function(s){return '<li>'+esc(s)+'</li>';}).join('')+'</ul>'+
-    '<div class="mini">Diolah '+esc(M.dibuat||'-')+'.</div></div>';
+    '<div class="mini">Diolah '+esc(cutiTglIndo(M.dibuat||'-'))+'.</div></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Privasi</h2><p>'+esc(sederhana(M.privasi))+'</p>'+
     '<p>Data penyakit kronis disajikan pada modul tersendiri, Penyakit Kronis, beserta rambu privasinya.</p></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Batas penggunaan</h2><p>Survei menjangkau '+fmt((INKLUSI.survei||{}).n||0)+' pegawai penyandang disabilitas dan sebagian besar respondennya dari satu unit, sehingga hasilnya menggambarkan pegawai yang terjangkau survei, bukan seluruh populasi. Rekapitulasi rekrutmen mencakup formasi khusus disabilitas 2017 sampai 2024.</p></div>';
@@ -12377,10 +12412,10 @@ function vPmbTren(){
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Rincian per Tahun</h2><div class="tblw"><table><thead><tr>'+
     '<th style="text-align:left">Tahun</th><th style="text-align:right">Berhenti</th><th style="text-align:right">Laki-laki</th><th style="text-align:right">Perempuan</th>'+
     '<th style="text-align:right">Per 10.000</th><th style="text-align:right">Masa kerja di bawah 10 tahun</th></tr></thead><tbody>'+
-    T.map(function(x){return '<tr'+(x.berjalan?' style="opacity:.7"':'')+'><td>'+x.tahun+(x.berjalan?' <span class="mini">(berjalan, tercatat sampai bulan '+(x.bulanTerakhir||'-')+')</span>':'')+'</td>'+
+    T.map(function(x){return '<tr'+(x.berjalan?' style="opacity:.7"':'')+'><td>'+x.tahun+(x.berjalan?' <span class="mini">(berjalan, belum lengkap)</span>':'')+'</td>'+
       '<td style="text-align:right"><b>'+fmt(x.n)+'</b></td><td style="text-align:right">'+fmt(x.L)+'</td><td style="text-align:right">'+fmt(x.P)+'</td>'+
       '<td style="text-align:right">'+d1(x.per10rb)+'</td><td style="text-align:right">'+fmt(x.dini)+' <span class="mini">('+d1(x.pctDini)+'%)</span></td></tr>';}).join('')+
-    '</tbody></table></div><div class="mini" style="margin-top:6px">Per 10.000 dihitung terhadap pegawai aktif hari ini, sehingga angka tahun-tahun awal sedikit lebih rendah dari yang sebenarnya. Paruh pertama rata-rata '+fmt(Math.round(rA))+' orang setahun, paruh kedua '+fmt(Math.round(rB))+', naik '+d1(100*(rB-rA)/Math.max(1,rA))+' persen.</div></div>';
+    '</tbody></table></div><div class="mini" style="margin-top:6px">Per 10.000 dihitung terhadap pegawai aktif hari ini, sehingga angka tahun-tahun awal bisa sedikit berbeda dari keadaan sebenarnya karena jumlah pegawai tiap tahun berubah. Jumlah laki-laki dan perempuan bisa kurang satu atau dua dari jumlah berhenti karena jenis kelamin pada baris itu tidak terbaca. Paruh pertama rata-rata '+fmt(Math.round(rA))+' orang setahun, paruh kedua '+fmt(Math.round(rB))+', naik '+d1(100*(rB-rA)/Math.max(1,rA))+' persen.</div></div>';
   h+='<div class="note-box" style="margin-top:14px">Angka tahun berjalan yang lebih kecil daripada tahun sebelumnya <b>bukan</b> tanda membaik. Data '+M.tahunBerjalan+' tercatat rapat sampai sekitar Agustus, lalu hampir tidak ada; bila dihitung untuk setahun penuh, angkanya termasuk yang tertinggi sepanjang catatan. Hati-hati mengutip angka tahun berjalan apa adanya.</div>';
   h+=pmbCatatan();
   return h;}
@@ -12429,7 +12464,7 @@ function vPmbProfil(){
     const Ux=PEMBERHENTIAN.usia||[], R=PEMBERHENTIAN.ringkasUsia||{};
     const mx=Math.max.apply(null,Ux.map(function(x){return x.n;}).concat([1]));
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Usia Saat Berhenti</h2>'+
-      Ux.map(function(x){return bar(x.kelompok+' tahun',x.n,mx,'',fmt(x.n)+' orang &middot; '+d1(x.pct)+'%');}).join('')+
+      Ux.map(function(x){return bar(thnKel(x.kelompok),x.n,mx,'',fmt(x.n)+' orang &middot; '+d1(x.pct)+'%');}).join('')+
       '<div class="mini" style="margin-top:6px">Median '+d1(R.median)+' tahun, separuhnya berhenti antara usia '+d1(R.p25)+' dan '+d1(R.p75)+'. Puncaknya di usia tiga puluhan, yaitu masa ketika pegawai sudah terbentuk dan paling laku di luar.</div></div>';
   } else if(tab==='angkatan'){
     const A=PEMBERHENTIAN.angkatan||[], DG=PEMBERHENTIAN.diniGender||[];
@@ -12446,12 +12481,12 @@ function vPmbProfil(){
     const MK=PEMBERHENTIAN.masaKerja||[], R=PEMBERHENTIAN.ringkasMk||{};
     const mx=Math.max.apply(null,MK.map(function(x){return x.n;}).concat([1]));
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Masa Kerja Saat Berhenti</h2>'+
-      MK.map(function(x){return bar(x.kelompok+' tahun',x.n,mx,'',fmt(x.n)+' orang &middot; '+d1(x.pct)+'%');}).join('')+
+      MK.map(function(x){return bar(thnKel(x.kelompok),x.n,mx,'',fmt(x.n)+' orang &middot; '+d1(x.pct)+'%');}).join('')+
       '<div class="mini" style="margin-top:6px">Median '+d1(R.median)+' tahun. Masa kerja dihitung dari tanggal pengangkatan CPNS yang tersimpan pada NIP sampai tanggal berhenti.</div></div>';
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Bagian Perempuan di Tiap Kelompok Masa Kerja</h2><div class="tblw"><table><thead><tr>'+
       '<th style="text-align:left;min-width:160px">Masa kerja saat berhenti</th><th style="text-align:right">Berhenti</th><th style="text-align:right">Perempuan</th><th style="text-align:right">Bagian perempuan</th></tr></thead><tbody>'+
-      MK.map(function(x){return '<tr><td>'+esc(x.kelompok)+' tahun</td><td style="text-align:right">'+fmt(x.n)+'</td><td style="text-align:right">'+fmt(x.perempuan)+'</td><td style="text-align:right;'+(x.pctPerempuan>=50?'font-weight:600':'')+'">'+d1(x.pctPerempuan)+'%</td></tr>';}).join('')+
-      '</tbody></table></div><div class="mini" style="margin-top:6px">Perempuan adalah sekitar sepertiga pegawai Kementerian. Pada masa kerja di bawah lima tahun bagiannya di antara yang berhenti hampir dua pertiga, lalu terus menurun seiring masa kerja. Pola yang begitu teratur kecil kemungkinannya terjadi secara kebetulan.</div></div>';
+      MK.map(function(x){return '<tr><td>'+esc(thnKel(x.kelompok))+'</td><td style="text-align:right">'+fmt(x.n)+'</td><td style="text-align:right">'+fmt(x.perempuan)+'</td><td style="text-align:right;'+(x.pctPerempuan>=50?'font-weight:600':'')+'">'+d1(x.pctPerempuan)+'%</td></tr>';}).join('')+
+      '</tbody></table></div><div class="mini" style="margin-top:6px">Perempuan adalah sekitar sepertiga pegawai Kementerian. Pada masa kerja di bawah lima tahun bagiannya di antara yang berhenti hampir dua pertiga, lalu terus menurun seiring masa kerja.</div></div>';
   }
   h+=pmbCatatan();
   return h;}
@@ -12466,9 +12501,9 @@ function vPmbAlasan(){
       '<th style="text-align:left;min-width:240px">Kelompok alasan</th><th style="text-align:right">Laki-laki (orang)</th><th style="text-align:right">Laki-laki (%)</th><th style="text-align:right">Perempuan (orang)</th><th style="text-align:right">Perempuan (%)</th></tr></thead><tbody>'+
       AG.map(function(x){return '<tr><td>'+esc(x.label)+'</td><td style="text-align:right">'+pmbTahan(x.L)+'</td><td style="text-align:right">'+pmbNil(x.pctL,'%')+'</td><td style="text-align:right">'+pmbTahan(x.P)+'</td><td style="text-align:right;'+(x.pctP>=50?'font-weight:600':'')+'">'+pmbNil(x.pctP,'%')+'</td></tr>';}).join('')+
       '</tbody></table></div><div class="mini" style="margin-top:6px">Persen dihitung terhadap alasan yang terisi pada jenis kelamin masing-masing. Sel bertanda &lt; 5 orang dirahasiakan.</div></div>';
-    h+='<div class="note-box" style="margin-top:14px">Dua dunia yang berbeda. Alasan perempuan didominasi keluarga dan pengasuhan, dua pertiga dari yang terisi; alasan laki-laki tersebar antara keluarga, berwirausaha, dan pindah kerja. Kebijakan retensi yang satu tidak akan mengena pada keduanya.</div>';
+    h+='<div class="note-box" style="margin-top:14px">Alasan perempuan dan laki-laki berbeda. Alasan perempuan didominasi keluarga dan pengasuhan, dua pertiga dari yang terisi; alasan laki-laki tersebar antara keluarga, berwirausaha, dan pindah kerja. Kebijakan retensi yang satu tidak akan mengena pada keduanya.</div>';
   } else {
-    const isi=AL.filter(function(x){return x.kode!=='kosong';}), ks=AL.find(function(x){return x.kode==='kosong';})||{n:0};
+    const isi=AL.filter(function(x){return x.kode!=='kosong';}).sort(function(a,b){return ((a.kode==='lainnya')-(b.kode==='lainnya'))||(b.n-a.n);}), ks=AL.find(function(x){return x.kode==='kosong';})||{n:0};
     const mx=Math.max.apply(null,isi.map(function(x){return x.n;}).concat([1]));
     h+='<div class="card ph-lebar"><h2 class="sec" style="margin-top:0">Kelompok Alasan Berhenti</h2>'+
       isi.map(function(x){return bar(x.label,x.n,mx,'',fmt(x.n)+' &middot; '+d1(x.pctTerisi)+'%');}).join('')+
@@ -12485,10 +12520,10 @@ function vPmbIntegrasi(){
   let h=pmbTabBar('pmbinttab',tab,[['ganda','Pintu Keluar Ganda'],['sanding','Sandingan Penghargaan dan Cuti']]);
   if(tab==='sanding'){
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Tingkat Keluar Disandingkan dengan Penghargaan dan Cuti</h2><div class="tblw"><table><thead><tr>'+
-      '<th style="text-align:left;min-width:250px">Unit Eselon I</th><th style="text-align:right">Keluar per 10.000</th><th style="text-align:right">Pernah penghargaan prestasi (%)</th><th style="text-align:right">Riwayat penghargaan per 100</th><th style="text-align:right">Utilisasi hak cuti (%)</th></tr></thead><tbody>'+
-      S.map(function(x){return '<tr><td>'+esc(x.unit)+'</td><td style="text-align:right"><b>'+d1(x.per10rb)+'</b></td><td style="text-align:right">'+pmbNil(x.pctPenghargaan)+'</td><td style="text-align:right">'+pmbNil(x.riwayatPer100)+'</td><td style="text-align:right">'+pmbNil(x.utilisasiCuti)+(x.cutiParsial?' <span class="tag" title="Data cuti unit ini baru sebagian masuk HRIS">parsial</span>':'')+'</td></tr>';}).join('')+
+      '<th style="text-align:left;min-width:250px">Unit Eselon I</th><th style="text-align:right">Keluar per 10.000</th><th style="text-align:right">Pernah penghargaan prestasi (%)</th><th style="text-align:right">Riwayat penghargaan per 100</th><th style="text-align:right">Rata-rata cuti tahunan (hari kerja)</th></tr></thead><tbody>'+
+      S.map(function(x){return '<tr><td>'+esc(x.unit)+'</td><td style="text-align:right"><b>'+d1(x.per10rb)+'</b></td><td style="text-align:right">'+pmbNil(x.pctPenghargaan)+'</td><td style="text-align:right">'+pmbNil(x.riwayatPer100)+'</td><td style="text-align:right">'+(x.utilisasiCuti!=null?d1(x.utilisasiCuti*24/100):pmbNil(x.utilisasiCuti))+(x.cutiParsial?' <span class="tag" title="Data cuti unit ini baru sebagian masuk HRIS">sebagian</span>':'')+'</td></tr>';}).join('')+
       '</tbody></table></div><div class="mini" style="margin-top:6px">Penghargaan dari modul Penghargaan dan Apresiasi, cuti dari modul Analitik Cuti, disambung lewat nama unit. Unit bertanda sebagian datanya belum lengkap di HRIS.</div></div>';
-    h+='<div class="note-box warn" style="margin-top:14px"><b>Tidak ada hubungan yang sistematis, dan itu jawaban yang berguna.</b> Korelasi peringkat tingkat keluar dengan cakupan penghargaan hanya '+d1(KR.keluarVsPenghargaan)+' pada '+fmt(KR.nUnit)+' unit, praktis nol. Di dua ujungnya polanya memang menggoda: unit yang paling jarang ditinggalkan juga paling royal penghargaan, dan sebaliknya. Tetapi secara keseluruhan dugaan "unit yang pelit penghargaan lebih banyak ditinggalkan" tidak didukung data, sehingga halaman ini sengaja tidak menyiratkan sebab akibat.</div>';
+    h+='<div class="note-box warn" style="margin-top:14px"><b>Tidak terlihat hubungan yang sistematis.</b> Korelasi peringkat tingkat keluar dengan cakupan penghargaan hanya '+d1(KR.keluarVsPenghargaan)+' pada '+fmt(KR.nUnit)+' unit, praktis nol. Di kedua ujung memang ada unit yang jarang ditinggalkan sekaligus paling banyak mencatat penghargaan, dan sebaliknya. Namun secara keseluruhan dugaan bahwa unit yang jarang memberi penghargaan lebih banyak ditinggalkan tidak didukung data, sehingga halaman ini tidak menyiratkan sebab akibat.</div>';
   } else {
     const R=S.filter(function(x){return x.pensiun5Pct!=null;});
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Dua Pintu Keluar dalam Satu Tabel</h2><div class="tblw"><table><thead><tr>'+
@@ -12515,7 +12550,7 @@ function vPmbTentang(){
     '<tr><td>Tanggal berhenti tidak terbaca, dibuang dari tahunan</td><td style="text-align:right">'+fmt(Q.tmtTidakTerbaca)+'</td></tr>'+
     '<tr><td>Tahun di luar rentang, dibuang</td><td style="text-align:right">'+fmt(Q.tahunDiLuarRentang)+'</td></tr>'+
     '<tr><td>Baris sah yang dipakai</td><td style="text-align:right"><b>'+fmt(Q.sah)+'</b></td></tr>'+
-    '<tr><td>Alasan tidak diisi</td><td style="text-align:right">'+fmt(Q.alasanKosong)+'</td></tr>'+
+    '<tr><td>Alasan tidak diisi (pada baris sah)</td><td style="text-align:right">'+fmt(((PEMBERHENTIAN.alasan||[]).find(function(x){return x.kode==='kosong';})||{n:Q.alasanKosong}).n)+'</td></tr>'+
     '<tr><td>Alasan yang tidak terkelompok</td><td style="text-align:right">'+fmt(Q.alasanLainnya)+'</td></tr>'+
     '</tbody></table></div><div class="mini" style="margin-top:6px">Masa kerja dan jenis kelamin cadangan dibaca dari NIP: delapan digit pertama tanggal lahir, enam digit berikutnya tanggal pengangkatan CPNS, digit kelima belas jenis kelamin.</div></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Unit yang Tidak Diberi Tingkat</h2>'+
@@ -12548,9 +12583,12 @@ function phGuard(){
 
 function phTahan(v){return (v===-1||v==null)?'<span class="mini" title="Dirahasiakan: isinya kurang dari lima orang">&lt; 5 orang</span>':fmt(v);}
 function phPct(v){return (v==null)?'<span class="mini" title="Tidak dihitung: isinya kurang dari lima orang">-</span>':(d1(v)+'%');}
+function thnKel(k){k=String(k||'');return /ke atas$/.test(k)?k.replace(/ ke atas$/,'')+' tahun ke atas':k+' tahun';}
 function phKelas(k){var x=(PENGHARGAAN.kelas||[]).find(function(y){return y.kode===k;});return x?x.label:k;}
 function phCatatanBaca(){
-  return '<div class="note-box" style="margin-top:14px"><b>Dua hal yang perlu diingat saat membaca angka di modul ini.</b> Pertama, PILAR mencatat penghargaan yang <b>dilaporkan</b> pegawai, bukan yang diberikan; pegawai yang tidak pernah mengunggah riwayatnya tampak seolah tidak pernah menerima apa pun, sehingga seluruh cakupan adalah cakupan pencatatan. Kedua, Satyalancana Karya Satya diberikan otomatis menurut masa kerja, sehingga setiap pembacaan prestasi menyisihkannya.</div>';}
+  return '<div class="mini lp-src">Angka berasal dari riwayat yang diunggah pegawai ke PILAR, sehingga yang terukur adalah cakupan pencatatan. Satyalancana Karya Satya tidak dihitung sebagai prestasi karena diberikan otomatis menurut masa kerja.</div>';}
+
+var PH_KEL_LAB={otomatis:'Otomatis (Satyalancana)',resmi:'Resmi (Nagara Dana, KMK 325)',diskresi:'Prestasi dan apresiasi'};
 function phTabBar(act,pilih,daftar){
   return '<div class="pgtabs">'+daftar.map(function(x){return '<button class="pgtab'+(pilih===x[0]?' on':'')+'" data-act="'+act+'" data-tab="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>';}
 
@@ -12573,7 +12611,7 @@ function vPh(){
   
   h+='<div class="lp-kpis">'
     +lpSel('phprofil','Pernah Menerima Prestasi',lpPct(C.pctPrestasi),fmt(C.prestasi)+' dari '+fmt(M.pegawai)+' pegawai')
-    +lpSel('phprofil','Belum Pernah Tercatat',lpPct(C.pctBelum),fmt(C.belum)+' pegawai, umumnya masa kerja di bawah 10 tahun')
+    +lpSel('phprofil','Belum Tercatat Penghargaan Apa Pun',lpPct(C.pctBelum),fmt(C.belum)+' pegawai, umumnya masa kerja di bawah 10 tahun')
     +lpSel('phprofil','Eselon II',lpPct(jEs2.pctPrestasi||0),'pernah menerima; Pelaksana '+d1(jPel.pctPrestasi||0)+'%')
     +lpSel('phjenis','Satyalancana',lpPct(kel('otomatis').pct),'dari '+fmt(M.riwayat)+' riwayat, diberikan otomatis')
     +lpSel('phtren','Nagara Dana (KMK 325)',fmt(kel('resmi').n),'riwayat penghargaan resmi Kementerian')
@@ -12581,20 +12619,21 @@ function vPh(){
   
   h+='<div class="lp-grid">';
   h+='<div class="lp-c7">'+lpKartu('phunit','Cakupan Penghargaan Prestasi per Unit Eselon I','Persen pegawai yang pernah menerima. Rata-rata Kementerian '+d1(C.pctPrestasi)+'%.',
-      lpBaris(UA.map(function(x){return {lab:lpUnit(x.unit),n:x.pctPrestasi,teks:d1(x.pctPrestasi)+'% <small>'+fmt(x.pegawai)+' peg.</small>',col:x.pctPrestasi>=C.pctPrestasi?'var(--seq-7)':'var(--seq-3)',title:namaResmi(x.unit)+': '+fmt(x.punyaPrestasi||0)+' dari '+fmt(x.pegawai)+' pegawai'};}),{kls:'lp-bars-lebar'})+
+      lpBaris(UA.map(function(x){return {lab:lpUnit(x.unit),n:x.pctPrestasi,teks:d1(x.pctPrestasi)+'% <small>dari '+fmt(x.pegawai)+'</small>',col:x.pctPrestasi>=C.pctPrestasi?'var(--seq-7)':'var(--seq-3)',title:namaResmi(x.unit)+': '+fmt(x.punyaPrestasi||0)+' dari '+fmt(x.pegawai)+' pegawai'};}),{kls:'lp-bars-lebar'})+
       lpLeg([{lab:'Di atas rata-rata Kementerian',col:'var(--seq-7)'},{lab:'Di bawah rata-rata',col:'var(--seq-3)'}]))+'</div>';
   h+='<div class="lp-c5">'+lpKartu('phprofil','Menurut Jenjang Jabatan','Persen pegawai yang pernah menerima penghargaan prestasi. Jenjang dengan kurang dari 100 pegawai tidak ditampilkan.',
-      lpBaris(J.filter(function(x){return x.pegawai>=100;}).map(function(x){return {lab:x.kelompok,n:x.pctPrestasi,teks:d1(x.pctPrestasi)+'% <small>'+fmt(x.pegawai)+' peg.</small>'};}),{max:100,kls:'lp-bars-lebar'}))+'</div>';
+      lpBaris(J.filter(function(x){return x.pegawai>=100;}).map(function(x){return {lab:x.kelompok,n:x.pctPrestasi,teks:d1(x.pctPrestasi)+'% <small>dari '+fmt(x.pegawai)+'</small>'};}),{max:100,kls:'lp-bars-lebar'}))+'</div>';
   const TH=(PENGHARGAAN.tahunan||[]);
   const thB=TH.find(function(x){return x.berjalan;});
-  h+='<div class="lp-c7">'+lpKartu('phtren','Penghargaan Prestasi per Tahun','Tanpa Satyalancana. '+(thB?'Angka '+thB.tahun+' baru sebagian tahun.':''),
+  const THu=TH.filter(function(x){return !x.berjalan;});
+  h+='<div class="lp-c7">'+lpKartu('phtren','Penghargaan Prestasi per Tahun','Tanpa Satyalancana. '+(thB?'Tahun '+thB.tahun+' tidak digambar karena belum lengkap.':''),
       lpLeg([{lab:'Prestasi dan apresiasi',col:'var(--seq-5)'},{lab:'Resmi KMK 325',col:'var(--seq-7)'}])+
-      lpKolom(TH.map(function(x){return {lab:String(x.tahun),v:{d:x.diskresi||0,r:x.resmi||0}};}),[{k:'d',lab:'Prestasi dan apresiasi',col:'var(--seq-5)'},{k:'r',lab:'Resmi KMK 325',col:'var(--seq-7)'}],{w:540,h:230,aria:'Penghargaan prestasi per tahun'}))+'</div>';
-  const TP=(PENGHARGAAN.tingkatPemberi||[]).filter(function(x){return x.kode!=='tidak';});
+      lpKolom(THu.map(function(x){return {lab:String(x.tahun),v:{d:x.diskresi||0,r:x.resmi||0}};}),[{k:'d',lab:'Prestasi dan apresiasi',col:'var(--seq-5)'},{k:'r',lab:'Resmi KMK 325',col:'var(--seq-7)'}],{w:540,h:230,aria:'Penghargaan prestasi per tahun'}))+'</div>';
+  const TP=(PENGHARGAAN.tingkatPemberi||[]);
   h+='<div class="lp-c5 lp-stack">'
     +lpKartu('phjenis','Tiga Kelompok Penghargaan',fmt(M.riwayat)+' riwayat penghargaan',
-      lpStk([{lab:'Otomatis (Satyalancana)',n:kel('otomatis').n,col:'var(--seq-3)'},{lab:'Prestasi dan apresiasi',n:kel('diskresi').n,col:'var(--seq-5)'},{lab:'Resmi KMK 325',n:kel('resmi').n,col:'var(--seq-7)'}]))
-    +lpKartu('phjenis','Pemberi Penghargaan Prestasi','Persen dari riwayat yang pemberinya terbaca',
+      lpStk([{lab:PH_KEL_LAB.otomatis,n:kel('otomatis').n,col:'var(--seq-3)'},{lab:PH_KEL_LAB.diskresi,n:kel('diskresi').n,col:'var(--seq-5)'},{lab:PH_KEL_LAB.resmi,n:kel('resmi').n,col:'var(--seq-7)'}]))
+    +lpKartu('phjenis','Pemberi Penghargaan Prestasi','Persen dari '+fmt(kel('diskresi').n)+' riwayat prestasi dan apresiasi',
       lpBaris(TP.map(function(x){return {lab:x.label,n:x.pct,teks:d1(x.pct)+'%'};}),{kls:'lp-bars-lebar'}))
     +'</div>';
   h+='</div>';
@@ -12660,18 +12699,18 @@ function vPhProfil(){
     const MK=PENGHARGAAN.perMasaKerja||[];
     const mx=Math.max.apply(null,MK.map(function(x){return x.pctApaPun;}).concat([1]));
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Pernah Menerima Apa Pun, menurut Masa Kerja</h2>'+
-      MK.map(function(x){return bar(x.kelompok+' tahun',x.pctApaPun,mx,'',d1(x.pctApaPun)+'% dari '+fmt(x.pegawai));}).join('')+
+      MK.map(function(x){return bar(thnKel(x.kelompok),x.pctApaPun,mx,'',d1(x.pctApaPun)+'% dari '+fmt(x.pegawai));}).join('')+
       '<div class="mini" style="margin-top:6px">Lonjakan tepat di ambang sepuluh tahun adalah jejak Satyalancana Karya Satya: tanda kehormatan itu diberikan menurut masa kerja, bukan prestasi.</div></div>';
     const mx2=Math.max.apply(null,MK.map(function(x){return x.pctPrestasi;}).concat([1]));
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Pernah Menerima Penghargaan Prestasi, menurut Masa Kerja</h2>'+
-      MK.map(function(x){return bar(x.kelompok+' tahun',x.pctPrestasi,mx2,'',d1(x.pctPrestasi)+'% dari '+fmt(x.pegawai));}).join('')+
+      MK.map(function(x){return bar(thnKel(x.kelompok),x.pctPrestasi,mx2,'',d1(x.pctPrestasi)+'% dari '+fmt(x.pegawai));}).join('')+
       '<div class="mini" style="margin-top:6px">Begitu Satyalancana disisihkan, kurvanya datar: pegawai yang bekerja tiga puluh tahun tidak lebih mungkin pernah menerima penghargaan prestasi daripada yang bekerja tujuh tahun. Penghargaan prestasi tidak menumpuk seiring lamanya bekerja.</div></div>';
   } else {
     const J=PENGHARGAAN.perJenjang||[];
     const mx=Math.max.apply(null,J.map(function(x){return x.pctPrestasi;}).concat([1]));
     h+='<div class="card ph-lebar"><h2 class="sec" style="margin-top:0">Cakupan Penghargaan Prestasi menurut Jenjang Jabatan</h2>'+
       J.map(function(x){return bar(x.kelompok,x.pctPrestasi,mx,'',d1(x.pctPrestasi)+'% dari '+fmt(x.pegawai)+' pegawai');}).join('')+
-      '<div class="mini" style="margin-top:6px">Pembanding Kementerian '+d1(C.pctPrestasi)+' persen. Makin tinggi jenjang, makin besar peluang pernah tercatat menerima penghargaan prestasi. Eselon I hanya 16 orang, sehingga angkanya mudah berubah.</div></div>';
+      '<div class="mini" style="margin-top:6px">Pembanding Kementerian '+d1(C.pctPrestasi)+' persen. Pada jabatan struktural, makin tinggi jenjang makin besar peluang pernah tercatat menerima penghargaan prestasi. Eselon I hanya 16 orang, sehingga angkanya mudah berubah.</div></div>';
   }
   h+=phCatatanBaca();
   return h;}
@@ -12695,11 +12734,11 @@ function vPhJenis(){
       '<div class="mini" style="margin-top:6px">Hanya penghargaan non-otomatis yang dihitung, sebab Satyalancana selalu dari Presiden. Pemberi dibakukan ke tingkatnya, bukan nama pejabatnya. Lebih dari separuh berasal dari pimpinan Eselon I dan kepala kantor, yang menegaskan bahwa sistem penghargaan yang hidup adalah sistem tingkat unit.</div></div>';
   } else {
     const dKel=['otomatis','resmi','diskresi'].map(function(k){var x=KG.find(function(y){return y.kode===k;})||{n:0};return {v:x.n,c:PH_WARNA[k]};});
-    h+='<div class="card"><h2 class="sec" style="margin-top:0">Otomatis, Resmi, dan Berbasis Keputusan</h2>'+
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Tiga Kelompok Penghargaan</h2>'+
       '<div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap"><div style="flex:0 0 auto">'+donut(dKel,160,{big:fmt(PENGHARGAAN.meta.riwayat),small:'RIWAYAT'})+'</div><div style="flex:1;min-width:280px">'+
-      KG.map(function(x){return '<div style="display:flex;align-items:center;gap:8px;margin:6px 0"><span style="width:12px;height:12px;border-radius:3px;background:'+PH_WARNA[x.kode]+';display:inline-block"></span><span style="flex:1">'+esc(x.label)+'</span><b>'+fmt(x.n)+'</b><span class="mini">'+d1(x.pct)+'%</span></div>';}).join('')+
+      KG.map(function(x){return '<div style="display:flex;align-items:center;gap:8px;margin:6px 0"><span style="width:12px;height:12px;border-radius:3px;background:'+PH_WARNA[x.kode]+';display:inline-block"></span><span style="flex:1">'+esc(PH_KEL_LAB[x.kode]||x.label)+'</span><b>'+fmt(x.n)+'</b><span class="mini">'+d1(x.pct)+'%</span></div>';}).join('')+
       '</div></div>'+
-      '<div class="mini" style="margin-top:6px">Tiga kelompok ini bobotnya tidak setara dan tidak boleh dijumlahkan sebagai ukuran prestasi. Yang otomatis mengukur masa kerja, yang resmi mengukur seleksi Kementerian, dan yang berbasis keputusan mencampur segala tingkat dari sertifikat kantor sampai penghargaan internasional.</div></div>';
+      '<div class="mini" style="margin-top:6px">Tiga kelompok ini bobotnya tidak setara dan tidak boleh dijumlahkan sebagai ukuran prestasi. Yang otomatis mengukur masa kerja, yang resmi mengukur seleksi Kementerian, dan kelompok prestasi dan apresiasi mencampur segala tingkat, dari sertifikat kantor sampai penghargaan internasional.</div></div>';
   }
   h+=phCatatanBaca();
   return h;}
@@ -12721,16 +12760,16 @@ function vPhTren(){
       th.map(function(y){return '<th style="text-align:right">'+y+(String(y)==='2026'?'*':'')+'</th>';}).join('')+'<th style="text-align:right">Jumlah</th></tr></thead><tbody>'+
       ND.map(function(x){var tot=0;return '<tr><td>'+esc(x.label)+'</td>'+th.map(function(y){var v=x.perTahun[y]||0;tot+=v;return '<td style="text-align:right">'+(v?fmt(v):'<span class="mini">0</span>')+'</td>';}).join('')+'<td style="text-align:right"><b>'+fmt(tot)+'</b></td></tr>';}).join('')+
       '</tbody></table></div><div class="mini" style="margin-top:6px">Tanda bintang menandai tahun berjalan yang datanya belum utuh. Nagara Dana Abyakta ditujukan pada unit kerja, sehingga baris pegawai yang mencatatnya adalah anggota unit penerima.</div></div>';
-    h+='<div class="note-box" style="margin-top:14px">Sistem resmi baru berjalan sejak 2022 dan jumlahnya masih ratusan setahun, sementara penghargaan berbasis keputusan secara keseluruhan sudah ribuan. Modul ini bisa dipakai memantau apakah bagian sistem resmi membesar dari tahun ke tahun, yang menjadi ukuran apakah penyeragaman menurut buku manual berjalan.</div>';
+    h+='<div class="note-box" style="margin-top:14px">Sistem resmi baru berjalan sejak 2022 dan jumlahnya masih ratusan setahun, sementara penghargaan prestasi dan apresiasi sudah ribuan setahun. Modul ini bisa dipakai memantau apakah bagian sistem resmi membesar dari tahun ke tahun, yang menjadi ukuran apakah penyeragaman menurut buku manual berjalan.</div>';
   } else if(tab==='tabel'){
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Jumlah Riwayat per Tahun</h2><div class="tblw"><table><thead><tr><th style="text-align:left">Tahun</th>'+
-      '<th style="text-align:right">Otomatis</th><th style="text-align:right">Resmi KMK 325</th><th style="text-align:right">Prestasi dan apresiasi</th><th style="text-align:right">Total</th><th style="text-align:right">Bagian berbasis keputusan</th></tr></thead><tbody>'+
+      '<th style="text-align:right">Otomatis</th><th style="text-align:right">Resmi KMK 325</th><th style="text-align:right">Prestasi dan apresiasi</th><th style="text-align:right">Total</th><th style="text-align:right">Bagian prestasi dan resmi</th></tr></thead><tbody>'+
       T.map(function(x){var bk=x.total?100*(x.resmi+x.diskresi)/x.total:0;return '<tr'+(x.berjalan?' style="opacity:.7"':'')+'><td>'+x.tahun+(x.berjalan?' <span class="mini">(berjalan, belum utuh)</span>':'')+'</td><td style="text-align:right">'+fmt(x.otomatis)+'</td><td style="text-align:right">'+fmt(x.resmi)+'</td><td style="text-align:right">'+fmt(x.diskresi)+'</td><td style="text-align:right"><b>'+fmt(x.total)+'</b></td><td style="text-align:right">'+d1(bk)+'%</td></tr>';}).join('')+
       '</tbody></table></div><div class="mini" style="margin-top:6px">Tahun mengikuti tahun penghargaan yang dicatat pegawai, bukan tahun pengunggahan. Satyalancana 2026 baru dua baris karena pemrosesannya berjalan berbatch dan belum masuk PILAR.</div></div>';
   } else {
-    h+='<div class="card"><h2 class="sec" style="margin-top:0">Otomatis dan Berbasis Keputusan, Tahun demi Tahun</h2>'+
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Otomatis dan Prestasi, Tahun demi Tahun</h2>'+
       cutiLine(lbl,[{n:'Otomatis',v:TK.map(function(x){return x.otomatis;}),c:PH_WARNA.otomatis,area:true},{n:'Prestasi dan apresiasi',v:TK.map(function(x){return x.diskresi;}),c:PH_WARNA.diskresi,area:true}],{w:760,h:250,pR:130})+
-      '<div class="mini" style="margin-top:6px">Kurva memuat tahun yang datanya utuh saja; tahun berjalan ada pada tab Rincian per Tahun. Penghargaan berbasis keputusan naik lebih dari sepuluh kali lipat sejak 2015. Kenaikan sejak 2021 terjadi bersamaan dengan makin rutinnya pengunggahan riwayat ke PILAR, sehingga sebagian kenaikan berasal dari pencatatan, bukan pemberian.</div></div>';
+      '<div class="mini" style="margin-top:6px">Kurva memuat tahun yang datanya utuh saja; tahun berjalan ada pada tab Rincian per Tahun. Penghargaan prestasi dan apresiasi naik lebih dari sepuluh kali lipat sejak 2015. Kenaikan sejak 2021 terjadi bersamaan dengan makin rutinnya pengunggahan riwayat ke PILAR, sehingga sebagian kenaikan berasal dari pencatatan, bukan pemberian.</div></div>';
     h+='<div class="card"><h2 class="sec" style="margin-top:0">Sistem Resmi KMK 325 pada Skalanya Sendiri</h2>'+
       cutiLine(lbl,[{n:'Nagara Dana',v:TK.map(function(x){return x.resmi;}),c:PH_WARNA.resmi,area:true}],{w:760,h:200,pR:90})+
       '<div class="mini" style="margin-top:6px">Digambar terpisah karena skalanya ratusan, bukan ribuan; bila disatukan dengan kurva di atas garisnya nyaris tidak terlihat. Rinciannya per jenis ada pada tab Nagara Dana.</div></div>';
@@ -12753,7 +12792,7 @@ function vPhRujukan(){
     '</tbody></table></div><div class="mini" style="margin-top:6px">Bila pegawai atau tim memiliki beberapa prestasi, dipilih satu kategori dengan dampak terbesar.</div></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Aspek Penilaian dan Alur Pengusulan</h2>'+
     '<p style="margin:0 0 8px"><b>Tujuh aspek penilaian umum:</b> '+esc((R.aspekPenilaian||[]).join('; '))+'. Penilaian khusus mengukur dampak sesuai kategorinya, berbasis bukti melalui Kertas Kerja Penilaian.</p>'+
-    (R.alur||[]).map(function(x,i){return '<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)"><span style="min-width:24px;font-weight:800;color:var(--brand)">'+(i+1)+'</span><span>'+esc(x)+'</span></div>';}).join('')+
+    (R.alur||[]).map(function(x,i){return '<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)"><span style="min-width:24px;font-weight:800;color:var(--brand)">'+(i+1)+'</span><span>'+esc(String(x).replace('clearance check','pemeriksaan rekam jejak'))+'</span></div>';}).join('')+
     '<div class="mini" style="margin-top:8px">Tenggat penyampaian usulan dari Unit Eselon I kepada Kepala Biro SDM selaku Sekretaris Komite Penghargaan: <b>'+esc(R.tenggat||'')+'</b>. Dokumen pendukung: Kertas Kerja Penilaian, ringkasan prestasi, video paling lama tiga menit, dan bukti capaian.</div></div>';
   return h;}
 
@@ -12799,6 +12838,9 @@ function sukPct(a,b){return b?String(Math.round(1000*a/b)/10).replace('.',','):'
 function sukNum(x){return String(x==null?'-':x).replace('.',',');}
 
 
+
+function sukTahunPuncak(T,bt,puncak){var th=T.filter(function(x){return x.tahun<=bt&&x.total===puncak.total;}).map(function(x){return x.tahun;}).sort();
+  return th.length>1?th.slice(0,-1).join(', ')+' dan '+th[th.length-1]:String(puncak.tahun||'-');}
 function sukZona(p){return p>=50?'critical':(p>=33?'warn':'good');}
 function sukZonaLab(p){return p>=50?'Tinggi':(p>=33?'Sedang':'Rendah');}
 function sukPillZona(p){var z=sukZona(p);return '<span class="pill '+(z==='critical'?'warn':(z==='warn'?'vio':'neu'))+'">'+sukZonaLab(p)+'</span>';}
@@ -12886,7 +12928,7 @@ function vSuksesi(){
   const KR=(SUKSESI.kritikal||[]).filter(function(x){return x.n>=MINJAB;});
   const kritTop=KR[0]||{};
   
-  var s='Sampai akhir '+bt+', <b>'+fmt(L.total)+' dari '+fmt(tot)+' pejabat</b> ('+d1(L.pct)+'%) akan mencapai batas usia pensiun. Dalam lima tahun itu, jumlah terbanyak terjadi pada '+(puncak.tahun||'-')+' dengan '+fmt(puncak.total||0)+' orang. ';
+  var s='Sampai akhir '+bt+', <b>'+fmt(L.total)+' dari '+fmt(tot)+' pejabat</b> ('+d1(L.pct)+'%) akan mencapai batas usia pensiun. Dalam lima tahun itu, jumlah terbanyak terjadi pada '+sukTahunPuncak(T,bt,puncak)+' dengan '+fmt(puncak.total||0)+' orang'+(T.filter(function(x){return x.tahun<=bt&&x.total===puncak.total;}).length>1?' setiap tahunnya':'')+'. ';
   s+='Lapisan yang paling banyak berganti adalah Eselon II struktural: <b>'+fmt(es2.pensiun5)+' dari '+fmt(es2.n)+'</b> pejabat ('+d1(es2.pensiun5Pct)+'%) pensiun dalam lima tahun';
   if(kritTop.jabatan)s+=', dan pada jabatan '+esc(kritTop.jabatan)+' porsinya '+d1(kritTop.pensiun5Pct)+'%';
   s+='. Pengisian jabatan perlu dijadwalkan mengikuti tahun pensiun, dan calon pengganti perlu disiapkan lebih awal di unit yang calonnya sedikit.';
@@ -13159,8 +13201,8 @@ function vSukSimulasi(){
   h+='<div class="note-box warn" style="margin-top:14px"><b>Batasan yang harus dibaca lebih dulu.</b> Deret pensiun tahunan tidak terpecah menurut eselon, padahal batas usia pensiun struktural sendiri berbeda, yaitu '+
     ((M.bup&&M.bup.struktural&&M.bup.struktural['2'])||60)+' tahun bagi Eselon II dan '+
     ((M.bup&&M.bup.struktural&&M.bup.struktural['4'])||58)+' tahun bagi Eselon III serta IV. Simulasi ini karena itu memperlakukan kenaikan sebagai kebijakan menyeluruh pada jalur yang Anda pilih, bukan kenaikan yang berbeda per jenjang. '+
-    'Batas usia pensiun juga bukan kewenangan Kementerian, melainkan diatur peraturan perundang-undangan, sehingga halaman ini adalah alat menakar dampak, bukan usulan kebijakan.</div>';
-  h+='<div class="note-box" style="margin-top:14px">Pergeserannya dihitung pasti, bukan perkiraan: seseorang yang semula mencapai batas usia pada '+
+    'Batas usia pensiun diatur peraturan perundang-undangan di luar kewenangan Kementerian, sehingga halaman ini adalah alat menakar dampak, bukan usulan kebijakan.</div>';
+  h+='<div class="note-box" style="margin-top:14px">Pergeseran dihitung untuk setiap pejabat: seseorang yang semula mencapai batas usia pada '+
     th[0]+' akan mencapainya pada '+(th[0]+N)+' apabila batasnya naik '+N+' tahun. Yang tidak diperhitungkan adalah hal di luar demografi, yaitu pengunduran diri, promosi ke Eselon I, mutasi keluar Kementerian, dan penataan organisasi.</div>';
   return h;}
 
@@ -13271,7 +13313,7 @@ function vSukAntrean(){
 
 function vSukKritikal(){
   const g=sukGuard();if(g)return g;
-  const K=SUKSESI.kritikal||[], bt=sukBatas();
+  const K=(SUKSESI.kritikal||[]).filter(function(x){return x.n>=((SUKSESI.meta&&SUKSESI.meta.minSel)||5);}), bt=sukBatas();
   const berat=K.filter(function(x){return x.pensiun5Pct>=50;});
   const kursiBerat=berat.reduce(function(s,x){return s+x.pensiun5;},0);
   let h='<div class="kpis">'+
@@ -13292,7 +13334,7 @@ function vSukKritikal(){
         '<td style="text-align:center">'+sukPillZona(x.pensiun5Pct)+'</td><td style="text-align:right">'+x.medianUsia+'</td>'+
         '<td>'+esc(x.unitTeratas)+'</td></tr>';}).join('')+
     '</tbody></table></div>'+sukCatatanBup()+'</div>';
-  h+='<div class="note-box" style="margin-top:14px">Jabatan berzona tinggi berarti lebih dari separuh pemangkunya berganti dalam lima tahun. Pada jabatan yang memimpin kantor pelayanan, pergantian serentak seperti ini berdampak langsung pada kesinambungan layanan, sehingga penyiapan calon dan masa alih tugas perlu dijadwalkan dari sekarang. Sebaliknya, jabatan berzona rendah dengan pemangku banyak dapat menjadi sumber calon pengganti bagi jabatan di atasnya.</div>';
+  h+='<div class="note-box" style="margin-top:14px">Jabatan berzona tinggi berarti separuh pemangkunya atau lebih berganti dalam lima tahun; zona sedang berarti sepertiga sampai kurang dari separuh. Pada jabatan yang memimpin kantor pelayanan, pergantian serentak seperti ini berdampak langsung pada kesinambungan layanan, sehingga penyiapan calon dan masa alih tugas perlu dijadwalkan dari sekarang. Sebaliknya, jabatan berzona rendah dengan pemangku banyak dapat menjadi sumber calon pengganti bagi jabatan di atasnya.</div>';
   return h;}
 
 
@@ -13344,10 +13386,10 @@ function vSukPopulasi(){
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Komposisi per Eselon dan Jalur</h2><div class="tblw"><table><thead><tr>'+
     '<th style="text-align:left">Jalur</th><th style="text-align:left">Setara</th><th style="text-align:right">Jumlah</th>'+
     '<th style="text-align:right">Perempuan</th><th style="text-align:right">Persen perempuan</th>'+
-    '<th style="text-align:right">Usia p25</th><th style="text-align:right">Median</th><th style="text-align:right">p75</th>'+
+    '<th style="text-align:right" title="Seperempat pejabat berusia di bawah angka ini">Usia Seperempat Termuda</th><th style="text-align:right">Usia Tengah</th><th style="text-align:right" title="Seperempat pejabat berusia di atas angka ini">Usia Seperempat Tertua</th>'+
     '<th style="text-align:right">Pensiun 5 tahun</th></tr></thead><tbody>'+
     PE.map(function(x){return '<tr><td>'+(x.jalur==='struktural'?'Struktural':'Fungsional setara')+'</td><td>'+ES[x.eselon]+
-      (x.jenjang&&x.jenjang.length?' <span class="mini">('+esc(x.jenjang.join(', '))+')</span>':'')+'</td>'+
+      (x.jenjang&&x.jenjang.length?' <span class="mini">('+esc(x.jenjang.join(', ').replace(/\bJKH\b/g,'Fungsional Ahli'))+')</span>':'')+'</td>'+
       '<td style="text-align:right">'+fmt(x.n)+'</td><td style="text-align:right">'+fmt(x.wanita)+'</td>'+
       '<td style="text-align:right">'+sukNum(x.wanitaPct)+'%</td>'+
       '<td style="text-align:right">'+x.usia.p25+'</td><td style="text-align:right">'+x.usia.median+'</td><td style="text-align:right">'+x.usia.p75+'</td>'+
@@ -13365,23 +13407,23 @@ function vSukPopulasi(){
       Math.round(100*t.p/mxs)+'%" title="Pria '+fmt(t.p)+'"></div></div>'+
       '<div class="mini" style="width:92px;text-align:center">'+esc(b.rentang)+'</div>'+
       '<div style="flex:1"><div style="height:16px;border-radius:0 3px 3px 0;background:var(--seq-3);width:'+
-      Math.round(100*t.w/mxs)+'%" title="Wanita '+fmt(t.w)+'"></div></div>'+
+      Math.round(100*t.w/mxs)+'%" title="Perempuan '+fmt(t.w)+'"></div></div>'+
       '<div class="num" style="width:70px;text-align:right">'+fmt(t.n)+'</div></div>';});
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Piramida Usia Pejabat</h2>'+pir+
     '<div class="mini" style="margin-top:8px"><span style="display:inline-block;width:10px;height:10px;background:var(--brand);border-radius:2px"></span> pria (kiri) &nbsp; '+
-    '<span style="display:inline-block;width:10px;height:10px;background:var(--seq-3);border-radius:2px"></span> wanita (kanan). Kelompok yang isinya sangat sedikit tidak ditampilkan demi privasi, sehingga jumlah baris bisa sedikit lebih besar daripada penjumlahan kedua sisinya.</div></div>';
+    '<span style="display:inline-block;width:10px;height:10px;background:var(--seq-3);border-radius:2px"></span> perempuan (kanan). Kelompok yang isinya sangat sedikit tidak ditampilkan demi privasi, sehingga jumlah baris bisa sedikit lebih besar daripada penjumlahan kedua sisinya.</div></div>';
   
   const gs=PE.filter(function(x){return x.jalur==='struktural';}).sort(function(a,b){return b.eselon-a.eselon;});
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Persen Perempuan menurut Jenjang</h2>'+
     PE.slice().sort(function(a,b){return (a.jalur===b.jalur)?(b.eselon-a.eselon):(a.jalur<b.jalur?1:-1);}).map(function(x){
       return bar((x.jalur==='struktural'?'Struktural ':'Fungsional ')+ES[x.eselon],x.wanitaPct,Math.max(30,...PE.map(function(y){return y.wanitaPct;})),'',sukNum(x.wanitaPct)+'% &middot; '+fmt(x.wanita)+' orang');}).join('')+
-    '<div class="mini" style="margin-top:6px">Porsi perempuan paling rendah ada di Eselon III, bukan di Eselon II. Angka Eselon II perlu dibaca hati-hati karena jumlah pejabatnya kecil, sehingga persennya mudah berubah oleh beberapa orang saja.</div></div>';
+    '<div class="mini" style="margin-top:6px">Pada jalur struktural, porsi perempuan paling rendah ada di Eselon III. Angka Eselon II perlu dibaca hati-hati karena jumlah pejabatnya kecil, sehingga persennya mudah berubah oleh beberapa orang saja.</div></div>';
   return h;}
 
 
 function vSukEs2(){
   const g=sukGuard();if(g)return g;
-  const semua=SUKSESI.unitEs2||[], bt=sukBatas();
+  const semua=(SUKSESI.unitEs2||[]).filter(function(x){return x.n>=((SUKSESI.meta&&SUKSESI.meta.minSel)||5);}), bt=sukBatas();
   const q=(state.sukEs2Q||'').toLowerCase().trim(), fu=state.sukEs2UE1||'';
   const ue1=[...new Set(semua.map(function(x){return x.ue1;}))].sort();
   const rows=semua.filter(function(x){
@@ -13393,7 +13435,7 @@ function vSukEs2(){
     ue1.map(function(u){return '<option value="'+esc(u)+'"'+(fu===u?' selected':'')+'>'+esc(u)+'</option>';}).join('')+'</select>'+
     '<span class="mini">'+fmt(rows.length)+' dari '+fmt(semua.length)+' unit</span></div>';
   const nTaut=semua.filter(function(x){return !!sukOtkId(x.unitOtk);}).length;
-  h+='<div class="note-box">Ini satu-satunya modul yang datanya turun sampai unit Eselon II. Modul lain (beban kerja, kapabilitas, pelimpahan wewenang, tata kelola) berhenti di Eselon I, sehingga tabel ini menjadi penghubung menuju Profil 360 unit pada modul Struktur Organisasi. '+
+  h+='<div class="note-box">Data pejabat ini turun sampai unit Eselon II, seperti modul Analitik Cuti dan Risiko Bencana. Modul beban kerja, kapabilitas, pelimpahan wewenang, dan tata kelola berhenti di Eselon I, sehingga tabel ini menjadi penghubung menuju Profil 360 unit pada modul Struktur Organisasi. '+
     fmt(nTaut)+' dari '+fmt(semua.length)+' unit sudah bertaut ke pohon organisasi dan namanya bisa diklik; sisanya sebagian besar kantor vertikal dan unit pelaksana teknis, yang pintu masuknya berbeda sehingga belum ditautkan.</div>';
   h+='<div class="card"><div class="tblw"><table><thead><tr>'+
     '<th style="text-align:left">Unit Eselon II</th><th style="text-align:left">Eselon I</th>'+
@@ -13475,7 +13517,7 @@ function vSukTentang(){
     ((K.angkatanTerbesar&&K.angkatanTerbesar.length)?('<div class="mini" style="margin-top:8px">Angkatan CPNS terbesar: '+
       K.angkatanTerbesar.slice(0,6).map(function(a){return a.tahun+' ('+fmt(a.n)+' orang)';}).join(', ')+
       '. Angkatan besar inilah yang nanti pensiun pada waktu yang berdekatan.</div>'):'')+'</div>';
-  h+='<div class="note-box" style="margin-top:14px"><b>Privasi.</b> '+esc(sederhana(String(M.privasi||'')).replace(/sel bermuatan di bawah (\d+) ditahan/,'sel yang isinya kurang dari $1 orang dirahasiakan'))+
+  h+='<div class="note-box" style="margin-top:14px"><b>Privasi.</b> '+esc(sederhana(String(M.privasi||'')).replace(/sel bermuatan di bawah (\d+) ditahan/,'unit atau jabatan yang pejabatnya kurang dari $1 orang tidak ditampilkan'))+
     ' Kajian yang menjadi rujukan ukuran ini memuat skor lima pejabat Eselon I yang disebut namanya; skor individual itu sengaja tidak dibawa ke dashboard, dan yang dipakai hanya rubrik penilaiannya.</div>';
   h+='<div class="note-box warn" style="margin-top:14px"><b>Batasan yang perlu diingat.</b> Proyeksi ini hanya menghitung usia. Perpanjangan batas usia pensiun, promosi ke Eselon I, pengunduran diri, mutasi keluar Kementerian, dan penataan organisasi tidak diperhitungkan. Angka pensiun juga bukan angka kebutuhan rekrutmen, karena sebagian besar kursi akan terisi oleh promosi dari dalam.</div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Pengembangan Berikutnya</h2><p style="margin:0">Prioritas permintaan data berikutnya kepada Biro SDM: riwayat jabatan dan mutasi (untuk menghitung dimensi Riwayat Jabatan secara otomatis), riwayat penghargaan (dimensi Prestasi atau Pengakuan), pendidikan terakhir, serta nilai kinerja. Dengan empat tambahan itu, sebagian besar rubrik profesionalitas dapat dihitung dari basis data tanpa penilaian manual.</p></div>';
@@ -14936,7 +14978,7 @@ function setFootNote(){
 
 
 
-const VERSI_DATA={"beranda":{"f":"beranda.json","h":"32a5e6c41846"},"bencana":{"f":"bencana.json","h":"c83aa52b72dc"},"perumahan":{"f":"perumahan.json","h":"c13934fa4e72"},"katref":{"f":"katref.json","h":"07c0a9cd624e"},"inklusi":{"f":"inklusi.json","h":"f610289812ba"},"cuti":{"f":"cuti.json","h":"3d8fc87659ea"},"suksesi":{"f":"suksesi.json","h":"447c9c078e23"},"penghargaan":{"f":"penghargaan.json","h":"05f6d228ba2f"},"pemberhentian":{"f":"pemberhentian.json","h":"0ac85fd7f4bd"},"kj":{"f":"komjab.json","h":"f844ff60bffb"},"kjk":{"f":"kamuskom.json","h":"bd6c8d472be4"},"jf":{"f":"jafung.json","h":"f359ef51668b"},"tk":{"f":"tkpp.json","h":"68b8d9687f03"},"pw":{"f":"pelwen.json","h":"27a0e4a24423"},"abk":{"f":"abk.json","h":"99e8ba6d8e43"},"urjab":{"f":"urjab.json","h":"86554555f562"},"katalog":{"f":"katalog_keahlian.json","h":"ee0ac439751d"},"otk":{"f":"otk_bundle.json","h":"e251ff00da59"},"mofin":{"f":"mofin.json","h":"14f31da45936"}},VERSI_BEDA={};
+const VERSI_DATA={"beranda":{"f":"beranda.json","h":"32a5e6c41846"},"bencana":{"f":"bencana.json","h":"c83aa52b72dc"},"perumahan":{"f":"perumahan.json","h":"c13934fa4e72"},"katref":{"f":"katref.json","h":"07c0a9cd624e"},"inklusi":{"f":"inklusi.json","h":"3c928220f3ff"},"cuti":{"f":"cuti.json","h":"3d8fc87659ea"},"suksesi":{"f":"suksesi.json","h":"447c9c078e23"},"penghargaan":{"f":"penghargaan.json","h":"05f6d228ba2f"},"pemberhentian":{"f":"pemberhentian.json","h":"0ac85fd7f4bd"},"kj":{"f":"komjab.json","h":"f844ff60bffb"},"kjk":{"f":"kamuskom.json","h":"bd6c8d472be4"},"jf":{"f":"jafung.json","h":"f359ef51668b"},"tk":{"f":"tkpp.json","h":"68b8d9687f03"},"pw":{"f":"pelwen.json","h":"27a0e4a24423"},"abk":{"f":"abk.json","h":"99e8ba6d8e43"},"urjab":{"f":"urjab.json","h":"86554555f562"},"katalog":{"f":"katalog_keahlian.json","h":"ee0ac439751d"},"otk":{"f":"otk_bundle.json","h":"e251ff00da59"},"mofin":{"f":"mofin.json","h":"14f31da45936"}},VERSI_BEDA={};
 
 
 
