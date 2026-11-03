@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-PnTS5h8LTFKymFn2vMQzgKDR3NvE8GZF/Y6WTtniIlI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-Z2X941CHAhjdUZm5iMHQlT+78ip1PCkVDa5T2qhSoiE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -1933,6 +1933,11 @@ function ensureBencana(){if(BENCANA||state.rbnLoading)return;state.rbnLoading=tr
 let PERUMAHAN=null;const PERUMAHAN_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?perumahan=1';
 async function loadPerumahan(){if(PERUMAHAN)return PERUMAHAN;let d=null;if(REMOTE){d=await apiUnduh('perumahan',{});}else if(PERUMAHAN_URL){const r=await fetch(PERUMAHAN_URL);d=await r.json();}else{return PERUMAHAN;}
   if(!d||!d.tarif)throw new Error((d&&d.err)||'perumahan-unavailable');PERUMAHAN=d;return PERUMAHAN;}
+let BUDAYA=null;const BUDAYA_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?budaya=1';
+async function loadBudaya(){if(BUDAYA)return BUDAYA;let d=null;if(REMOTE){d=await apiUnduh('budaya',{});}else if(BUDAYA_URL){const r=await fetch(BUDAYA_URL);d=await r.json();}else{return BUDAYA;}
+  if(!d||!d.ind)throw new Error((d&&d.err)||'budaya-unavailable');BUDAYA=d;return BUDAYA;}
+function ensureBudaya(){if(BUDAYA||state.budLoading)return;state.budLoading=true;state.budErr=false;progStart();
+  loadBudaya().then(()=>{state.budLoading=false;progDone();render();}).catch((e)=>{state.budLoading=false;progDone();state.budErr=true;state.budErrMsg=String((e&&e.message)||'');render();});}
 function ensurePerumahan(){if(PERUMAHAN||state.rmhLoading)return;state.rmhLoading=true;state.rmhErr=false;progStart();
   loadPerumahan().then(()=>{state.rmhLoading=false;progDone();render();}).catch((e)=>{state.rmhLoading=false;progDone();state.rmhErr=true;state.rmhErrMsg=String((e&&e.message)||'');render();});}
 let INKLUSI=null;const INKLUSI_URL='https://script.google.com/macros/s/AKfycbzwJTs6LLxVJ44kt6AmaPlLc9UV9K_eWQQZOpdrYAtn677QnM7Q2tOdqv58Os7e3I53/exec?inklusi=1';
@@ -2842,6 +2847,7 @@ const ICONP={
  pemberhentian:'<path d="M13 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h7"/><path d="M16 8l4 4-4 4"/><path d="M9 12h11"/>',
  bencana:'<path d="M12 3l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6"/>',
  perumahan:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+ budaya:'<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M14.5 14.6c.8-.4 1.6-.6 2.5-.6 2.8 0 4 2 4 5"/>',
  orang:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.4A5 5 0 0 1 21 19.5"/>',
  kronis:'<path d="M3 12h4l2-5 4 10 2-5h6"/>',
  inklusi:'<circle cx="12" cy="5" r="2"/><path d="M12 8v6"/><path d="M8.5 10.5L12 9l3.5 1.5"/><path d="M9.5 21l2.5-7 2.5 7"/><path d="M4 17a8 8 0 0 1 2-5"/>',
@@ -2943,6 +2949,15 @@ const MODULES=[
    {grp:'Kebutuhan Hunian',items:[{v:'rmhdinas',lab:'Rumah Dinas'},{v:'rmhsurvei',lab:'Survei Rent to Own'}]},
    {grp:'Rujukan',items:[{v:'rmhtentang',lab:'Tentang Data'}]},
  ]},
+ 
+
+ {id:'budaya',icn:'budaya',lab:'Budaya Organisasi',groups:[
+   {grp:'',items:[{v:'bud',lab:'Ikhtisar'}]},
+   {grp:'Nilai & Perilaku',items:[{v:'budnilai',lab:'Nilai dan Perilaku'},{v:'budunit',lab:'Per Unit Eselon I'},{v:'budprofil',lab:'Profil Responden'}]},
+   {grp:'Iklim Kerja',items:[{v:'budpenguatan',lab:'Penguatan Budaya'},{v:'budisu',lab:'Isu Budaya'},{v:'budkinerja',lab:'Kinerja dan Hierarki'}]},
+   {grp:'Suara & Kaitan',items:[{v:'budsuara',lab:'Suara Pegawai'},{v:'budlayanan',lab:'Menurut Layanan'},{v:'budkaitan',lab:'Kaitan Lintas Modul'}]},
+   {grp:'Rujukan',items:[{v:'budmutu',lab:'Mutu Data'},{v:'budtentang',lab:'Tentang Data'}]},
+ ]},
  {id:'pemberhentian',icn:'pemberhentian',lab:'Pemberhentian & Retensi',groups:[
    {grp:'',items:[{v:'pmb',lab:'Ikhtisar'}]},
    {grp:'Pola',items:[{v:'pmbtren',lab:'Tren Tahunan'},{v:'pmbunit',lab:'Tingkat Keluar per Unit'},{v:'pmbprofil',lab:'Profil yang Berhenti'}]},
@@ -3016,6 +3031,7 @@ const MODDOMAIN={
   inklusi:'sdm',         
   bencana:'sdm',         
   perumahan:'sdm',       
+  budaya:'sdm',          
   takelola:'tatakelola', unitremote:'tatakelola',
   layanan:'layananpublik'
 };
@@ -3039,6 +3055,7 @@ const MODKET={
   katalog:'Katalog keahlian baku: 3.217 sub-keahlian dalam 10 bidang.',
   katref:'Katalog referensi baku ber-kode: Produk ABK, Jabatan, Proses Bisnis, Norma Waktu, Unit & Kantor, Layanan, Aplikasi, Kewenangan.',
   cuti:'Pola pemanfaatan cuti pegawai: tren, musiman, unit, demografi, kategori sakit, proyeksi, hingga simulasi kebijakan.',
+  budaya:'Budaya organisasi: penerapan nilai BerAKHLAK dan nilai Kementerian menurut pegawai dan pejabat, iklim kerja, isu budaya, dan suara pegawai dari Survei Kematangan Budaya 2025.',
   perumahan:'Bantuan perumahan pegawai: kebutuhan hunian pegawai yang bertugas di luar homebase, simulasi anggaran bantuan sewa, rumah dinas, dan minat kepemilikan rumah lewat Rent to Own.',
   bencana:'Risiko bencana di kantor tempat pegawai bekerja: di mana pegawai menghadapi risiko tinggi, kantor mana yang paling berisiko, dan seberapa terkumpul pimpinan di satu titik rawan. Peta sungguhan setingkat kelurahan.',
   inklusi:'Kesiapan organisasi bagi pegawai penyandang disabilitas: dukungan organisasi, kebutuhan akomodasi, dan rekrutmen khusus. Seluruh angka gabungan, tanpa nama dan tanpa NIP.',
@@ -3050,7 +3067,7 @@ const MODKET={
 };
 const DOMDESC={
   organisasi:'Struktur, proses bisnis, jabatan, kompetensi, beban kerja, dan kapabilitas organisasi.',
-  sdm:'Pegawai dari masuk sampai pensiun: cuti, suksesi pejabat, penghargaan, pemberhentian, disabilitas, penyakit kronis, risiko bencana, serta bantuan perumahan.',
+  sdm:'Pegawai dari masuk sampai pensiun: cuti, suksesi pejabat, penghargaan, pemberhentian, disabilitas, penyakit kronis, risiko bencana, bantuan perumahan, serta budaya organisasi.',
   tatakelola:'Pelimpahan wewenang menteri dan perangkat kerja lintas unit.',
   layananpublik:'Zona Integritas, kepuasan layanan, kepatuhan pelayanan, inovasi, dan kantor terbaik.',
   katalog:'Daftar acuan berkode yang dipakai bersama oleh semua kluster.'
@@ -3077,6 +3094,7 @@ const MENUKET={
   cuti:'Ringkasan pemanfaatan cuti pegawai lintas jenis dan tahun.',cutitren:'Tren bulanan dan pola musiman pengajuan cuti.',cutiunit:'Cuti tiap unit Eselon I, dapat ditelusuri sampai Eselon II.',cutiwilayah:'Sebaran cuti menurut kota tempat kantor berada.',cutiutilisasi:'Pemakaian cuti tahunan dibanding hak dasar 12 hari kerja.',cutikualitas:'Kepatuhan terhadap ketentuan hak cuti dan mutu rekaman data.',cutidemografi:'Sebaran cuti menurut kelompok usia dan gender.',cutipola:'Pola hari mulai/selesai cuti dan kalender kapasitas kehadiran.',cutisakit:'Kategori alasan cuti sakit hasil pengolahan teks.',cutiprediksi:'Perkiraan beban cuti dari pola musim tahun-tahun sebelumnya.',cutisimulasi:'Simulasi dampak perubahan ambang potongan tunjangan (PMK 221/PMK.01/2021).',cutitentang:'Sumber, cakupan, kualitas, dan batasan data cuti.',
   
   rmh:'Ringkasan kebutuhan hunian pegawai dan usulan bantuan sewa rumah.',rmhsim:'Perkiraan anggaran bantuan sewa per tahun menurut kelompok sasaran dan konstanta.',rmhtarif:'Tarif hotel SBM per provinsi dan besaran bantuan yang dihasilkan.',rmhdinas:'Kondisi rumah dinas dan kecukupannya di daerah terpencil.',rmhprobis:'Alur bantuan sewa yang berlaku dan usulan kajian.',rmhsurvei:'Minat kepemilikan rumah dan kemampuan bayar pegawai dari survei Rent to Own.',rmhbanding:'Bantuan sewa rumah di kementerian dan lembaga lain.',rmhtentang:'Sumber, asumsi, dan data yang sedang ditunggu.',
+  bud:'Ringkasan penerapan nilai budaya menurut pegawai dan pejabat.',budnilai:'Tujuh nilai BerAKHLAK, lima nilai Kementerian, dan 25 butir perilaku.',budunit:'Skor, sebaran, dan selisih penilaian per unit Eselon I.',budprofil:'Skor budaya menurut jabatan, generasi, jenis kelamin, pendidikan, dan masa kerja.',budpenguatan:'Dukungan organisasi, supervisi, kelompok kerja, kepercayaan, dan pekerjaan menantang menurut pejabat.',budisu:'Stigma generasi, pimpinan menengah, aktor budaya, serta kultur dan subkultur.',budkinerja:'Persepsi kinerja diri dan stabilitas hierarki.',budsuara:'Tema saran dan masukan pegawai dan pejabat.',budlayanan:'Skor budaya menurut layanan yang ditangani pegawai.',budkaitan:'Budaya disandingkan dengan pemberhentian, penghargaan, cuti, dan suksesi.',budmutu:'Jawaban seragam, penilaian diri, dan catatan atas laporan survei.',budtentang:'Sumber, cara hitung, dan rambu privasi.',
   rbn:'Ringkasan risiko bencana di tempat kerja pegawai.',rbnpeta:'Peta kelurahan tempat kantor berada menurut risiko bencana.',rbnjenis:'Sebaran pegawai menurut tingkat risiko tiap jenis bencana, termasuk yang kelurahannya belum terpetakan.',rbnganda:'Kantor yang berisiko tinggi untuk beberapa bencana sekaligus.',rbnunit:'Risiko tiap unit Eselon I menurut jenis bencana.',rbnprov:'Risiko tiap provinsi, dengan peta.',rbnkantor:'Daftar kantor diurutkan menurut risiko, dengan peta yang terhubung ke tabel.',rbnpusat:'Pimpinan dan fungsi pusat yang terkumpul di satu kelurahan rawan.',rbntentang:'Sumber, cara membaca, dan batas data.',
   ink:'Ringkasan kesiapan organisasi bagi pegawai penyandang disabilitas.',inkkronis:'Ringkasan pegawai dengan penyakit kronis: jenis penyakit, penempatan, dan kemampuan bekerja.',inkkrtempat:'Tempat bekerja dan jenjang jabatan pegawai dengan penyakit kronis.',inkkrmampu:'Penilaian unit atas kemampuan bekerja pegawai dengan penyakit kronis.',inkkrtentang:'Sumber, kategori penyakit, dan rambu privasi data penyakit kronis.',inksurvei:'Penilaian pegawai penyandang disabilitas atas dukungan organisasi, sembilan butir.',inkprofil:'Komposisi kondisi, penyebab, dan kebutuhan akomodasi yang harus disediakan.',inkrekrut:'Formasi khusus disabilitas dan berapa yang terisi.',inkunit:'Jumlah pegawai dengan penyakit kronis per Eselon I beserta pola penempatannya.',inktentang:'Sumber, cara olah, dan rambu privasi modul ini.',
   pmb:'Ringkasan pegawai yang berhenti sebelum batas usia pensiun.',pmbtren:'Jumlah dan tingkat pemberhentian per tahun, tahun berjalan ditandai.',pmbunit:'Tingkat keluar per unit Eselon I, termasuk perbandingan perempuan dan laki-laki.',pmbprofil:'Usia, masa kerja, dan angkatan pegawai yang berhenti, dengan ukuran yang adil antarangkatan.',pmbalasan:'Alasan berhenti dari teks bebas, dikelompokkan dan dipecah menurut jenis kelamin.',pmbintegrasi:'Pintu keluar ganda bersama pensiun, dan sandingan dengan penghargaan serta cuti.',pmbtentang:'Sumber, penyebut, cara membersihkan, mutu data, dan rambu privasi.',
@@ -3105,6 +3123,7 @@ const MENUOBJ={
   kj:'Mengetahui sejauh mana jabatan sudah punya standar kompetensi.',kjrumpun:'Memahami pengelompokan bidang tugas yang menaungi kompetensi.',kjstandar:'Menemukan standar kompetensi jabatan tertentu dengan cepat.',kjdetail:'Membaca kompetensi satu jabatan sampai indikator perilakunya.',kjksa:'Menemukan jabatan yang membutuhkan suatu keahlian.',kjkamus:'Merujuk definisi dan tingkatan tiap kompetensi secara baku.',kjksajpt:'Mengetahui keahlian yang dituntut dari pimpinan tinggi.',kjjf:'Merujuk standar kompetensi jabatan fungsional sesuai jenjangnya.',kjmansos:'Mengetahui level kompetensi manajerial yang dituntut tiap jenjang.',kjkeahlian:'Merujuk definisi keahlian secara baku.',kjcakupan:'Menyusun daftar kerja jabatan yang belum berstandar.',kjrantai:'Memastikan proses bisnis didukung kompetensi jabatan yang tepat.',kjtaksonomi:'Menyelaraskan penamaan rumpun antara data dan acuan.',kjubah:'Memahami arah perubahan tuntutan kompetensi.',kjproyeksi:'Memperkirakan waktu penyelesaian standar kompetensi.',kjprioritas:'Menentukan jabatan yang didahulukan penyusunan standarnya.',katpeta:'Mengecek apakah kantor sejenis punya pola beban yang serupa.',kjtentang:'Memahami batasan data sebelum memakainya untuk keputusan.',
   cuti:'Memantau pemanfaatan cuti pegawai secara menyeluruh.',cutitren:'Mengantisipasi lonjakan pengajuan cuti pada periode tertentu.',cutiunit:'Membandingkan intensitas cuti antar unit secara adil.',cutiwilayah:'Melihat perbedaan pola cuti antar wilayah kerja.',cutiutilisasi:'Memastikan hak istirahat pegawai benar-benar dimanfaatkan.',cutikualitas:'Menemukan rekaman cuti yang perlu diperiksa dan diperbaiki.',cutidemografi:'Memahami profil risiko cuti menurut usia dan gender.',cutipola:'Merencanakan kapasitas kehadiran dan jadwal kegiatan besar.',cutisakit:'Memahami penyebab cuti sakit untuk menyiapkan langkah kesehatan.',cutiprediksi:'Memperkirakan beban cuti mendatang untuk perencanaan.',cutisimulasi:'Menguji dampak usulan revisi kebijakan potongan tunjangan.',cutitentang:'Memahami sumber, cakupan, dan batasan data cuti.',
   rmh:'Memahami besarnya kebutuhan hunian pegawai yang dimutasi.',rmhsim:'Menimbang pilihan sasaran dan konstanta sebelum kebijakan ditetapkan.',rmhtarif:'Memeriksa apakah tarif SBM mencerminkan biaya sewa di tiap daerah.',rmhdinas:'Menimbang pemanfaatan rumah dinas sebelum bantuan tunai.',rmhprobis:'Melihat bagian alur yang masih perlu dirancang.',rmhsurvei:'Membaca minat dan kemampuan bayar pegawai untuk skema kepemilikan rumah.',rmhbanding:'Belajar dari kebijakan serupa di instansi lain.',rmhtentang:'Memahami batas angka sebelum dipakai.',
+  bud:'Melihat seberapa kuat nilai budaya diterapkan dan di mana penguatannya perlu difokuskan.',budnilai:'Menemukan nilai dan perilaku yang paling perlu diperkuat.',budunit:'Menemukan unit yang pelembagaan budayanya tertinggal.',budprofil:'Mengenali kelompok pegawai yang penerapan budayanya lebih rendah.',budpenguatan:'Menilai dukungan sistem dan pimpinan bagi penguatan budaya.',budisu:'Mengantisipasi gesekan antargenerasi dan antarsubkultur.',budkinerja:'Membaca kaitan budaya dengan kinerja dan struktur kewenangan.',budsuara:'Mendengar apa yang paling sering diminta pegawai.',budlayanan:'Menyandingkan budaya petugas dengan layanan yang ditanganinya.',budkaitan:'Mencari unit yang perlu ditelaah lintas modul SDM.',budmutu:'Memahami batas angka sebelum dipakai.',budtentang:'Memahami asal dan cara hitung angka.',
   rbn:'Menilai seberapa besar pegawai menghadapi risiko bencana di tempat kerja.',rbnpeta:'Melihat sebaran risiko sampai tingkat kelurahan.',rbnjenis:'Menentukan jenis bencana yang paling perlu disiapkan.',rbnganda:'Menemukan kantor yang perlu rencana untuk beberapa bencana.',rbnunit:'Membandingkan risiko antarunit Eselon I.',rbnprov:'Membandingkan risiko antarprovinsi.',rbnkantor:'Menentukan kantor yang didahulukan dalam rencana kesiapsiagaan.',rbnpusat:'Menilai kerentanan kelangsungan kerja pimpinan dan fungsi pusat.',rbntentang:'Menelusuri asal angka dan batas penggunaannya.',
   ink:'Menilai kesiapan organisasi menjadi tempat kerja yang inklusif.',inkkronis:'Melihat gambaran besar penyakit kronis pegawai sebelum menata penempatan.',inkkrtempat:'Menimbang penempatan dan mutasi pegawai dengan penyakit kronis.',inkkrmampu:'Mengetahui seberapa banyak pegawai mampu bekerja normal kembali.',inkkrtentang:'Menelusuri asal angka dan batas penggunaannya.',inksurvei:'Menemukan di mana dukungan organisasi paling lemah.',inkprofil:'Memperkirakan jenis dan besar akomodasi yang perlu disediakan.',inkrekrut:'Mengetahui mengapa formasi khusus disabilitas tidak pernah terisi penuh.',inkunit:'Melihat sebaran beban akomodasi dan kelengkapan pendataan antarunit.',inktentang:'Menelusuri asal angka dan batas penggunaannya.',
   pmb:'Menilai seberapa besar Kementerian kehilangan pegawai sebelum waktunya.',pmbtren:'Memantau arah pemberhentian dari tahun ke tahun.',pmbunit:'Menemukan unit yang paling sering ditinggalkan pegawainya.',pmbprofil:'Mengenali pada titik karier mana pegawai memilih pergi.',pmbalasan:'Memahami sebab yang paling sering ditulis pegawai yang berhenti.',pmbintegrasi:'Melihat tekanan pengisian jabatan dari dua pintu sekaligus.',pmbtentang:'Memahami batas pembacaan data pemberhentian.',
@@ -3399,6 +3418,7 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   cuti:'Ringkasan Cuti Pegawai',cutitren:'Tren & Musiman Cuti',cutiunit:'Profil Unit',cutiwilayah:'Sebaran Wilayah',cutiutilisasi:'Pemakaian Hak Cuti Tahunan',cutikualitas:'Kepatuhan & Mutu Data',cutidemografi:'Demografi & Gender Cuti',cutipola:'Pola Hari & Kalender Kapasitas',cutisakit:'Kategori Cuti Sakit',cutiprediksi:'Proyeksi Beban Cuti',cutisimulasi:'Simulasi Kebijakan PMK 221',cutitentang:'Tentang Data Cuti',
   ink:'Ikhtisar Disabilitas & Inklusi',inkkronis:'Ikhtisar Penyakit Kronis',inkkrtempat:'Penempatan & Jabatan',inkkrmampu:'Kemampuan Bekerja',inkkrtentang:'Tentang Data Penyakit Kronis',inksurvei:'Dukungan Organisasi',inkprofil:'Profil & Kebutuhan Akomodasi',inkrekrut:'Rekrutmen Inklusif',inkunit:'Sebaran per Unit',inktentang:'Tentang Data Disabilitas & Inklusi',
   rmh:'Ikhtisar Bantuan Perumahan',rmhsim:'Simulasi Anggaran Bantuan Sewa',rmhtarif:'Tarif per Provinsi',rmhdinas:'Rumah Dinas',rmhprobis:'Proses Bisnis Bantuan Sewa',rmhsurvei:'Survei Rent to Own',rmhbanding:'Pembanding Kementerian dan Lembaga',rmhtentang:'Tentang Data Bantuan Perumahan',
+  bud:'Ikhtisar Budaya Organisasi',budnilai:'Nilai dan Perilaku',budunit:'Budaya per Unit Eselon I',budprofil:'Profil Responden',budpenguatan:'Penguatan Budaya',budisu:'Isu Budaya',budkinerja:'Kinerja dan Hierarki',budsuara:'Suara Pegawai',budlayanan:'Budaya menurut Layanan',budkaitan:'Kaitan Lintas Modul',budmutu:'Mutu Data Survei Budaya',budtentang:'Tentang Data Budaya Organisasi',
   rbn:'Ikhtisar Risiko Bencana',rbnpeta:'Peta Sebaran Risiko Bencana',rbnjenis:'Risiko per Jenis Bencana',rbnganda:'Risiko Ganda',rbnunit:'Risiko per Unit Eselon I',rbnprov:'Risiko per Provinsi',rbnkantor:'Kantor Paling Berisiko',rbnpusat:'Konsentrasi Pimpinan & Kantor Pusat',rbntentang:'Tentang Data Risiko Bencana',
   pmb:'Ikhtisar Pemberhentian & Retensi',pmbtren:'Tren Pemberhentian Tahunan',pmbunit:'Tingkat Keluar per Unit Eselon I',pmbprofil:'Profil Pegawai yang Berhenti',pmbalasan:'Alasan Berhenti',pmbintegrasi:'Kaitan Pemberhentian dengan Modul Lain',pmbtentang:'Tentang Data Pemberhentian',
   ph:'Ikhtisar Penghargaan & Apresiasi',phunit:'Pemerataan Penghargaan per Unit Eselon I',phprofil:'Profil Penerima Penghargaan',phjenis:'Komposisi Jenis Penghargaan',phtren:'Tren Penghargaan Tahunan',phrujukan:'Sistem Penghargaan Kementerian (KMK 325)',phtentang:'Tentang Data Penghargaan',
@@ -8142,6 +8162,9 @@ function vKatData(){
     {d:'Bantuan Perumahan (simulasi SBM 2026, kajian bantuan sewa, survei Rent to Own)',f:'perumahan.json',m:'Bantuan Perumahan (domain SDM)',a:'Gerbang \u00b7 saat menu dibuka',
      s:()=>!!(typeof PERUMAHAN==='object'&&PERUMAHAN&&PERUMAHAN.tarif),p:()=>{var m=(PERUMAHAN&&PERUMAHAN.meta)||{};return 'Diolah '+(m.dibuat||'-')+', '+(m.posisi||'')+', tanpa identitas';},
      u:'build_perumahan.py lalu ganti isi file di Drive (File ID tetap)',o:'Excel simulasi SBM 2026 \u00b7 kajian bantuan sewa \u00b7 survei Rent to Own PT SMF'},
+    {d:'Budaya Organisasi (Survei Kematangan Budaya 2025, pegawai dan pejabat)',f:'budaya.json',m:'Budaya Organisasi (domain SDM)',a:'Gerbang \u00b7 saat menu dibuka',
+     s:()=>!!(typeof BUDAYA==='object'&&BUDAYA&&BUDAYA.ind),p:()=>{var m=(BUDAYA&&BUDAYA.meta)||{};return 'Diolah '+(m.dibuat||'-')+', survei '+(m.periode||'')+', tanpa identitas';},
+     u:'build_budaya.py lalu ganti isi file di Drive (File ID tetap)',o:'Dataset individu dan organisasi Survei Kematangan Budaya 2025 \u00b7 laporan Biro SDM'},
     {d:'Disabilitas & Inklusi serta Penyakit Kronis',f:'inklusi.json',m:'Disabilitas & Inklusi dan Penyakit Kronis (domain SDM)',a:'Gerbang \u00b7 saat menu dibuka',
      s:()=>!!(typeof INKLUSI==='object'&&INKLUSI&&INKLUSI.survei),p:()=>{var m=(INKLUSI&&INKLUSI.meta)||{};return 'Diolah '+(m.dibuat||'-')+', agregat Eselon I, tanpa nama dan NIP';},
      u:'build_inklusi.py lalu ganti isi file di Drive (File ID tetap)',o:'Pendataan disabilitas dan penyakit kronis \u00b7 Biro Sumber Daya Manusia'},
@@ -8831,6 +8854,7 @@ var TD_DATA={
   mk:{ok:function(){return mkSiap();},muat:function(){ensureMkFull();}},
   bencana:{ok:function(){return typeof BENCANA!=='undefined'&&!!BENCANA;},muat:function(){ensureBencana();}},
   perumahan:{ok:function(){return typeof PERUMAHAN!=='undefined'&&!!PERUMAHAN;},muat:function(){ensurePerumahan();}},
+  budaya:{ok:function(){return typeof BUDAYA!=='undefined'&&!!BUDAYA;},muat:function(){ensureBudaya();}},
   cuti:{ok:function(){return typeof CUTI!=='undefined'&&!!CUTI;},muat:function(){ensureCuti();}},
   suksesi:{ok:function(){return typeof SUKSESI!=='undefined'&&!!SUKSESI;},muat:function(){ensureSuksesi();}},
   penghargaan:{ok:function(){return typeof PENGHARGAAN!=='undefined'&&!!PENGHARGAAN;},muat:function(){ensurePenghargaan();}},
@@ -9428,6 +9452,7 @@ function render(){
   if(state.view.indexOf('ink')===0&&!INKLUSI&&!state.inkLoading&&!state.inkErr)ensureInklusi();
   if(state.view.indexOf('rbn')===0&&!BENCANA&&!state.rbnLoading&&!state.rbnErr)ensureBencana();
   if(state.view.indexOf('rmh')===0&&!PERUMAHAN&&!state.rmhLoading&&!state.rmhErr)ensurePerumahan();
+  if(state.view.indexOf('bud')===0&&!BUDAYA&&!state.budLoading&&!state.budErr)ensureBudaya();
   if(state.view==='beranda'&&!BERANDA&&!state.brLoading&&!state.brErr)ensureBeranda();
   if(state.view.indexOf('cuti')===0&&!CUTI&&!state.cutiLoading)ensureCuti();
   if(state.view.indexOf('kj')===0&&!KOMJ&&!state.kompLoading)ensureKomjab();
@@ -9461,6 +9486,7 @@ function render(){
     pmb:vPmb,pmbtren:vPmbTren,pmbunit:vPmbUnit,pmbprofil:vPmbProfil,pmbalasan:vPmbAlasan,pmbintegrasi:vPmbIntegrasi,pmbtentang:vPmbTentang,
     ink:vInk,inkkronis:vInkKronis,inkkrtempat:vInkKrTempat,inkkrmampu:vInkKrMampu,inkkrtentang:vInkKrTentang,inksurvei:vInkSurvei,inkprofil:vInkProfil,inkrekrut:vInkRekrut,inkunit:vInkUnit,inktentang:vInkTentang,
     rmh:vRmh,rmhsim:vRmhSim,rmhtarif:vRmhTarif,rmhdinas:vRmhDinas,rmhprobis:vRmhProbis,rmhsurvei:vRmhSurvei,rmhbanding:vRmhBanding,rmhtentang:vRmhTentang,
+    bud:vBud,budnilai:vBudNilai,budunit:vBudUnit,budprofil:vBudProfil,budpenguatan:vBudPenguatan,budisu:vBudIsu,budkinerja:vBudKinerja,budsuara:vBudSuara,budlayanan:vBudLayanan,budkaitan:vBudKaitan,budmutu:vBudMutu,budtentang:vBudTentang,
     rbn:vRbn,rbnpeta:vRbnPeta,rbnjenis:vRbnJenis,rbnganda:vRbnGanda,rbnunit:vRbnUnit,rbnprov:vRbnProv,rbnkantor:vRbnKantor,rbnpusat:vRbnPusat,rbntentang:vRbnTentang,
     ph:vPh,phunit:vPhUnit,phprofil:vPhProfil,phjenis:vPhJenis,phtren:vPhTren,phrujukan:vPhRujukan,phtentang:vPhTentang,
     suksesi:vSuksesi,sukpensiun:vSukPensiun,sukunit:vSukUnit,suktempo:vSukTempo,suksimulasi:vSukSimulasi,sukantrean:vSukAntrean,sukkritikal:vSukKritikal,sukregen:vSukRegen,sukpopulasi:vSukPopulasi,sukes2:vSukEs2,sukinstrumen:vSukInstrumen,suktentang:vSukTentang,
@@ -11639,6 +11665,361 @@ function vRbnTentang(){
        return '<li>'+esc(c)+'</li>';}).join('')+'</ul></div>';
   return h;
 }
+
+
+
+
+
+
+
+function budGuard(){
+  if(state.budErr)return '<div class="empty">Gagal memuat data Budaya Organisasi'+(state.budErrMsg?': '+esc(state.budErrMsg):'')+'.'+
+    ' <span class="tag link" data-act="budulang">Coba lagi &rsaquo;</span></div>';
+  if(!BUDAYA)return skelMemuat('Memuat data budaya organisasi...');
+  return null;}
+function budTab(k,pilih,daftar){
+  return '<div class="pgtabs">'+daftar.map(function(x){return '<button class="pgtab'+(pilih===x[0]?' on':'')+'" data-act="budtab" data-k="'+k+'" data-tab="'+x[0]+'">'+x[1]+'</button>';}).join('')+'</div>';}
+function budS(v){return v==null?'<span class="mini">&lt; 10 responden</span>':d1(v);}
+function budKat(v){return v==null?'-':v>=90?'Sangat tinggi':v>=80?'Tinggi':v>=70?'Sedang':v>=60?'Rendah':'Sangat rendah';}
+function budKode(u){return {SETJEN:'Setjen',DJA:'DJA',DJP:'DJP',DJBC:'DJBC',DJPB:'DJPb',DJKN:'DJKN',DJPK:'DJPK',DJPPR:'DJPPR',ITJEN:'Itjen',BPPK:'BPPK',LNSW:'LNSW',BATII:'BATII',DJSPSK:'DJSPSK',DJSEF:'DJSEF'}[u]||u;}
+function budRk(k){return String(k||'').replace(' - ',' sampai ').replace('Orang','orang');}
+function budSedang(L){var k=L.kat||{};return (k.s||0)+(k.r||0)+(k.sr||0);}
+function budSelisih(){var I={},O={};BUDAYA.ind.perUnit.forEach(function(x){I[x.kode]=x;});BUDAYA.org.perUnit.forEach(function(x){O[x.kode]=x;});
+  return BUDAYA.ind.perUnit.map(function(x){var o=O[x.kode]||{};return {kode:x.kode,unit:x.unit,ind:x.skor,org:o.skor,nI:x.n,nO:o.n,sel:(x.skor!=null&&o.skor!=null)?Math.round(10*(o.skor-x.skor))/10:null};});}
+
+
+function budDot(rows,opt){opt=opt||{};var mn=opt.min!=null?opt.min:80,mx=opt.max!=null?opt.max:100;
+  var W=opt.w||560,lw=opt.lw||170,rw=78,rh=26,pt=22,H=pt+rows.length*rh+8,iw=W-lw-rw;
+  var X=function(v){return lw+iw*(Math.max(mn,Math.min(mx,v))-mn)/(mx-mn);};
+  var g='';for(var t=mn;t<=mx;t+=(opt.step||5)){var x=X(t);g+='<line x1="'+x.toFixed(1)+'" y1="'+(pt-6)+'" x2="'+x.toFixed(1)+'" y2="'+(H-6)+'" stroke="var(--line)" stroke-width="1"/>'+
+    '<text x="'+x.toFixed(1)+'" y="'+(pt-10)+'" font-size="10.5" fill="var(--muted)" text-anchor="middle">'+t+'</text>';}
+  rows.forEach(function(r,i){var y=pt+i*rh+rh/2;
+    g+='<text x="'+(lw-10)+'" y="'+(y+4)+'" font-size="11.5" fill="var(--ink)" text-anchor="end">'+esc(r.lab)+'</text>';
+    if(r.a!=null&&r.b!=null)g+='<line x1="'+X(r.a).toFixed(1)+'" y1="'+y+'" x2="'+X(r.b).toFixed(1)+'" y2="'+y+'" stroke="var(--line)" stroke-width="3" stroke-linecap="round"/>';
+    if(r.b!=null)g+='<circle cx="'+X(r.b).toFixed(1)+'" cy="'+y+'" r="6" fill="var(--cat-3)" stroke="var(--surface)" stroke-width="2"><title>'+esc(r.lab)+', pejabat menilai unit: '+d1(r.b)+'</title></circle>';
+    if(r.a!=null)g+='<circle cx="'+X(r.a).toFixed(1)+'" cy="'+y+'" r="6" fill="var(--cat-1)" stroke="var(--surface)" stroke-width="2"><title>'+esc(r.lab)+', pegawai menilai diri: '+d1(r.a)+'</title></circle>';
+    g+='<text x="'+(W-4)+'" y="'+(y+4)+'" font-size="11" fill="var(--ink)" text-anchor="end" font-weight="600">'+(r.a!=null?d1(r.a):'-')+(opt.satu?'':' <tspan fill="var(--muted)" font-weight="400">/ '+(r.b!=null?d1(r.b):'-')+'</tspan>')+'</text>';});
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="'+esc(opt.aria||'')+'" style="display:block">'+g+'</svg>'+
+    (opt.satu?'':lpLeg([{lab:'Pegawai menilai diri',col:'var(--cat-1)'},{lab:'Pejabat menilai unit',col:'var(--cat-3)'}]));}
+
+function budHeat(baris,kolom,ambil,opt){opt=opt||{};var semua=[];baris.forEach(function(b){kolom.forEach(function(k){var v=ambil(b,k);if(v!=null)semua.push(v);});});
+  var mn=Math.min.apply(null,semua),mx=Math.max.apply(null,semua);var rev=opt.balik;
+  return '<div class="tblw"><table class="hm"><thead><tr><th style="text-align:left">'+(opt.judul||'')+'</th>'+kolom.map(function(k){return '<th class="num-c">'+esc(k[1])+'</th>';}).join('')+'</tr></thead><tbody>'+
+    baris.map(function(b){return '<tr><td>'+b.lab+'</td>'+kolom.map(function(k){var v=ambil(b,k);if(v==null)return '<td class="num-c mini">-</td>';
+      var t=mx>mn?(v-mn)/(mx-mn):0.5;if(rev)t=1-t;return '<td class="cell num-c" style="background:'+mofRamp(t)+';color:'+mofRampInk(t)+'">'+d1(v)+'</td>';}).join('')+'</tr>';}).join('')+
+    '</tbody></table></div>';}
+function budTabelKel(rows,kol){return '<div class="tblw"><table><thead><tr>'+kol.map(function(c){return '<th'+(c[2]?' class="num-c"':'')+'>'+c[0]+'</th>';}).join('')+'</tr></thead><tbody>'+
+  rows.map(function(r){return '<tr>'+kol.map(function(c){return '<td'+(c[2]?' class="num-c"':'')+'>'+c[1](r)+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';}
+function budSumber(){var M=BUDAYA.meta;return '<div class="mini lp-src">'+esc(M.survei)+', '+esc(M.periode)+'. '+fmt(M.nInd)+' pegawai menilai dirinya dan '+fmt(M.nOrg)+' pejabat Eselon I sampai IV menilai unitnya. Angka gabungan tanpa identitas.</div>';}
+
+
+function vBud(){
+  var g=budGuard();if(g)return g;
+  const B=BUDAYA,I=B.ind,O=B.org,N=B.meta.nilai;
+  const nlI=N.map(function(n){return {n:n,v:I.nilai[n]};}).sort(function(a,b){return a.v-b.v;});
+  const lemah=nlI[0];
+  const btI=I.butir.slice().sort(function(a,b){return a.skor-b.skor;});
+  const sd=budSedang(I);
+  const SEL=budSelisih().filter(function(x){return x.sel!=null;}).sort(function(a,b){return a.sel-b.sel;});
+  const tm=I.saran.tema.slice().sort(function(a,b){return b.n-a.n;});
+  var s='Pegawai menilai penerapan nilai budaya pada dirinya rata-rata <b>'+d1(I.skor)+'</b> dan pejabat menilai budaya unitnya <b>'+d1(O.skor)+'</b>, keduanya kategori sangat tinggi. ';
+  s+='Nilai terlemah adalah '+esc(lemah.n)+' ('+d1(lemah.v)+' menurut pegawai, '+d1(O.nilai[lemah.n])+' menurut pejabat), dengan perilaku terendah '+esc(btI[0].lab.toLowerCase())+' dan '+esc(btI[1].lab.toLowerCase())+'. ';
+  s+='Rata-rata itu menutupi <b>'+fmt(sd)+' pegawai ('+d1(100*sd/I.n)+'%)</b> yang berada pada kategori sedang ke bawah. ';
+  if(SEL.length>1)s+='Pejabat menilai unitnya paling jauh di bawah penilaian pegawai di '+budKode(SEL[0].kode)+' ('+d1(-SEL[0].sel)+' poin) dan '+budKode(SEL[1].kode)+' ('+d1(-SEL[1].sel)+' poin), tanda pelembagaan budaya di unit itu tertinggal dari penerapan oleh pegawainya.';
+  let h=sorotanCard('Highlight',s,[{v:'budnilai',t:'Nilai dan Perilaku'},{v:'budunit',t:'Per Unit Eselon I'},{v:'budmutu',t:'Mutu Data'}]);
+  h+='<div class="lp-kpis">'
+    +lpSel('budnilai','Skor Pegawai',d1(I.skor),'pegawai menilai diri, '+fmt(I.n)+' responden')
+    +lpSel('budpenguatan','Skor Pejabat atas Unit',d1(O.skor),'pejabat Eselon I-IV, '+fmt(O.n)+' responden')
+    +lpSel('budnilai','Nilai Terlemah',esc(lemah.n),d1(lemah.v)+' menurut pegawai')
+    +lpSel('budunit','Kategori Sedang ke Bawah',d1(100*sd/I.n)+'<span class="lp-of">%</span>',fmt(sd)+' pegawai dengan skor di bawah 80')
+    +lpSel('budmutu','Jawaban Seragam',d1(I.seragamPct)+'<span class="lp-of">%</span>','pegawai memberi nilai sama di 25 butir')
+    +'</div>';
+  h+='<div class="lp-grid">';
+  h+='<div class="lp-c7">'+lpKartu('budnilai','Tujuh Nilai BerAKHLAK','Skor 0 sampai 100; sumbu dimulai dari 80 supaya selisihnya terlihat',
+      budDot(N.map(function(n){return {lab:n,a:I.nilai[n],b:O.nilai[n]};}).sort(function(a,b){return a.a-b.a;}),{min:80,max:100,aria:'Skor tujuh nilai BerAKHLAK'}))+'</div>';
+  const K=I.kat||{};
+  h+='<div class="lp-c5">'+lpKartu('budunit','Sebaran Kategori Pegawai','Kategori menurut skor tiap pegawai',
+      lpStk([{lab:'Sangat tinggi (90 ke atas)',n:K.st||0,col:'var(--seq-7)'},{lab:'Tinggi (80 sampai 89)',n:K.t||0,col:'var(--seq-5)'},{lab:'Sedang (70 sampai 79)',n:K.s||0,col:'var(--seq-3)'},{lab:'Rendah dan sangat rendah',n:(K.r||0)+(K.sr||0),col:'var(--cat-6)'}]))+'</div>';
+  h+='<div class="lp-c7">'+lpKartu('budunit','Skor per Unit Eselon I','Diurutkan dari selisih terbesar; titik kosong berarti responden pejabat kurang dari 10',
+      budDot(budSelisih().slice().sort(function(a,b){return (a.sel==null?99:a.sel)-(b.sel==null?99:b.sel);}).map(function(x){return {lab:budKode(x.kode),a:x.ind,b:x.org};}),{min:80,max:96,step:4,lw:80,aria:'Skor budaya per unit Eselon I'}))+'</div>';
+  h+='<div class="lp-c5 lp-stack">'
+    +lpKartu('budnilai','Lima Perilaku Terendah','Penilaian pegawai atas dirinya',
+      lpBaris(btI.slice(0,5).map(function(b){return {lab:b.lab,n:b.skor,teks:d1(b.skor)};}),{max:100,kls:'lp-bars-lebar'}))
+    +lpKartu('budsuara','Tema Saran Terbanyak','Dari '+fmt(I.saran.n)+' saran pegawai',
+      lpBaris(tm.slice(0,4).map(function(t){return {lab:t.lab,n:t.n,teks:fmt(t.n)};}),{kls:'lp-bars-lebar'}))
+    +'</div>';
+  h+='</div>';
+  h+=lpNav([['budnilai','Nilai dan Perilaku'],['budunit','Per Unit Eselon I'],['budprofil','Profil Responden'],['budpenguatan','Penguatan Budaya'],['budisu','Isu Budaya'],['budkinerja','Kinerja dan Hierarki'],['budsuara','Suara Pegawai'],['budlayanan','Menurut Layanan'],['budkaitan','Kaitan Lintas Modul'],['budmutu','Mutu Data'],['budtentang','Tentang Data']]);
+  h+=budSumber();
+  return h;}
+
+
+function vBudNilai(){
+  var g=budGuard();if(g)return g;
+  const B=BUDAYA,I=B.ind,O=B.org,N=B.meta.nilai,tab=state.budNilaiTab||'berakhlak';
+  const sel=N.map(function(n){return {n:n,d:Math.round(10*(O.nilai[n]-I.nilai[n]))/10};});
+  const atas=sel.filter(function(x){return x.d<0;}).sort(function(a,b){return a.d-b.d;}), bawah=sel.filter(function(x){return x.d>0;}).sort(function(a,b){return b.d-a.d;});
+  const bt=I.butir.slice().sort(function(a,b){return a.skor-b.skor;});
+  var s='Nilai Adaptif paling rendah pada kedua penilaian. ';
+  if(atas.length)s+='Pegawai menilai dirinya lebih tinggi daripada penilaian pejabat terutama pada '+atas.slice(0,3).map(function(x){return esc(x.n)+' ('+d1(-x.d)+' poin)';}).join(', ')+'. ';
+  const bw=bawah.filter(function(x){return x.d>=1;});
+  if(bw.length)s+='Sebaliknya pejabat memberi nilai lebih tinggi pada '+bw.map(function(x){return esc(x.n)+' (+'+d1(x.d)+' poin)';}).join(', ')+'. ';
+  s+='Perilaku terendah menurut pegawai adalah '+bt.slice(0,3).map(function(b){return esc(b.lab.toLowerCase())+' ('+d1(b.skor)+')';}).join(', ')+'; pada butir '+esc(bt[0].lab.toLowerCase())+', '+d1(bt[0].ragu)+'% pegawai memberi nilai 3 atau kurang.';
+  let h=sorotanCard('Highlight',s,[{v:'budunit',t:'Per Unit Eselon I'},{v:'budprofil',t:'Profil Responden'}]);
+  h+=budTab('budNilaiTab',tab,[['berakhlak','Nilai BerAKHLAK'],['iprospek','Nilai Kementerian (IProSPEK)'],['butir','Per Butir Perilaku']]);
+  if(tab==='iprospek'){
+    const P=B.meta.iprospek.map(function(x){return x[0];});
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Lima Nilai Kementerian Keuangan</h2>'+
+      budDot(P.map(function(n){return {lab:n,a:I.ipro[n],b:O.ipro[n]};}),{min:80,max:100,aria:'Skor nilai IProSPEK'})+
+      '<div class="mini" style="margin-top:8px">Nilai Kementerian (KMK 312/2011) dibaca dari butir yang sama lewat penyelarasan dengan BerAKHLAK: Integritas dari butir Loyal dan Akuntabel, Profesionalisme dari Kompeten, Sinergi dari Kolaboratif dan Harmonis, Pelayanan dari Berorientasi Pelayanan, dan Kesempurnaan dari Adaptif.</div></div>';
+  }else if(tab==='butir'){
+    const OB={};O.butir.forEach(function(b){OB[b.kode]=b;});
+    const nilaiDari={};B.meta.iprospek.forEach(function(){});
+    const grp={};[['Loyal',['LO1','LO2','LO3']],['Akuntabel',['AK1','AK2','AK3']],['Kompeten',['KO1','KO2','KO3a','KO3b','KO3c']],['Kolaboratif',['KL1','KL2','KL3']],['Harmonis',['HA1','HA3']],['Berorientasi Pelayanan',['BER1','BER2a','BER2b','BER3']],['Adaptif',['AD1','AD2a','AD2b','AD3a','AD3b']]].forEach(function(x){x[1].forEach(function(c){grp[c]=x[0];});});
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">25 Butir Perilaku Efektif, dari yang Terendah</h2>'+
+      budTabelKel(bt,[['Perilaku',function(b){return esc(b.lab);}],['Nilai',function(b){return esc(grp[b.kode]||'');}],['Pegawai',function(b){return '<b>'+d1(b.skor)+'</b>';},1],['Nilai 3 ke bawah',function(b){return d1(b.ragu)+'%';},1],['Pejabat atas unit',function(b){return OB[b.kode]?d1(OB[b.kode].skor):'-';},1]])+
+      '<div class="mini" style="margin-top:6px">Kolom "nilai 3 ke bawah" adalah persen pegawai yang memberi nilai ragu-ragu atau tidak setuju pada butir itu. Angka ini lebih peka daripada rata-rata karena kebanyakan pegawai memberi nilai 4 atau 5.</div></div>';
+  }else{
+    h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Tujuh Nilai BerAKHLAK</h2>'+
+      budDot(N.map(function(n){return {lab:n,a:I.nilai[n],b:O.nilai[n]};}).sort(function(a,b){return a.a-b.a;}),{min:80,max:100,aria:'Skor tujuh nilai BerAKHLAK'})+'</div>'+
+      '<div class="card"><h2 class="sec" style="margin-top:0">Selisih Pejabat dikurangi Pegawai</h2>'+
+      sel.slice().sort(function(a,b){return a.d-b.d;}).map(function(x){return '<div class="bar-row"><div class="name">'+esc(x.n)+'</div><div class="track"><div class="fill" style="width:'+Math.min(100,Math.round(Math.abs(x.d)*25))+'%;background:'+(x.d<0?'var(--cat-1)':'var(--cat-3)')+'"></div></div><div class="num">'+(x.d>0?'+':'')+d1(x.d)+'</div></div>';}).join('')+
+      '<div class="mini" style="margin-top:8px">Biru: pegawai menilai dirinya lebih tinggi daripada penilaian pejabat atas unitnya. Jingga: pejabat menilai lebih tinggi. Keduanya mengukur hal berbeda, satu menilai diri sendiri dan satu menilai unit, sehingga selisih dibaca sebagai arah, bukan ukuran pasti.</div></div></div>';
+  }
+  h+=budSumber();
+  return h;}
+
+
+function vBudUnit(){
+  var g=budGuard();if(g)return g;
+  const B=BUDAYA,I=B.ind,O=B.org,N=B.meta.nilai,tab=state.budUnitTab||'ringkas';
+  const S=budSelisih(),IU={};I.perUnit.forEach(function(x){IU[x.kode]=x;});
+  const ada=I.perUnit.filter(function(x){return x.skor!=null;});
+  const tinggi=ada.slice().sort(function(a,b){return b.skor-a.skor;})[0], rendah=ada.slice().sort(function(a,b){return a.skor-b.skor;})[0];
+  const ekor=ada.slice().sort(function(a,b){return b.rendahPct-a.rendahPct;});
+  const djp=IU.DJP||{};
+  const SEL=S.filter(function(x){return x.sel!=null;}).sort(function(a,b){return a.sel-b.sel;});
+  var s='Skor pegawai tertinggi ada di '+budKode(tinggi.kode)+' ('+d1(tinggi.skor)+') dan terendah di '+budKode(rendah.kode)+' ('+d1(rendah.skor)+'). ';
+  s+='Porsi pegawai pada kategori sedang ke bawah paling besar di '+ekor.slice(0,3).map(function(x){return budKode(x.kode)+' ('+d1(x.rendahPct)+'%)';}).join(', ')+'. ';
+  if(djp.n)s+='Di DJP porsinya '+d1(djp.rendahPct)+'%, atau sekitar '+fmt(Math.round(djp.n*djp.rendahPct/100))+' pegawai, jumlah terbesar karena unitnya paling besar. ';
+  s+='Penilaian pejabat paling jauh di bawah penilaian pegawai di '+SEL.slice(0,3).map(function(x){return budKode(x.kode)+' ('+d1(-x.sel)+' poin)';}).join(', ')+'. Unit dengan responden pejabat sedikit perlu dibaca hati-hati.';
+  let h=sorotanCard('Highlight',s,[{v:'budkaitan',t:'Kaitan Lintas Modul'},{v:'budmutu',t:'Mutu Data'}]);
+  h+=budTab('budUnitTab',tab,[['ringkas','Skor dan Selisih'],['nilai','Tujuh Nilai per Unit'],['wakil','Keterwakilan Responden']]);
+  if(tab==='nilai'){
+    const lv=state.budUnitLv||'ind', L=lv==='ind'?I:O;
+    h+='<div class="toolbar"><div class="seg"><span class="segb '+(lv==='ind'?'on':'')+'" data-act="budtab" data-k="budUnitLv" data-tab="ind">Pegawai menilai diri</span><span class="segb '+(lv==='org'?'on':'')+'" data-act="budtab" data-k="budUnitLv" data-tab="org">Pejabat menilai unit</span></div></div>';
+    const rows=L.perUnit.filter(function(x){return x.skor!=null;}).sort(function(a,b){return b.skor-a.skor;}).map(function(x){return {lab:esc(budKode(x.kode))+' <span class="mini">('+fmt(x.n)+')</span>',x:x};});
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Tujuh Nilai per Unit Eselon I</h2>'+
+      budHeat(rows,N.map(function(n){return [n,n.replace('Berorientasi ','')];}).concat([['__s','Skor']]),function(b,k){return k[0]==='__s'?b.x.skor:b.x.nilai[k[0]];},{judul:'Unit (responden)'})+
+      '<div class="mini" style="margin-top:6px">Warna dibandingkan di seluruh tabel: makin pekat makin tinggi. Unit dengan responden kurang dari 10 tidak ditampilkan.</div></div>';
+  }else if(tab==='wakil'){
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Responden Dibanding Jumlah Pegawai</h2>'+
+      budTabelKel(I.perUnit,[['Unit Eselon I',function(x){return esc(x.unit);}],['Pegawai (Juli 2025)',function(x){return x.pop?fmt(x.pop):'-';},1],['Responden pegawai',function(x){return fmt(x.n);},1],['Keterwakilan',function(x){return x.pop?d1(100*x.n/x.pop)+'%':'-';},1],['Responden pejabat',function(x){var o=O.perUnit.find(function(y){return y.kode===x.kode;})||{};return fmt(o.n||0);},1]])+
+      '<div class="mini" style="margin-top:6px">Jumlah pegawai mengikuti data 1 Juli 2025 pada laporan survei. Responden lain di luar 14 unit ini (Staf Ahli, Sekretariat KSSK, dan lainnya) berjumlah sangat sedikit sehingga tidak dirinci.</div></div>';
+  }else{
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Skor Budaya per Unit Eselon I</h2>'+
+      budTabelKel(S.map(function(x){x.r=IU[x.kode];return x;}),[['Unit Eselon I',function(x){return esc(x.unit);}],['Responden pegawai',function(x){return fmt(x.nI);},1],['Skor pegawai',function(x){return '<b>'+budS(x.ind)+'</b>';},1],['Sedang ke bawah',function(x){return x.r&&x.r.rendahPct!=null?d1(x.r.rendahPct)+'%':'-';},1],['Responden pejabat',function(x){return fmt(x.nO||0);},1],['Skor pejabat',function(x){return budS(x.org);},1],['Selisih',function(x){return x.sel==null?'-':'<b style="color:'+(x.sel<=-3?'var(--st-critical)':'var(--ink)')+'">'+(x.sel>0?'+':'')+d1(x.sel)+'</b>';},1]])+
+      '<div class="mini" style="margin-top:6px">Selisih = skor pejabat dikurangi skor pegawai. Merah bila pejabat menilai unitnya 3 poin atau lebih di bawah penilaian pegawai. "Sedang ke bawah" adalah persen pegawai dengan skor di bawah 80.</div></div>';
+  }
+  h+=budSumber();
+  return h;}
+
+
+function vBudProfil(){
+  var g=budGuard();if(g)return g;
+  const I=BUDAYA.ind,O=BUDAYA.org,tab=state.budProfilTab||'jabatan';
+  const J=I.perJabatan.filter(function(x){return x.skor!=null;});
+  const pel=J.find(function(x){return x.k==='Pelaksana';})||{},e2=J.find(function(x){return x.k==='Eselon II';})||{};
+  const MJ=I.perMasaJabatan, baru=MJ.find(function(x){return /kurang/.test(x.k);})||{}, lama=MJ.find(function(x){return /lebih/.test(x.k);})||{};
+  const JK=I.perGender, lk=JK.find(function(x){return x.k==='Laki-laki';})||{}, pr=JK.find(function(x){return x.k==='Perempuan';})||{};
+  var s='Skor naik mengikuti jenjang, dari '+d1(pel.skor)+' pada pelaksana sampai '+d1(e2.skor)+' pada Eselon II. Sebagian gradien ini berasal dari cara mengisi: porsi jawaban seragam naik dari '+d1(pel.seragamPct)+'% pada pelaksana menjadi '+d1(e2.seragamPct)+'% pada Eselon II. ';
+  s+='Pegawai yang baru kurang dari enam bulan di jabatannya tidak bernilai lebih rendah ('+d1(baru.skor)+' dibanding '+d1(lama.skor)+'), sehingga mutasi tidak tampak menurunkan penerapan budaya. ';
+  s+='Laki-laki menilai dirinya '+d1(lk.skor)+' dan perempuan '+d1(pr.skor)+'.';
+  let h=sorotanCard('Highlight',s,[{v:'budmutu',t:'Mutu Data'},{v:'budisu',t:'Isu Budaya'}]);
+  const T=[['jabatan','Jabatan','perJabatan'],['generasi','Generasi','perGenerasi'],['gender','Jenis Kelamin','perGender'],['pendidikan','Pendidikan','perPendidikan'],['lokasi','Lokasi Kerja','perLokasi'],['masa','Masa dalam Jabatan','perMasaJabatan'],['mk','Masa Kerja','perMasaKerja']];
+  h+=budTab('budProfilTab',tab,T.map(function(x){return [x[0],x[1]];}));
+  const t=T.find(function(x){return x[0]===tab;})||T[0];
+  const kol=[['Kelompok',function(x){return esc(x.k);}],['Responden',function(x){return fmt(x.n);},1],['Skor',function(x){return '<b>'+budS(x.skor)+'</b>';},1],['Kategori',function(x){return budKat(x.skor);}],['Sedang ke bawah',function(x){return x.rendahPct==null?'-':d1(x.rendahPct)+'%';},1],['Jawaban seragam',function(x){return x.seragamPct==null?'-':d1(x.seragamPct)+'%';},1],['Adaptif',function(x){return x.nilai?d1(x.nilai.Adaptif):'-';},1]];
+  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Pegawai Menilai Diri, menurut '+t[1]+'</h2>'+budTabelKel(I[t[2]],kol)+'</div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Pejabat Menilai Unit, menurut '+t[1]+'</h2>'+(O[t[2]]&&O[t[2]].length?budTabelKel(O[t[2]],kol):'<div class="mini">Tidak tersedia untuk penilaian pejabat.</div>')+'</div></div>';
+  h+='<div class="mini" style="margin-top:6px">Kelompok yang berisi kurang dari 10 responden ditulis "&lt; 10 responden" dan tidak dirinci. Jawaban seragam adalah persen responden yang memberi nilai sama pada seluruh 25 butir.</div>';
+  h+=budSumber();
+  return h;}
+
+
+function vBudPenguatan(){
+  var g=budGuard();if(g)return g;
+  const O=BUDAYA.org,DM=BUDAYA.meta.dimensi,D=O.dimensi,tab=state.budPgTab||'dimensi';
+  const pend=DM.filter(function(x){return x[0]!=='ho';});
+  const urut=pend.slice().sort(function(a,b){return D[b[0]]-D[a[0]];});
+  const RK=O.perRentang, rkB=RK[RK.length-1]||{}, rkK=RK[0]||{};
+  const bt=O.dimensiButir.filter(function(b){return /^PM/.test(b.kode);}).sort(function(a,b){return a.skor-b.skor;})[0]||{};
+  const uL=O.perUnit.filter(function(x){return x.dimensi;}).sort(function(a,b){return a.dimensi.do-b.dimensi.do;});
+  var s='Pejabat menilai '+esc(urut[0][1].toLowerCase())+' ('+d1(D[urut[0][0]])+') dan '+esc(urut[1][1].toLowerCase())+' ('+d1(D[urut[1][0]])+') paling kuat, sedangkan '+esc(urut[urut.length-1][1].toLowerCase())+' paling rendah ('+d1(D[urut[urut.length-1][0]])+'), dengan butir '+esc((bt.lab||'').toLowerCase())+' '+d1(bt.skor)+'. ';
+  s+='Makin besar rentang kendali, makin tinggi penilaian pada semua dimensi: pejabat dengan '+esc(budRk(rkB.k).toLowerCase())+' bawahan memberi '+d1(rkB.dimensi&&rkB.dimensi.ds)+' untuk dukungan supervisi, dibanding '+d1(rkK.dimensi&&rkK.dimensi.ds)+' pada '+esc(budRk(rkK.k))+' bawahan. ';
+  if(uL.length>1)s+='Dukungan organisasi paling rendah di '+budKode(uL[0].kode)+' ('+d1(uL[0].dimensi.do)+') dan '+budKode(uL[1].kode)+' ('+d1(uL[1].dimensi.do)+'). ';
+  s+='Skor hambatan organisasi ('+d1(D.ho)+') belum ditafsirkan karena arah butirnya sedang dipastikan ke Biro SDM.';
+  let h=sorotanCard('Highlight',s,[{v:'budunit',t:'Per Unit Eselon I'},{v:'budmutu',t:'Mutu Data'}]);
+  h+=budTab('budPgTab',tab,[['dimensi','Enam Dimensi'],['jenjang','Menurut Jenjang'],['rentang','Menurut Rentang Kendali'],['unit','Menurut Unit Eselon I'],['butir','Per Butir']]);
+  const kolDim=pend.map(function(x){return [x[0],x[1].replace('Dukungan ','Dukungan<br>')];}).concat([['ho','Hambatan*']]);
+  if(tab==='jenjang'||tab==='rentang'||tab==='unit'){
+    const src=tab==='jenjang'?O.perJabatan:tab==='rentang'?O.perRentang:O.perUnit;
+    const rows=src.filter(function(x){return x.dimensi;}).map(function(x){return {lab:esc(budRk(x.k)||budKode(x.kode))+' <span class="mini">('+fmt(x.n)+')</span>',x:x};});
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Dimensi Penguatan Budaya '+(tab==='jenjang'?'menurut Jenjang':tab==='rentang'?'menurut Rentang Kendali':'menurut Unit Eselon I')+'</h2>'+
+      budHeat(rows,pend.map(function(x){return [x[0],x[1].replace('Dukungan ','Dukungan ')];}),function(b,k){return b.x.dimensi[k[0]];},{judul:tab==='rentang'?'Jumlah bawahan langsung':'Kelompok (responden)'})+
+      '<div class="mini" style="margin-top:6px">Kelompok dengan responden kurang dari 10 tidak ditampilkan. Hambatan organisasi tidak dimasukkan ke peta warna sampai arahnya dipastikan.</div></div>';
+  }else if(tab==='butir'){
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Butir Dimensi Penguatan Budaya</h2>'+
+      budTabelKel(O.dimensiButir.map(function(b){var d=DM.find(function(x){return b.kode.replace(/\d+$/,'').toLowerCase()===x[0];});b._d=d?d[1]:'';return b;}),[['Dimensi',function(b){return esc(b._d);}],['Butir',function(b){return esc(b.lab);}],['Skor',function(b){return '<b>'+d1(b.skor)+'</b>';},1],['Nilai 3 ke bawah',function(b){return d1(b.ragu)+'%';},1]])+
+      '<div class="mini" style="margin-top:6px">Nama butir Dukungan Organisasi, Dukungan Supervisi, dan Kepercayaan pada laporan survei ditulis sama persis untuk ketiganya, sehingga di sini ditulis Butir 1 sampai 3 sampai bunyi kuesionernya diterima.</div></div>';
+  }else{
+    h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Lima Dimensi Pendukung</h2>'+
+      budDot(urut.map(function(x){return {lab:x[1],a:D[x[0]]};}),{min:80,max:100,satu:1,aria:'Skor dimensi penguatan budaya'})+'</div>'+
+      '<div class="card"><h2 class="sec" style="margin-top:0">Hambatan Organisasi <span class="pill warn">arah belum dipastikan</span></h2>'+
+      O.dimensiButir.filter(function(b){return /^HO/.test(b.kode);}).map(function(b){return '<div class="bar-row"><div class="name">'+esc(b.lab)+'</div><div class="track"><div class="fill" style="width:'+Math.round(b.skor)+'%;background:var(--muted)"></div></div><div class="num">'+d1(b.skor)+'</div></div>';}).join('')+
+      '<div class="note-box" style="margin-top:10px">Rata-rata '+d1(D.ho)+', jauh di bawah dimensi lain dan dengan sebaran jawaban paling lebar. Laporan survei menafsirkan arahnya secara berbeda di dua tempat, dan polanya di data juga tidak lazim: pejabat dengan bawahan lebih dari 20 orang dan pejabat Eselon II memberi nilai lebih tinggi. Tanpa bunyi butirnya belum dapat dipastikan apakah angka tinggi berarti hambatan besar atau kecil. Bunyi kuesioner sudah diminta ke Biro SDM.</div></div></div>';
+  }
+  h+='<div class="mini lp-src">Dimensi penguatan budaya hanya ditanyakan kepada pejabat Eselon I sampai IV ('+fmt(O.n)+' responden). Tidak ada penilaian dari bawahan atas dimensi ini.</div>';
+  return h;}
+
+
+function vBudIsu(){
+  var g=budGuard();if(g)return g;
+  const I=BUDAYA.ind,IS=BUDAYA.meta.isu,tab=state.budIsuTab||'generasi';
+  const G=I.perGenerasi.filter(function(x){return x.isu;}),J=I.perJabatan.filter(function(x){return x.isu;}),U=I.perUnit.filter(function(x){return x.isu;});
+  const gS=G.slice().sort(function(a,b){return b.isu.stigma-a.isu.stigma;}),jS=J.slice().sort(function(a,b){return b.isu.stigma-a.isu.stigma;});
+  const uA=U.slice().sort(function(a,b){return a.isu.aktor-b.isu.aktor;}),uK=U.slice().sort(function(a,b){return a.isu.subkultur-b.isu.subkultur;});
+  var s='Stigma generasi rata-rata '+d1(I.isu.stigma)+' (makin rendah makin baik). Paling terasa pada '+esc(gS[0].k)+' ('+d1(gS[0].isu.stigma)+') dan '+esc(jS[0].k.toLowerCase())+' ('+d1(jS[0].isu.stigma)+'), paling rendah pada '+esc(jS[jS.length-1].k)+' ('+d1(jS[jS.length-1].isu.stigma)+') dan '+esc(gS[gS.length-1].k)+' ('+d1(gS[gS.length-1].isu.stigma)+'). ';
+  s+='Jarak antargenerasi lebih dirasakan pegawai muda di lapisan bawah daripada oleh pimpinannya. ';
+  s+='Kejelasan aktor budaya paling rendah di '+budKode(uA[0].kode)+' ('+d1(uA[0].isu.aktor)+') dan '+budKode(uA[1].kode)+' ('+d1(uA[1].isu.aktor)+'), relasi kultur dan subkultur paling rendah di '+budKode(uK[0].kode)+' ('+d1(uK[0].isu.subkultur)+').';
+  let h=sorotanCard('Highlight',s,[{v:'budprofil',t:'Profil Responden'},{v:'budkinerja',t:'Kinerja dan Hierarki'}]);
+  h+='<div class="lp-kpis">'+IS.map(function(x){return lpSel('',esc(x[1]),d1(I.isu[x[0]]),x[2]<0?'makin rendah makin baik':'makin tinggi makin baik');}).join('')+'</div>';
+  h+=budTab('budIsuTab',tab,[['generasi','Generasi'],['jabatan','Jabatan'],['unit','Unit Eselon I'],['gender','Jenis Kelamin'],['pendidikan','Pendidikan']]);
+  const src={generasi:I.perGenerasi,jabatan:I.perJabatan,unit:I.perUnit,gender:I.perGender,pendidikan:I.perPendidikan}[tab]||I.perGenerasi;
+  const rows=src.filter(function(x){return x.isu;}).map(function(x){return {lab:esc(x.k||budKode(x.kode))+' <span class="mini">('+fmt(x.n)+')</span>',x:x};});
+  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Stigma Generasi</h2>'+
+    budHeat(rows,[['stigma','Stigma']],function(b){return b.x.isu.stigma;},{balik:1,judul:'Kelompok (responden)'})+
+    '<div class="mini" style="margin-top:6px">Makin pekat makin rendah stigmanya (lebih baik).</div></div>'+
+    '<div class="card"><h2 class="sec" style="margin-top:0">Tiga Isu Lain</h2>'+
+    budHeat(rows,IS.filter(function(x){return x[0]!=='stigma';}).map(function(x){return [x[0],x[1].replace('Keseimbangan emosi pimpinan menengah','Pimpinan menengah').replace('Kejelasan aktor budaya','Aktor budaya').replace('Relasi kultur dan subkultur','Kultur-subkultur')];}),function(b,k){return b.x.isu[k[0]];},{judul:'Kelompok (responden)'})+
+    '<div class="mini" style="margin-top:6px">Makin pekat makin baik. Kelompok dengan responden kurang dari 10 tidak ditampilkan.</div></div></div>';
+  h+='<div class="mini lp-src">Isu budaya diisi pegawai pada data individu. Keseimbangan emosi pimpinan menengah (sandwich manager) dinilai oleh seluruh pegawai, bukan oleh pimpinan menengah sendiri.</div>';
+  return h;}
+
+
+function vBudKinerja(){
+  var g=budGuard();if(g)return g;
+  const I=BUDAYA.ind,tab=state.budKinTab||'jabatan';
+  const J=I.perJabatan.filter(function(x){return x.hierarki!=null;}),U=I.perUnit.filter(function(x){return x.hierarki!=null;}).sort(function(a,b){return a.hierarki-b.hierarki;});
+  const j0=J.find(function(x){return x.k==='Eselon II';})||J[0],j1=J.find(function(x){return x.k==='Pelaksana';})||J[J.length-1];
+  var s='Persepsi kinerja diri '+d1(I.kinerja)+' dan stabilitas hierarki '+d1(I.hierarki)+' (kategori '+budKat(I.hierarki).toLowerCase()+'), terendah dari seluruh ukuran pegawai. ';
+  s+='Stabilitas hierarki turun mengikuti jenjang, dari '+d1(j0.hierarki)+' pada '+esc(j0.k)+' sampai '+d1(j1.hierarki)+' pada '+esc(j1.k.toLowerCase())+', dan paling rendah di '+budKode(U[0].kode)+' ('+d1(U[0].hierarki)+'). ';
+  s+='Persepsi kinerja berkorelasi '+String(I.korKinerja).replace('.',',')+' dengan skor perilaku, tetapi keduanya diisi orang yang sama, sehingga angka ini tidak bisa dibaca sebagai bukti bahwa budaya meningkatkan kinerja.';
+  let h=sorotanCard('Highlight',s,[{v:'budisu',t:'Isu Budaya'},{v:'budmutu',t:'Mutu Data'}]);
+  h+='<div class="lp-kpis">'+lpSel('','Persepsi Kinerja Diri',d1(I.kinerja),budKat(I.kinerja))+lpSel('','Stabilitas Hierarki',d1(I.hierarki),budKat(I.hierarki))+lpSel('','Korelasi Perilaku dan Kinerja',String(I.korKinerja).replace('.',','),'diisi orang yang sama')+'</div>';
+  h+=budTab('budKinTab',tab,[['jabatan','Jabatan'],['generasi','Generasi'],['unit','Unit Eselon I'],['lokasi','Lokasi Kerja']]);
+  const src={jabatan:I.perJabatan,generasi:I.perGenerasi,unit:I.perUnit,lokasi:I.perLokasi}[tab]||I.perJabatan;
+  const rows=src.filter(function(x){return x.hierarki!=null;}).map(function(x){return {lab:esc(x.k||budKode(x.kode))+' <span class="mini">('+fmt(x.n)+')</span>',x:x};});
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Persepsi Kinerja dan Stabilitas Hierarki</h2>'+
+    budHeat(rows,[['kinerja','Kinerja diri'],['hierarki','Stabilitas hierarki'],['skor','Skor perilaku']],function(b,k){return b.x[k[0]];},{judul:'Kelompok (responden)'})+
+    '<div class="mini" style="margin-top:6px">Stabilitas hierarki mengukur seberapa jelas dan stabil struktur kewenangan dirasakan. Hierarki yang terlalu kaku dapat memperlambat perubahan, sedangkan yang terlalu cair membuat arah kerja kabur; skor sedang belum tentu buruk.</div></div>';
+  h+=budSumber();
+  return h;}
+
+
+function vBudSuara(){
+  var g=budGuard();if(g)return g;
+  const I=BUDAYA.ind,O=BUDAYA.org;
+  const ti=I.saran.tema.slice().sort(function(a,b){return b.n-a.n;}),OT={};O.saran.tema.forEach(function(t){OT[t.kode]=t;});
+  const to=O.saran.tema.slice().sort(function(a,b){return b.n-a.n;});
+  var s='Dari '+fmt(I.saran.n)+' saran pegawai yang bermakna, tema terbanyak adalah '+ti.slice(0,2).map(function(t){return esc(t.lab.toLowerCase())+' ('+fmt(t.n)+')';}).join(' serta ')+', disusul '+ti.slice(2,4).map(function(t){return esc(t.lab.toLowerCase())+' ('+fmt(t.n)+')';}).join(' dan ')+'. ';
+  s+='Saran pejabat juga paling banyak menyebut '+esc(to[0].lab.toLowerCase())+'. Tema mutasi dan keluarga bersambung dengan modul Bantuan Perumahan dan dengan alasan berhenti terbanyak di modul Pemberhentian, yaitu keluarga dan pengasuhan.';
+  let h=sorotanCard('Highlight',s,[{v:'rmh',t:'Bantuan Perumahan'},{v:'pmbalasan',t:'Alasan Berhenti'}]);
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Tema Saran dan Masukan</h2>'+
+    budTabelKel(ti,[['Tema',function(t){return esc(t.lab);}],['Saran pegawai',function(t){return fmt(t.n);},1],['Persen saran pegawai',function(t){return d1(t.pct)+'%';},1],['Saran pejabat',function(t){return fmt((OT[t.kode]||{}).n||0);},1],['Persen saran pejabat',function(t){return d1((OT[t.kode]||{}).pct||0)+'%';},1]])+
+    '<div class="mini" style="margin-top:6px">Tema ditentukan otomatis dari kata kunci, satu saran bisa masuk lebih dari satu tema. Isi saran tidak ditampilkan dan tidak disimpan di dashboard. Pegawai menulis '+fmt(I.saran.n)+' saran bermakna dan pejabat '+fmt(O.saran.n)+'.</div></div>';
+  h+=budSumber();
+  return h;}
+
+
+function vBudLayanan(){
+  var g=budGuard();if(g)return g;
+  const L=BUDAYA.ind.layanan||[],fu=state.budLayU||'';
+  const rows=L.filter(function(x){return !fu||x.unit===fu;}).slice().sort(function(a,b){return b.n-a.n;});
+  const sk=L.slice().sort(function(a,b){return a.skor-b.skor;});
+  var s=fmt(L.length)+' layanan diisi sedikitnya 30 pegawai yang menanganinya. Skor terendah ada pada '+esc(sk[0].layanan)+' ('+esc(lpUnit(sk[0].unit))+', '+d1(sk[0].skor)+') dan tertinggi pada '+esc(sk[sk.length-1].layanan)+' ('+esc(lpUnit(sk[sk.length-1].unit))+', '+d1(sk[sk.length-1].skor)+'). ';
+  s+='Pembacaan menurut layanan dapat disandingkan dengan hasil survei kepuasan layanan di modul Layanan Publik untuk melihat apakah budaya pelayanan petugas sejalan dengan pengalaman pengguna.';
+  let h=sorotanCard('Highlight',s,[{v:'budnilai',t:'Nilai dan Perilaku'}]);
+  const U=[...new Set(L.map(function(x){return x.unit;}))].sort();
+  h+='<div class="toolbar"><select class="flt" id="budLayU"><option value="">Semua unit Eselon I</option>'+U.map(function(u){return '<option value="'+esc(u)+'"'+(fu===u?' selected':'')+'>'+esc(u)+'</option>';}).join('')+'</select><span class="mini">'+fmt(rows.length)+' layanan</span></div>';
+  h+='<div class="card"><div class="tblw"><table><thead><tr><th>Layanan</th><th>Unit</th><th class="num-c">Pegawai</th><th class="num-c">Skor</th><th class="num-c">Berorientasi Pelayanan</th><th class="num-c">Adaptif</th><th class="num-c">Sedang ke bawah</th></tr></thead><tbody>'+
+    rows.map(function(x){return '<tr><td>'+esc(x.layanan)+'</td><td>'+esc(lpUnit(x.unit))+'</td><td class="num-c">'+fmt(x.n)+'</td><td class="num-c"><b>'+d1(x.skor)+'</b></td><td class="num-c">'+d1(x.pelayanan)+'</td><td class="num-c">'+d1(x.adaptif)+'</td><td class="num-c">'+d1(x.rendahPct)+'%</td></tr>';}).join('')+
+    '</tbody></table></div><div class="mini" style="margin-top:6px">Satu pegawai bisa menangani beberapa layanan sehingga muncul di beberapa baris. Layanan yang diisi kurang dari 30 pegawai tidak ditampilkan.</div></div>';
+  h+=budSumber();
+  return h;}
+
+
+function vBudKaitan(){
+  var g=budGuard();if(g)return g;
+  const S=BUDAYA.sandingan,K=BUDAYA.korelasi;
+  const r=function(k){var x=K[k]||{};return x.r==null?'-':String(x.r).replace('.',',');};
+  var s='Di tingkat Eselon I, skor budaya pegawai tidak berhubungan dengan tingkat keluar pegawai (korelasi peringkat '+r('ind_keluar')+' pada '+fmt((K.ind_keluar||{}).n||0)+' unit). ';
+  s+='Hubungan sedang terlihat dengan cakupan penghargaan ('+r('ind_penghargaan')+') dan porsi pejabat yang pensiun dalam lima tahun ('+r('ind_pensiun')+'). Dengan 13 sampai 14 unit, angka ini mudah berubah oleh satu unit dan tidak menunjukkan sebab akibat; gunakan untuk memilih unit yang perlu ditelaah, bukan untuk menyimpulkan.';
+  let h=sorotanCard('Highlight',s,[{v:'pmbunit',t:'Pemberhentian'},{v:'phunit',t:'Penghargaan'},{v:'sukunit',t:'Suksesi'}]);
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Budaya Disandingkan dengan Modul SDM Lain</h2>'+
+    budTabelKel(S,[['Unit Eselon I',function(x){return esc(x.unit);}],['Skor pegawai',function(x){return budS(x.ind);},1],['Selisih pejabat',function(x){return x.selisih==null?'-':(x.selisih>0?'+':'')+d1(x.selisih);},1],['Keluar per 10.000',function(x){return x.keluar==null?'<span class="mini">belum ada data</span>':d1(x.keluar);},1],['Pernah penghargaan (%)',function(x){return x.penghargaan==null?'<span class="mini">belum ada data</span>':d1(x.penghargaan);},1],['Cuti tahunan (hari)',function(x){return x.cuti==null?'<span class="mini">belum ada data</span>':d1(x.cuti);},1],['Pejabat pensiun 5 tahun (%)',function(x){return x.pensiun==null?'<span class="mini">belum ada data</span>':d1(x.pensiun);},1]])+
+    '<div class="mini" style="margin-top:6px">Disambung lewat nama unit. Cuti Direktorat Jenderal Pajak dan Bea dan Cukai tidak dipakai karena datanya belum lengkap di HRIS.</div></div>';
+  const KR=[['keluar','Tingkat keluar'],['penghargaan','Cakupan penghargaan'],['cuti','Rata-rata cuti tahunan'],['pensiun','Pejabat pensiun 5 tahun']];
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Korelasi Peringkat antar-Unit</h2>'+
+    budTabelKel(KR,[['Disandingkan dengan',function(x){return x[1];}],['Skor pegawai',function(x){return r('ind_'+x[0])+' <span class="mini">('+fmt((K['ind_'+x[0]]||{}).n||0)+' unit)</span>';},1],['Selisih pejabat dan pegawai',function(x){return r('selisih_'+x[0])+' <span class="mini">('+fmt((K['selisih_'+x[0]]||{}).n||0)+' unit)</span>';},1]])+
+    '<div class="mini" style="margin-top:6px">Korelasi peringkat Spearman, dari -1 sampai 1. Di bawah 0,3 praktis tidak ada hubungan; 0,3 sampai 0,6 sedang. Jumlah unit kecil, sehingga hasil ini bahan telaah, bukan keputusan.</div></div>';
+  h+=budSumber();
+  return h;}
+
+
+function vBudMutu(){
+  var g=budGuard();if(g)return g;
+  const B=BUDAYA,I=B.ind,O=B.org,N=B.meta.nilai;
+  var s='Sebanyak <b>'+d1(I.seragamPct)+'% pegawai</b> dan '+d1(O.seragamPct)+'% pejabat memberi nilai yang sama pada seluruh 25 butir perilaku, sebagian besar nilai 5 untuk semuanya. ';
+  s+='Bila jawaban seragam dikeluarkan, skor pegawai turun dari '+d1(I.skor)+' ke '+d1(I.tanpaSeragam.skor)+' dan skor pejabat dari '+d1(O.skor)+' ke '+d1(O.tanpaSeragam.skor)+'. ';
+  s+='Angka utama modul ini tetap mengikuti laporan resmi supaya sama dengan dokumen yang sudah beredar, dan pembandingnya disajikan di halaman ini.';
+  let h=sorotanCard('Highlight',s,[{v:'budprofil',t:'Profil Responden'},{v:'budtentang',t:'Tentang Data'}]);
+  h+='<div class="lp-kpis">'
+    +lpSel('','Jawaban Seragam Pegawai',d1(I.seragamPct)+'<span class="lp-of">%</span>',fmt(I.semua5)+' pegawai memberi nilai 5 untuk semua')
+    +lpSel('','Jawaban Seragam Pejabat',d1(O.seragamPct)+'<span class="lp-of">%</span>',fmt(O.semua5)+' pejabat memberi nilai 5 untuk semua')
+    +lpSel('','Skor Pegawai tanpa Seragam',d1(I.tanpaSeragam.skor),'dari '+d1(I.skor)+'; '+fmt(I.tanpaSeragam.n)+' responden')
+    +lpSel('','Skor Pejabat tanpa Seragam',d1(O.tanpaSeragam.skor),'dari '+d1(O.skor)+'; '+fmt(O.tanpaSeragam.n)+' responden')
+    +'</div>';
+  h+='<div class="grid2"><div class="card"><h2 class="sec" style="margin-top:0">Skor Pegawai, dengan dan tanpa Jawaban Seragam</h2>'+
+    budDot(N.map(function(n){return {lab:n,a:I.tanpaSeragam.nilai[n],b:I.nilai[n]};}).sort(function(a,b){return a.a-b.a;}),{min:80,max:100,satu:1,aria:'Skor tanpa jawaban seragam'})+
+    '<div class="mini" style="margin-top:6px">Titik biru: tanpa jawaban seragam. Titik jingga: seluruh responden, seperti di laporan.</div></div>'+
+    '<div class="card"><h2 class="sec" style="margin-top:0">Jawaban Seragam menurut Jenjang</h2>'+
+    I.perJabatan.filter(function(x){return x.seragamPct!=null;}).map(function(x){return bar(x.k,x.seragamPct,60,'',d1(x.seragamPct)+'%');}).join('')+
+    '<div class="mini" style="margin-top:8px">Porsinya naik mengikuti jenjang, sehingga perbedaan skor antarjenjang sebagian berasal dari cara mengisi.</div></div></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Hal yang Perlu Diingat saat Membaca Angka</h2><ul style="margin:0;padding-left:18px;line-height:1.6">'+
+    '<li><b>Penilaian diri.</b> Data individu berisi pegawai yang menilai dirinya sendiri, dan data organisasi berisi pejabat yang menilai unit yang dipimpinnya. Tidak ada penilaian bawahan atas unit maupun atasannya.</li>'+
+    '<li><b>Rata-rata tinggi menutupi sebaran.</b> '+d1(100*budSedang(I)/I.n)+'% pegawai berada pada kategori sedang ke bawah. Gunakan persen ini, bukan hanya rata-rata, saat membandingkan unit.</li>'+
+    '<li><b>Hambatan organisasi belum ditafsirkan.</b> Arah butirnya belum pasti dan sudah dimintakan bunyi kuesionernya ke Biro SDM.</li>'+
+    '<li><b>Unit dan kelompok kecil.</b> Responden Eselon I hanya '+fmt((I.perJabatan.find(function(x){return x.k==='Eselon I';})||{}).n||0)+' pegawai dan '+fmt((O.perJabatan.find(function(x){return x.k==='Eselon I';})||{}).n||0)+' pejabat; kelompok di bawah 10 responden tidak dirinci.</li>'+
+    '<li><b>Beberapa angka laporan berbeda dengan data.</b> Tabel skor per unit Eselon I pada laporan memakai data pegawai walau narasinya menyebut persepsi pimpinan. Nilai Kesempurnaan tingkat organisasi tertulis 4,414 di tabel dan 4,451 di narasi; data memberi '+d1(O.ipro.Kesempurnaan)+' pada skala 100. Nama butir Dukungan Organisasi, Dukungan Supervisi, dan Kepercayaan tertulis sama. Rentang di ringkasan eksekutif (88 sampai 93 dan 82 sampai 92) adalah rentang antarunit, bukan skor keseluruhan.</li>'+
+    '</ul></div>';
+  h+=budSumber();
+  return h;}
+
+
+function vBudTentang(){
+  var g=budGuard();if(g)return g;
+  const M=BUDAYA.meta;
+  let h=pgHead('Tentang Data Budaya Organisasi','Asal angka, cara hitung, dan batas penggunaannya.','');
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Sumber</h2><p>'+esc(M.survei)+', '+esc(M.periode)+', dengan '+esc(M.laporan)+'. Survei diisi '+fmt(M.pengisi)+' pegawai dari populasi '+fmt(M.populasi)+'; setelah pembersihan (pengisian di bawah 180 detik, pola jawaban tertentu, dan data diri kosong) tersisa '+fmt(M.nInd)+' responden pegawai dan '+fmt(M.nOrg)+' responden pejabat. Diolah '+esc(cutiTglIndo(M.dibuat))+'.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Cara Menghitung</h2><p>Setiap butir dinilai 1 sampai 5. Untuk tiap responden dihitung rata-rata butir pada setiap nilai, lalu rata-rata ketujuh nilai BerAKHLAK, dan hasilnya dikali 20 menjadi skala 100. Cara ini menghasilkan angka yang sama persis dengan laporan Biro SDM (skor pegawai '+d1(BUDAYA.ind.skor)+', skor pejabat '+d1(BUDAYA.org.skor)+').</p>'+
+    budTabelKel(M.kategori,[['Kategori',function(k){return esc(k[1]);}],['Skor',function(k){return k[0]==='st'?'90 ke atas':k[0]==='t'?'80 sampai 89':k[0]==='s'?'70 sampai 79':k[0]==='r'?'60 sampai 69':'di bawah 60';}]])+'</div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Privasi</h2><p>'+esc(M.privasi)+' Berkas sumber memuat nomor responden dan alamat IP; keduanya tidak pernah dibaca ke dashboard.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Data yang Sedang Diminta ke Biro SDM</h2><ul style="margin:0;padding-left:18px;line-height:1.6">'+
+    '<li>Bunyi butir kuesioner, terutama hambatan organisasi dan stigma generasi, untuk memastikan arah skor.</li>'+
+    '<li>Data survei 2023 (28.655 responden) supaya perubahan dari survei sebelumnya dapat ditampilkan.</li>'+
+    '<li>Nama butir Dukungan Organisasi, Dukungan Supervisi, dan Kepercayaan yang benar.</li></ul></div>';
+  return h;}
 
 
 
@@ -14591,6 +14972,7 @@ function pgnBersihCatatan(root){
   }
 }
 function bindInputs(){const q=id=>document.getElementById(id);
+  if(q('budLayU'))q('budLayU').onchange=e=>{state.budLayU=e.target.value;render();};
   ['rmhSk','rmhK','rmhM','rmhTK','rmhTG','rmhTU'].forEach(function(id){if(q(id))q(id).onchange=e=>{state[id]=e.target.value;if(id==='rmhSk')state.rmhM='';render();};});
   ['rbnMode','rbnE1','rbnProvSel','rbnRisiko','rbnUrut','rbnProvMode'].forEach(function(id){if(q(id))q(id).onchange=e=>{state[id]=e.target.value;if(id!=='rbnUrut')state.rbnDesa='';render();};});
   if(q('rbnQ'))q('rbnQ').oninput=e=>{state.rbnQ=e.target.value;clearTimeout(window._rbnT);const pos=e.target.selectionStart;
@@ -14862,6 +15244,8 @@ else if(a==='pw2urj'){if(typeof canMod==='function'&&!canMod('urjab'))return;sta
   else if(a==='inkulang'){state.inkErr=false;state.inkErrMsg='';ensureInklusi();render();}
   else if(a==='rbnulang'){state.rbnErr=false;state.rbnErrMsg='';ensureBencana();render();}
   else if(a==='rmhulang'){state.rmhErr=false;state.rmhErrMsg='';ensurePerumahan();render();}
+  else if(a==='budulang'){state.budErr=false;state.budErrMsg='';ensureBudaya();render();}
+  else if(a==='budtab'){state[el.dataset.k]=el.dataset.tab;render();}
   else if(a==='brulang'){state.brErr=false;ensureBeranda();render();}
   else if(a==='brpg'){state.brPg=+el.dataset.p||0;render();}
   else if(a==='rbnhapusdesa'){state.rbnDesa='';render();}
@@ -14978,7 +15362,7 @@ function setFootNote(){
 
 
 
-const VERSI_DATA={"beranda":{"f":"beranda.json","h":"32a5e6c41846"},"bencana":{"f":"bencana.json","h":"c83aa52b72dc"},"perumahan":{"f":"perumahan.json","h":"c13934fa4e72"},"katref":{"f":"katref.json","h":"07c0a9cd624e"},"inklusi":{"f":"inklusi.json","h":"3c928220f3ff"},"cuti":{"f":"cuti.json","h":"3d8fc87659ea"},"suksesi":{"f":"suksesi.json","h":"447c9c078e23"},"penghargaan":{"f":"penghargaan.json","h":"05f6d228ba2f"},"pemberhentian":{"f":"pemberhentian.json","h":"0ac85fd7f4bd"},"kj":{"f":"komjab.json","h":"f844ff60bffb"},"kjk":{"f":"kamuskom.json","h":"bd6c8d472be4"},"jf":{"f":"jafung.json","h":"f359ef51668b"},"tk":{"f":"tkpp.json","h":"68b8d9687f03"},"pw":{"f":"pelwen.json","h":"27a0e4a24423"},"abk":{"f":"abk.json","h":"99e8ba6d8e43"},"urjab":{"f":"urjab.json","h":"86554555f562"},"katalog":{"f":"katalog_keahlian.json","h":"ee0ac439751d"},"otk":{"f":"otk_bundle.json","h":"e251ff00da59"},"mofin":{"f":"mofin.json","h":"14f31da45936"}},VERSI_BEDA={};
+const VERSI_DATA={"beranda":{"f":"beranda.json","h":"46c0d7af5f20"},"bencana":{"f":"bencana.json","h":"c83aa52b72dc"},"perumahan":{"f":"perumahan.json","h":"c13934fa4e72"},"budaya":{"f":"budaya.json","h":"c03f3b46fcff"},"katref":{"f":"katref.json","h":"07c0a9cd624e"},"inklusi":{"f":"inklusi.json","h":"3c928220f3ff"},"cuti":{"f":"cuti.json","h":"3d8fc87659ea"},"suksesi":{"f":"suksesi.json","h":"447c9c078e23"},"penghargaan":{"f":"penghargaan.json","h":"05f6d228ba2f"},"pemberhentian":{"f":"pemberhentian.json","h":"0ac85fd7f4bd"},"kj":{"f":"komjab.json","h":"f844ff60bffb"},"kjk":{"f":"kamuskom.json","h":"bd6c8d472be4"},"jf":{"f":"jafung.json","h":"f359ef51668b"},"tk":{"f":"tkpp.json","h":"68b8d9687f03"},"pw":{"f":"pelwen.json","h":"27a0e4a24423"},"abk":{"f":"abk.json","h":"99e8ba6d8e43"},"urjab":{"f":"urjab.json","h":"86554555f562"},"katalog":{"f":"katalog_keahlian.json","h":"ee0ac439751d"},"otk":{"f":"otk_bundle.json","h":"e251ff00da59"},"mofin":{"f":"mofin.json","h":"14f31da45936"}},VERSI_BEDA={};
 
 
 
@@ -15030,6 +15414,7 @@ const MUAT_INFO={
   inklusi:{lab:'Disabilitas & Inklusi',  byte: 11000, detik:[1,4]},
   bencana:{lab:'Risiko Bencana',       byte:575000, detik:[2,6]},
   perumahan:{lab:'Bantuan Perumahan',  byte:12000, detik:[1,4]},
+  budaya:{lab:'Budaya Organisasi',  byte:75000, detik:[1,4]},
   beranda:{lab:'Ringkasan Beranda',    byte:  6000, detik:[1,4]}
 };
 let MUAT={aktif:false,lab:'',fase:'',mulai:0,byte:0,perkiraan:0,rentang:null,_t:null};
@@ -15624,7 +16009,7 @@ document.getElementById('lpass').addEventListener('keydown',e=>{if(e.key==='Ente
     function icn(id){var m=MODULES.find(function(x){return x.id===id;});return m?svgIcon(m.icn,22):'';}
     var F=[
       {i:icn('otk'),t:'Organisasi',d:'Struktur organisasi, proses bisnis, jabatan, kompetensi, beban kerja, mekanisme kerja, dan kapabilitas kelembagaan.'},
-      {i:icn('suksesi'),t:'Sumber Daya Manusia',d:'Cuti, suksesi pejabat, penghargaan, pemberhentian, disabilitas, penyakit kronis, risiko bencana di tempat kerja, serta bantuan perumahan.'},
+      {i:icn('suksesi'),t:'Sumber Daya Manusia',d:'Cuti, suksesi pejabat, penghargaan, pemberhentian, disabilitas, penyakit kronis, risiko bencana di tempat kerja, bantuan perumahan, serta budaya organisasi.'},
       {i:icn('takelola'),t:'Tata Kelola',d:'Pelimpahan wewenang (mandat) dan perangkat kerja lintas unit.'},
       {i:icn('layanan'),t:'Layanan Publik',d:'Zona Integritas, kepuasan pengguna layanan, inovasi, dan kantor terbaik.'}
     ];
