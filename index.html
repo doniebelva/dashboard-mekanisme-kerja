@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-IyreGpihb9T94ICOV4Vi3l7yscRvXW02YWlb+Rw37VY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-Vh1szZSyqtcYsDtZBpbrB3BFZc84A3e1MxNjhBJ6nU0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -411,7 +411,7 @@ td.num-c,th.num-c{font-variant-numeric:tabular-nums}
 .tbar-fill{height:100%;background:var(--brand);border-radius:var(--rad-xs)}
 .tbar.on .tbar-fill{background:var(--brand-d)}
 .tbar-num{font-size:var(--fs-sm);font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
-.track{background:var(--track);border-radius:var(--rad-pill);height:15px;overflow:hidden}
+.track{background:var(--track);border-radius:var(--rad-pill);height:11px;overflow:hidden}
 .fill{height:100%;border-radius:var(--rad-pill);transition:width .6s cubic-bezier(.22,.7,.2,1);
   background:linear-gradient(90deg,color-mix(in srgb,var(--brand) 72%,var(--surface)),var(--brand))}
 .fill.late{background:var(--red)}
@@ -760,6 +760,11 @@ select.flt,.search{max-width:100%}
 .rmh-grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}.rmh-grid2>.card{margin:0}
 .rmh-ol{margin:4px 0 0;padding-left:20px}.rmh-ol li{margin:6px 0;line-height:1.55}
 .rmh-jalur{display:grid;gap:10px}.rmh-jalur>div{border:1px solid var(--line);border-radius:10px;padding:10px 12px}.rmh-jalur b{display:block;color:var(--brand-d);margin-bottom:2px}.rmh-jalur span{font-size:var(--fs-sm);color:var(--ink-sec);line-height:1.5}
+
+#view svg polyline,#view svg line{vector-effect:non-scaling-stroke}
+.card svg,.lp-ch svg{overflow:visible}
+.chband{fill:transparent;transition:fill var(--t-fast) ease}.chg:hover .chband{fill:color-mix(in srgb,var(--ink) 6%,transparent)}
+.chguide{opacity:0;transition:opacity var(--t-fast) ease}.chpt:hover .chguide{opacity:.7}
 .lp-ch{background:var(--surface);border:1px solid var(--line);border-radius:var(--rad-lg);padding:16px 18px 10px;height:100%;cursor:pointer;transition:border-color var(--t-fast) ease}
 .lp-ch:hover{border-color:var(--brand)}.lp-ch:not([data-act]){cursor:default}.lp-ch:not([data-act]):hover{border-color:var(--line)}
 .lp-cht{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:700;color:var(--ink);font-size:var(--fs-base)}
@@ -769,8 +774,8 @@ select.flt,.search{max-width:100%}
 .lp-leg span{display:inline-flex;align-items:center;gap:6px}.lp-leg i{width:10px;height:10px;border-radius:3px;display:inline-block}
 .lp-bars{display:flex;flex-direction:column;gap:14px;padding:10px 0 12px}
 .lp-br{display:grid;grid-template-columns:132px 1fr 76px;align-items:center;gap:10px;font-size:var(--fs-md)}
-.lp-bn{color:var(--ink)}.lp-bt{height:12px;background:var(--track);border-radius:6px;overflow:hidden}
-.lp-bt i{display:block;height:100%;border-radius:6px}
+.lp-bn{color:var(--ink)}.lp-bt{height:10px;background:var(--track);border-radius:5px;overflow:hidden}
+.lp-bt i{display:block;height:100%;border-radius:5px}
 .lp-bv{text-align:right;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}.lp-bv small{font-weight:500;color:var(--muted)}
 .lp-nav{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:16px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--rad-lg)}
 .lp-navt{font-size:var(--fs-sm);font-weight:700;color:var(--muted);margin-right:6px}
@@ -2047,7 +2052,7 @@ async function loadKomjab(){if(KOMJ)return KOMJ;let d=null;if(REMOTE){d=await ap
 function ensureKomjab(){if(KOMJ||state.kompLoading)return;state.kompLoading=true;state.kompErr=false;progStart();
   loadKomjab().then(()=>{state.kompLoading=false;progDone();render();}).catch(()=>{state.kompLoading=false;progDone();state.kompErr=true;render();});}
 async function loadKamus(){if(KOMK)return KOMK;let d=null;if(REMOTE){d=await apiUnduh('kjk',{});}else if(KOMK_URL){const r=await fetch(KOMK_URL);d=await r.json();}else{return KOMK;}
-  if(!d||!d.komtek)throw new Error('kamuskom-unavailable');KOMK=d;return KOMK;}
+  if(!d||!d.komtek)throw new Error('kamuskom-unavailable');KOMK=JSON.parse(JSON.stringify(d).replace(/[\u2013\u2014]/g,'-'));return KOMK;}
 function ensureKamus(){if(KOMK||state.kamLoading)return;state.kamLoading=true;state.kamErr=false;progStart();
   loadKamus().then(()=>{state.kamLoading=false;progDone();render();}).catch(()=>{state.kamLoading=false;progDone();state.kamErr=true;render();});}
 
@@ -3494,15 +3499,15 @@ function bar(name,val,max,cls,num,act){const w=max?Math.max(2,Math.round(100*val
   return `<div class="bar-row"><div class="name ${act?'clk':''}" ${a} title="${esc(name)}">${esc(name)}</div><div class="track"><div class="fill ${cls||''}" style="width:${w}%"></div></div><div class="num">${num}</div></div>`;}
 function donut(parts,size,center){const tot=parts.reduce((s,p)=>s+p.v,0)||1;const r=size/2-6,cx=size/2,cy=size/2;let a=-Math.PI/2,segs='';
   parts.forEach(p=>{const ang=2*Math.PI*p.v/tot;const x1=cx+r*Math.cos(a),y1=cy+r*Math.sin(a);a+=ang;const x2=cx+r*Math.cos(a),y2=cy+r*Math.sin(a);const lg=ang>Math.PI?1:0;
-    segs+=`<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${lg} 1 ${x2},${y2} Z" fill="${p.c}" stroke="var(--side)" stroke-width="1.5"/>`;});
+    segs+=`<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${lg} 1 ${x2},${y2} Z" fill="${p.c}" stroke="var(--surface)" stroke-width="2"/>`;});
   let ctr='';
   
 
 
-  if(center){const lubang=2*r*0.62;const nb=String(center.big).length||1,ns=String(center.small||'').length||1;
+  if(center){const lubang=2*r*0.68;const nb=String(center.big).length||1,ns=String(center.small||'').length||1;
     const fb=Math.min(size*0.2,0.9*lubang/(0.62*nb)),fs=Math.min(size*0.078,0.9*lubang/(0.68*ns));
     ctr=`<text x="${cx}" y="${cy-1}" text-anchor="middle" font-size="${fb.toFixed(1)}" font-weight="800" fill="var(--brand-d)">${center.big}</text><text x="${cx}" y="${(cy+size*0.13).toFixed(0)}" text-anchor="middle" font-size="${fs.toFixed(1)}" fill="var(--muted)" letter-spacing="1">${center.small}</text>`;}
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${segs}<circle cx="${cx}" cy="${cy}" r="${r*0.62}" fill="var(--side)"/>${ctr}</svg>`;}
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${segs}<circle cx="${cx}" cy="${cy}" r="${r*0.68}" fill="var(--surface)"/>${ctr}</svg>`;}
 
 
 function vRingkasan(){
@@ -7521,15 +7526,37 @@ function tkBersih(){if(!TK||TK.__bersih)return;const V=TK.inovasi;if(V&&V.rows){
 
 
 
+
+
+function chNice(mx,n){n=n||4;if(!(mx>0))return {mx:1,step:1};var raw=mx/n,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p,s=f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10,st=s*p;return {mx:Math.ceil(mx/st-1e-9)*st,step:st};}
+function chTik(v){return Number(v).toLocaleString('id-ID',{maximumFractionDigits:2});}
+var _chId=0;
+
+
+
+
+function svgHuruf(root){if(!root)return;
+  root.querySelectorAll('svg[viewBox]').forEach(function(s){if(s.closest('.leaflet-container'))return;
+    var vb=s.viewBox&&s.viewBox.baseVal;if(!vb||!vb.width)return;s.style.minWidth='';var rw=s.getBoundingClientRect().width;if(!rw)return;var k=rw/vb.width;
+    
+
+    var padat=s.querySelectorAll('text,tspan').length>12&&innerWidth<=620;
+    if((k<0.62||(padat&&k<0.85))&&!s.getAttribute('height')){s.style.minWidth=Math.round(vb.width*(padat?0.88:0.72))+'px';var pw=s.parentElement;if(pw&&getComputedStyle(pw).overflowX==='visible')pw.style.overflowX='auto';rw=s.getBoundingClientRect().width;k=rw/vb.width;}
+    var tt=s.querySelectorAll('text,tspan'),batas=tt.length>12?1.1:1.35;   
+    tt.forEach(function(t){var f0=t.getAttribute('data-fs');
+      if(f0==null){f0=t.getAttribute('font-size');if(!f0)return;t.setAttribute('data-fs',f0);}
+      f0=parseFloat(f0);if(!(f0>0)||f0>14)return;
+      var ef=Math.max(10.5,Math.min(13,f0*k));t.setAttribute('font-size',Math.min(ef/k,f0*batas).toFixed(2));});});}
 function lpKolom(cats,series,opt){opt=opt||{};
   const tot=cats.map(c=>series.reduce((s,se)=>s+(c.v[se.k]||0),0));
-  const raw=Math.max.apply(null,tot.concat([1]));const step=Math.pow(10,Math.floor(Math.log10(raw)));const mx=Math.ceil(raw/step)*step||1;
+  const raw=Math.max.apply(null,tot.concat([1]));const ns=chNice(raw,4),mx=ns.mx;
   
-  const W=opt.w||640,H=opt.h||210,pl=Math.max(34,10+7*fmt(mx).length),pr=8,pt=18,pb=26,iw=W-pl-pr,ih=H-pt-pb;
-  const bw=iw/cats.length,bar=Math.min(34,bw*0.62);const Y=v=>pt+ih*(1-v/mx);
-  let g='';[0,0.5,1].forEach(f=>{const yy=pt+ih*(1-f);g+=`<line x1="${pl}" y1="${yy.toFixed(1)}" x2="${W-pr}" y2="${yy.toFixed(1)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(Math.round(mx*f))}</text>`;});
+  const W=opt.w||640,H=opt.h||210,pl=Math.max(34,10+7*chTik(mx).length),pr=8,pt=18,pb=26,iw=W-pl-pr,ih=H-pt-pb;
+  const bw=iw/cats.length,bar=Math.min(28,bw*0.58);const Y=v=>pt+ih*(1-v/mx);
+  let g='';for(let tv=0;tv<=mx+1e-9;tv+=ns.step){const yy=Y(tv);g+=`<line x1="${pl}" y1="${yy.toFixed(1)}" x2="${W-pr}" y2="${yy.toFixed(1)}" stroke="var(--line)" stroke-width="1"${tv>0?' stroke-opacity="0.55"':''}/><text x="${pl-7}" y="${(yy+3.5).toFixed(1)}" text-anchor="end" font-size="10.5" fill="var(--muted)">${chTik(tv)}</text>`;}
   const iMax=tot.indexOf(Math.max.apply(null,tot));
   cats.forEach((c,i)=>{const x=pl+bw*i+(bw-bar)/2;let base=pt+ih;const redup=opt.sorot&&String(c.lab)!==String(opt.sorot);
+    g+=`<g class="chg"><rect class="chband" x="${(pl+bw*i).toFixed(1)}" y="${pt}" width="${bw.toFixed(1)}" height="${ih}" rx="4"><title>${esc(String(c.lab))}: ${series.map(se=>se.lab+' '+fmt(c.v[se.k]||0)).join(', ')}</title></rect>`;
     const segs=series.filter(se=>(c.v[se.k]||0)>0);
     segs.forEach((se,j)=>{const v=c.v[se.k];const h=Math.max(1,ih*v/mx);const top=j===segs.length-1;const y=base-h;const hh=Math.max(1,h-(j>0?2:0));
       const yy=y;
@@ -7537,23 +7564,26 @@ function lpKolom(cats,series,opt){opt=opt||{};
         :`M${x.toFixed(1)},${(yy+hh).toFixed(1)}V${yy.toFixed(1)}H${(x+bar).toFixed(1)}V${(yy+hh).toFixed(1)}Z`;
       g+=`<path d="${d}" fill="${se.col}"${redup?' opacity="0.35"':''}><title>${esc(String(c.lab))} · ${esc(se.lab)}: ${fmt(v)}</title></path>`;base=y;});
     if(tot[i]&&(i===iMax||i===cats.length-1||String(c.lab)===String(opt.sorot)))g+=`<text x="${(x+bar/2).toFixed(1)}" y="${(Y(tot[i])-6).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${fmt(tot[i])}</text>`;
-    const lab=String(c.lab);if(cats.length<=10||i%2===0||i===cats.length-1)g+=`<text x="${(x+bar/2).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(/^\d{4}$/.test(lab)?"'"+lab.slice(2):lab)}</text>`;
-    g+=`<rect x="${(pl+bw*i).toFixed(1)}" y="${pt}" width="${bw.toFixed(1)}" height="${ih}" fill="transparent"><title>${esc(String(c.lab))}: ${series.map(se=>se.lab+' '+fmt(c.v[se.k]||0)).join(', ')}</title></rect>`;});
+    const lab=String(c.lab);if(cats.length<=10||i%2===0||i===cats.length-1)g+=`<text x="${(x+bar/2).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${esc(/^\d{4}$/.test(lab)?"'"+lab.slice(2):lab)}</text>`;
+    g+='</g>';});
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(opt.aria||'')}" style="display:block">${g}</svg>`;}
 function lpGaris(pts,opt){opt=opt||{};
   const W=opt.w||640,H=opt.h||210,pl=34,pr=34,pt=18,pb=26,iw=W-pl-pr,ih=H-pt-pb;
   const ys=pts.map(p=>p.y);let mn=Math.floor((Math.min.apply(null,ys)-0.1)*5)/5,mx=Math.ceil((Math.max.apply(null,ys)+0.1)*5)/5;if(opt.min!=null)mn=opt.min;if(opt.max!=null)mx=opt.max;
   const X=i=>pl+iw*i/Math.max(1,pts.length-1),Y=v=>pt+ih*(1-(v-mn)/(mx-mn));const dk=v=>Number(v).toLocaleString('id-ID',{minimumFractionDigits:opt.dec||2,maximumFractionDigits:opt.dec||2});
-  let g='';[0,0.5,1].forEach(f=>{const yy=pt+ih*(1-f);g+=`<line x1="${pl}" y1="${yy.toFixed(1)}" x2="${W-pr}" y2="${yy.toFixed(1)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="11" fill="var(--muted)">${dk(mn+(mx-mn)*f)}</text>`;});
+  const stp=chNice(mx-mn,4).step;let g='';for(let tv=Math.ceil(mn/stp-1e-9)*stp;tv<=mx+1e-9;tv+=stp){const yy=Y(tv);g+=`<line x1="${pl}" y1="${yy.toFixed(1)}" x2="${W-pr}" y2="${yy.toFixed(1)}" stroke="var(--line)" stroke-width="1"${Math.abs(tv-mn)>1e-9?' stroke-opacity="0.55"':''}/><text x="${pl-7}" y="${(yy+3.5).toFixed(1)}" text-anchor="end" font-size="10.5" fill="var(--muted)">${chTik(tv)}</text>`;}
   const line=pts.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+','+Y(p.y).toFixed(1)).join('');
-  g+=`<path d="${line}L${X(pts.length-1).toFixed(1)},${pt+ih}L${X(0).toFixed(1)},${pt+ih}Z" fill="color-mix(in srgb, ${opt.col||'var(--brand)'} 9%, transparent)"/>`;
-  g+=`<path d="${line}" fill="none" stroke="${opt.col||'var(--brand)'}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const gid='chg'+(++_chId),gc=opt.col||'var(--brand)';
+  g+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${gc}" stop-opacity="0.20"/><stop offset="1" stop-color="${gc}" stop-opacity="0.01"/></linearGradient></defs>`;
+  g+=`<path d="${line}L${X(pts.length-1).toFixed(1)},${pt+ih}L${X(0).toFixed(1)},${pt+ih}Z" fill="url(#${gid})"/>`;
+  g+=`<path d="${line}" fill="none" stroke="${gc}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
   const iMax=ys.indexOf(Math.max.apply(null,ys)),iMin=ys.indexOf(Math.min.apply(null,ys)),last=pts.length-1;
   pts.forEach((p,i)=>{const x=X(i),y=Y(p.y);const pen=(i===last||i===iMin||i===iMax);
     if(pen)g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${opt.col||'var(--brand)'}" stroke="var(--surface)" stroke-width="2"/>`;
-    if(i===last||i===iMin)g+=`<text x="${(x+(i===last?6:0)).toFixed(1)}" y="${(y+(i===iMin?16:-8)).toFixed(1)}" text-anchor="${i===last?'start':'middle'}" font-size="11" font-weight="700" fill="var(--ink)">${dk(p.y)}</text>`;
-    if(pts.length<=10||i%2===0||i===last)g+=`<text x="${x.toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(String(p.x).length===4?"'"+String(p.x).slice(2):String(p.x))}</text>`;
-    g+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="transparent"><title>${esc(String(p.x))}: ${dk(p.y)}</title></circle>`;});
+    if(i===last||i===iMin)g+=`<text x="${(x+(i===last?6:(i===0?4:0))).toFixed(1)}" y="${(y+(i===iMin?16:-8)).toFixed(1)}" text-anchor="${(i===last||i===0)?'start':'middle'}" font-size="11" font-weight="700" fill="var(--ink)">${dk(p.y)}</text>`;
+    if(pts.length<=10||i%2===0||i===last)g+=`<text x="${x.toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${esc(String(p.x).length===4?"'"+String(p.x).slice(2):String(p.x))}</text>`;
+    const hw=iw/Math.max(1,pts.length-1);
+    g+=`<g class="chpt"><line class="chguide" x1="${x.toFixed(1)}" y1="${pt}" x2="${x.toFixed(1)}" y2="${pt+ih}" stroke="var(--muted)" stroke-dasharray="3 3"/><rect x="${(x-hw/2).toFixed(1)}" y="${pt}" width="${hw.toFixed(1)}" height="${ih}" fill="transparent"><title>${esc(String(p.x))}: ${dk(p.y)}</title></rect></g>`;});
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(opt.aria||'')}" style="display:block">${g}</svg>`;}
 function lpLeg(items){return '<div class="lp-leg">'+items.map(i=>`<span><i style="background:${i.col}"></i>${esc(i.lab)}</span>`).join('')+'</div>';}
 
@@ -8259,7 +8289,7 @@ function vKatData(){
     let st='<span class="mini">-</span>';
     if(r.s){let ok=false;try{ok=!!r.s();}catch(e){}st=ok?'<span class="pill on">Termuat</span>':'<span class="pill neu">Belum dimuat</span>';}
     let pp='-';try{pp=r.p();}catch(e){}
-    return `<tr><td><b>${esc(r.d)}</b><div class="mini" style="color:var(--muted)">${esc(r.f)}</div></td><td class="mini">${esc(r.m)}</td><td class="mini">${esc(r.a)}</td><td>${st}</td><td class="mini">${pp}</td><td class="mini">${esc(r.u)}</td><td class="mini">${esc(r.o)}</td></tr>`;
+    return `<tr><td><b>${esc(r.d)}</b>${ADMIN?`<div class="mini" style="color:var(--muted)">${esc(r.f)}</div>`:''}</td><td class="mini">${esc(r.m)}</td><td class="mini">${esc(r.a)}</td><td>${st}</td><td class="mini">${pp}</td><td class="mini">${esc(String(r.u).replace(/\s*\([\w.]+\.py\)/g,'').replace(/^[\w.]+\.py( \+ [\w.]+\.py)* lalu/,'Olah ulang lalu'))}</td><td class="mini">${esc(r.o)}</td></tr>`;
   }).join('');
   h+=`</tbody></table></div>
   <div class="mini" style="margin-top:9px;color:var(--muted)">Kolom Pengampu akan dipertajam per bagian saat registry modul (konsep OSDM 5.1) diisi. Nilai "-" berarti tidak berlaku atau belum ada data, bukan nol.</div></div>`;
@@ -8343,7 +8373,7 @@ function remoteFit(){
   f.style.width=(ruang+cropL)+'px'; f.style.height=(visH+cropT)+'px';
   f.style.marginLeft=(-cropL)+'px'; f.style.marginTop=(-cropT)+'px';
 }
-addEventListener('resize',function(){if(state.view==='otkremote')remoteFit();});
+addEventListener('resize',function(){if(state.view==='otkremote')remoteFit();clearTimeout(svgHuruf._t);svgHuruf._t=setTimeout(function(){svgHuruf(document.getElementById('view'));},180);});
 
 
 
@@ -9553,7 +9583,7 @@ function render(){
   viewEl.innerHTML=menuDescBar()+freshBar()+_isiView+navPager()+masukanBar();
   remoteHost(state.view==='otkremote');
   jejak(state.view);
-  vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);pgnPrepare(viewEl);
+  vtipPrepare(viewEl);vtipHide();a11yPrepare(viewEl);pgnPrepare(viewEl);svgHuruf(viewEl);
   setFootNote();if(!_sv)window.scrollTo({top:0});bindInputs();
   
   PASCA.splice(0).forEach(function(f){try{f();}catch(e){console.error(e);}});
@@ -9715,7 +9745,7 @@ function vKj(){
       lpBaris(klU.slice(0,12).map(function(k){return {lab:kompKlNama(k),n:kl[k],teks:fmt(kl[k]),attr:'data-act="kompkl" data-k="'+esc(k)+'"'};}),{kls:'lp-bars2'}))+'</div>';
   h+='</div>';
   h+=lpNav([['kjstandar','Standar Kompetensi Jabatan'],['kjcakupan','Cakupan Standar Jabatan'],['kjrantai','Rantai Proses Bisnis'],['kjtaksonomi','Kesesuaian Taksonomi'],['kjproyeksi','Proyeksi Pemenuhan'],['kjprioritas','Prioritas Penyusunan'],['kjtentang','Tentang Data']]);
-  h+='<div class="mini lp-src">Sumber: '+esc(meta.sumber||'-')+', diolah '+esc(meta.tanggal_olah||'-')+'. Penyebut cakupan adalah Katalog Jabatan.</div>';
+  h+='<div class="mini lp-src">Sumber: '+esc(String(meta.sumber||'-').replace(/\.xlsx$/,''))+', diolah '+esc(cutiTglIndo(meta.tanggal_olah||'-'))+'. Penyebut cakupan adalah Katalog Jabatan.</div>';
   return h;
 }
 var KOMP_LVL={ES1:'Eselon I',SA:'Staf Ahli',ES2:'Eselon II',TP:'Tenaga Pengkaji',ES3:'Eselon III',ES4:'Eselon IV',PEL:'Pelaksana'};
@@ -10538,7 +10568,7 @@ function vKjTentang(){
   var belumBaku=(KOMJ.keahlian||[]).filter(function(x){return !x.kat;}).length;
   var unitLama=(KOMJ.unit||[]).filter(function(u){return u.lama;}).length;
   var h='<div class="card"><h2 class="sec" style="margin-top:0">Sumber &amp; Cakupan</h2>'+
-    '<p style="margin:0 0 6px"><b>Sumber:</b> '+esc(m.sumber||'-')+', diolah '+esc(m.tanggal_olah||'-')+'.</p>'+
+    '<p style="margin:0 0 6px"><b>Sumber:</b> '+esc(String(m.sumber||'-').replace(/\.xlsx$/,''))+', diolah '+esc(cutiTglIndo(m.tanggal_olah||'-'))+'.</p>'+
     '<p style="margin:0 0 6px"><b>Dasar:</b> '+((m.dasar||[]).map(esc).join('; ')||'-')+'.</p>'+
     '<p style="margin:0"><b>Cakupan:</b> '+fmt(rows.length)+' posisi jabatan pada '+fmt((KOMJ.unit||[]).length)+' unit ('+fmt(unitLama)+' di antaranya unit lama), '+
     fmt(st.komtek||0)+' kompetensi teknis, 9 kompetensi manajerial dan sosial kultural, '+fmt(st.keahlian||0)+' keahlian terpakai, dan '+fmt(st.jf||0)+' kombinasi standar jabatan fungsional.</p></div>';
@@ -10690,20 +10720,21 @@ function cutiLine(labels,series,opt){
   var n=labels.length;if(!n)return '';
   var semua=series.flatMap(function(s){return s.v.filter(function(x){return x!=null;});});
   var mx=opt.max||Math.max(1,Math.max.apply(null,semua));
-  if(!opt.max){var p=Math.pow(10,Math.floor(Math.log10(mx)));mx=Math.ceil(mx/(p/2))*(p/2);}  
+  var stp=mx/2;if(!opt.max){var cn=chNice(mx,4);mx=cn.mx;stp=cn.step;}  
   var X=function(i){return pL+(W-pL-pR)*(n<=1?0.5:i/(n-1));};
   var Y=function(v){return H-pB-(Math.max(0,Math.min(mx,v))/mx)*(H-pT-pB);};
   var g='',yl='';
-  for(var k=0;k<=2;k++){var val=mx*k/2,gy=Y(val);
-    g+='<line x1="'+pL+'" y1="'+gy.toFixed(1)+'" x2="'+(W-pR)+'" y2="'+gy.toFixed(1)+'" stroke="var(--line)" stroke-opacity="0.45" stroke-width="1"/>';
-    yl+='<text x="'+(pL-8)+'" y="'+(gy+3.5).toFixed(1)+'" font-size="10.5" fill="var(--muted)" text-anchor="end">'+(opt.pct?(Math.round(val)+'%'):fmt(Math.round(val)))+'</text>';}
+  for(var val=0;val<=mx+1e-9;val+=stp){var gy=Y(val);
+    g+='<line x1="'+pL+'" y1="'+gy.toFixed(1)+'" x2="'+(W-pR)+'" y2="'+gy.toFixed(1)+'" stroke="var(--line)"'+(val>0?' stroke-opacity="0.55"':'')+' stroke-width="1"/>';
+    yl+='<text x="'+(pL-8)+'" y="'+(gy+3.5).toFixed(1)+'" font-size="10.5" fill="var(--muted)" text-anchor="end">'+(opt.pct?(chTik(val)+'%'):chTik(val))+'</text>';}
   var body='',akhir='',ujung=[];
   series.forEach(function(s){
     var pts=s.v.map(function(v,i){return v==null?null:[X(i),Y(v),i];}).filter(Boolean);
     if(!pts.length)return;
-    if(s.area)body+='<polygon points="'+pts[0][0].toFixed(1)+','+(H-pB)+' '+pts.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+' '+pts[pts.length-1][0].toFixed(1)+','+(H-pB)+'" fill="'+s.c+'" opacity="0.10"/>';
-    body+='<polyline points="'+pts.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+'" fill="none" stroke="'+s.c+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
-    body+=pts.map(function(q){return '<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="2.6" fill="var(--surface)" stroke="'+s.c+'" stroke-width="1.6"><title>'+esc(s.n)+' '+esc(String(labels[q[2]]))+': '+(opt.pct?(s.v[q[2]]+'%'):fmt(s.v[q[2]]))+'</title></circle>';}).join('');
+    if(s.area){var gid='chg'+(++_chId);body+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+s.c+'" stop-opacity="0.18"/><stop offset="1" stop-color="'+s.c+'" stop-opacity="0.01"/></linearGradient></defs>'+
+      '<polygon points="'+pts[0][0].toFixed(1)+','+(H-pB)+' '+pts.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+' '+pts[pts.length-1][0].toFixed(1)+','+(H-pB)+'" fill="url(#'+gid+')"/>';}
+    body+='<polyline points="'+pts.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1);}).join(' ')+'" fill="none" stroke="'+s.c+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    body+=pts.map(function(q){return '<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="2.6" fill="var(--surface)" stroke="'+s.c+'" stroke-width="1.6"/>';}).join('');
     var la=pts[pts.length-1];ujung.push({s:s,la:la,y:la[1]+3.5});
   });
   
@@ -10718,7 +10749,10 @@ function cutiLine(labels,series,opt){
       (series.length>1?('<tspan x="'+(la[0]+8).toFixed(1)+'" dy="13" font-size="9.5" fill="var(--muted)">'+esc(s.n.replace('Cuti ',''))+'</tspan>'):'')+
       '</text>';});
   var xl=labels.map(function(l,i){return '<text x="'+X(i).toFixed(1)+'" y="'+(H-8)+'" font-size="10.5" fill="var(--muted)" text-anchor="middle">'+esc(String(l))+'</text>';}).join('');
-  return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" style="max-width:100%">'+g+yl+body+akhir+xl+'</svg>';}
+  
+  var hw=(W-pL-pR)/Math.max(1,n-1),hov=labels.map(function(l,i){var x=X(i);
+    return '<g class="chpt"><line class="chguide" x1="'+x.toFixed(1)+'" y1="'+pT+'" x2="'+x.toFixed(1)+'" y2="'+(H-pB)+'" stroke="var(--muted)" stroke-dasharray="3 3"/><rect x="'+(x-hw/2).toFixed(1)+'" y="'+pT+'" width="'+hw.toFixed(1)+'" height="'+(H-pT-pB)+'" fill="transparent"><title>'+esc(String(l))+': '+series.filter(function(s){return s.v[i]!=null;}).map(function(s){return esc(s.n)+' '+(opt.pct?(s.v[i]+'%'):fmt(s.v[i]));}).join(', ')+'</title></rect></g>';}).join('');
+  return '<svg width="100%" viewBox="0 0 '+W+' '+H+'" style="max-width:100%">'+g+yl+body+akhir+xl+hov+'</svg>';}
 
 
 
@@ -12223,7 +12257,7 @@ function vRmhDinas(){
   h+='<div class="lp-c5">'+lpKartu(null,'Kondisi Rumah Dinas','Unit menurut kondisi bangunan',
       lpStk([{lab:'Baik',n:RD.baik,col:'var(--seq-6)'},{lab:'Rusak ringan',n:RD.rr,col:'var(--seq-3)'},{lab:'Rusak berat',n:RD.rb,col:'var(--rbn-4)'}]))+'</div>';
   h+='<div class="lp-c7">'+lpKartu(null,'Sampel 10 Kota Daerah Terpencil',fmt(S.pegawai)+' pegawai, '+fmt(S.rumdin)+' unit rumah dinas ('+d1(100*S.rumdin/S.pegawai)+'% dari jumlah pegawai)',
-      lpKolom(S.kota.map(x=>({lab:x[0],v:{a:x[1],b:x[2]}})),[{k:'a',lab:'Di luar homebase',col:'var(--seq-6)'},{k:'b',lab:'Di homebase',col:'var(--seq-2)'}],{w:560,h:240,aria:'Pegawai menurut homebase di 10 kota'}))+'</div>';
+      lpHs(S.kota.slice().sort((p,q)=>(q[1]+q[2])-(p[1]+p[2])).map(x=>({lab:x[0],v:{a:x[1],b:x[2]}})),[{k:'a',lab:'Di luar homebase',col:'var(--seq-6)'},{k:'b',lab:'Di homebase',col:'var(--seq-2)'}]))+'</div>';
   h+='</div>';
   h+='<div class="note-box" style="margin-top:14px">Asumsi 63% pegawai non-homebase tidak memperoleh rumah dinas berasal dari sampel 10 kota ini, lalu diberlakukan untuk seluruh pegawai non-homebase.'+rmhAsumsi()+' Data penghunian rumah dinas per lokasi sudah diminta ke Biro SDM.</div>';
   return h;
@@ -12362,7 +12396,7 @@ function lpKartu(v,judul,sub,isi){return '<div class="lp-ch"'+(v?' data-act="nav
 
 function lpBaris(rows,opt){opt=opt||{};const mn=opt.min||0;const mx=opt.max!=null?opt.max:Math.max.apply(null,rows.map(r=>r.n).concat([1]));
   return '<div class="lp-bars'+(opt.kls?' '+opt.kls:'')+'">'+rows.map(r=>{const w=mx>mn?Math.max(2,Math.round(100*(r.n-mn)/(mx-mn))):0;
-    return `<div class="lp-br"${r.attr?' '+r.attr:''}${r.title?` title="${esc(r.title)}"`:''}><span class="lp-bn">${esc(r.lab)}</span><span class="lp-bt"><i style="width:${w}%;background:${r.col||'var(--seq-5)'}"></i></span><span class="lp-bv">${r.teks}</span></div>`;}).join('')+'</div>';}
+    return `<div class="lp-br"${r.attr?' '+r.attr:''}${r.title?` title="${esc(r.title)}"`:''}><span class="lp-bn">${esc(r.lab).replace(/\//g,'/<wbr>')}</span><span class="lp-bt"><i style="width:${w}%;background:${r.col||'var(--seq-5)'}"></i></span><span class="lp-bv">${r.teks}</span></div>`;}).join('')+'</div>';}
 
 function lpStk(items,opt){opt=opt||{};const t=items.reduce((s,x)=>s+(x.n||0),0)||1;const p=v=>{const x=100*v/t;return (x>0&&x<1)?d1(x):Math.round(x);};
   return '<div class="lp-stk">'+items.filter(x=>x.n>0).map(x=>`<i style="flex:0 1 ${(100*x.n/t).toFixed(2)}%;background:${x.col}" title="${esc(x.lab)}: ${fmt(x.n)}"></i>`).join('')+'</div>'+
