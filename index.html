@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-qi7BvDvTGNbcMuRL8dTdS68z0aN9MN0CbtpyGVyCMJ8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-IyreGpihb9T94ICOV4Vi3l7yscRvXW02YWlb+Rw37VY='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -11735,7 +11735,7 @@ function budKode(u){return {SETJEN:'Setjen',DJA:'DJA',DJP:'DJP',DJBC:'DJBC',DJPB
 
 const BUD_BARU=['DJSPSK','DJSEF','BATII'];
 function budCatBaru(kodes){var k=[];kodes.forEach(function(x){if(BUD_BARU.indexOf(x)>=0&&k.indexOf(budKode(x))<0)k.push(budKode(x));});
-  if(!k.length)return '';return ' Nilai '+(k.length>1?k.slice(0,-1).join(', ')+' dan '+k[k.length-1]:k[0])+' rendah karena unit tersebut masih baru terbentuk.';}
+  if(!k.length)return '';return ' Nilai '+(k.length>1?k.slice(0,-1).join(', ')+' dan '+k[k.length-1]:k[0])+' rendah, kemungkinan karena unit tersebut masih baru terbentuk.';}
 function budRk(k){return String(k||'').replace(' - ',' sampai ').replace('Orang','orang');}
 function budSedang(L){var k=L.kat||{};return (k.s||0)+(k.r||0)+(k.sr||0);}
 function budSelisih(){var I={},O={};BUDAYA.ind.perUnit.forEach(function(x){I[x.kode]=x;});BUDAYA.org.perUnit.forEach(function(x){O[x.kode]=x;});
