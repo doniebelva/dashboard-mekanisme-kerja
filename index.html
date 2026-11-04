@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-Vh1szZSyqtcYsDtZBpbrB3BFZc84A3e1MxNjhBJ6nU0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-DMYHZte/GSRNlhroxgtktk6fnmCGo2QsysSJaqnOxyI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -1011,6 +1011,7 @@ td.brm-na{color:var(--muted);font-size:var(--fs-sm)}
 #view .leaflet-bar a,#view .leaflet-bar a:hover{background:var(--surface);color:var(--ink);border-bottom-color:var(--line)}
 #view .leaflet-bar a:hover{background:var(--surface-2)}#view .leaflet-bar{border-color:var(--line)}
 #view .leaflet-control-attribution{background:color-mix(in srgb,var(--surface) 88%,transparent);color:var(--muted)}
+.rbn-dm th{white-space:normal;line-height:1.25;vertical-align:bottom}.rbn-dm td{white-space:nowrap}.rbn-dm td:first-child{white-space:normal}
 .rbn-pp{font-size:var(--fs-sm);line-height:1.45}.rbn-pp b{font-size:var(--fs-md)}
 .rbn-pp-n{margin:4px 0 2px;font-weight:700}.rbn-pp table{border-collapse:collapse;width:100%;margin-top:6px}
 .rbn-pp td{padding:3px 0;border-top:1px solid var(--line)}.rbn-pp td.r{text-align:right;padding-left:10px;white-space:nowrap}
@@ -2983,6 +2984,7 @@ const MODULES=[
    {grp:'',items:[{v:'rbn',lab:'Ikhtisar'}]},
    {grp:'Peta & Risiko',items:[{v:'rbnpeta',lab:'Peta Sebaran'},{v:'rbnjenis',lab:'Risiko per Jenis Bencana'},{v:'rbnganda',lab:'Risiko Ganda'}]},
    {grp:'Unit & Kantor',items:[{v:'rbnunit',lab:'Per Unit Eselon I'},{v:'rbnprov',lab:'Per Provinsi'},{v:'rbnkantor',lab:'Kantor Paling Berisiko'}]},
+   {grp:'Demografi Pegawai',items:[{v:'rbndemo',lab:'Gender dan Kelompok Usia'}]},
    {grp:'Kelangsungan Kerja',items:[{v:'rbnpusat',lab:'Konsentrasi Pimpinan & Kantor Pusat'}]},
    {grp:'Rujukan',items:[{v:'rbntentang',lab:'Tentang Data'}]},
  ]},
@@ -3143,7 +3145,7 @@ const MENUKET={
   
   rmh:'Ringkasan kebutuhan hunian pegawai dan usulan bantuan sewa rumah.',rmhsim:'Perkiraan anggaran bantuan sewa per tahun menurut kelompok sasaran dan konstanta.',rmhtarif:'Tarif hotel SBM per provinsi dan besaran bantuan yang dihasilkan.',rmhdinas:'Kondisi rumah dinas dan kecukupannya di daerah terpencil.',rmhprobis:'Alur bantuan sewa yang berlaku dan usulan kajian.',rmhsurvei:'Minat kepemilikan rumah dan kemampuan bayar pegawai dari survei Rent to Own.',rmhbanding:'Bantuan sewa rumah di kementerian dan lembaga lain.',rmhtentang:'Sumber, asumsi, dan data yang sedang ditunggu.',
   bud:'Ringkasan penerapan nilai budaya menurut pegawai dan pejabat.',budnilai:'Tujuh nilai BerAKHLAK, lima nilai Kementerian, dan 25 butir perilaku.',budunit:'Skor, sebaran, dan selisih penilaian per unit Eselon I.',budprofil:'Skor budaya menurut jabatan, generasi, jenis kelamin, pendidikan, dan masa kerja.',budpenguatan:'Dukungan organisasi, supervisi, kelompok kerja, kepercayaan, dan pekerjaan menantang menurut pejabat.',budisu:'Stigma generasi, pimpinan menengah, aktor budaya, serta kultur dan subkultur.',budkinerja:'Persepsi kinerja diri dan stabilitas hierarki.',budsuara:'Tema saran dan masukan pegawai dan pejabat.',budlayanan:'Skor budaya menurut layanan yang ditangani pegawai.',budkaitan:'Budaya disandingkan dengan pemberhentian, penghargaan, cuti, dan suksesi.',budmutu:'Jawaban seragam, penilaian diri, dan catatan atas laporan survei.',budtentang:'Sumber, cara hitung, dan rambu privasi.',
-  rbn:'Ringkasan risiko bencana di tempat kerja pegawai.',rbnpeta:'Peta kelurahan tempat kantor berada menurut risiko bencana.',rbnjenis:'Sebaran pegawai menurut tingkat risiko tiap jenis bencana, termasuk yang kelurahannya belum terpetakan.',rbnganda:'Kantor yang berisiko tinggi untuk beberapa bencana sekaligus.',rbnunit:'Risiko tiap unit Eselon I menurut jenis bencana.',rbnprov:'Risiko tiap provinsi, dengan peta.',rbnkantor:'Daftar kantor diurutkan menurut risiko, dengan peta yang terhubung ke tabel.',rbnpusat:'Pimpinan dan fungsi pusat yang terkumpul di satu kelurahan rawan.',rbntentang:'Sumber, cara membaca, dan batas data.',
+  rbn:'Ringkasan risiko bencana di tempat kerja pegawai.',rbnpeta:'Peta kelurahan tempat kantor berada menurut risiko bencana.',rbnjenis:'Sebaran pegawai menurut tingkat risiko tiap jenis bencana, termasuk yang kelurahannya belum terpetakan.',rbnganda:'Kantor yang berisiko tinggi untuk beberapa bencana sekaligus.',rbnunit:'Risiko tiap unit Eselon I menurut jenis bencana.',rbnprov:'Risiko tiap provinsi, dengan peta.',rbnkantor:'Daftar kantor diurutkan menurut risiko, dengan peta yang terhubung ke tabel.',rbndemo:'Pegawai di zona berisiko tinggi menurut gender dan kelompok usia.',rbnpusat:'Pimpinan dan fungsi pusat yang terkumpul di satu kelurahan rawan.',rbntentang:'Sumber, cara membaca, dan batas data.',
   ink:'Ringkasan kesiapan organisasi bagi pegawai penyandang disabilitas.',inkkronis:'Ringkasan pegawai dengan penyakit kronis: jenis penyakit, penempatan, dan kemampuan bekerja.',inkkrtempat:'Tempat bekerja dan jenjang jabatan pegawai dengan penyakit kronis.',inkkrmampu:'Penilaian unit atas kemampuan bekerja pegawai dengan penyakit kronis.',inkkrtentang:'Sumber, kategori penyakit, dan rambu privasi data penyakit kronis.',inksurvei:'Penilaian pegawai penyandang disabilitas atas dukungan organisasi, sembilan butir.',inkprofil:'Komposisi kondisi, penyebab, dan kebutuhan akomodasi yang harus disediakan.',inkrekrut:'Formasi khusus disabilitas dan berapa yang terisi.',inkunit:'Jumlah pegawai dengan penyakit kronis per Eselon I beserta pola penempatannya.',inktentang:'Sumber, cara olah, dan rambu privasi modul ini.',
   pmb:'Ringkasan pegawai yang berhenti sebelum batas usia pensiun.',pmbtren:'Jumlah dan tingkat pemberhentian per tahun, tahun berjalan ditandai.',pmbunit:'Tingkat keluar per unit Eselon I, termasuk perbandingan perempuan dan laki-laki.',pmbprofil:'Usia, masa kerja, dan angkatan pegawai yang berhenti, dengan ukuran yang adil antarangkatan.',pmbalasan:'Alasan berhenti dari teks bebas, dikelompokkan dan dipecah menurut jenis kelamin.',pmbintegrasi:'Pintu keluar ganda bersama pensiun, dan sandingan dengan penghargaan serta cuti.',pmbtentang:'Sumber, penyebut, cara membersihkan, mutu data, dan rambu privasi.',
   ph:'Ringkasan pemerataan penghargaan di seluruh Kementerian.',phunit:'Cakupan dan intensitas penghargaan prestasi di tiap unit Eselon I.',phprofil:'Siapa yang pernah menerima penghargaan prestasi menurut jenjang, jenis kelamin, dan masa kerja.',phjenis:'Komposisi jenis penghargaan dan tingkat pemberinya.',phtren:'Perkembangan jumlah penghargaan per tahun, dipisah antara yang otomatis dan yang berbasis keputusan.',phrujukan:'Sebelas jenis penghargaan resmi, kriteria, kategori prestasi, dan alur pengusulannya.',phtentang:'Sumber, cara membersihkan, mutu data, dan rambu privasi.',
@@ -3172,7 +3174,7 @@ const MENUOBJ={
   cuti:'Memantau pemanfaatan cuti pegawai secara menyeluruh.',cutitren:'Mengantisipasi lonjakan pengajuan cuti pada periode tertentu.',cutiunit:'Membandingkan intensitas cuti antar unit secara adil.',cutiwilayah:'Melihat perbedaan pola cuti antar wilayah kerja.',cutiutilisasi:'Memastikan hak istirahat pegawai benar-benar dimanfaatkan.',cutikualitas:'Menemukan rekaman cuti yang perlu diperiksa dan diperbaiki.',cutidemografi:'Memahami profil risiko cuti menurut usia dan gender.',cutipola:'Merencanakan kapasitas kehadiran dan jadwal kegiatan besar.',cutisakit:'Memahami penyebab cuti sakit untuk menyiapkan langkah kesehatan.',cutiprediksi:'Memperkirakan beban cuti mendatang untuk perencanaan.',cutisimulasi:'Menguji dampak usulan revisi kebijakan potongan tunjangan.',cutitentang:'Memahami sumber, cakupan, dan batasan data cuti.',
   rmh:'Memahami besarnya kebutuhan hunian pegawai yang dimutasi.',rmhsim:'Menimbang pilihan sasaran dan konstanta sebelum kebijakan ditetapkan.',rmhtarif:'Memeriksa apakah tarif SBM mencerminkan biaya sewa di tiap daerah.',rmhdinas:'Menimbang pemanfaatan rumah dinas sebelum bantuan tunai.',rmhprobis:'Melihat bagian alur yang masih perlu dirancang.',rmhsurvei:'Membaca minat dan kemampuan bayar pegawai untuk skema kepemilikan rumah.',rmhbanding:'Belajar dari kebijakan serupa di instansi lain.',rmhtentang:'Memahami batas angka sebelum dipakai.',
   bud:'Melihat seberapa kuat nilai budaya diterapkan dan di mana penguatannya perlu difokuskan.',budnilai:'Menemukan nilai dan perilaku yang paling perlu diperkuat.',budunit:'Menemukan unit yang pelembagaan budayanya tertinggal.',budprofil:'Mengenali kelompok pegawai yang penerapan budayanya lebih rendah.',budpenguatan:'Menilai dukungan sistem dan pimpinan bagi penguatan budaya.',budisu:'Mengantisipasi gesekan antargenerasi dan antarsubkultur.',budkinerja:'Membaca kaitan budaya dengan kinerja dan struktur kewenangan.',budsuara:'Mendengar apa yang paling sering diminta pegawai.',budlayanan:'Menyandingkan budaya petugas dengan layanan yang ditanganinya.',budkaitan:'Mencari unit yang perlu ditelaah lintas modul SDM.',budmutu:'Memahami batas angka sebelum dipakai.',budtentang:'Memahami asal dan cara hitung angka.',
-  rbn:'Menilai seberapa besar pegawai menghadapi risiko bencana di tempat kerja.',rbnpeta:'Melihat sebaran risiko sampai tingkat kelurahan.',rbnjenis:'Menentukan jenis bencana yang paling perlu disiapkan.',rbnganda:'Menemukan kantor yang perlu rencana untuk beberapa bencana.',rbnunit:'Membandingkan risiko antarunit Eselon I.',rbnprov:'Membandingkan risiko antarprovinsi.',rbnkantor:'Menentukan kantor yang didahulukan dalam rencana kesiapsiagaan.',rbnpusat:'Menilai kerentanan kelangsungan kerja pimpinan dan fungsi pusat.',rbntentang:'Menelusuri asal angka dan batas penggunaannya.',
+  rbn:'Menilai seberapa besar pegawai menghadapi risiko bencana di tempat kerja.',rbnpeta:'Melihat sebaran risiko sampai tingkat kelurahan.',rbnjenis:'Menentukan jenis bencana yang paling perlu disiapkan.',rbnganda:'Menemukan kantor yang perlu rencana untuk beberapa bencana.',rbnunit:'Membandingkan risiko antarunit Eselon I.',rbnprov:'Membandingkan risiko antarprovinsi.',rbnkantor:'Menentukan kantor yang didahulukan dalam rencana kesiapsiagaan.',rbndemo:'Mengetahui kelompok pegawai yang perlu diperhatikan dalam rencana kesiapsiagaan.',rbnpusat:'Menilai kerentanan kelangsungan kerja pimpinan dan fungsi pusat.',rbntentang:'Menelusuri asal angka dan batas penggunaannya.',
   ink:'Menilai kesiapan organisasi menjadi tempat kerja yang inklusif.',inkkronis:'Melihat gambaran besar penyakit kronis pegawai sebelum menata penempatan.',inkkrtempat:'Menimbang penempatan dan mutasi pegawai dengan penyakit kronis.',inkkrmampu:'Mengetahui seberapa banyak pegawai mampu bekerja normal kembali.',inkkrtentang:'Menelusuri asal angka dan batas penggunaannya.',inksurvei:'Menemukan di mana dukungan organisasi paling lemah.',inkprofil:'Memperkirakan jenis dan besar akomodasi yang perlu disediakan.',inkrekrut:'Mengetahui mengapa formasi khusus disabilitas tidak pernah terisi penuh.',inkunit:'Melihat sebaran beban akomodasi dan kelengkapan pendataan antarunit.',inktentang:'Menelusuri asal angka dan batas penggunaannya.',
   pmb:'Menilai seberapa besar Kementerian kehilangan pegawai sebelum waktunya.',pmbtren:'Memantau arah pemberhentian dari tahun ke tahun.',pmbunit:'Menemukan unit yang paling sering ditinggalkan pegawainya.',pmbprofil:'Mengenali pada titik karier mana pegawai memilih pergi.',pmbalasan:'Memahami sebab yang paling sering ditulis pegawai yang berhenti.',pmbintegrasi:'Melihat tekanan pengisian jabatan dari dua pintu sekaligus.',pmbtentang:'Memahami batas pembacaan data pemberhentian.',
   ph:'Menilai seberapa merata sistem penghargaan menjangkau pegawai.',phunit:'Menemukan unit yang jarang memberi atau mencatat penghargaan.',phprofil:'Mengenali lapisan pegawai yang jarang tersentuh penghargaan.',phjenis:'Membaca seberapa besar penghargaan yang berbasis keputusan dibanding yang otomatis.',phtren:'Memantau apakah sistem resmi mulai menggantikan penghargaan tidak resmi.',phrujukan:'Rujukan cepat kriteria dan alur pengusulan penghargaan.',phtentang:'Memahami batas pembacaan data pencatatan PILAR.',
@@ -3186,6 +3188,7 @@ const MENUOBJ={
 
 
 const MENUTAB={
+  rbndemo:['Ringkasan','Per Jenis Bencana','Per Unit Eselon I'],
   pmbunit:['Tingkat Keluar','Perempuan dan Laki-laki','Tabel Lengkap'],
   pmbprofil:['Masa Kerja','Usia','Angkatan'],
   pmbalasan:['Kelompok Alasan','Menurut Jenis Kelamin'],
@@ -3467,7 +3470,7 @@ const VT={jfmap:'Peta Unit Pengelola JF',otkeval:'Evaluasi Organisasi',ringkasan
   ink:'Ikhtisar Disabilitas & Inklusi',inkkronis:'Ikhtisar Penyakit Kronis',inkkrtempat:'Penempatan & Jabatan',inkkrmampu:'Kemampuan Bekerja',inkkrtentang:'Tentang Data Penyakit Kronis',inksurvei:'Dukungan Organisasi',inkprofil:'Profil & Kebutuhan Akomodasi',inkrekrut:'Rekrutmen Inklusif',inkunit:'Sebaran per Unit',inktentang:'Tentang Data Disabilitas & Inklusi',
   rmh:'Ikhtisar Bantuan Perumahan',rmhsim:'Simulasi Anggaran Bantuan Sewa',rmhtarif:'Tarif per Provinsi',rmhdinas:'Rumah Dinas',rmhprobis:'Proses Bisnis Bantuan Sewa',rmhsurvei:'Survei Rent to Own',rmhbanding:'Pembanding Kementerian dan Lembaga',rmhtentang:'Tentang Data Bantuan Perumahan',
   bud:'Ikhtisar Budaya Organisasi',budnilai:'Nilai dan Perilaku',budunit:'Budaya per Unit Eselon I',budprofil:'Profil Responden',budpenguatan:'Penguatan Budaya',budisu:'Isu Budaya',budkinerja:'Kinerja dan Hierarki',budsuara:'Suara Pegawai',budlayanan:'Budaya menurut Layanan',budkaitan:'Kaitan Lintas Modul',budmutu:'Mutu Data Survei Budaya',budtentang:'Tentang Data Budaya Organisasi',
-  rbn:'Ikhtisar Risiko Bencana',rbnpeta:'Peta Sebaran Risiko Bencana',rbnjenis:'Risiko per Jenis Bencana',rbnganda:'Risiko Ganda',rbnunit:'Risiko per Unit Eselon I',rbnprov:'Risiko per Provinsi',rbnkantor:'Kantor Paling Berisiko',rbnpusat:'Konsentrasi Pimpinan & Kantor Pusat',rbntentang:'Tentang Data Risiko Bencana',
+  rbn:'Ikhtisar Risiko Bencana',rbnpeta:'Peta Sebaran Risiko Bencana',rbnjenis:'Risiko per Jenis Bencana',rbnganda:'Risiko Ganda',rbndemo:'Gender dan Kelompok Usia',rbnunit:'Risiko per Unit Eselon I',rbnprov:'Risiko per Provinsi',rbnkantor:'Kantor Paling Berisiko',rbnpusat:'Konsentrasi Pimpinan & Kantor Pusat',rbntentang:'Tentang Data Risiko Bencana',
   pmb:'Ikhtisar Pemberhentian & Retensi',pmbtren:'Tren Pemberhentian Tahunan',pmbunit:'Tingkat Keluar per Unit Eselon I',pmbprofil:'Profil Pegawai yang Berhenti',pmbalasan:'Alasan Berhenti',pmbintegrasi:'Kaitan Pemberhentian dengan Modul Lain',pmbtentang:'Tentang Data Pemberhentian',
   ph:'Ikhtisar Penghargaan & Apresiasi',phunit:'Pemerataan Penghargaan per Unit Eselon I',phprofil:'Profil Penerima Penghargaan',phjenis:'Komposisi Jenis Penghargaan',phtren:'Tren Penghargaan Tahunan',phrujukan:'Sistem Penghargaan Kementerian (KMK 325)',phtentang:'Tentang Data Penghargaan',
   suksesi:'Ikhtisar Suksesi & Regenerasi',sukpensiun:'Gelombang Pensiun',sukunit:'Dampak Pensiun per Unit',suktempo:'Waktu Gelombang Pensiun per Unit',suksimulasi:'Simulasi Kenaikan Batas Usia Pensiun',sukantrean:'Antrean dan Jenjang Karier Pejabat',sukkritikal:'Risiko Jabatan Pimpinan',sukregen:'Regenerasi Pejabat',sukpopulasi:'Komposisi & Piramida Usia Pejabat',sukes2:'Kesinambungan Unit Eselon II',sukinstrumen:'Ukuran Profesionalitas Pemimpin',suktentang:'Tentang Data Pejabat',suknominatif:'Pejabat Akan Pensiun (Daftar Nominatif)',
@@ -6644,6 +6647,7 @@ function _tabelSemuaTab(kunciState, daftarTab, fnView, label){
   return hasil;
 }
 const _EXPORT_FULL={
+  rbndemo:function(){return _tabelSemuaTab('rbnDemoTab',['ringkas','jenis','unit'],vRbnDemo,['Ringkasan','Per Jenis Bencana','Per Unit Eselon I']);},
   pmbunit:function(){return _tabelSemuaTab('pmbUnitTab',['tingkat','gender','tabel'],vPmbUnit,['Tingkat Keluar','Perempuan dan Laki-laki','Tabel Lengkap']);},
   pmbprofil:function(){return _tabelSemuaTab('pmbProfilTab',['masakerja','usia','angkatan'],vPmbProfil,['Masa Kerja','Usia','Angkatan']);},
   pmbalasan:function(){return _tabelSemuaTab('pmbAlasanTab',['kelompok','gender'],vPmbAlasan,['Kelompok Alasan','Menurut Jenis Kelamin']);},
@@ -9026,6 +9030,8 @@ async function tdSiapkan(){
     var NP=BENCANA.meta.pegawai||1;(BENCANA.paparan||[]).forEach(function(p){
       tdTambah({v:'rbnjenis',mod:'bencana',k:'kpi',ctx:'Pegawai per jenis bencana',t:'Pegawai berkantor di zona '+p.label.toLowerCase()+' tinggi: '+fmt(p.tinggi)+' dari '+fmt(NP)+' pegawai ('+String((100*p.tinggi/NP).toFixed(1)).replace('.',',')+'%)'+
         (p.terpPct!=null?'; kelurahan kantor terpetakan untuk '+String(p.terpPct.toFixed(1)).replace('.',',')+'% pegawai':'')});});
+    var DG=BENCANA.demografi;if(DG){DG.gender.concat(DG.usiaRisiko).forEach(function(x){var nm=/laki|perempuan/i.test(x.k)?x.k.toLowerCase():'usia '+rbnUsiaLab(x.k).toLowerCase(),f=function(v){return String(v.toFixed(1)).replace('.',',');};
+      tdTambah({v:'rbndemo',mod:'bencana',k:'kpi',ctx:'Gender dan kelompok usia',t:'Pegawai '+nm+': '+fmt(x.n)+' orang; zona banjir tinggi '+f(x.bahaya.BJ.pct)+'%, tiga risiko tinggi atau lebih '+f(x.g3Pct)+'%'});});}
     TD.sudah._kantor=1;}
 }
 function tdCari(q){
@@ -9566,7 +9572,7 @@ function render(){
     ink:vInk,inkkronis:vInkKronis,inkkrtempat:vInkKrTempat,inkkrmampu:vInkKrMampu,inkkrtentang:vInkKrTentang,inksurvei:vInkSurvei,inkprofil:vInkProfil,inkrekrut:vInkRekrut,inkunit:vInkUnit,inktentang:vInkTentang,
     rmh:vRmh,rmhsim:vRmhSim,rmhtarif:vRmhTarif,rmhdinas:vRmhDinas,rmhprobis:vRmhProbis,rmhsurvei:vRmhSurvei,rmhbanding:vRmhBanding,rmhtentang:vRmhTentang,
     bud:vBud,budnilai:vBudNilai,budunit:vBudUnit,budprofil:vBudProfil,budpenguatan:vBudPenguatan,budisu:vBudIsu,budkinerja:vBudKinerja,budsuara:vBudSuara,budlayanan:vBudLayanan,budkaitan:vBudKaitan,budmutu:vBudMutu,budtentang:vBudTentang,
-    rbn:vRbn,rbnpeta:vRbnPeta,rbnjenis:vRbnJenis,rbnganda:vRbnGanda,rbnunit:vRbnUnit,rbnprov:vRbnProv,rbnkantor:vRbnKantor,rbnpusat:vRbnPusat,rbntentang:vRbnTentang,
+    rbn:vRbn,rbnpeta:vRbnPeta,rbnjenis:vRbnJenis,rbnganda:vRbnGanda,rbnunit:vRbnUnit,rbnprov:vRbnProv,rbnkantor:vRbnKantor,rbndemo:vRbnDemo,rbnpusat:vRbnPusat,rbntentang:vRbnTentang,
     ph:vPh,phunit:vPhUnit,phprofil:vPhProfil,phjenis:vPhJenis,phtren:vPhTren,phrujukan:vPhRujukan,phtentang:vPhTentang,
     suksesi:vSuksesi,sukpensiun:vSukPensiun,sukunit:vSukUnit,suktempo:vSukTempo,suksimulasi:vSukSimulasi,sukantrean:vSukAntrean,sukkritikal:vSukKritikal,sukregen:vSukRegen,sukpopulasi:vSukPopulasi,sukes2:vSukEs2,sukinstrumen:vSukInstrumen,suktentang:vSukTentang,
     cuti:vCuti,cutitren:vCutiTren,cutiunit:vCutiUnit,cutiwilayah:vCutiWilayah,cutiutilisasi:vCutiUtilisasi,cutikualitas:vCutiKualitas,cutidemografi:vCutiDemografi,cutipola:vCutiPola,cutisakit:vCutiSakit,cutiprediksi:vCutiPrediksi,cutisimulasi:vCutiSimulasi,cutitentang:vCutiTentang,
@@ -11555,7 +11561,7 @@ function vRbn(){
       lpKolom(GK,[{k:'n',lab:'Pegawai',col:'var(--seq-5)'}],{w:370,h:240,aria:'Pegawai menurut banyaknya risiko tinggi'}))+'</div>';
   h+='</div>';
   PASCA.push(function(){rbnGambarDesa('rbnPetaMini',{mode:'ganda'});});
-  h+=lpNav([['rbnpeta','Peta Sebaran'],['rbnjenis','Risiko per Jenis Bencana'],['rbnganda','Risiko Ganda'],['rbnunit','Per Unit Eselon I'],['rbnprov','Per Provinsi'],['rbnkantor','Kantor Paling Berisiko'],['rbnpusat','Konsentrasi Pimpinan & Kantor Pusat'],['rbntentang','Tentang Data']]);
+  h+=lpNav([['rbnpeta','Peta Sebaran'],['rbnjenis','Risiko per Jenis Bencana'],['rbnganda','Risiko Ganda'],['rbnunit','Per Unit Eselon I'],['rbnprov','Per Provinsi'],['rbnkantor','Kantor Paling Berisiko'],['rbndemo','Gender dan Kelompok Usia'],['rbnpusat','Konsentrasi Pimpinan & Kantor Pusat'],['rbntentang','Tentang Data']]);
   h+='<div class="mini lp-src">'+fmt(N)+' pegawai di '+fmt(M.kantor||M.lokasiKantor)+' kantor ('+fmt(M.lokasiKantor)+' lokasi kerja) dan '+fmt(M.desa)+' kelurahan, indeks risiko InaRISK. '+esc(M.tafsir||'')+'</div>';
   return h;
 }
@@ -11727,6 +11733,71 @@ function vRbnPusat(){
   return h;
 }
 
+
+
+
+function rbnUsiaLab(k){return /ke atas/.test(k)?k.replace(' ke atas',' tahun ke atas'):k.toLowerCase()+' tahun';}
+function rbnDemoSel(v){return v==null?'<td class="num-c"><span class="mini">di bawah 5</span></td>':rbnSel(v);}
+function vRbnDemo(){
+  var g=rbnGuard();if(g)return g;
+  const B=BENCANA,D=B.demografi;
+  let h=pgHead('Gender dan Kelompok Usia','Siapa saja pegawai yang berkantor di zona berisiko tinggi, menurut gender dan kelompok usia.','Angka gabungan tingkat Kementerian dan Eselon I, tidak dirinci per kantor');
+  if(!D)return h+'<div class="empty">Data gender dan kelompok usia belum tersedia pada data yang termuat.</div>';
+  const N=B.meta.pegawai,tab=state.rbnDemoTab||'ringkas',L=D.gender[0],P=D.gender[1],U=D.usiaRisiko,u50=U[U.length-1];
+  const urut=U.slice().sort(function(a,b){return b.g3Pct-a.g3Pct;}),hi=urut[0],lo=urut[urut.length-1];
+  const cL='var(--cat-1)',cP='var(--cat-5)',bj=function(x){return x.bahaya.BJ;};
+  const beda=Math.abs(bj(L).pct-bj(P).pct)<3&&Math.abs(L.g3Pct-P.g3Pct)<3;
+  h+=sorotanCard('Highlight',fmt(P.n)+' dari '+fmt(N)+' pegawai ('+d1(100*P.n/N)+'%) adalah perempuan, dan usia tengah pegawai '+D.usiaMedian+' tahun. '+
+    'Risiko di tempat kerja '+(beda?'hampir sama':'berbeda')+' antara perempuan dan laki-laki: zona banjir tinggi '+d1(bj(P).pct)+'% dan '+d1(bj(L).pct)+'%, tiga risiko tinggi atau lebih '+d1(P.g3Pct)+'% dan '+d1(L.g3Pct)+'%. '+
+    'Menurut usia, kelompok '+rbnUsiaLab(hi.k)+' paling banyak berkantor di lokasi dengan tiga risiko tinggi atau lebih ('+d1(hi.g3Pct)+'%), terendah '+d1(lo.g3Pct)+'%. '+
+    'Ada '+fmt(u50.n)+' pegawai berusia 50 tahun ke atas; '+fmt(bj(u50).t)+' di antaranya berkantor di zona banjir tinggi.',
+    [{v:'rbnganda',t:'Risiko Ganda'},{v:'rbnpusat',t:'Konsentrasi Pimpinan'}]);
+  h+='<div class="lp-kpis">'
+    +lpSel(null,'Pegawai Perempuan',lpPct(100*P.n/N),fmt(P.n)+' dari '+fmt(N)+' pegawai')
+    +lpSel(null,'Usia Tengah',D.usiaMedian+'<span class="lp-of"> tahun</span>','separuh pegawai berusia di bawahnya')
+    +lpSel(null,'Usia 50 Tahun ke Atas',fmt(u50.n),d1(100*u50.n/N)+'% pegawai')
+    +lpSel(null,'Tiga Risiko Tinggi Terbanyak',lpPct(hi.g3Pct),'pegawai '+rbnUsiaLab(hi.k))
+    +'</div>';
+  h+=budTab('rbnDemoTab',tab,[['ringkas','Ringkasan'],['jenis','Per Jenis Bencana'],['unit','Per Unit Eselon I']]);
+  const kel=[L,P].concat(U),lab=function(x){return x===L||x===P?x.k:rbnUsiaLab(x.k).replace(/^d/,'D');};
+  if(tab==='ringkas'){
+    const S=D.silang.map(function(x,i){const n=D.usia[i].n;return {lab:x.k,v:x.L==null?{g:n}:{l:x.L,p:x.P},teks:fmt(n)+(x.L==null?'':' <small>'+d1(100*x.P/n)+'%</small>')};});
+    const pPorsi=D.silang.filter(function(x){return x.P!=null;}).map(function(x){return {k:x.k,p:100*x.P/(x.L+x.P)};}).sort(function(a,b){return b.p-a.p;}),pMax=pPorsi[0],pMin=pPorsi[pPorsi.length-1];
+    const adaG=D.silang.some(function(x){return x.L==null;});
+    const seri=[{k:'l',lab:'Laki-laki',col:cL},{k:'p',lab:'Perempuan',col:cP}];
+    const baris=function(f,mx){return lpBaris(kel.map(function(x){const v=f(x);return {lab:lab(x),n:v,teks:d1(v)+'%',col:(x===L?cL:x===P?cP:'var(--seq-5)')};}),{max:mx,kls:'lp-bars-lebar'});};
+    h+='<div class="lp-grid">';
+    h+='<div class="lp-c5">'+lpKartu(null,'Komposisi Gender','Jumlah pegawai menurut gender.',lpStk([{lab:'Laki-laki',n:L.n,col:cL},{lab:'Perempuan',n:P.n,col:cP}])+
+      '<p class="mini" style="margin:12px 0 0">Porsi perempuan tertinggi '+d1(pMax.p)+'% pada kelompok '+rbnUsiaLab(pMax.k)+' dan terendah '+d1(pMin.p)+'% pada kelompok '+rbnUsiaLab(pMin.k)+'.</p>')+'</div>';
+    h+='<div class="lp-c7">'+lpKartu(null,'Kelompok Usia menurut Gender','Jumlah pegawai tiap kelompok usia. Persen di ujung baris adalah porsi perempuan.',
+      lpLeg(seri.concat(adaG?[{lab:'Tidak dirinci',col:'var(--seq-1)'}]:[]))+lpHs(S,seri.concat([{k:'g',lab:'Tidak dirinci',col:'var(--seq-1)'}])))+'</div>';
+    h+='<div class="lp-c6">'+lpKartu(null,'Tiga Risiko Tinggi atau Lebih','Persen kelompok yang berkantor di kelurahan dengan tiga risiko tinggi atau lebih.',baris(function(x){return x.g3Pct;},Math.ceil(hi.g3Pct*1.3)))+'</div>';
+    h+='<div class="lp-c6">'+lpKartu(null,'Zona Banjir Tinggi','Persen kelompok yang berkantor di kelurahan berisiko banjir tinggi.',baris(function(x){return bj(x).pct;},100))+'</div>';
+    h+='</div>';
+    h+='<div class="card"><h2 class="sec" style="margin-top:0">Ringkasan per Kelompok</h2><div class="tblw"><table class="rbn-dm" data-pgn-lewat><thead><tr><th style="text-align:left">Kelompok</th><th>Pegawai</th><th>Porsi pegawai</th><th>Zona banjir tinggi</th><th>Zona gempa tinggi</th><th>3+ risiko tinggi</th><th>Berkantor di DKI Jakarta</th></tr></thead><tbody>'+
+      kel.map(function(x){return '<tr><td>'+esc(lab(x))+'</td><td class="num-c">'+fmt(x.n)+'</td><td class="num-c">'+d1(100*x.n/N)+'%</td>'+rbnDemoSel(bj(x).pct)+rbnDemoSel(x.bahaya.GB.pct)+rbnDemoSel(x.g3Pct)+'<td class="num-c">'+d1(x.dkiPct)+'%</td></tr>';}).join('')+
+      '</tbody></table></div><div class="mini" style="margin-top:8px">Kelompok 60 ke atas hanya '+fmt(D.usia[D.usia.length-1].n)+' pegawai, jadi pada perbandingan risiko digabung dengan 50 sampai 59 tahun. Angka ini menggambarkan lokasi kantor, bukan kerentanan pribadi.</div></div>';
+    if(D.pusat&&D.pusat.p!=null&&D.pusat.u50!=null)h+='<div class="card"><h2 class="sec" style="margin-top:0">Kelurahan Kantor Pusat</h2><p style="margin:0">Di '+esc(D.pusat.kel)+' berkantor '+fmt(D.pusat.n)+' pegawai: '+fmt(D.pusat.p)+' perempuan ('+d1(100*D.pusat.p/D.pusat.n)+'%) dan '+fmt(D.pusat.u50)+' berusia 50 tahun ke atas ('+d1(100*D.pusat.u50/D.pusat.n)+'%). Rincian ini bisa dipakai saat menyusun rencana evakuasi dan kantor cadangan.</p></div>';
+  }else if(tab==='jenis'){
+    const PJ=B.paparan.slice().sort(function(a,b){return b.tinggiPct-a.tinggiPct;});
+    let top=null;PJ.filter(function(x){return x.pembeda;}).forEach(function(x){const v=U.map(function(u){return u.bahaya[x.kode].pct;}).filter(function(q){return q!=null;});if(v.length<U.length)return;
+      const a=Math.min.apply(null,v),b=Math.max.apply(null,v);if(!top||b-a>top.b-top.a)top={label:x.label,a:a,b:b};});
+    h+='<div class="card"><div class="tblw"><table class="rbn-dm" data-pgn-lewat><thead><tr><th style="text-align:left;min-width:150px">Jenis bencana</th><th>Semua pegawai</th>'+kel.map(function(x){return '<th>'+esc(x.k)+'</th>';}).join('')+'</tr></thead><tbody>'+
+      PJ.map(function(x){return '<tr><td>'+esc(x.label)+(x.pembeda?'':' *')+'</td>'+rbnSel(x.tinggiPct)+kel.map(function(k){return rbnDemoSel(k.bahaya[x.kode].pct);}).join('')+'</tr>';}).join('')+
+      '</tbody></table></div><div class="mini" style="margin-top:8px">Persen kelompok yang berkantor di kelurahan berisiko tinggi untuk bencana tersebut.'+(top?' Selisih antarkelompok usia paling besar pada '+esc(top.label).toLowerCase()+': '+d1(top.a)+'% sampai '+d1(top.b)+'%.':'')+' Sel di bawah 5 pegawai tidak dirinci. * Cuaca ekstrem berisiko tinggi di hampir semua lokasi kantor.</div></div>';
+  }else{
+    const E=D.perE1.filter(function(x){return x.n>=100;});
+    const r=function(a,b){return a==null||!b?null:100*a/b;};
+    const tb=function(judul,ths,sel){return '<div class="card"><h2 class="sec" style="margin-top:0">'+judul+'</h2><div class="tblw"><table class="rbn-dm" data-pgn-lewat><thead><tr><th style="text-align:left;min-width:170px">Unit Eselon I</th><th>Pegawai</th>'+ths.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+
+      E.map(function(x){return '<tr><td>'+esc(lpUnit(x.unit))+'</td><td class="num-c">'+fmt(x.n)+'</td>'+sel(x)+'</tr>';}).join('')+'</tbody></table></div></div>';};
+    h+=tb('Komposisi Pegawai dan Tiga Risiko Tinggi atau Lebih',['Porsi perempuan','Porsi usia 50 ke atas','3+ risiko: semua','3+ risiko: perempuan','3+ risiko: usia 50 ke atas'],function(x){
+      return '<td class="num-c">'+d1(r(x.p,x.n))+'%</td><td class="num-c">'+d1(r(x.u50,x.n))+'%</td>'+rbnDemoSel(r(x.g3,x.n))+rbnDemoSel(r(x.g3P,x.p))+rbnDemoSel(r(x.g3U50,x.u50));});
+    h+=tb('Zona Banjir Tinggi',['Banjir: semua','Banjir: perempuan','Banjir: usia 50 ke atas'],function(x){return rbnDemoSel(r(x.bj,x.n))+rbnDemoSel(r(x.bjP,x.p))+rbnDemoSel(r(x.bjU50,x.u50));});
+    h+='<div class="mini" style="margin:0 2px 12px">Persen risiko dihitung dari kelompoknya sendiri di unit itu. Contoh: kolom "3+ risiko: perempuan" adalah bagian pegawai perempuan unit yang berkantor di lokasi dengan tiga risiko tinggi atau lebih. Unit dengan kurang dari 100 pegawai tidak dirinci.</div>';
+  }
+  return h;
+}
+
 function vRbnTentang(){
   var g=rbnGuard();if(g)return g;
   const M=BENCANA.meta,T=M.metode||{};
@@ -11740,6 +11811,7 @@ function vRbnTentang(){
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Cara membaca</h2><p>'+esc(M.tafsir)+'</p>'+
     '<p><b>Tidak terpetakan</b> berarti layanan InaRISK tidak memberi nilai di kelurahan itu untuk jenis bencana tersebut. Kelompok ini dipisahkan dari risiko rendah dan tidak dihitung sebagai risiko tinggi. Rinciannya ada di halaman Risiko per Jenis Bencana.</p></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Peta</h2><p>Setiap lingkaran adalah titik wakil satu kelurahan, dibentuk di dalam batas kelurahan InaRISK oleh pengolah data. Koordinat gedung kantor belum tersedia, jadi semua kantor dalam satu kelurahan digambar pada titik yang sama.</p><p>Peta dasar dari Esri. Yang diminta ke Esri hanya potongan wilayah yang sedang dilihat; data pegawai tidak pernah keluar dari dashboard. Pustaka peta Leaflet 1.9.4 ditanam langsung di dashboard dan keasliannya sudah diverifikasi terhadap sidik jari resmi.</p></div>';
+  h+='<div class="card"><h2 class="sec" style="margin-top:0">Gender dan usia</h2><p>Gender dan usia berasal dari data pegawai yang sama. Persen risiko dihitung dari seluruh pegawai pada kelompok itu, dengan cara yang sama seperti halaman Risiko per Jenis Bencana, jadi jumlah semua kelompok kembali ke angka total. Kelompok 60 ke atas digabung dengan 50 sampai 59 tahun saat membandingkan risiko karena jumlahnya amat kecil.</p></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Privasi</h2><p>'+esc(M.privasi)+'</p></div>';
   h+='<div class="card"><h2 class="sec" style="margin-top:0">Catatan mutu data</h2><ul>'+
      (M.catatan||[]).map(function(c){
@@ -15451,7 +15523,7 @@ function setFootNote(){
 
 
 
-const VERSI_DATA={"beranda":{"f":"beranda.json","h":"b7e896b05b3c"},"bencana":{"f":"bencana.json","h":"c83aa52b72dc"},"perumahan":{"f":"perumahan.json","h":"c13934fa4e72"},"budaya":{"f":"budaya.json","h":"db8005c3683b"},"katref":{"f":"katref.json","h":"07c0a9cd624e"},"inklusi":{"f":"inklusi.json","h":"3c928220f3ff"},"cuti":{"f":"cuti.json","h":"3d8fc87659ea"},"suksesi":{"f":"suksesi.json","h":"447c9c078e23"},"penghargaan":{"f":"penghargaan.json","h":"05f6d228ba2f"},"pemberhentian":{"f":"pemberhentian.json","h":"0ac85fd7f4bd"},"kj":{"f":"komjab.json","h":"f844ff60bffb"},"kjk":{"f":"kamuskom.json","h":"bd6c8d472be4"},"jf":{"f":"jafung.json","h":"f359ef51668b"},"tk":{"f":"tkpp.json","h":"68b8d9687f03"},"pw":{"f":"pelwen.json","h":"27a0e4a24423"},"abk":{"f":"abk.json","h":"99e8ba6d8e43"},"urjab":{"f":"urjab.json","h":"86554555f562"},"katalog":{"f":"katalog_keahlian.json","h":"ee0ac439751d"},"otk":{"f":"otk_bundle.json","h":"e251ff00da59"},"mofin":{"f":"mofin.json","h":"14f31da45936"}},VERSI_BEDA={};
+const VERSI_DATA={"beranda":{"f":"beranda.json","h":"80afb5d4a192"},"bencana":{"f":"bencana.json","h":"2b58e173bc09"},"perumahan":{"f":"perumahan.json","h":"c13934fa4e72"},"budaya":{"f":"budaya.json","h":"db8005c3683b"},"katref":{"f":"katref.json","h":"07c0a9cd624e"},"inklusi":{"f":"inklusi.json","h":"3c928220f3ff"},"cuti":{"f":"cuti.json","h":"3d8fc87659ea"},"suksesi":{"f":"suksesi.json","h":"447c9c078e23"},"penghargaan":{"f":"penghargaan.json","h":"05f6d228ba2f"},"pemberhentian":{"f":"pemberhentian.json","h":"0ac85fd7f4bd"},"kj":{"f":"komjab.json","h":"f844ff60bffb"},"kjk":{"f":"kamuskom.json","h":"bd6c8d472be4"},"jf":{"f":"jafung.json","h":"f359ef51668b"},"tk":{"f":"tkpp.json","h":"68b8d9687f03"},"pw":{"f":"pelwen.json","h":"27a0e4a24423"},"abk":{"f":"abk.json","h":"99e8ba6d8e43"},"urjab":{"f":"urjab.json","h":"86554555f562"},"katalog":{"f":"katalog_keahlian.json","h":"ee0ac439751d"},"otk":{"f":"otk_bundle.json","h":"e251ff00da59"},"mofin":{"f":"mofin.json","h":"14f31da45936"}},VERSI_BEDA={};
 
 
 
