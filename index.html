@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-DMYHZte/GSRNlhroxgtktk6fnmCGo2QsysSJaqnOxyI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' 'sha256-l3s86Fdl8W0H2sTu9hyFTtZcaJrAVQJbpylPrV3VOa8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://script.google.com https://docs.google.com https://*.googleusercontent.com; frame-src 'self' https://uk3tsp.vercel.app; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OSDM Analytics Dashboard - Kementerian Keuangan</title>
@@ -4060,7 +4060,7 @@ function vUnitFungsiTugas(n){
       <div style="font-weight:600;font-size:var(--fs-md)">${esc(f)} ${ts.length?`<span class="mini">(${ts.length} tugas)</span>`:'<span class="pill warn">belum ada tugas pendukung</span>'}${_verifTombol(n.nama,i,f)}</div>
       ${ts.length?`<ul class="mini" style="margin:4px 0 0;padding-left:16px;line-height:1.55">${ts.slice(0,6).map(x=>`<li>${esc(tugas[x.i].t)} <span style="color:var(--muted)">&middot; ${esc(tugas[x.i].jab)}</span></li>`).join('')}${ts.length>6?`<li style="color:var(--muted);list-style:none">... dan ${ts.length-6} tugas lain</li>`:''}</ul>`:''}
     </div>`;}).join('');
-  h+=`<div class="mini" style="margin-top:7px;color:var(--muted)">${_blk.dariDokumen?('Sebanyak '+_blk.dariDokumen+' kelompok fungsi diambil langsung dari dokumen ANJAB, sehingga tiap tugas mengikuti fungsi induknya, bukan dicocokkan sendiri-sendiri.'+(_blk.dariCocok?(' Sisanya '+_blk.dariCocok+' tugas berasal dari dokumen PDF dan masih dicocokkan otomatis.'):'')+' '):FT_NOTE} Gunakan tombol <b>Sesuai</b> / <b>Tidak sesuai</b> untuk memverifikasi tiap fungsi; tanda tersimpan di peramban ini dan dapat diekspor dari menu Keterkaitan Fungsi &amp; Tugas.</div>`;
+  h+=`<div class="mini" style="margin-top:7px;color:var(--muted)">${_blk.dariDokumen?('Sebanyak '+_blk.dariDokumen+' kelompok fungsi diambil langsung dari dokumen ANJAB, sehingga tiap tugas mengikuti fungsi induknya, bukan dicocokkan sendiri-sendiri.'+(_blk.dariCocok?(' Sisanya '+_blk.dariCocok+' tugas berasal dari dokumen PDF dan masih dicocokkan otomatis.'):'')+' '):FT_NOTE} Gunakan tombol <b>Sesuai</b> / <b>Tidak sesuai</b> untuk memverifikasi tiap fungsi; tanda tersimpan di browser ini dan dapat diekspor dari menu Keterkaitan Fungsi &amp; Tugas.</div>`;
   return h+`</div>`;
 }
 
@@ -4356,7 +4356,7 @@ function _verifMuat(){
 }
 function _verifSimpan(){
   try{localStorage.setItem(VERIF_KEY,JSON.stringify(_verifCache||{}));}catch(e){
-    alert('Tanda verifikasi gagal disimpan di peramban ini (penyimpanan penuh atau diblokir).');}
+    alert('Tanda verifikasi gagal disimpan di browser ini (penyimpanan penuh atau diblokir).');}
 }
 function _verifKunci(namaUnit,idx){return _nzName(namaUnit)+'#'+idx;}
 function verifAmbil(namaUnit,idx){return _verifMuat()[_verifKunci(namaUnit,idx)]||null;}
@@ -14093,7 +14093,7 @@ function vSukNominatif(){
   let h=pgHead('Daftar Pejabat yang Akan Pensiun',
     '<p>Halaman ini menampilkan nama, jabatan, unit, dan tanggal pensiun pejabat pada periode yang Anda pilih. Gunakan untuk menyusun rencana pengisian jabatan dan usulan mutasi.</p>'+
     '<p>Karena memuat data pribadi, halaman ini terkunci: masukkan token akses dari pengelola dashboard, lalu daftarnya langsung terbuka. Penyaringan dilakukan di server, sehingga yang terkirim hanya baris pada periode yang diminta.</p>');
-  h+='<div class="note-box warn"><b>Setiap pembukaan dicatat.</b> Waktu, nama pengguna, periode yang diminta, dan jumlah baris yang keluar tersimpan pada jejak sistem. NIP ditampilkan utuh karena halaman ini sudah dikunci token, dan setiap pembukaannya dicatat tersendiri. Gunakan tombol NIP disamarkan bila layar Anda sedang dibagikan. Data yang tampil tidak disimpan di peramban dan hilang begitu Anda keluar.</div>';
+  h+='<div class="note-box warn"><b>Setiap pembukaan dicatat.</b> Waktu, nama pengguna, periode yang diminta, dan jumlah baris yang keluar tersimpan pada jejak sistem. NIP ditampilkan utuh karena halaman ini sudah dikunci token, dan setiap pembukaannya dicatat tersendiri. Gunakan tombol NIP disamarkan bila layar Anda sedang dibagikan. Data yang tampil tidak disimpan di browser dan hilang begitu Anda keluar.</div>';
 
   
 
@@ -15523,7 +15523,7 @@ function setFootNote(){
 
 
 
-const VERSI_DATA={"beranda":{"f":"beranda.json","h":"80afb5d4a192"},"bencana":{"f":"bencana.json","h":"2b58e173bc09"},"perumahan":{"f":"perumahan.json","h":"c13934fa4e72"},"budaya":{"f":"budaya.json","h":"db8005c3683b"},"katref":{"f":"katref.json","h":"07c0a9cd624e"},"inklusi":{"f":"inklusi.json","h":"3c928220f3ff"},"cuti":{"f":"cuti.json","h":"3d8fc87659ea"},"suksesi":{"f":"suksesi.json","h":"447c9c078e23"},"penghargaan":{"f":"penghargaan.json","h":"05f6d228ba2f"},"pemberhentian":{"f":"pemberhentian.json","h":"0ac85fd7f4bd"},"kj":{"f":"komjab.json","h":"f844ff60bffb"},"kjk":{"f":"kamuskom.json","h":"bd6c8d472be4"},"jf":{"f":"jafung.json","h":"f359ef51668b"},"tk":{"f":"tkpp.json","h":"68b8d9687f03"},"pw":{"f":"pelwen.json","h":"27a0e4a24423"},"abk":{"f":"abk.json","h":"99e8ba6d8e43"},"urjab":{"f":"urjab.json","h":"86554555f562"},"katalog":{"f":"katalog_keahlian.json","h":"ee0ac439751d"},"otk":{"f":"otk_bundle.json","h":"e251ff00da59"},"mofin":{"f":"mofin.json","h":"14f31da45936"}},VERSI_BEDA={};
+const VERSI_DATA={"beranda":{"f":"beranda.json","h":"d0d6c2b39a09"},"bencana":{"f":"bencana.json","h":"2b58e173bc09"},"perumahan":{"f":"perumahan.json","h":"c13934fa4e72"},"budaya":{"f":"budaya.json","h":"db8005c3683b"},"katref":{"f":"katref.json","h":"07c0a9cd624e"},"inklusi":{"f":"inklusi.json","h":"3c928220f3ff"},"cuti":{"f":"cuti.json","h":"3d8fc87659ea"},"suksesi":{"f":"suksesi.json","h":"447c9c078e23"},"penghargaan":{"f":"penghargaan.json","h":"05f6d228ba2f"},"pemberhentian":{"f":"pemberhentian.json","h":"0ac85fd7f4bd"},"kj":{"f":"komjab.json","h":"f844ff60bffb"},"kjk":{"f":"kamuskom.json","h":"bd6c8d472be4"},"jf":{"f":"jafung.json","h":"f359ef51668b"},"tk":{"f":"tkpp.json","h":"68b8d9687f03"},"pw":{"f":"pelwen.json","h":"27a0e4a24423"},"abk":{"f":"abk.json","h":"99e8ba6d8e43"},"urjab":{"f":"urjab.json","h":"86554555f562"},"katalog":{"f":"katalog_keahlian.json","h":"ee0ac439751d"},"otk":{"f":"otk_bundle.json","h":"e251ff00da59"},"mofin":{"f":"mofin.json","h":"14f31da45936"}},VERSI_BEDA={};
 
 
 
@@ -15868,7 +15868,7 @@ function _ambilTabelView(){
 
 function verifEkspor(){
   var db=_verifMuat(),k=Object.keys(db);
-  if(!k.length){alert('Belum ada tanda verifikasi di peramban ini. Tandai dulu fungsi pada Detail Unit (Struktur Organisasi).');return;}
+  if(!k.length){alert('Belum ada tanda verifikasi di browser ini. Tandai dulu fungsi pada Detail Unit (Struktur Organisasi).');return;}
   var rows=k.map(function(x){var v=db[x];
     return [v.unit||'',x.split('#')[1]||'',v.f||'',v.n==='sesuai'?'Sesuai':'Tidak sesuai',v.t||'',v.oleh||''];});
   rows.sort(function(a,b){return String(a[0]).localeCompare(String(b[0]),'id')||(+a[1])-(+b[1]);});
@@ -15884,8 +15884,8 @@ function _salinCadangan(teks,sukses){
     ta.value=teks;ta.style.cssText='position:fixed;left:-9999px;top:0';
     document.body.appendChild(ta);ta.select();
     var ok=document.execCommand('copy');ta.remove();
-    if(ok&&sukses)sukses();else if(!ok)alert('Peramban menolak penyalinan otomatis. Silakan pilih teksnya lalu salin manual.');
-  }catch(e){alert('Peramban menolak penyalinan otomatis. Silakan pilih teksnya lalu salin manual.');}
+    if(ok&&sukses)sukses();else if(!ok)alert('Browser menolak penyalinan otomatis. Silakan pilih teksnya lalu salin manual.');
+  }catch(e){alert('Browser menolak penyalinan otomatis. Silakan pilih teksnya lalu salin manual.');}
 }
 function _namaBerkas(){
   var m=(MODULES.find(function(x){return x.id===curMod();})||{}).lab||'';
